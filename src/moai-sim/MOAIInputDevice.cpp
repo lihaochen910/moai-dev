@@ -26,11 +26,24 @@
 	@in		MOAIInputDevice self
 	@out	string hardwareInfo
 */
-int MOAIInputDevice::_getHardwareInfo ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIInputDevice, "U" )
+mrb_value MOAIInputDevice::_getHardwareInfo ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIInputDevice, "U" )
 	
-	lua_pushstring(state, self->mHardwareInfo.c_str ());
-	return 1;
+	return state.ToRValue ( self->mHardwareInfo.c_str () );
+}
+
+//----------------------------------------------------------------//
+mrb_value MOAIInputDevice::_getSensors ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIInputDevice, "" )
+
+	return self->mSensorsHash;
+}
+
+//----------------------------------------------------------------//
+mrb_value MOAIInputDevice::_methodMissing ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIInputDevice, "" )
+
+	return mrb_hash_get ( M, self->mSensorsHash, mrb_sym2str ( M, mrb_symbol ( state.GetParamValue ( 1 ) ) ) );
 }
 
 //================================================================//
@@ -61,32 +74,34 @@ MOAISensor* MOAIInputDevice::GetSensor ( u8 sensorID ) {
 MOAIInputDevice::MOAIInputDevice () :
 	mIsActive ( true ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
+
+	this->mSensorsHash.SetRef ( mrb_hash_new ( MOAIRubyRuntime::Get ().State () ) );
 }
 
 //----------------------------------------------------------------//
 MOAIInputDevice::~MOAIInputDevice () {
 
 	for ( u32 i = 0; i < this->mSensors.Size (); ++i ) {
-		this->LuaRelease ( this->mSensors [ i ]);
+		this->RubyRelease ( this->mSensors [ i ]);
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIInputDevice::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIInputDevice::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getHardwareInfo",		_getHardwareInfo },
-		{ "new",					MOAILuaObject::_alertNewIsUnsupported },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "getHardwareInfo", _getHardwareInfo, MRB_ARGS_NONE () );
+	
 }
 
 //----------------------------------------------------------------//
-void MOAIInputDevice::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIInputDevice::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
+
+	state.DefineInstanceMethod ( klass, "getSensors", _getSensors, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "method_missing", _methodMissing, MRB_ARGS_ANY () );
+
 }
 
 //----------------------------------------------------------------//
@@ -120,14 +135,19 @@ void MOAIInputDevice::SetSensor ( u8 sensorID, cc8* name, MOAISensor* sensor ) {
 	
 	sensor->mName = name;
 	
-	this->LuaRelease ( this->mSensors [ sensorID ]);
+	this->RubyRelease ( this->mSensors [ sensorID ]);
 	
 	this->mSensors [ sensorID ] = sensor;
-	this->LuaRetain ( sensor );
+	this->RubyRetain ( sensor );
 	
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	this->PushLuaUserdata ( state );
-	
-	sensor->PushLuaUserdata ( state );
-	lua_setfield ( state, -2, name );
+	/*MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+	this->PushRubyUserdata ( state );
+
+	sensor->PushRubyUserdata ( state );
+	lua_setfield ( state, -2, name );*/
+
+	// TODO:
+	MOAIRubyState& state = MOAIRubyRuntime::Get ().GetMainState ();
+
+	mrb_hash_set ( state, this->mSensorsHash, state.ToRValue ( name ), state.ToRValue < MOAIRubyObject* >( sensor ));
 }

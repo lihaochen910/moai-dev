@@ -29,8 +29,8 @@ namespace KeyboardEventType {
 										Multiple strings can be combined: 'wasd' is equivalent to 'w', 'a', 's', 'd'.
 	@out	boolean... down				For every specified key, indicates whether this key was pressed during the last iteration.
 */
-int MOAIKeyboardSensor::_keyDown ( lua_State* L ) {
-	return CheckKeys ( L, &MOAIKeyboardSensor::KeyDown );
+mrb_value MOAIKeyboardSensor::_keyDown ( mrb_state* M, mrb_value context ) {
+	return CheckKeys ( M, context, &MOAIKeyboardSensor::KeyDown );
 }
 
 //----------------------------------------------------------------//
@@ -43,8 +43,8 @@ int MOAIKeyboardSensor::_keyDown ( lua_State* L ) {
 										Multiple strings can be combined: 'wasd' is equivalent to 'w', 'a', 's', 'd'.
 	@out	boolean... isDown			For every specified key, indicates whether this key is currently pressed.
 */
-int MOAIKeyboardSensor::_keyIsDown ( lua_State* L ) {
-	return CheckKeys ( L, &MOAIKeyboardSensor::KeyIsDown );
+mrb_value MOAIKeyboardSensor::_keyIsDown ( mrb_state* M, mrb_value context ) {
+	return CheckKeys ( M, context, &MOAIKeyboardSensor::KeyIsDown );
 }
 
 //----------------------------------------------------------------//
@@ -57,8 +57,8 @@ int MOAIKeyboardSensor::_keyIsDown ( lua_State* L ) {
 										Multiple strings can be combined: 'wasd' is equivalent to 'w', 'a', 's', 'd'.
 	@out	boolean... isUp				For every specified key, indicates whether this key is currently up.
 */
-int MOAIKeyboardSensor::_keyIsUp ( lua_State* L ) {
-	return CheckKeys ( L, &MOAIKeyboardSensor::KeyIsUp );
+mrb_value MOAIKeyboardSensor::_keyIsUp ( mrb_state* M, mrb_value context ) {
+	return CheckKeys ( M, context, &MOAIKeyboardSensor::KeyIsUp );
 }
 
 //----------------------------------------------------------------//
@@ -71,8 +71,8 @@ int MOAIKeyboardSensor::_keyIsUp ( lua_State* L ) {
 										Multiple strings can be combined: 'wasd' is equivalent to 'w', 'a', 's', 'd'.
 	@out	boolean... up				For every specified key, indicates whether this key was released during the last iteration.
 */
-int MOAIKeyboardSensor::_keyUp ( lua_State* L ) {
-	return CheckKeys ( L, &MOAIKeyboardSensor::KeyUp );
+mrb_value MOAIKeyboardSensor::_keyUp ( mrb_state* M, mrb_value context ) {
+	return CheckKeys ( M, context, &MOAIKeyboardSensor::KeyUp );
 }
 
 //----------------------------------------------------------------//
@@ -84,8 +84,8 @@ int MOAIKeyboardSensor::_keyUp ( lua_State* L ) {
 										Default value is nil.
 	@out	nil
 */
-int MOAIKeyboardSensor::_setCallback ( lua_State* L ) {
-	return _setKeyCallback ( L );
+mrb_value MOAIKeyboardSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	return _setKeyCallback ( M, context );
 }
 
 //----------------------------------------------------------------//
@@ -98,12 +98,11 @@ int MOAIKeyboardSensor::_setCallback ( lua_State* L ) {
 										Default value is nil.
 	@out	nil
 */
-int MOAIKeyboardSensor::_setCharCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIKeyboardSensor, "U" )
+mrb_value MOAIKeyboardSensor::_setCharCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIKeyboardSensor, "U" )
 	
-	self->mOnChar.SetRef ( state, 2 );
-	
-	return 0;
+	self->mOnChar.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -116,12 +115,11 @@ int MOAIKeyboardSensor::_setCharCallback ( lua_State* L ) {
 										Default value is nil.
 	@out	nil
  */
-int MOAIKeyboardSensor::_setEditCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIKeyboardSensor, "U" )
+mrb_value MOAIKeyboardSensor::_setEditCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIKeyboardSensor, "U" )
 	
-	self->mOnEdit.SetRef ( state, 2 );
-	
-	return 0;
+	self->mOnEdit.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -133,12 +131,11 @@ int MOAIKeyboardSensor::_setEditCallback ( lua_State* L ) {
 										Default value is nil.
 	@out	nil
 */
-int MOAIKeyboardSensor::_setKeyCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIKeyboardSensor, "U" )
+mrb_value MOAIKeyboardSensor::_setKeyCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIKeyboardSensor, "U" )
 	
-	self->mOnKey.SetRef ( state, 2 );
-	
-	return 0;
+	self->mOnKey.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -211,38 +208,35 @@ void MOAIKeyboardSensor::EnqueueKeyboardTextEvent ( u8 deviceID, u8 sensorID, cc
 //----------------------------------------------------------------//
 // For each key, returns whether the specified predicate returns true.
 // Expects self and a number of keycodes or strings on the stack.
-int MOAIKeyboardSensor::CheckKeys ( lua_State* L, bool ( MOAIKeyboardSensor::* predicate )( u32 keyCode )) {
-	MOAI_LUA_SETUP ( MOAIKeyboardSensor, "U" )
+mrb_value MOAIKeyboardSensor::CheckKeys ( mrb_state* M, mrb_value context, bool ( MOAIKeyboardSensor::* predicate )( u32 keyCode )) {
+	MOAI_RUBY_SETUP ( MOAIKeyboardSensor, "U" )
 
-	u32 argCount = lua_gettop ( state );
-	int resultCount = 0;
+	u32 argCount = state.GetParamsCount ();
+	mrb_value ary = mrb_ary_new ( state );
 
-	for ( u32 arg = 2; arg <= argCount; ++arg ) {
-		if ( state.IsType ( arg, LUA_TNUMBER )) {
+	for ( u32 arg = 1; arg <= argCount; ++arg ) {
+		if ( state.ParamIsType ( arg, MRB_TT_FIXNUM )) {
 			// Argument is number. Treat as single key code.
-			u32 keyCode = state.GetValue < u32 > ( arg, 0 );
+			u32 keyCode = state.GetParamValue < u32 > ( arg, 0 );
 			bool result = ( self->*predicate )( keyCode );
-			lua_pushboolean ( state, result );
-			++resultCount;
+			mrb_ary_push ( state, ary, state.ToRValue ( result ) );
 		}
-		else if ( state.IsType ( arg, LUA_TSTRING ) ) {
+		else if ( state.ParamIsType ( arg, MRB_TT_STRING ) ) {
 			// Argument is string. Treat as list of key codes.
-			cc8* str = lua_tostring ( state, arg );
+			cc8* str = state.GetParamValue ( arg, "" );
 			for ( u32 i = 0; str [ i ]; ++i ) {
 				u32 keyCode = str [ i ];
 				bool result = ( self->*predicate )( keyCode );
-				lua_pushboolean ( state, result );
-				++resultCount;
+				mrb_ary_push ( state, ary, state.ToRValue ( result ) );
 			}
 		}
 		else {
 			// Argument is invalid. Push nil to return the expected number of results
-			lua_pushnil ( state );
-			++resultCount;
+			mrb_ary_push ( state, ary, mrb_nil_value () );
 		}
 	}
 
-	return resultCount;
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -305,10 +299,13 @@ void MOAIKeyboardSensor::ParseEvent ( ZLStream& eventStream ) {
 		}
 	
 		if ( this->mOnKey ) {
-			MOAIScopedLuaState state = this->mOnKey.GetSelf ();
-			lua_pushnumber ( state, keyCode );
-			lua_pushboolean ( state, down );
-			state.DebugCall ( 2, 0 );
+			MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+			mrb_value argv [ 2 ];
+			argv [ 0 ] = state.ToRValue ( keyCode );
+			argv [ 1 ] = state.ToRValue ( down );
+
+			state.FuncCall ( this->mOnKey, "call", 2, argv );
 		}
 	
 		if ( !alreadyInClearQueue ) {
@@ -326,9 +323,12 @@ void MOAIKeyboardSensor::ParseEvent ( ZLStream& eventStream ) {
 			utf8Sequence [ byteCount ] = 0;
 
 			if ( byteCount ) {
-				MOAIScopedLuaState state = this->mOnChar.GetSelf ();
-				lua_pushstring ( state, utf8Sequence );
-				state.DebugCall ( 1, 0 );
+				MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+				mrb_value argv [ 1 ];
+				argv [ 0 ] = state.ToRValue < cc8* >( utf8Sequence );
+
+				state.FuncCall ( this->mOnChar, "call", 1, argv );
 			}
 		}
 	} else if ( eventType == KeyboardEventType::EDIT ) {
@@ -341,11 +341,14 @@ void MOAIKeyboardSensor::ParseEvent ( ZLStream& eventStream ) {
 			char *text = (char*)malloc(maxLength);
 			eventStream.ReadBytes(text, ( size_t )maxLength);
 			
-			MOAIScopedLuaState state = this->mOnEdit.GetSelf ();
-			lua_pushstring ( state, text );
-			lua_pushnumber ( state, start );
-			lua_pushnumber ( state, editLength );
-			state.DebugCall ( 3, 0 );
+			MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+			mrb_value argv [ 3 ];
+			argv [ 0 ] = state.ToRValue < cc8* >( text );
+			argv [ 1 ] = state.ToRValue ( start );
+			argv [ 2 ] = state.ToRValue ( editLength );
+
+			state.FuncCall ( this->mOnEdit, "call", 3, argv );
 			
 			free(text);
 		} else {
@@ -355,29 +358,25 @@ void MOAIKeyboardSensor::ParseEvent ( ZLStream& eventStream ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIKeyboardSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIKeyboardSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIKeyboardSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIKeyboardSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "keyDown",				_keyDown },
-		{ "keyIsDown",				_keyIsDown },
-		{ "keyIsUp",				_keyIsUp },
-		{ "keyUp",					_keyUp },
-		{ "setCallback",			_setCallback },
-		{ "setCharCallback",		_setCharCallback },
-		{ "setEditCallback",		_setEditCallback },
-		{ "setKeyCallback",			_setKeyCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "keyDown", _keyDown, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "keyIsDown", _keyIsDown, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "keyIsUp", _keyIsUp, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "keyUp", _keyUp, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setCharCallback", _setCharCallback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setEditCallback", _setEditCallback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setKeyCallback", _setKeyCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

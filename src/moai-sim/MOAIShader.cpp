@@ -15,51 +15,51 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShader::_getAttributeID ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShader, "UN" )
+mrb_value MOAIShader::_getAttributeID ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShader, "UN" )
 
-	u32 uniformID		= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 index			= state.GetValue < u32 >( 3, 1 ) - 1;
+	u32 uniformID		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 index			= state.GetParamValue < u32 >( 2, 1 ) - 1;
 	
 	if ( self->mProgram ) {
-		state.Push ( self->mProgram->GetAttributeID ( uniformID, index ));
+		return state.ToRValue ( self->mProgram->GetAttributeID ( uniformID, index ) );
 	}
-	return 1;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShader::_setProgram ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShader, "U" )
+mrb_value MOAIShader::_setProgram ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShader, "U" )
 	
-	self->SetProgram ( state.GetLuaObject < MOAIShaderProgram >( 2, true ));
+	self->SetProgram ( state.GetRubyObject < MOAIShaderProgram >( 1, true ));
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAIShader::_setUniform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShader, "U" )
+mrb_value MOAIShader::_setUniform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShader, "U" )
 
-	u32 uniformID	= state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 uniformID	= state.GetParamValue < u32 >( 1, 1 ) - 1;
 
 	if ( self->mProgram ) {
-		self->mProgram->SetUniform ( L, 3, self->mPendingUniformBuffer, uniformID, 0 );
+		self->mProgram->SetUniform ( M, 2, self->mPendingUniformBuffer, uniformID, 0 );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAIShader::_setUniformArrayItem ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShader, "U" )
+mrb_value MOAIShader::_setUniformArrayItem ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShader, "U" )
 
-	u32 uniformID	= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 index		= state.GetValue < u32 >( 3, 1 ) - 1;
+	u32 uniformID	= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 index		= state.GetParamValue < u32 >( 2, 1 ) - 1;
 
 	if ( self->mProgram ) {
-		self->mProgram->SetUniform ( L, 4, self->mPendingUniformBuffer, uniformID, index );
+		self->mProgram->SetUniform ( M, 3, self->mPendingUniformBuffer, uniformID, index );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -67,15 +67,15 @@ int MOAIShader::_setUniformArrayItem ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAIShader* MOAIShader::AffirmShader ( MOAILuaState& state, int idx ) {
+MOAIShader* MOAIShader::AffirmShader ( MOAIRubyState& state, int idx ) {
 
 	MOAIShader* shader = 0;
 
-	if ( state.IsType ( idx, LUA_TNUMBER )) {
-		shader = MOAIShaderMgr::Get ().GetShader ( state.GetValue < u32 >( idx, MOAIShaderMgr::UNKNOWN_SHADER ));
+	if ( state.ParamIsType ( idx, MRB_TT_FIXNUM )) {
+		shader = MOAIShaderMgr::Get ().GetShader ( state.GetParamValue < u32 >( idx, MOAIShaderMgr::UNKNOWN_SHADER ));
 	}
 	else {
-		shader = state.GetLuaObject < MOAIShader >( idx, true );
+		shader = state.GetRubyObject < MOAIShader >( idx, true );
 	}
 	return shader;
 }
@@ -117,24 +117,21 @@ MOAIShader::~MOAIShader () {
 }
 
 //----------------------------------------------------------------//
-void MOAIShader::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIShader::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIShader::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIShader::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getAttributeID",				_getAttributeID },
-		{ "setProgram",					_setProgram },
-		{ "setUniform",					_setUniform },
-		{ "setUniformArrayItem",		_setUniformArrayItem },
-		{ NULL, NULL }
-	};
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getAttributeID", _getAttributeID, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setProgram", _setProgram, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setUniform", _setUniform, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setUniformArrayItem", _setUniformArrayItem, MRB_ARGS_REQ ( 3 ) );
+
 }
 
 //----------------------------------------------------------------//

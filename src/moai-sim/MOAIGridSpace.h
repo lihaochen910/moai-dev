@@ -67,7 +67,7 @@ public:
 	@const	AXIAL_HEX_SHAPE
 */
 class MOAIGridSpace :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 
 	float		mXOff;
@@ -86,24 +86,24 @@ protected:
 	u32			mRepeat;
 
 	//----------------------------------------------------------------//
-	static int		_cellAddrToCoord	( lua_State* L );
-	static int		_getCellAddr		( lua_State* L );
-	static int		_getCellSize		( lua_State* L );
-	static int		_getOffset			( lua_State* L );
-	static int		_getSize			( lua_State* L );
-	static int		_getTileLoc			( lua_State* L );
-	static int		_getTileSize		( lua_State* L );
-	static int		_initAxialHexGrid	( lua_State* L );
-	static int		_initDiamondGrid	( lua_State* L );
-	static int		_initHexGrid		( lua_State* L );
-	static int		_initObliqueGrid	( lua_State* L );
-	static int		_initRectGrid		( lua_State* L );
-	static int		_locToCellAddr		( lua_State* L );
-	static int		_locToCoord			( lua_State* L );
-	static int		_setRepeat			( lua_State* L );
-	static int		_setShape			( lua_State* L );
-	static int		_setSize			( lua_State* L );
-	static int		_wrapCoord			( lua_State* L );
+	static mrb_value		_cellAddrToCoord	( mrb_state* M, mrb_value context );
+	static mrb_value		_getCellAddr		( mrb_state* M, mrb_value context );
+	static mrb_value		_getCellSize		( mrb_state* M, mrb_value context );
+	static mrb_value		_getOffset			( mrb_state* M, mrb_value context );
+	static mrb_value		_getSize			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTileLoc			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTileSize		( mrb_state* M, mrb_value context );
+	static mrb_value		_initAxialHexGrid	( mrb_state* M, mrb_value context );
+	static mrb_value		_initDiamondGrid	( mrb_state* M, mrb_value context );
+	static mrb_value		_initHexGrid		( mrb_state* M, mrb_value context );
+	static mrb_value		_initObliqueGrid	( mrb_state* M, mrb_value context );
+	static mrb_value		_initRectGrid		( mrb_state* M, mrb_value context );
+	static mrb_value		_locToCellAddr		( mrb_state* M, mrb_value context );
+	static mrb_value		_locToCoord			( mrb_state* M, mrb_value context );
+	static mrb_value		_setRepeat			( mrb_state* M, mrb_value context );
+	static mrb_value		_setShape			( mrb_state* M, mrb_value context );
+	static mrb_value		_setSize			( mrb_state* M, mrb_value context );
+	static mrb_value		_wrapCoord			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	MOAICellCoord	GetAxialHexCellCoord		( float x, float y ) const;
@@ -114,7 +114,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIGridSpace )
+	DECL_RUBY_FACTORY ( MOAIGridSpace, MOAIRubyObject )
 	
 	enum {
 		TILE_LEFT_TOP,
@@ -190,10 +190,10 @@ public:
 	bool				IsValidCoord			( MOAICellCoord cellCoord ) const;
 						MOAIGridSpace			();
 						~MOAIGridSpace			();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	MOAICellCoord		WrapCellCoord			( int xCell, int yCell ) const;
 	ZLVec2D				WorldToCell				( MOAICellCoord cellCoord, ZLVec2D loc ) const;
 	ZLVec2D				WorldToGrid				( ZLVec2D loc ) const;

@@ -11,49 +11,47 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMatrix::_getMatrix ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMatrix, "U" )
+mrb_value MOAIMatrix::_getMatrix ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMatrix, "U" )
 	
-	state.Push ( ZLMatrix4x4 ( *( ZLAffine3D* )self ));
-	
-	return 16;
+	return state.ToRValue ( ZLMatrix4x4 ( *(ZLAffine3D* )self ) );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMatrix::_invert ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMatrix, "U" )
+mrb_value MOAIMatrix::_invert ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMatrix, "U" )
 	
 	self->Inverse ();
 	self->ScheduleUpdate ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMatrix::_setMatrix ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMatrix, "U" )
+mrb_value MOAIMatrix::_setMatrix ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMatrix, "U" )
 	
-	size_t size = state.GetTop () - 1;
+	size_t size = state.GetParamsCount ();
 	
 	switch ( size ) {
 			
 		case 9:
-			*( ZLAffine3D* )self = ZLAffine3D ( state.GetValue < ZLMatrix3x3 >( 2, ZLMatrix3x3::IDENT ));
+			*( ZLAffine3D* )self = ZLAffine3D ( state.GetParamValue < ZLMatrix3x3 >( 1, ZLMatrix3x3::IDENT ));
 			break;
 			
 		case 12:
-			*( ZLAffine3D* )self = state.GetValue < ZLAffine3D >( 2, ZLAffine3D::IDENT );
+			*( ZLAffine3D* )self = state.GetParamValue < ZLAffine3D >( 1, ZLAffine3D::IDENT );
 			break;
 			
 		case 16:
-			*( ZLAffine3D* )self = ZLAffine3D ( state.GetValue < ZLMatrix4x4 >( 2, ZLMatrix4x4::IDENT ));
+			*( ZLAffine3D* )self = ZLAffine3D ( state.GetParamValue < ZLMatrix4x4 >( 1, ZLMatrix4x4::IDENT ));
 			break;
 	}
 	
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -75,36 +73,32 @@ MOAIMatrix::~MOAIMatrix () {
 }
 
 //----------------------------------------------------------------//
-void MOAIMatrix::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIMatrix::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransformBase::RegisterLuaClass ( state );
+	MOAITransformBase::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "ATTR_MATRIX",	MOAIMatrixAttr::Pack ( ATTR_MATRIX ));
+	state.DefineClassConst ( klass, "ATTR_MATRIX",	MOAIMatrixAttr::Pack ( ATTR_MATRIX ) );
 }
 
 //----------------------------------------------------------------//
-void MOAIMatrix::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIMatrix::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransformBase::RegisterLuaFuncs ( state );
+	MOAITransformBase::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getMatrix", _getMatrix, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "invert", _invert, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setMatrix", _setMatrix, MRB_ARGS_ANY () );
 	
-	luaL_Reg regTable [] = {
-		{ "getMatrix",			_getMatrix },
-		{ "invert",				_invert },
-		{ "setMatrix",			_setMatrix },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIMatrix::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIMatrix::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIMatrix::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIMatrix::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

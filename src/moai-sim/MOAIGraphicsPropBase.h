@@ -74,15 +74,15 @@ class MOAIGraphicsPropBase :
 protected:
 	
 	//----------------------------------------------------------------//
-	static int		_draw					( lua_State* L );
-	static int		_getBillboard			( lua_State* L );
-	static int		_getScissorRect			( lua_State* L );
-	static int		_isVisible				( lua_State* L );
-	static int		_setBillboard			( lua_State* L );
-	static int		_setParent				( lua_State* L );
-	static int		_setScissorRect			( lua_State* L );
-	static int		_setUVTransform			( lua_State* L );
-	static int		_setVisible				( lua_State* L );
+	static mrb_value		_draw					( mrb_state* M, mrb_value context );
+	static mrb_value		_getBillboard			( mrb_state* M, mrb_value context );
+	static mrb_value		_getScissorRect			( mrb_state* M, mrb_value context );
+	static mrb_value		_isVisible				( mrb_state* M, mrb_value context );
+	static mrb_value		_setBillboard			( mrb_state* M, mrb_value context );
+	static mrb_value		_setParent				( mrb_state* M, mrb_value context );
+	static mrb_value		_setScissorRect			( mrb_state* M, mrb_value context );
+	static mrb_value		_setUVTransform			( mrb_state* M, mrb_value context );
+	static mrb_value		_setVisible				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			MOAIDrawable_DrawDebug						( int subPrimID );
@@ -95,8 +95,8 @@ protected:
 	u32										mDisplayFlags;
 	
 	// TODO: should be attributes?
-	MOAILuaSharedPtr < MOAITransformBase >	mUVTransform;
-	MOAILuaSharedPtr < MOAIScissorRect >	mScissorRect;
+	MOAIRubySharedPtr < MOAITransformBase >	mUVTransform;
+	MOAIRubySharedPtr < MOAIScissorRect >	mScissorRect;
 
 	//----------------------------------------------------------------//
 	void					LoadUVTransform				();
@@ -112,7 +112,7 @@ protected:
 public:
 
 	DECL_ATTR_HELPER ( MOAIGraphicsPropBase )
-	DECL_LUA_ABSTRACT ( MOAIGraphicsPropBase )
+	DECL_RUBY_ABSTRACT ( MOAIGraphicsPropBase )
 
 	enum {
 		DEBUG_DRAW_PARTITION_CELLS,
@@ -154,14 +154,15 @@ public:
 	static const u32 DEFAULT_FLAGS = FLAGS_LOCAL_VISIBLE | FLAGS_VISIBLE;;
 
 	//----------------------------------------------------------------//
+	MOAIRubyClass*			GetSuperRubyClass			();
 	bool					IsVisible					();
 							MOAIGraphicsPropBase		();
 	virtual					~MOAIGraphicsPropBase		();
-	void					RegisterLuaClass			( MOAILuaState& state );
-	void					RegisterLuaFuncs			( MOAILuaState& state );
+	void					RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void					Render						();
-	void					SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void					SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void					SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void					SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	void					SetVisible					( bool visible );
 };
 

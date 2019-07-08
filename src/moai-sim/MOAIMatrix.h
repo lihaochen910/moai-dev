@@ -16,9 +16,9 @@ class MOAIMatrix :
 protected:
 
 	//----------------------------------------------------------------//
-	static int		_getMatrix				( lua_State* L );
-	static int		_invert					( lua_State* L );
-	static int		_setMatrix				( lua_State* L );
+	static mrb_value		_getMatrix				( mrb_state* M, mrb_value context );
+	static mrb_value		_invert					( mrb_state* M, mrb_value context );
+	static mrb_value		_setMatrix				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MOAINode_ApplyAttrOp						( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -26,7 +26,7 @@ protected:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIMatrix )
+	DECL_RUBY_FACTORY ( MOAIMatrix, MOAINode )
 	DECL_ATTR_HELPER ( MOAIMatrix )
 	
 	enum {
@@ -36,10 +36,10 @@ public:
 	//----------------------------------------------------------------//
 					MOAIMatrix				();
 					~MOAIMatrix				();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

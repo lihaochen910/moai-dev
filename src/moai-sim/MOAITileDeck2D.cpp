@@ -30,24 +30,24 @@
 	@in		number y3
 	@out	nil
 */
-int MOAITileDeck2D::_setQuad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UNNNNNNNN" )
+mrb_value MOAITileDeck2D::_setQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UNNNNNNNN" )
 
 	ZLQuad quad;
 	
-	quad.mV [ 0 ].mX = state.GetValue < float >( 2, 0.0f );
-	quad.mV [ 0 ].mY = state.GetValue < float >( 3, 0.0f );
-	quad.mV [ 1 ].mX = state.GetValue < float >( 4, 0.0f );
-	quad.mV [ 1 ].mY = state.GetValue < float >( 5, 0.0f );
-	quad.mV [ 2 ].mX = state.GetValue < float >( 6, 0.0f );
-	quad.mV [ 2 ].mY = state.GetValue < float >( 7, 0.0f );
-	quad.mV [ 3 ].mX = state.GetValue < float >( 8, 0.0f );
-	quad.mV [ 3 ].mY = state.GetValue < float >( 9, 0.0f );
+	quad.mV [ 0 ].mX = state.GetParamValue < float >( 1, 0.0f );
+	quad.mV [ 0 ].mY = state.GetParamValue < float >( 2, 0.0f );
+	quad.mV [ 1 ].mX = state.GetParamValue < float >( 3, 0.0f );
+	quad.mV [ 1 ].mY = state.GetParamValue < float >( 4, 0.0f );
+	quad.mV [ 2 ].mX = state.GetParamValue < float >( 5, 0.0f );
+	quad.mV [ 2 ].mY = state.GetParamValue < float >( 6, 0.0f );
+	quad.mV [ 3 ].mX = state.GetParamValue < float >( 7, 0.0f );
+	quad.mV [ 3 ].mY = state.GetParamValue < float >( 8, 0.0f );
 
 	self->mQuad.SetVerts ( quad.mV [ 0 ], quad.mV [ 1 ], quad.mV [ 2 ], quad.mV [ 3 ]);
 	self->SetBoundsDirty ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -64,18 +64,18 @@ int MOAITileDeck2D::_setQuad ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAITileDeck2D::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UNNNN" )
+mrb_value MOAITileDeck2D::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UNNNN" )
 	
-	float x0	= state.GetValue < float >( 2, 0.0f );
-	float y0	= state.GetValue < float >( 3, 0.0f );
-	float x1	= state.GetValue < float >( 4, 0.0f );
-	float y1	= state.GetValue < float >( 5, 0.0f );
+	float x0	= state.GetParamValue < float >( 1, 0.0f );
+	float y0	= state.GetParamValue < float >( 2, 0.0f );
+	float x1	= state.GetParamValue < float >( 3, 0.0f );
+	float y1	= state.GetParamValue < float >( 4, 0.0f );
 	
 	self->mQuad.SetVerts ( x0, y0, x1, y1 );
 	self->SetBoundsDirty ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -94,23 +94,23 @@ int MOAITileDeck2D::_setRect ( lua_State* L ) {
 	@in		number y3
 	@out	nil
 */
-int MOAITileDeck2D::_setUVQuad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UNNNNNNNN" )
+mrb_value MOAITileDeck2D::_setUVQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UNNNNNNNN" )
 
 	ZLQuad quad;
 	
-	quad.mV [ 0 ].mX = state.GetValue < float >( 2, 0.0f );
-	quad.mV [ 0 ].mY = state.GetValue < float >( 3, 0.0f );
-	quad.mV [ 1 ].mX = state.GetValue < float >( 4, 0.0f );
-	quad.mV [ 1 ].mY = state.GetValue < float >( 5, 0.0f );
-	quad.mV [ 2 ].mX = state.GetValue < float >( 6, 0.0f );
-	quad.mV [ 2 ].mY = state.GetValue < float >( 7, 0.0f );
-	quad.mV [ 3 ].mX = state.GetValue < float >( 8, 0.0f );
-	quad.mV [ 3 ].mY = state.GetValue < float >( 9, 0.0f );
+	quad.mV [ 0 ].mX = state.GetParamValue < float >( 1, 0.0f );
+	quad.mV [ 0 ].mY = state.GetParamValue < float >( 2, 0.0f );
+	quad.mV [ 1 ].mX = state.GetParamValue < float >( 3, 0.0f );
+	quad.mV [ 1 ].mY = state.GetParamValue < float >( 4, 0.0f );
+	quad.mV [ 2 ].mX = state.GetParamValue < float >( 5, 0.0f );
+	quad.mV [ 2 ].mY = state.GetParamValue < float >( 6, 0.0f );
+	quad.mV [ 3 ].mX = state.GetParamValue < float >( 7, 0.0f );
+	quad.mV [ 3 ].mY = state.GetParamValue < float >( 8, 0.0f );
 	
 	self->mQuad.SetUVs ( quad.mV [ 0 ], quad.mV [ 1 ], quad.mV [ 2 ], quad.mV [ 3 ]);
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -124,17 +124,17 @@ int MOAITileDeck2D::_setUVQuad ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAITileDeck2D::_setUVRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UNNNN" )
+mrb_value MOAITileDeck2D::_setUVRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UNNNN" )
 	
-	float u0	= state.GetValue < float >( 2, 0.0f );
-	float v0	= state.GetValue < float >( 3, 0.0f );
-	float u1	= state.GetValue < float >( 4, 0.0f );
-	float v1	= state.GetValue < float >( 5, 0.0f );
+	float u0	= state.GetParamValue < float >( 1, 0.0f );
+	float v0	= state.GetParamValue < float >( 2, 0.0f );
+	float u1	= state.GetParamValue < float >( 3, 0.0f );
+	float v1	= state.GetParamValue < float >( 4, 0.0f );
 
 	self->mQuad.SetUVs ( u0, v0, u1, v1 );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -158,20 +158,20 @@ int MOAITileDeck2D::_setUVRect ( lua_State* L ) {
 	@opt	number tileHeight		Default value is cellHeight.
 	@out	nil
 */
-int	MOAITileDeck2D::_setSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UNN" )
+mrb_value	MOAITileDeck2D::_setSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UNN" )
 	
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float cellWidth		= state.GetValue < float >( 4, 1.0f / ( float )width );
-	float cellHeight	= state.GetValue < float >( 5, 1.0f / ( float )height );
+	float cellWidth		= state.GetParamValue < float >( 3, 1.0f / ( float )width );
+	float cellHeight	= state.GetParamValue < float >( 4, 1.0f / ( float )height );
 	
-	float xOff			= state.GetValue < float >( 6, 0.0f );
-	float yOff			= state.GetValue < float >( 7, 0.0f );
+	float xOff			= state.GetParamValue < float >( 5, 0.0f );
+	float yOff			= state.GetParamValue < float >( 6, 0.0f );
 	
-	float tileWidth		= state.GetValue < float >( 8, cellWidth );
-	float tileHeight	= state.GetValue < float >( 9, cellHeight );
+	float tileWidth		= state.GetParamValue < float >( 7, cellWidth );
+	float tileHeight	= state.GetParamValue < float >( 8, cellHeight );
 	
 	self->SetWidth ( width );
 	self->SetHeight ( height );
@@ -185,7 +185,7 @@ int	MOAITileDeck2D::_setSize ( lua_State* L ) {
 	self->SetTileWidth ( tileWidth );
 	self->SetTileHeight ( tileHeight );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -196,16 +196,16 @@ int	MOAITileDeck2D::_setSize ( lua_State* L ) {
 	@in		MOAITransform transform
 	@out	nil
 */
-int MOAITileDeck2D::_transform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UU" )
+mrb_value MOAITileDeck2D::_transform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UU" )
 	
-	MOAITransformBase* transform = state.GetLuaObject < MOAITransformBase >( 2, true );
+	MOAITransformBase* transform = state.GetRubyObject < MOAITransformBase >( 1, true );
 	if ( transform ) {
 		transform->ForceUpdate ();
 		self->Transform ( transform->GetLocalToWorldMtx ());
 		self->SetBoundsDirty ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -216,15 +216,15 @@ int MOAITileDeck2D::_transform ( lua_State* L ) {
 	@in		MOAITransform transform
 	@out	nil
 */
-int MOAITileDeck2D::_transformUV ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITileDeck2D, "UU" )
+mrb_value MOAITileDeck2D::_transformUV ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITileDeck2D, "UU" )
 	
-	MOAITransformBase* transform = state.GetLuaObject < MOAITransformBase >( 2, true );
+	MOAITransformBase* transform = state.GetRubyObject < MOAITransformBase >( 1, true );
 	if ( transform ) {
 		transform->ForceUpdate ();
 		self->TransformUV ( transform->GetLocalToWorldMtx ());
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -249,36 +249,32 @@ MOAITileDeck2D::~MOAITileDeck2D () {
 }
 
 //----------------------------------------------------------------//
-void MOAITileDeck2D::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITileDeck2D::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaClass ( state );
-	MOAIMaterialBatchHolder::RegisterLuaClass ( state );
-	MOAIGridSpace::RegisterLuaClass ( state );
+	MOAIDeck::RegisterRubyClass ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyClass ( state, klass );
+	MOAIGridSpace::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITileDeck2D::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITileDeck2D::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
-	MOAIMaterialBatchHolder::RegisterLuaFuncs ( state );
-	MOAIGridSpace::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyFuncs ( state, klass );
+	MOAIGridSpace::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setQuad",			_setQuad },
-		{ "setRect",			_setRect },
-		{ "setUVQuad",			_setUVQuad },
-		{ "setUVRect",			_setUVRect },
-		{ "setSize",			_setSize },
-		{ "transform",			_transform },
-		{ "transformUV",		_transformUV },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "setQuad", _setQuad, MRB_ARGS_REQ ( 8 ) );
+	state.DefineInstanceMethod ( klass, "setRect", _setRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setUVQuad", _setUVQuad, MRB_ARGS_REQ ( 8 ) );
+	state.DefineInstanceMethod ( klass, "setUVRect", _setUVRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setSize", _setSize, MRB_ARGS_ARG ( 2, 6 ) );
+	state.DefineInstanceMethod ( klass, "transform", _transform, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "transformUV", _transformUV, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAITileDeck2D::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAITileDeck2D::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIGridSpace::SerializeIn ( state, serializer );
 	
@@ -286,7 +282,7 @@ void MOAITileDeck2D::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serial
 }
 
 //----------------------------------------------------------------//
-void MOAITileDeck2D::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAITileDeck2D::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIGridSpace::SerializeOut ( state, serializer );
 	

@@ -32,12 +32,12 @@
 								MOAIImage.COLOR_FMT_RGBA_5551, MOAIImage.COLOR_FMT_RGBA_4444, COLOR_FMT_RGBA_8888
 	@out	nil
 */
-int MOAIDynamicGlyphCache::_setColorFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDynamicGlyphCache, "UN" )
+mrb_value MOAIDynamicGlyphCache::_setColorFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDynamicGlyphCache, "UN" )
 
-	self->mColorFormat = ( ZLColor::ColorFormat )state.GetValue < u32 >( 2, ( u32 )ZLColor::A_8 );
+	self->mColorFormat = ( ZLColor::ColorFormat )state.GetParamValue < u32 >( 1, ( u32 )ZLColor::A_8 );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -60,21 +60,21 @@ int MOAIDynamicGlyphCache::_setColorFormat ( lua_State* L ) {
 		@in		yMaxP			glyph yMax += yMaxP
 		@out	nil
 */
-int MOAIDynamicGlyphCache::_setPadding ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDynamicGlyphCache, "U" )
+mrb_value MOAIDynamicGlyphCache::_setPadding ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDynamicGlyphCache, "U" )
 	
-	if ( state.CheckParams ( 2, "NNNN", false )) {
+	if ( state.CheckParams ( 1, "NNNN", false )) {
 	
-		self->mPadding.mXMin = state.GetValue < float >( 2, 0.0f );
-		self->mPadding.mYMin = state.GetValue < float >( 3, 0.0f );
+		self->mPadding.mXMin = state.GetParamValue < float >( 1, 0.0f );
+		self->mPadding.mYMin = state.GetParamValue < float >( 2, 0.0f );
 		
-		self->mPadding.mXMax = state.GetValue < float >( 4, 0.0f );
-		self->mPadding.mYMax = state.GetValue < float >( 5, 0.0f );
+		self->mPadding.mXMax = state.GetParamValue < float >( 3, 0.0f );
+		self->mPadding.mYMax = state.GetParamValue < float >( 4, 0.0f );
 	}
 	else {
 	
-		float hPad = state.GetValue < float >( 2, 0.0f );
-		float vPad = state.GetValue < float >( 3, hPad );
+		float hPad = state.GetParamValue < float >( 1, 0.0f );
+		float vPad = state.GetParamValue < float >( 2, hPad );
 	
 		hPad *= 0.5f;
 		vPad *= 0.5f;
@@ -85,7 +85,7 @@ int MOAIDynamicGlyphCache::_setPadding ( lua_State* L ) {
 		self->mPadding.mXMax = hPad;
 		self->mPadding.mYMax = vPad;
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -133,7 +133,7 @@ MOAIImage* MOAIDynamicGlyphCache::GetImage () {
 	}
 	
 	MOAIImage& srcImage0 = *this->mPages [ 0 ]->mImageTexture;
-	MOAIImage* image = new MOAIImage ();
+	MOAIImage* image = MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < MOAIImage >();
 	
 	image->Init (
 		width,
@@ -217,31 +217,27 @@ int MOAIDynamicGlyphCache::PlaceGlyph ( MOAIFont& font, MOAIGlyph& glyph ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIDynamicGlyphCache::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIGlyphCache::RegisterLuaClass ( state );
+void MOAIDynamicGlyphCache::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGlyphCache::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDynamicGlyphCache::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIGlyphCache::RegisterLuaFuncs ( state );
+void MOAIDynamicGlyphCache::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGlyphCache::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setColorFormat",			_setColorFormat },
-		{ "setPadding",				_setPadding },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "setColorFormat", _setColorFormat, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPadding", _setPadding, MRB_ARGS_ANY () );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIDynamicGlyphCache::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIDynamicGlyphCache::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIDynamicGlyphCache::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIDynamicGlyphCache::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

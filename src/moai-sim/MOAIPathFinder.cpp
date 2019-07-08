@@ -21,13 +21,12 @@
 	@opt	number iterations
 	@out	boolean more
 */
-int MOAIPathFinder::_findPath ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_findPath ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 	
-	int iterations = state.GetValue < int >( 2, -1 );
+	int iterations = state.GetParamValue < int >( 1, -1 );
 	
-	state.Push ( self->FindPath ( iterations ));
-	return 1;
+	return state.ToRValue ( self->FindPath ( iterations ) );
 }
 
 //----------------------------------------------------------------//
@@ -37,14 +36,13 @@ int MOAIPathFinder::_findPath ( lua_State* L ) {
 	@in		MOAIPathFinder self
 	@out	MOAIPathGraph graph
 */
-int MOAIPathFinder::_getGraph ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_getGraph ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 	
 	if ( self->mGraph ) {
-		state.Push (( MOAIPathGraph * )self->mGraph );
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( ( MOAIPathGraph* )self->mGraph );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -56,17 +54,16 @@ int MOAIPathFinder::_getGraph ( lua_State* L ) {
 	@in		number index
 	@out	number entry
 */
-int MOAIPathFinder::_getPathEntry ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "UN" )
+mrb_value MOAIPathFinder::_getPathEntry ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "UN" )
 	
-	u32 index = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 index = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
 	if ( index < self->mPath.Size ()) {
 	
-		state.Push ( self->mPath [ index ] + 1 );
-		return 1;
+		return state.ToRValue ( self->mPath [ index ] + 1 );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -76,11 +73,10 @@ int MOAIPathFinder::_getPathEntry ( lua_State* L ) {
 	@in		MOAIPathFinder self
 	@out	number size
 */
-int MOAIPathFinder::_getPathSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_getPathSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 	
-	state.Push (( u32 )self->mPath.Size ()); // TODO: overflow?
-	return 1;
+	return state.ToRValue ( ( u32 )self->mPath.Size () ); // TODO: overflow?
 }
 
 //----------------------------------------------------------------//
@@ -92,15 +88,15 @@ int MOAIPathFinder::_getPathSize ( lua_State* L ) {
 	@in		number targetNodeID
 	@out	nil
 */
-int MOAIPathFinder::_init ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "UNN" )
+mrb_value MOAIPathFinder::_init ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "UNN" )
 	
-	self->mStartNodeID = state.GetValue < int >( 2, 1 ) - 1;
-	self->mTargetNodeID = state.GetValue < int >( 3, 1 ) - 1;
+	self->mStartNodeID = state.GetParamValue < int >( 1, 1 ) - 1;
+	self->mTargetNodeID = state.GetParamValue < int >( 2, 1 ) - 1;
 	
 	self->Reset ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -111,14 +107,14 @@ int MOAIPathFinder::_init ( lua_State* L ) {
 	@opt	number size				Default value is 0.
 	@out	nil
 */
-int MOAIPathFinder::_reserveTerrainWeights ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "UN" )
+mrb_value MOAIPathFinder::_reserveTerrainWeights ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "UN" )
 	
-	u32 size = state.GetValue < u32 >( 2, 0 );
+	u32 size = state.GetParamValue < u32 >( 1, 0 );
 	
 	self->mWeights.Init ( size );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -130,12 +126,12 @@ int MOAIPathFinder::_reserveTerrainWeights ( lua_State* L ) {
 	@opt	number heuristic
 	@out	nil
 */
-int MOAIPathFinder::_setFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_setFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 
-	self->mFlags = state.GetValue < u32 >( 2, 0 );
+	self->mFlags = state.GetParamValue < u32 >( 1, 0 );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -154,26 +150,26 @@ int MOAIPathFinder::_setFlags ( lua_State* L ) {
 		@opt	MOAIGridPathGraph gridPathGraph		Default value is nil.
 		@out	nil
 */
-int MOAIPathFinder::_setGraph ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_setGraph ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 
 	self->mGraph.Set ( *self, 0 );
 
-	MOAIGrid* grid = state.GetLuaObject < MOAIGrid >( 2, false );
+	MOAIGrid* grid = state.GetRubyObject < MOAIGrid >( 1, false );
 	if ( grid ) {
-		MOAIGridPathGraph* gridPathGraph = new MOAIGridPathGraph ();
+		MOAIGridPathGraph* gridPathGraph = state.CreateClassInstance < MOAIGridPathGraph >();
 		gridPathGraph->SetGrid ( grid );
 		self->mGraph.Set ( *self, gridPathGraph );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIPathGraph* pathGraph = state.GetLuaObject < MOAIPathGraph >( 2, false );
+	MOAIPathGraph* pathGraph = state.GetRubyObject < MOAIPathGraph >( 1, false );
 	if ( pathGraph ) {
 		self->mGraph.Set ( *self, pathGraph );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -185,12 +181,12 @@ int MOAIPathFinder::_setGraph ( lua_State* L ) {
 	@opt	number heuristic
 	@out	nil
 */
-int MOAIPathFinder::_setHeuristic ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_setHeuristic ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 
-	self->mHeuristic = state.GetValue < u32 >( 2, 0 );
+	self->mHeuristic = state.GetParamValue < u32 >( 1, 0 );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -201,12 +197,12 @@ int MOAIPathFinder::_setHeuristic ( lua_State* L ) {
 	@opt	MOAIPathTerrainDeck terrainDeck		Default value is nil.
 	@out	nil
 */
-int MOAIPathFinder::_setTerrainDeck ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_setTerrainDeck ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 	
-	self->mTerrainDeck.Set ( *self, state.GetLuaObject < MOAIPathTerrainDeck >( 2, true ));
+	self->mTerrainDeck.Set ( *self, state.GetRubyObject < MOAIPathTerrainDeck >( 1, true ));
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -217,12 +213,12 @@ int MOAIPathFinder::_setTerrainDeck ( lua_State* L ) {
 	@opt	number mask					Default value is 0xffffffff.
 	@out	nil
 */
-int MOAIPathFinder::_setTerrainMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_setTerrainMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 
-	self->mMask = state.GetValue < u32 >( 2, 0xffffffff );
+	self->mMask = state.GetParamValue < u32 >( 1, 0xffffffff );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -235,18 +231,18 @@ int MOAIPathFinder::_setTerrainMask ( lua_State* L ) {
 	@opt	number penaltyScale			Default value is 0.
 	@out	nil
 */
-int MOAIPathFinder::_setTerrainWeight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "UNNN" )
+mrb_value MOAIPathFinder::_setTerrainWeight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "UNNN" )
 	
-	u32 index = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 index = state.GetParamValue < u32 >( 1, 1 ) - 1;
 
 	if ( index < self->mWeights.Size ()) {
 	
 		MOAIPathWeight& weight = self->mWeights [ index ];
-		weight.mDeltaScale = state.GetValue < float >( 3, 0.0f );
-		weight.mPenaltyScale = state.GetValue < float >( 4, 0.0f );
+		weight.mDeltaScale = state.GetParamValue < float >( 2, 0.0f );
+		weight.mPenaltyScale = state.GetParamValue < float >( 3, 0.0f );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -258,13 +254,13 @@ int MOAIPathFinder::_setTerrainWeight ( lua_State* L ) {
 	@opt	number hWeight				Default value is 1.0.
 	@out	nil
 */
-int MOAIPathFinder::_setWeight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathFinder, "U" )
+mrb_value MOAIPathFinder::_setWeight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathFinder, "U" )
 	
-	self->mGWeight = state.GetValue < float >( 2, 1.0f );
-	self->mHWeight = state.GetValue < float >( 3, 1.0f );
+	self->mGWeight = state.GetParamValue < float >( 1, 1.0f );
+	self->mHWeight = state.GetParamValue < float >( 2, 1.0f );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -413,7 +409,7 @@ MOAIPathFinder::MOAIPathFinder () :
 	mGWeight ( 1.0f ),
 	mHWeight ( 1.0f ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -456,31 +452,28 @@ void MOAIPathFinder::PushState ( int nodeID, float cost, float estimate ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIPathFinder::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPathFinder::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIPathFinder::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPathFinder::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "findPath",					_findPath },
-		{ "getGraph",					_getGraph },
-		{ "getPathEntry",				_getPathEntry },
-		{ "getPathSize",				_getPathSize },
-		{ "init",						_init },
-		{ "reserveTerrainWeights",		_reserveTerrainWeights },
-		{ "setFlags",					_setFlags },
-		{ "setGraph",					_setGraph },
-		{ "setHeuristic",				_setHeuristic },
-		{ "setTerrainDeck",				_setTerrainDeck },
-		{ "setTerrainMask",				_setTerrainMask },
-		{ "setTerrainWeight",			_setTerrainWeight },
-		{ "setWeight",					_setWeight },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "findPath",					_findPath, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getGraph",					_getGraph, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPathEntry",				_getPathEntry, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getPathSize",				_getPathSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "init",						_init, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "reserveTerrainWeights",	_reserveTerrainWeights, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFlags",					_setFlags, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setGraph",					_setGraph, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setHeuristic",				_setHeuristic, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTerrainDeck",			_setTerrainDeck, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTerrainMask",			_setTerrainMask, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTerrainWeight",			_setTerrainWeight, MRB_ARGS_ARG ( 1, 2 ) );
+	state.DefineInstanceMethod ( klass, "setWeight",				_setWeight, MRB_ARGS_ARG ( 0, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

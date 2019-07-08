@@ -25,10 +25,9 @@
 	@in		MOAICamera self
 	@out	number far
 */
-int MOAICamera::_getFarPlane ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	lua_pushnumber ( state, self->mFarPlane );
-	return 1;
+mrb_value MOAICamera::_getFarPlane ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	return state.ToRValue ( self->mFarPlane );
 }
 
 //----------------------------------------------------------------//
@@ -38,10 +37,9 @@ int MOAICamera::_getFarPlane ( lua_State* L ) {
 	@in		MOAICamera self
 	@out	number hfov
 */
-int MOAICamera::_getFieldOfView ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	lua_pushnumber ( state, self->mFieldOfView );
-	return 1;
+mrb_value MOAICamera::_getFieldOfView ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	return state.ToRValue ( self->mFieldOfView );
 }
 
 //----------------------------------------------------------------//
@@ -57,11 +55,11 @@ int MOAICamera::_getFieldOfView ( lua_State* L ) {
 	@out	number x
 	@out	number y
 */
-int MOAICamera::_getFloorMove ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
+mrb_value MOAICamera::_getFloorMove ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
 
-	float x = state.GetValue < float >( 2, 0.0f );
-	float y = state.GetValue < float >( 3, 0.0f );
+	float x = state.GetParamValue < float >( 1, 0.0f );
+	float y = state.GetParamValue < float >( 2, 0.0f );
 
 	const ZLAffine3D& mtx = self->GetLocalToWorldMtx ();
 	
@@ -87,10 +85,11 @@ int MOAICamera::_getFloorMove ( lua_State* L ) {
 	ZLVec3D m = h;
 	m.Add ( v );
 
-	lua_pushnumber ( state, m.mX );
-	lua_pushnumber ( state, m.mY );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( m.mX );
+	ret [ 1 ] = state.ToRValue ( m.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -102,12 +101,11 @@ int MOAICamera::_getFloorMove ( lua_State* L ) {
 	@in		number width
 	@out	number length
 */
-int MOAICamera::_getFocalLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "UN" )
+mrb_value MOAICamera::_getFocalLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "UN" )
 
-	float width = state.GetValue < float >( 2, 0.0f );
-	lua_pushnumber ( state, self->GetFocalLength ( width ));
-	return 1;
+	float width = state.GetParamValue < float >( 1, 0.0f );
+	return state.ToRValue ( self->GetFocalLength ( width ) );
 }
 
 //----------------------------------------------------------------//
@@ -117,10 +115,9 @@ int MOAICamera::_getFocalLength ( lua_State* L ) {
 	@in		MOAICamera self
 	@out	number near
 */
-int MOAICamera::_getNearPlane ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	lua_pushnumber ( state, self->mNearPlane );
-	return 1;
+mrb_value MOAICamera::_getNearPlane ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	return state.ToRValue ( self->mNearPlane );
 }
 
 //----------------------------------------------------------------//
@@ -132,15 +129,13 @@ int MOAICamera::_getNearPlane ( lua_State* L ) {
 	@out	number yN
 	@out	number zN
 */
-int MOAICamera::_getViewVector ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
+mrb_value MOAICamera::_getViewVector ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
 	
 	self->ForceUpdate ();
 	ZLVec3D viewVec = self->GetViewVector ();
 	
-	state.Push ( viewVec );
-	
-	return 3;
+	return state.Get ( viewVec );
 }
 
 //----------------------------------------------------------------//
@@ -153,17 +148,17 @@ int MOAICamera::_getViewVector ( lua_State* L ) {
 	@in		number z
 	@out	nil
 */
-int MOAICamera::_lookAt ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
+mrb_value MOAICamera::_lookAt ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
 
-	float x		= state.GetValue < float >( 2, 0.0f );
-	float y		= state.GetValue < float >( 3, 0.0f );
-	float z		= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float z		= state.GetParamValue < float >( 3, 0.0f );
 
 	self->LookAt ( x, y, z );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -175,32 +170,31 @@ int MOAICamera::_lookAt ( lua_State* L ) {
 	@in		number delay
 	@out	nil
 */
-int MOAICamera::_moveFieldOfView ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
+mrb_value MOAICamera::_moveFieldOfView ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
 	
-	float delay		= state.GetValue < float >( 3, 0.0f );
+	float delay		= state.GetParamValue < float >( 2, 0.0f );
 	
 	if ( delay > 0.0f ) {
 	
-		u32 mode = state.GetValue < u32 >( 4, ZLInterpolate::kSmooth );
+		u32 mode = state.GetParamValue < u32 >( 3, ZLInterpolate::kSmooth );
 		
-		MOAIEaseDriver* action = new MOAIEaseDriver ();
+		MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 		
-		action->ParseForMove ( state, 2, self, 1, mode,
+		action->ParseForMove ( state, 1, self, 1, mode,
 			MOAICameraAttr::Pack ( ATTR_FOV ), 0.0f
 		);
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
 
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( action );
 	}
 	
-	self->mFieldOfView += state.GetValue < float >( 2, 0.0f );
+	self->mFieldOfView += state.GetParamValue < float >( 1, 0.0f );
 	self->ScheduleUpdate ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -212,32 +206,31 @@ int MOAICamera::_moveFieldOfView ( lua_State* L ) {
 	@in		number delay
 	@out	nil
 */
-int MOAICamera::_seekFieldOfView ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
+mrb_value MOAICamera::_seekFieldOfView ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
 
-	float delay		= state.GetValue < float >( 3, 0.0f );
+	float delay		= state.GetParamValue < float >( 2, 0.0f );
 	
 	if ( delay > 0.0f ) {
 
-		u32 mode = state.GetValue < u32 >( 4, ZLInterpolate::kSmooth );
+		u32 mode = state.GetParamValue < u32 >( 3, ZLInterpolate::kSmooth );
 		
-		MOAIEaseDriver* action = new MOAIEaseDriver ();
+		MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 		
-		action->ParseForSeek ( state, 2, self, 1, mode,
+		action->ParseForSeek ( state, 1, self, 1, mode,
 			MOAICameraAttr::Pack ( ATTR_FOV ), self->mFieldOfView, 0.0f
 		);
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
 
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( action );
 	}
 	
-	self->mFieldOfView = state.GetValue < float >( 2, 0.0f );
+	self->mFieldOfView = state.GetParamValue < float >( 1, 0.0f );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -248,10 +241,10 @@ int MOAICamera::_seekFieldOfView ( lua_State* L ) {
 	@opt	number far			Default value is 10000.
 	@out	nil
 */
-int MOAICamera::_setFarPlane ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	self->mFarPlane = state.GetValue < float >( 2, DEFAULT_FAR_PLANE );
-	return 0;
+mrb_value MOAICamera::_setFarPlane ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	self->mFarPlane = state.GetParamValue < float >( 1, DEFAULT_FAR_PLANE );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -262,10 +255,10 @@ int MOAICamera::_setFarPlane ( lua_State* L ) {
 	@opt	number hfow			Default value is 60.
 	@out	nil
 */
-int MOAICamera::_setFieldOfView( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	self->mFieldOfView = state.GetValue < float >( 2, DEFAULT_HFOV );
-	return 0;
+mrb_value MOAICamera::_setFieldOfView( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	self->mFieldOfView = state.GetParamValue < float >( 1, DEFAULT_HFOV );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -276,10 +269,10 @@ int MOAICamera::_setFieldOfView( lua_State* L ) {
 	@opt	number near			Default value is 1.
 	@out	nil
 */
-int MOAICamera::_setNearPlane ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	self->mNearPlane = state.GetValue < float >( 2, DEFAULT_NEAR_PLANE );
-	return 0;
+mrb_value MOAICamera::_setNearPlane ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	self->mNearPlane = state.GetParamValue < float >( 1, DEFAULT_NEAR_PLANE );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -290,10 +283,10 @@ int MOAICamera::_setNearPlane ( lua_State* L ) {
 	@opt	boolean ortho			Default value is true.
 	@out	nil
 */
-int MOAICamera::_setOrtho ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	self->mType = state.GetValue < bool >( 2, true ) ? CAMERA_TYPE_ORTHO : CAMERA_TYPE_3D;
-	return 0;
+mrb_value MOAICamera::_setOrtho ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	self->mType = state.GetParamValue < bool >( 1, true ) ? CAMERA_TYPE_ORTHO : CAMERA_TYPE_3D;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -304,10 +297,10 @@ int MOAICamera::_setOrtho ( lua_State* L ) {
 	@in		number type
 	@out	nil
 */
-int MOAICamera::_setType ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICamera, "U" )
-	self->mType = state.GetValue < u32 >( 2, CAMERA_TYPE_WINDOW );
-	return 0;
+mrb_value MOAICamera::_setType ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICamera, "U" )
+	self->mType = state.GetParamValue < u32 >( 1, CAMERA_TYPE_WINDOW );
+	return context;
 }
 
 //================================================================//
@@ -490,46 +483,43 @@ MOAICamera::~MOAICamera () {
 }
 
 //----------------------------------------------------------------//
-void MOAICamera::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICamera::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITransform::RegisterLuaClass ( state );
+	MOAITransform::RegisterRubyClass ( state, klass );
 	
 	MOAIDebugLinesMgr::Get ().ReserveStyleSet < MOAICamera >( TOTAL_DEBUG_LINE_STYLES );
 	
-	state.SetField ( -1, "DEBUG_DRAW_CAMERA_MASTER",			MOAIDebugLinesMgr::Pack < MOAICamera >( (u32) -1 ));
-	state.SetField ( -1, "DEBUG_DRAW_FRAME",					MOAIDebugLinesMgr::Pack < MOAICamera >( DEBUG_DRAW_FRAME ));
-	state.SetField ( -1, "DEBUG_DRAW_RETICLE",					MOAIDebugLinesMgr::Pack < MOAICamera >( DEBUG_DRAW_RETICLE ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_CAMERA_MASTER",			MOAIDebugLinesMgr::Pack < MOAICamera >( (u32) -1 ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_FRAME",					MOAIDebugLinesMgr::Pack < MOAICamera >( DEBUG_DRAW_FRAME ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_RETICLE",				MOAIDebugLinesMgr::Pack < MOAICamera >( DEBUG_DRAW_RETICLE ));
 	
-	state.SetField ( -1, "ATTR_FOV",			MOAICameraAttr::Pack ( ATTR_FOV ));
+	state.DefineClassConst ( klass, "ATTR_FOV",							MOAICameraAttr::Pack ( ATTR_FOV ));
 	
-	state.SetField ( -1, "CAMERA_TYPE_3D",		( u32 )CAMERA_TYPE_3D );
-	state.SetField ( -1, "CAMERA_TYPE_ORTHO",	( u32 )CAMERA_TYPE_ORTHO );
-	state.SetField ( -1, "CAMERA_TYPE_WINDOW",	( u32 )CAMERA_TYPE_WINDOW );
+	state.DefineClassConst ( klass, "CAMERA_TYPE_3D",					( u32 )CAMERA_TYPE_3D );
+	state.DefineClassConst ( klass, "CAMERA_TYPE_ORTHO",				( u32 )CAMERA_TYPE_ORTHO );
+	state.DefineClassConst ( klass, "CAMERA_TYPE_WINDOW",				( u32 )CAMERA_TYPE_WINDOW );
 }
 
 //----------------------------------------------------------------//
-void MOAICamera::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAITransform::RegisterLuaFuncs ( state );
-	
-	luaL_Reg regTable [] = {
-		{ "getFarPlane",		_getFarPlane },
-		{ "getFieldOfView",		_getFieldOfView },
-		{ "getFloorMove",		_getFloorMove },
-		{ "getFocalLength",		_getFocalLength },
-		{ "getNearPlane",		_getNearPlane },
-		{ "getViewVector",		_getViewVector },
-		{ "lookAt",				_lookAt },
-		{ "moveFieldOfView",	_moveFieldOfView },
-		{ "seekFieldOfView",	_seekFieldOfView },
-		{ "setFarPlane",		_setFarPlane },
-		{ "setFieldOfView",		_setFieldOfView },
-		{ "setNearPlane",		_setNearPlane },
-		{ "setOrtho",			_setOrtho },
-		{ "setType",			_setType },
-		{ NULL, NULL }
-	};
+void MOAICamera::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_register ( state, 0, regTable );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getFarPlane", _getFarPlane, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFieldOfView", _getFieldOfView, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFloorMove", _getFloorMove, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getFocalLength", _getFocalLength, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getNearPlane", _getNearPlane, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getViewVector", _getViewVector, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "lookAt", _lookAt, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "moveFieldOfView", _moveFieldOfView, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "seekFieldOfView", _seekFieldOfView, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setFarPlane", _setFarPlane, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFieldOfView", _setFieldOfView, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setNearPlane", _setNearPlane, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setOrtho", _setOrtho, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setType", _setType, MRB_ARGS_ARG ( 0, 1 ) );
+	
 }
 
 //----------------------------------------------------------------//

@@ -31,23 +31,23 @@ private:
 	u32 mClearCount;
 	u32 mClearQueue [ MOAI_KEY_TOTAL ];	// The keys whose DOWN or UP flags are set
 	
-	MOAILuaStrongRef		mOnKey;
-	MOAILuaStrongRef		mOnChar;
-	MOAILuaStrongRef		mOnEdit;
+	MOAIRubyStrongRef		mOnKey;
+	MOAIRubyStrongRef		mOnChar;
+	MOAIRubyStrongRef		mOnEdit;
 
 	//----------------------------------------------------------------//
-	static int		_keyDown				( lua_State* L );
-	static int		_keyIsDown				( lua_State* L );
-	static int		_keyIsUp				( lua_State* L );
-	static int		_keyUp					( lua_State* L );
-	static int		_setCallback			( lua_State* L );
-	static int		_setCharCallback		( lua_State* L );
-	static int		_setEditCallback		( lua_State* L );
-	static int		_setKeyCallback			( lua_State* L );
+	static mrb_value		_keyDown				( mrb_state* M, mrb_value context );
+	static mrb_value		_keyIsDown				( mrb_state* M, mrb_value context );
+	static mrb_value		_keyIsUp				( mrb_state* M, mrb_value context );
+	static mrb_value		_keyUp					( mrb_state* M, mrb_value context );
+	static mrb_value		_setCallback			( mrb_state* M, mrb_value context );
+	static mrb_value		_setCharCallback		( mrb_state* M, mrb_value context );
+	static mrb_value		_setEditCallback		( mrb_state* M, mrb_value context );
+	static mrb_value		_setKeyCallback			( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIKeyboardSensor )
+	DECL_RUBY_FACTORY ( MOAIKeyboardSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	void				ClearState					();
@@ -55,7 +55,7 @@ public:
 	static void			EnqueueKeyboardEditEvent	( u8 deviceID, u8 sensorID, char const* text, u32 start, u32 editLength, u32 maxLength );
 	static void			EnqueueKeyboardKeyEvent		( u8 deviceID, u8 sensorID, u32 keyID, bool down );
 	static void			EnqueueKeyboardTextEvent	( u8 deviceID, u8 sensorID, cc8* text );
-	static int			CheckKeys					( lua_State* L, bool ( MOAIKeyboardSensor::*predicate )( u32 keyCode ));
+	static mrb_value	CheckKeys					( mrb_state* M, mrb_value context, bool ( MOAIKeyboardSensor::*predicate )( u32 keyCode ));
 	bool				KeyDown						( u32 keyID );
 	bool				KeyIsDown					( u32 keyID );
 	bool				KeyIsUp						( u32 keyID );
@@ -63,8 +63,8 @@ public:
 						MOAIKeyboardSensor			();
 						~MOAIKeyboardSensor			();
 	void				ParseEvent					( ZLStream& eventStream );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ResetState					();
 };
 

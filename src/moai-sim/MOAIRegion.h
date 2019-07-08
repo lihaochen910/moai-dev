@@ -16,40 +16,40 @@ class SafeTesselator;
 //================================================================//
 // TODO: doxygen
 class MOAIRegion :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
 	ZLLeanArray < ZLPolygon2D > mPolygons;
 	
 	//----------------------------------------------------------------//
-	static int		_append				( lua_State* L );
-	static int		_bless				( lua_State* L );
-	static int		_boolean			( lua_State* L );
-	static int		_clear				( lua_State* L );
-	static int		_clip				( lua_State* L );
-	static int		_convexHull			( lua_State* L );
-	static int		_copy				( lua_State* L );
-	static int		_countPolygons		( lua_State* L );
-	static int		_cull				( lua_State* L );
-	static int		_drawDebug			( lua_State* L );
-	static int		_edge				( lua_State* L );
-	static int		_findExtremity		( lua_State* L );
-	static int		_getDistance		( lua_State* L );
-	static int		_getPolygon			( lua_State* L );
-	static int		_getTriangles		( lua_State* L );
-	static int		_getVertices		( lua_State* L );
-	static int		_pad				( lua_State* L );
-	static int		_pointInside		( lua_State* L );
-	static int		_print				( lua_State* L );
-	static int		_reservePolygons	( lua_State* L );
-	static int		_reserveVertices	( lua_State* L );
-	static int		_reverseWinding		( lua_State* L );
-	static int		_setVertex			( lua_State* L );
-	static int		_setWinding			( lua_State* L );
-	static int		_snap				( lua_State* L );
-	static int		_stroke				( lua_State* L );
-	static int		_tesselate			( lua_State* L );
-	static int		_translate			( lua_State* L );
+	static mrb_value		_append				( mrb_state* M, mrb_value context );
+	static mrb_value		_bless				( mrb_state* M, mrb_value context );
+	static mrb_value		_boolean			( mrb_state* M, mrb_value context );
+	static mrb_value		_clear				( mrb_state* M, mrb_value context );
+	static mrb_value		_clip				( mrb_state* M, mrb_value context );
+	static mrb_value		_convexHull			( mrb_state* M, mrb_value context );
+	static mrb_value		_copy				( mrb_state* M, mrb_value context );
+	static mrb_value		_countPolygons		( mrb_state* M, mrb_value context );
+	static mrb_value		_cull				( mrb_state* M, mrb_value context );
+	static mrb_value		_drawDebug			( mrb_state* M, mrb_value context );
+	static mrb_value		_edge				( mrb_state* M, mrb_value context );
+	static mrb_value		_findExtremity		( mrb_state* M, mrb_value context );
+	static mrb_value		_getDistance		( mrb_state* M, mrb_value context );
+	static mrb_value		_getPolygon			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTriangles		( mrb_state* M, mrb_value context );
+	static mrb_value		_getVertices		( mrb_state* M, mrb_value context );
+	static mrb_value		_pad				( mrb_state* M, mrb_value context );
+	static mrb_value		_pointInside		( mrb_state* M, mrb_value context );
+	static mrb_value		_print				( mrb_state* M, mrb_value context );
+	static mrb_value		_reservePolygons	( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveVertices	( mrb_state* M, mrb_value context );
+	static mrb_value		_reverseWinding		( mrb_state* M, mrb_value context );
+	static mrb_value		_setVertex			( mrb_state* M, mrb_value context );
+	static mrb_value		_setWinding			( mrb_state* M, mrb_value context );
+	static mrb_value		_snap				( mrb_state* M, mrb_value context );
+	static mrb_value		_stroke				( mrb_state* M, mrb_value context );
+	static mrb_value		_tesselate			( mrb_state* M, mrb_value context );
+	static mrb_value		_translate			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void					Read					( ZLStream& verts, ZLStream& polySizes );
@@ -69,7 +69,7 @@ public:
 		WINDING_ANTICLOCKWISE,
 	};
 	
-	DECL_LUA_FACTORY ( MOAIRegion )
+	DECL_RUBY_FACTORY ( MOAIRegion, MOAIRubyObject )
 
 	GET_CONST ( size_t, Size, mPolygons.Size ())
 
@@ -107,13 +107,13 @@ public:
 	void					Pad						( const MOAIRegion& region, float pad );
 	bool					PointInside				( const ZLVec2D& p, float pad ) const;
 	void					Print					() const;
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	ZLResultCode			ReservePolygons			( size_t size );
 	ZLResultCode			ReserveVertices			( size_t idx, size_t size );
 	void					ReverseWinding			( const MOAIRegion& region );
-	void					SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void					SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void					SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void					SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void					SetWinding				( u32 winding );
 	void					Snap					( const MOAIRegion& region, float xSnap, float ySnap );
 	void					Stroke					( const MOAIRegion& region, float exterior, bool strokeExterior, float interior, bool strokeInterior );

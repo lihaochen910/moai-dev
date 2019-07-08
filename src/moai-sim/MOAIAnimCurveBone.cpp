@@ -10,33 +10,32 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIAnimCurveBone::_getValueAtTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveBone, "UN" );
+mrb_value MOAIAnimCurveBone::_getValueAtTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveBone, "UN" );
 
-	float time = state.GetValue < float >( 2, 0 );
+	float time = state.GetParamValue < float >( 1, 0 );
 	
 	MOAIAnimKeySpan span = self->GetSpan ( time );
 	ZLAffine3D mtx = self->GetValue ( span );
 
-	state.Push ( mtx );
-	
-	return 12;
+	//return state.ToRValue ( mtx );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIAnimCurveBone::_setKey ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveBone, "UNNNN" );
+mrb_value MOAIAnimCurveBone::_setKey ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveBone, "UNNNN" );
 
-	u32 index				= state.GetValue < u32 >( 2, 1 ) - 1;
-	float time				= state.GetValue < float >( 3, 0.0f );
-	ZLVec3D position		= state.GetValue < ZLVec3D >( 4, ZLVec3D::ORIGIN );
-	ZLQuaternion rotation	= state.GetValue < ZLQuaternion >( 7, ZLQuaternion::IDENT );
-	ZLVec3D scale			= state.GetValue < ZLVec3D >( 11, ZLVec3D::AXIS );
-	u32 mode				= state.GetValue < u32 >( 14, ZLInterpolate::kSmooth );
-	float weight			= state.GetValue < float >( 15, 1.0f );
+	u32 index				= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float time				= state.GetParamValue < float >( 2, 0.0f );
+	ZLVec3D position		= state.GetParamValue < ZLVec3D >( 3, ZLVec3D::ORIGIN );
+	ZLQuaternion rotation	= state.GetParamValue < ZLQuaternion >( 6, ZLQuaternion::IDENT );
+	ZLVec3D scale			= state.GetParamValue < ZLVec3D >( 10, ZLVec3D::AXIS );
+	u32 mode				= state.GetParamValue < u32 >( 13, ZLInterpolate::kSmooth );
+	float weight			= state.GetParamValue < float >( 14, 1.0f );
 	
-	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), M )) {
 		
 		self->SetKey ( index, time, mode, weight );
 		
@@ -44,7 +43,7 @@ int MOAIAnimCurveBone::_setKey ( lua_State* L ) {
 		self->SetSampleRotation ( index, rotation.mV.mX, rotation.mV.mY, rotation.mV.mZ, rotation.mS );
 		self->SetSampleScale ( index, scale.mX, scale.mY, scale.mZ );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -204,23 +203,19 @@ MOAIAnimCurveBone::~MOAIAnimCurveBone () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveBone::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIAnimCurveBone::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaClass ( state );
+	MOAIAnimCurveBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveBone::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAnimCurveBone::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaFuncs ( state );
+	MOAIAnimCurveBase::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getValueAtTime",		_getValueAtTime },
-		{ "setKey",				_setKey },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getValueAtTime", _getValueAtTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setKey", _setKey, MRB_ARGS_ARG ( 0, 1 ) | MRB_ARGS_REQ ( 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

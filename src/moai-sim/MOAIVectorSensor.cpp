@@ -18,14 +18,15 @@
 	@out	number y
 	@out	number z
 */
-int MOAIVectorSensor::_getVector ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorSensor, "U" )
+mrb_value MOAIVectorSensor::_getVector ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorSensor, "U" )
 	
-	lua_pushnumber ( state, self->mX );
-	lua_pushnumber ( state, self->mY );
-	lua_pushnumber ( state, self->mZ );
+	mrb_value argv [ 3 ];
+	argv [ 0 ] = state.ToRValue ( self->mX );
+	argv [ 0 ] = state.ToRValue ( self->mY );
+	argv [ 0 ] = state.ToRValue ( self->mZ );
 	
-	return 3;
+	return mrb_ary_new_from_values ( M, 3, argv );
 }
 
 //----------------------------------------------------------------//
@@ -36,12 +37,12 @@ int MOAIVectorSensor::_getVector ( lua_State* L ) {
 	@opt	function callback		Default value is nil.
 	@out	nil
 */
-int MOAIVectorSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorSensor, "U" )
+mrb_value MOAIVectorSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorSensor, "U" )
 	
-	self->mCallback.SetRef ( state, 2 );
+	self->mCallback.SetRef ( state.GetParamValue ( 1 ) );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -80,28 +81,27 @@ void MOAIVectorSensor::ParseEvent ( ZLStream& eventStream ) {
 	this->mZ = eventStream.Read < float >( 0.0f );
 	
 	if ( this->mCallback ) {
-		MOAIScopedLuaState state = this->mCallback.GetSelf ();
-		lua_pushnumber ( state, this->mX );
-		lua_pushnumber ( state, this->mY );
-		lua_pushnumber ( state, this->mZ );
-		state.DebugCall ( 3, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 3 ];
+		argv [ 0 ] = state.ToRValue ( this->mX );
+		argv [ 0 ] = state.ToRValue ( this->mY );
+		argv [ 0 ] = state.ToRValue ( this->mZ );
+
+		state.FuncCall ( this->mCallback, "call", 3, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIVectorSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIVectorSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIVectorSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIVectorSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getVector",			_getVector },
-		{ "setCallback",		_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getVector", _getVector, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

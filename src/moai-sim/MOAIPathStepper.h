@@ -13,7 +13,7 @@ class MOAIPath;
 //================================================================//
 // TODO: doxygen
 class MOAIPathStepper :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	u32								mStepCount;
@@ -27,7 +27,7 @@ private:
 	ZLVec2D							mEdge [ 3 ];
 	ZLVec2D							mNormal;
 	
-	MOAILuaSharedPtr < MOAIPath>	mPath;
+	MOAIRubySharedPtr < MOAIPath>	mPath;
 	
 	ZLCubicBezierFlattener2D		mFlattener;
 	size_t							mSegmentIdx;
@@ -35,10 +35,10 @@ private:
 	float							mLength;
 
 	//----------------------------------------------------------------//
-	static int		_getLength				( lua_State* L );
-	static int		_more					( lua_State* L );
-	static int		_next					( lua_State* L );
-	static int		_start					( lua_State* L );
+	static mrb_value		_getLength		( mrb_state* M, mrb_value context );
+	static mrb_value		_more			( mrb_state* M, mrb_value context );
+	static mrb_value		_next			( mrb_state* M, mrb_value context );
+	static mrb_value		_start			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MoreVertices			();
@@ -46,7 +46,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIPathStepper )
+	DECL_RUBY_FACTORY ( MOAIPathStepper, MOAIRubyObject )
 	
 	GET ( float, Length, mLength )
 	
@@ -55,8 +55,8 @@ public:
 					~MOAIPathStepper		();
 	bool			More					();
 	ZLVec2D			Next					();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			Start					( MOAIPath& path, float stepSize );
 };
 

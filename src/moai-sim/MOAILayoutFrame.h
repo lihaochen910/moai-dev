@@ -57,12 +57,12 @@ private:
 	float			mMargin [ 2 ][ 2 ];
 	
 	//----------------------------------------------------------------//
-	static int		_layout					( lua_State* L );
-	static int		_setFit					( lua_State* L );
-	static int		_setIdealSize			( lua_State* L );
-	static int		_setLayout				( lua_State* L );
-	static int		_setMargin				( lua_State* L );
-	static int		_setWeight				( lua_State* L );
+	static mrb_value		_layout					( mrb_state* M, mrb_value context );
+	static mrb_value		_setFit					( mrb_state* M, mrb_value context );
+	static mrb_value		_setIdealSize			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLayout				( mrb_state* M, mrb_value context );
+	static mrb_value		_setMargin				( mrb_state* M, mrb_value context );
+	static mrb_value		_setWeight				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				ComputeContentSize		( u32 axis );
@@ -78,15 +78,15 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAILayoutFrame )
+	DECL_RUBY_FACTORY ( MOAILayoutFrame, MOAITransform )
 	
 	//----------------------------------------------------------------//
 	ZLRect			GetFrame				();
 	ZLRect			GetScissorRect			();
 					MOAILayoutFrame			();
 					~MOAILayoutFrame		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			SetParent				( MOAITransformBase* parent );
 };
 

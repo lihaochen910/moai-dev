@@ -12,11 +12,11 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexFormat::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 	
 	self->Clear ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -31,60 +31,60 @@ int MOAIVertexFormat::_clear ( lua_State* L ) {
 	@opt	number use			One of MOAIVertexFormat.ATTRIBUTE_COLOR, MOAIVertexFormat.ATTRIBUTE_NORMAL, MOAIVertexFormat.ATTRIBUTE_TEX_COORD, MOAIVertexFormat.ATTRIBUTE_COORD, MOAIVertexFormat.VERTEX_USER,
 	@out	nil
 */
-int	MOAIVertexFormat::_declareAttribute ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "UNNN" )
+mrb_value	MOAIVertexFormat::_declareAttribute ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "UNNN" )
 
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, 0 );
-	u32 size			= state.GetValue < u32 >( 4, 0 );
-	bool normalized		= state.GetValue < bool >( 5, false );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, 0 );
+	u32 size			= state.GetParamValue < u32 >( 3, 0 );
+	bool normalized		= state.GetParamValue < bool >( 4, false );
 	
-	u32 use				= state.GetValue < u32 >( 6, ATTRIBUTE_USER );
+	u32 use				= state.GetParamValue < u32 >( 5, ATTRIBUTE_USER );
 
 	self->DeclareAttribute ( index, type, size, use, normalized );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexFormat::_declareBoneCount ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareBoneCount ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 	
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_UNSIGNED_BYTE );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_UNSIGNED_BYTE );
 	
 	self->DeclareAttribute ( index, type, 1, ATTRIBUTE_BONE_COUNT, false );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexFormat::_declareBoneIndices ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareBoneIndices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 	
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_UNSIGNED_BYTE );
-	u32 size			= state.GetValue < u32 >( 4, 4 );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_UNSIGNED_BYTE );
+	u32 size			= state.GetParamValue < u32 >( 3, 4 );
 	
 	self->DeclareAttribute ( index, type, size, ATTRIBUTE_BONE_INDICES, false );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexFormat::_declareBoneWeights ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareBoneWeights ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 	
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_FLOAT );
-	u32 size			= state.GetValue < u32 >( 4, 4 );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_FLOAT );
+	u32 size			= state.GetParamValue < u32 >( 3, 4 );
 	
 	self->DeclareAttribute ( index, type, size, ATTRIBUTE_BONE_WEIGHTS, false );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -96,15 +96,15 @@ int MOAIVertexFormat::_declareBoneWeights ( lua_State* L ) {
 	@in		number type			Data type of component elements. See OpenGL ES documentation.
 	@out	nil
 */
-int MOAIVertexFormat::_declareColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_UNSIGNED_BYTE );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_UNSIGNED_BYTE );
 	
 	self->DeclareAttribute ( index, type, COLOR_SIZE, ATTRIBUTE_COLOR, true );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -117,16 +117,16 @@ int MOAIVertexFormat::_declareColor ( lua_State* L ) {
 	@in		number size			Number of coordinate elements. See OpenGL ES documentation.
 	@out	nil
 */
-int MOAIVertexFormat::_declareCoord ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareCoord ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_FLOAT );
-	u32 size			= state.GetValue < u32 >( 4, 3 );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_FLOAT );
+	u32 size			= state.GetParamValue < u32 >( 3, 3 );
 	
 	self->DeclareAttribute ( index, type, size, ATTRIBUTE_COORD, false );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -138,15 +138,15 @@ int MOAIVertexFormat::_declareCoord ( lua_State* L ) {
 	@in		number type			Data type of normal elements. See OpenGL ES documentation.
 	@out	nil
 */
-int MOAIVertexFormat::_declareNormal ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareNormal ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 	
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_FLOAT );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_FLOAT );
 	
 	self->DeclareAttribute ( index, type, NORMAL_SIZE, ATTRIBUTE_NORMAL, false );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -159,16 +159,16 @@ int MOAIVertexFormat::_declareNormal ( lua_State* L ) {
 	@in		number size			Number of texture coordinate elements. See OpenGL ES documentation.
 	@out	nil
 */
-int MOAIVertexFormat::_declareUV ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_declareUV ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 
-	u32 index			= state.GetValue < u32 >( 2, 0 ) - 1;
-	u32 type			= state.GetValue < u32 >( 3, ZGL_TYPE_FLOAT );
-	u32 size			= state.GetValue < u32 >( 4, 2 );
+	u32 index			= state.GetParamValue < u32 >( 1, 0 ) - 1;
+	u32 type			= state.GetParamValue < u32 >( 2, ZGL_TYPE_FLOAT );
+	u32 size			= state.GetParamValue < u32 >( 3, 2 );
 	
 	self->DeclareAttribute ( index, type, size, ATTRIBUTE_TEX_COORD, false );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -178,11 +178,10 @@ int MOAIVertexFormat::_declareUV ( lua_State* L ) {
 	@in		MOAIVertexFormat self
 	@out	number vertexSizeInBytes
 */
-int MOAIVertexFormat::_getVertexSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexFormat, "U" )
+mrb_value MOAIVertexFormat::_getVertexSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexFormat, "U" )
 
-	state.Push ( self->mVertexSize );
-	return 1;
+	return state.ToRValue ( self->mVertexSize );
 }
 
 //================================================================//
@@ -190,15 +189,15 @@ int MOAIVertexFormat::_getVertexSize ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAIVertexFormat* MOAIVertexFormat::AffirmVertexFormat ( MOAILuaState& state, int idx ) {
+MOAIVertexFormat* MOAIVertexFormat::AffirmVertexFormat ( MOAIRubyState& state, int idx ) {
 
 	MOAIVertexFormat* format = 0;
 
-	if ( state.IsType ( idx, LUA_TNUMBER )) {
-		format = MOAIVertexFormatMgr::Get ().GetFormat ( state.GetValue < u32 >( idx, MOAIVertexFormatMgr::UNKNOWN_FORMAT ));
+	if ( state.ParamIsType ( idx, MRB_TT_FIXNUM )) {
+		format = MOAIVertexFormatMgr::Get ().GetFormat ( state.GetParamValue < u32 >( idx, MOAIVertexFormatMgr::UNKNOWN_FORMAT ));
 	}
 	else {
-		format = state.GetLuaObject < MOAIVertexFormat >( 2, true );
+		format = state.GetRubyObject < MOAIVertexFormat >( 1, true );
 	}
 	return format;
 }
@@ -454,7 +453,7 @@ u32 MOAIVertexFormat::GetComponentSize ( u32 size, u32 type ) {
 }
 
 //----------------------------------------------------------------//
-u32 MOAIVertexFormat::GetLuaIndexForUseID ( u32 useID ) {
+u32 MOAIVertexFormat::GetRubyIndexForUseID ( u32 useID ) {
 
 	switch ( useID ) {
 		case ATTRIBUTE_BONE_INDICES:	return 'i';
@@ -472,7 +471,7 @@ u32 MOAIVertexFormat::GetLuaIndexForUseID ( u32 useID ) {
 }
 
 //----------------------------------------------------------------//
-u32 MOAIVertexFormat::GetUseIDForLuaIndex ( u32 idx ) {
+u32 MOAIVertexFormat::GetUseIDForRubyIndex ( u32 idx ) {
 
 	switch ( idx ) {
 		case 'i':						return ATTRIBUTE_BONE_INDICES;
@@ -494,7 +493,7 @@ MOAIVertexFormat::MOAIVertexFormat () :
 	mTotalAttributes ( 0 ),
 	mVertexSize ( 0 ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 	
 	for ( u32 i = 0; i < TOTAL_ATTRIBUTE_TYPES; ++i ) {
 		this->mTotalAttributesByUse [ i ] = 0;
@@ -688,41 +687,37 @@ ZLVec3D MOAIVertexFormat::ReadUV ( ZLStream& stream, u32 idx ) const {
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexFormat::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIVertexFormat::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	state.SetField ( -1, "GL_BYTE",					( u32 )ZGL_TYPE_BYTE );
-	state.SetField ( -1, "GL_FLOAT",				( u32 )ZGL_TYPE_FLOAT );
-	state.SetField ( -1, "GL_SHORT",				( u32 )ZGL_TYPE_SHORT );
-	state.SetField ( -1, "GL_UNSIGNED_BYTE",		( u32 )ZGL_TYPE_UNSIGNED_BYTE );
-	state.SetField ( -1, "GL_UNSIGNED_SHORT",		( u32 )ZGL_TYPE_UNSIGNED_SHORT );
+	state.DefineClassConst ( klass, "GL_BYTE",					( u32 )ZGL_TYPE_BYTE );
+	state.DefineClassConst ( klass, "GL_FLOAT",				( u32 )ZGL_TYPE_FLOAT );
+	state.DefineClassConst ( klass, "GL_SHORT",				( u32 )ZGL_TYPE_SHORT );
+	state.DefineClassConst ( klass, "GL_UNSIGNED_BYTE",		( u32 )ZGL_TYPE_UNSIGNED_BYTE );
+	state.DefineClassConst ( klass, "GL_UNSIGNED_SHORT",		( u32 )ZGL_TYPE_UNSIGNED_SHORT );
 	
-	state.SetField ( -1, "ATTRIBUTE_BONE_INDICES",	( u32 )ATTRIBUTE_BONE_INDICES );
-	state.SetField ( -1, "ATTRIBUTE_BONE_WEIGHTS",	( u32 )ATTRIBUTE_BONE_WEIGHTS );
-	state.SetField ( -1, "ATTRIBUTE_COLOR",			( u32 )ATTRIBUTE_COLOR );
-	state.SetField ( -1, "ATTRIBUTE_COORD",			( u32 )ATTRIBUTE_COORD );
-	state.SetField ( -1, "ATTRIBUTE_NORMAL",		( u32 )ATTRIBUTE_NORMAL );
-	state.SetField ( -1, "ATTRIBUTE_TEX_COORD",		( u32 )ATTRIBUTE_TEX_COORD );
-	state.SetField ( -1, "ATTRIBUTE_USER",			( u32 )ATTRIBUTE_USER );
+	state.DefineClassConst ( klass, "ATTRIBUTE_BONE_INDICES",	( u32 )ATTRIBUTE_BONE_INDICES );
+	state.DefineClassConst ( klass, "ATTRIBUTE_BONE_WEIGHTS",	( u32 )ATTRIBUTE_BONE_WEIGHTS );
+	state.DefineClassConst ( klass, "ATTRIBUTE_COLOR",			( u32 )ATTRIBUTE_COLOR );
+	state.DefineClassConst ( klass, "ATTRIBUTE_COORD",			( u32 )ATTRIBUTE_COORD );
+	state.DefineClassConst ( klass, "ATTRIBUTE_NORMAL",		( u32 )ATTRIBUTE_NORMAL );
+	state.DefineClassConst ( klass, "ATTRIBUTE_TEX_COORD",		( u32 )ATTRIBUTE_TEX_COORD );
+	state.DefineClassConst ( klass, "ATTRIBUTE_USER",			( u32 )ATTRIBUTE_USER );
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexFormat::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIVertexFormat::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "clear",					_clear },
-		{ "declareAttribute",		_declareAttribute },
-		{ "declareBoneCount",		_declareBoneCount },
-		{ "declareBoneIndices",		_declareBoneIndices },
-		{ "declareBoneWeights",		_declareBoneWeights },
-		{ "declareColor",			_declareColor },
-		{ "declareCoord",			_declareCoord },
-		{ "declareNormal",			_declareNormal },
-		{ "declareUV",				_declareUV },
-		{ "getVertexSize",			_getVertexSize },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "clear", _clear, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareAttribute", _declareAttribute, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareBoneCount", _declareBoneCount, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareBoneIndices", _declareBoneIndices, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareBoneWeights", _declareBoneWeights, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareColor", _declareColor, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareCoord", _declareCoord, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareNormal", _declareNormal, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "declareUV", _declareUV, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getVertexSize", _getVertexSize, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -733,55 +728,55 @@ size_t MOAIVertexFormat::SeekVertex ( ZLStream& stream, size_t base, size_t vert
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexFormat::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIVertexFormat::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( serializer );
 
-	this->mTotalAttributes		= state.GetFieldValue < u32 >( -1, "mTotalAttributes", 0 );
+	/*this->mTotalAttributes		= state.GetFieldValue < u32 >( -1, "mTotalAttributes", 0 );
 	this->mVertexSize			= state.GetFieldValue < u32 >( -1, "mVertexSize", 0 );
 
 	this->mAttributes.Init ( this->mTotalAttributes );
 
 	state.PushField ( -1, "mAttributes" );
 	for ( u32 i = 0; i < this->mTotalAttributes; ++i ) {
-		
+
 		MOAIVertexAttribute& attribute = this->mAttributes [ i ];
-		
+
 		state.PushField ( -1, i + 1 );
-		
+
 		attribute.mIndex			= state.GetFieldValue < u32 >( -1, "mIndex", 0 );
 		attribute.mSize				= state.GetFieldValue < u32 >( -1, "mSize", 0 );
 		attribute.mType				= state.GetFieldValue < u32 >( -1, "mType", 0 );
 		attribute.mNormalized		= state.GetFieldValue < bool >( -1, "mNormalized", 0 );
 		attribute.mOffset			= state.GetFieldValue < u32 >( -1, "mOffset", 0 );
-		
+
 		state.Pop ();
 	}
 	state.Pop ();
-	
+
 	state.PushField ( -1, "mAttributeUseTable" );
 	for ( u32 i = 0; i < TOTAL_ATTRIBUTE_TYPES; ++i ) {
-		
-		u32 luaUseIdx = MOAIVertexFormat::GetLuaIndexForUseID ( i );
+
+		u32 luaUseIdx = MOAIVertexFormat::GetRubyIndexForUseID ( i );
 		state.PushField ( -1, luaUseIdx );
-		
+
 		u32 nAttributesByUse = ( u32 )state.GetTableSize ( -1 );
 		this->mTotalAttributesByUse [ i ] = nAttributesByUse;
 		this->mAttributeIDsByUse [ i ].Init ( nAttributesByUse );
-		
+
 		for ( u32 j = 0; j < nAttributesByUse; ++j ) {
-			
+
 			this->mAttributeIDsByUse [ i ][ j ] = state.GetFieldValue < u32 >( -1, j + 1, 0 );
 		}
 		state.Pop ();
 	}
-	state.Pop ();
+	state.Pop ();*/
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexFormat::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIVertexFormat::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( serializer );
 
-	state.SetField ( -1, "mTotalAttributes", this->mTotalAttributes );
+	/*state.SetField ( -1, "mTotalAttributes", this->mTotalAttributes );
 	state.SetField ( -1, "mVertexSize", this->mVertexSize );
 
 	lua_newtable ( state );
@@ -805,7 +800,7 @@ void MOAIVertexFormat::SerializeOut ( MOAILuaState& state, MOAISerializer& seria
 	lua_newtable ( state );
 	for ( u32 i = 0; i < TOTAL_ATTRIBUTE_TYPES; ++i ) {
 		
-		state.Push ( MOAIVertexFormat::GetLuaIndexForUseID ( i ));
+		state.Push ( MOAIVertexFormat::GetRubyIndexForUseID ( i ));
 		lua_newtable ( state );
 		
 		u32 nAttributesByUse = this->mTotalAttributesByUse [ i ];
@@ -814,7 +809,7 @@ void MOAIVertexFormat::SerializeOut ( MOAILuaState& state, MOAISerializer& seria
 		}
 		lua_settable ( state, -3 );
 	}
-	lua_setfield ( state, -2, "mAttributeUseTable" );
+	lua_setfield ( state, -2, "mAttributeUseTable" );*/
 }
 
 //----------------------------------------------------------------//

@@ -27,7 +27,7 @@ class MOAISurfaceSampler2D;
 	@text	Base class for all decks.
 */
 class MOAIDeck :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 
 	friend class MOAIDeckProxy;
@@ -40,11 +40,11 @@ protected:
 	bool					mBoundsDirty;
 	
 	//----------------------------------------------------------------//
-	static int				_draw							( lua_State* L );
-	static int				_getBounds						( lua_State* L );
+	static mrb_value				_draw							( mrb_state* M, mrb_value context );
+	static mrb_value				_getBounds						( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
-	void					SetBoundsDirty					();
+	void							SetBoundsDirty					();
 
 	//----------------------------------------------------------------//
 	virtual ZLBounds				MOAIDeck_ComputeMaxBounds		();
@@ -64,8 +64,8 @@ public:
 							MOAIDeck						();
 							~MOAIDeck						();
 	bool					Overlap							( u32 idx, const ZLVec2D& vec, u32 granularity, ZLBounds* result = 0 );
-	void					RegisterLuaClass				( MOAILuaState& state );
-	void					RegisterLuaFuncs				( MOAILuaState& state );
+	void					RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

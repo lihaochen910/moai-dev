@@ -112,55 +112,55 @@ private:
 	u32					mGCActive;
 	u32					mGCStep;
 	
-	MOAILuaMemberRef	mLuaGCFunc;
+	MOAIRubyMemberRef	mRubyGCFunc;
 	
-	MOAILuaSharedPtr < MOAIActionTree >		mActionMgr; // this is a sub-tree
-	MOAILuaSharedPtr < MOAIActionTree >		mActionTree; // the sim's main action tree
+	MOAIRubySharedPtr < MOAIActionTree >		mActionMgr; // this is a sub-tree
+	MOAIRubySharedPtr < MOAIActionTree >		mActionTree; // the sim's main action tree
 	
 	//----------------------------------------------------------------//
-	static int		_clearLoopFlags				( lua_State* L );
-	static int		_crash						( lua_State* L );
-	static int		_collectgarbage				( lua_State* L ); // replacement for Lua's collectgarbage
-	static int		_enterFullscreenMode		( lua_State* L );
-	static int		_exitFullscreenMode			( lua_State* L );
-	static int		_forceGC					( lua_State* L );
-	static int		_framesToTime				( lua_State* L );
-	static int		_getActionMgr				( lua_State* L );
-	static int		_getDeviceTime				( lua_State* L );
-	static int		_getElapsedTime				( lua_State* L );
-	static int		_getLoopFlags				( lua_State* L );
-	static int		_getLuaObjectCount			( lua_State* L );
-	static int		_getMemoryUsage				( lua_State* L );
-	static int		_getMemoryUsagePlain		( lua_State* L );
-	static int		_getNetworkStatus			( lua_State* L );
-	static int		_getPerformance				( lua_State* L );
-	static int		_getStep					( lua_State* L );
-	static int		_getStepCount				( lua_State* L );
-	static int		_hideCursor					( lua_State* L );
-	static int		_openWindow					( lua_State* L );
-	static int		_pauseTimer					( lua_State* L );
-	static int		_setBoostThreshold			( lua_State* L );
-	static int		_setCpuBudget				( lua_State* L );
-	static int		_setGCActive				( lua_State* L );
-	static int		_setGCStep					( lua_State* L );
-	static int		_setLongDelayThreshold		( lua_State* L );
-	static int		_setLoopFlags				( lua_State* L );
-	static int		_setLuaAllocLogEnabled		( lua_State* L );
-	static int		_setStep					( lua_State* L );
-	static int		_setStepMultiplier			( lua_State* L );
-	static int		_setStepSmoothing			( lua_State* L );
-	static int		_setTimerError				( lua_State* L );
-	static int		_setTraceback				( lua_State* L );
-	static int		_setTextInputRect			( lua_State* L );
-	static int		_showCursor					( lua_State* L );
-	static int		_timeToFrames				( lua_State* L );
+	static mrb_value		_clearLoopFlags				( mrb_state* M, mrb_value context );
+	static mrb_value		_crash						( mrb_state* M, mrb_value context );
+	static mrb_value		_collectgarbage				( mrb_state* M, mrb_value context ); // replacement for Ruby's collectgarbage
+	static mrb_value		_enterFullscreenMode		( mrb_state* M, mrb_value context );
+	static mrb_value		_exitFullscreenMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_forceGC					( mrb_state* M, mrb_value context );
+	static mrb_value		_framesToTime				( mrb_state* M, mrb_value context );
+	static mrb_value		_getActionMgr				( mrb_state* M, mrb_value context );
+	static mrb_value		_getDeviceTime				( mrb_state* M, mrb_value context );
+	static mrb_value		_getElapsedTime				( mrb_state* M, mrb_value context );
+	static mrb_value		_getLoopFlags				( mrb_state* M, mrb_value context );
+	static mrb_value		_getRubyObjectCount			( mrb_state* M, mrb_value context );
+	static mrb_value		_getMemoryUsage				( mrb_state* M, mrb_value context );
+	static mrb_value		_getMemoryUsagePlain		( mrb_state* M, mrb_value context );
+	static mrb_value		_getNetworkStatus			( mrb_state* M, mrb_value context );
+	static mrb_value		_getPerformance				( mrb_state* M, mrb_value context );
+	static mrb_value		_getStep					( mrb_state* M, mrb_value context );
+	static mrb_value		_getStepCount				( mrb_state* M, mrb_value context );
+	static mrb_value		_hideCursor					( mrb_state* M, mrb_value context );
+	static mrb_value		_openWindow					( mrb_state* M, mrb_value context );
+	static mrb_value		_pauseTimer					( mrb_state* M, mrb_value context );
+	static mrb_value		_setBoostThreshold			( mrb_state* M, mrb_value context );
+	static mrb_value		_setCpuBudget				( mrb_state* M, mrb_value context );
+	static mrb_value		_setGCActive				( mrb_state* M, mrb_value context );
+	static mrb_value		_setGCStep					( mrb_state* M, mrb_value context );
+	static mrb_value		_setLongDelayThreshold		( mrb_state* M, mrb_value context );
+	static mrb_value		_setLoopFlags				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRubyAllocLogEnabled		( mrb_state* M, mrb_value context );
+	static mrb_value		_setStep					( mrb_state* M, mrb_value context );
+	static mrb_value		_setStepMultiplier			( mrb_state* M, mrb_value context );
+	static mrb_value		_setStepSmoothing			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTimerError				( mrb_state* M, mrb_value context );
+	static mrb_value		_setTraceback				( mrb_state* M, mrb_value context );
+	static mrb_value		_setTextInputRect			( mrb_state* M, mrb_value context );
+	static mrb_value		_showCursor					( mrb_state* M, mrb_value context );
+	static mrb_value		_timeToFrames				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	#ifdef DOXYGEN
-		static int		_clearRenderStack		( lua_State* L );
-		static int		_popRenderPass			( lua_State* L );
-		static int		_pushRenderPass			( lua_State* L );
-		static int		_removeRenderPass		( lua_State* L );
+		static int		_clearRenderStack		( mrb_state* M, mrb_value context );
+		static int		_popRenderPass			( mrb_state* M, mrb_value context );
+		static int		_pushRenderPass			( mrb_state* M, mrb_value context );
+		static int		_removeRenderPass		( mrb_state* M, mrb_value context );
 	#endif
 
 	//----------------------------------------------------------------//
@@ -183,7 +183,7 @@ public:
 		SIM_LOOP_ALLOW_SOAK			= 0x80,		// TODO
 	};
 	
-	DECL_LUA_SINGLETON ( MOAISim )
+	DECL_RUBY_SINGLETON ( MOAISim )
 	
 	GET ( double, Step, mStep )
 	GET ( double, SimDuration, mSimDuration )
@@ -217,8 +217,8 @@ public:
 					MOAISim						();
 					~MOAISim					();
 	void			Pause						();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void			Resume						();
 	void			SetStep						( double step );
 	void			Update						();

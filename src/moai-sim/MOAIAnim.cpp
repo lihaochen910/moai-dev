@@ -26,15 +26,15 @@
 		@in		number t1
 		@out	nil
 */
-int MOAIAnim::_apply ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnim, "U" );
+mrb_value MOAIAnim::_apply ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnim, "U" );
 
-	float t0 = state.GetValue < float >( 2, 0.0f );
-	float t1 = state.GetValue < float >( 3, t0 );
+	float t0 = state.GetParamValue < float >( 1, 0.0f );
+	float t1 = state.GetParamValue < float >( 2, t0 );
 
 	self->Apply ( t0, t1 );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -44,12 +44,10 @@ int MOAIAnim::_apply ( lua_State* L ) {
 	@in		MOAIAnim self
 	@out	number length
 */
-int	MOAIAnim::_getLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnim, "U" )
+mrb_value MOAIAnim::_getLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnim, "U" )
 	
-	lua_pushnumber ( state, self->GetLength ());
-	
-	return 1;
+	return state.ToRValue ( self->GetLength () );
 }
 
 //----------------------------------------------------------------//
@@ -60,13 +58,13 @@ int	MOAIAnim::_getLength ( lua_State* L ) {
 	@in		number nLinks
 	@out	nil
 */
-int	MOAIAnim::_reserveLinks ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnim, "UN" );
+mrb_value MOAIAnim::_reserveLinks ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnim, "UN" );
 	
-	u32 totalLinks = state.GetValue < u32 >( 2, 0 );
+	u32 totalLinks = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveLinks ( totalLinks );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -81,20 +79,20 @@ int	MOAIAnim::_reserveLinks ( lua_State* L ) {
 	@opt	boolean asDelta				'true' to apply the curve as a delta instead of an absolute. Default value is false.
 	@out	nil
 */
-int	MOAIAnim::_setLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnim, "UNUUN" );
+mrb_value MOAIAnim::_setLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnim, "UNUUN" );
 	
-	MOAINode* target = state.GetLuaObject < MOAINode >( 4, true );
-	if ( !target ) return 0;
+	MOAINode* target = state.GetRubyObject < MOAINode >( 3, true );
+	if ( !target ) return context;
 	
-	u32 linkID					= state.GetValue < u32 >( 2, 1 ) - 1;
-	MOAIAnimCurveBase* curve	= state.GetLuaObject < MOAIAnimCurveBase >( 3, true );
-	u32 attrID					= state.GetValue < u32 >( 5, 0 );
-	bool relative				= state.GetValue < bool >( 6, false );
+	u32 linkID					= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	MOAIAnimCurveBase* curve	= state.GetRubyObject < MOAIAnimCurveBase >( 2, true );
+	u32 attrID					= state.GetParamValue < u32 >( 4, 0 );
+	bool relative				= state.GetParamValue < bool >( 5, false );
 	
 	self->SetLink ( linkID, curve, target, attrID, relative );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -188,25 +186,17 @@ MOAIAnim::~MOAIAnim () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAnim::RegisterLuaClass ( MOAILuaState& state ) {
-
-	MOAITimer::RegisterLuaClass ( state );
+void MOAIAnim::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	UNUSED ( state );
 }
 
 //----------------------------------------------------------------//
-void MOAIAnim::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAnim::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITimer::RegisterLuaFuncs ( state );
-
-	luaL_Reg regTable [] = {
-		{ "apply",				_apply },
-		{ "getLength",			_getLength },
-		{ "reserveLinks",		_reserveLinks },
-		{ "setLink",			_setLink },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "apply", _apply, MRB_ARGS_ARG ( 0, 1 ) | MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getLength", _getLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveLinks", _reserveLinks, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setLink", _setLink, MRB_ARGS_ARG ( 4, 1 ) );
 }
 
 //----------------------------------------------------------------//

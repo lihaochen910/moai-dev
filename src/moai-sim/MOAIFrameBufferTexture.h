@@ -29,7 +29,7 @@ private:
 	u32					mStencilFormat;
 	
 	//----------------------------------------------------------------//
-	static int			_init					( lua_State* L );
+	static mrb_value	_init						( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void				OnGPUBind					();
@@ -44,16 +44,16 @@ public:
 	friend class MOAIGfxMgr;
 	friend class MOAITextureBase;
 	
-	DECL_LUA_FACTORY ( MOAIFrameBufferTexture )
+	DECL_RUBY_FACTORY ( MOAIFrameBufferTexture, MOAIInstanceEventSource )
 	
 	//----------------------------------------------------------------//
 	void				Init						( u32 width, u32 height, u32 colorFormat, u32 depthFormat, u32 stencilFormat );
 						MOAIFrameBufferTexture		();
 						~MOAIFrameBufferTexture		();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

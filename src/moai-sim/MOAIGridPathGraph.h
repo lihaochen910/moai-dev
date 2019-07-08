@@ -28,10 +28,10 @@ private:
 		D_MOVE_COST,
 	};
 
-	MOAILuaSharedPtr < MOAIGrid > mGrid;
+	MOAIRubySharedPtr < MOAIGrid > mGrid;
 
 	//----------------------------------------------------------------//
-	static int		_setGrid					( lua_State* L );
+	static mrb_value		_setGrid			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	float			ComputeHeuristic			( MOAIGridPathGraphParams& params, const MOAICellCoord& c0, const MOAICellCoord& c1 );
@@ -48,13 +48,13 @@ public:
 	
 	static const u32 NO_DIAGONALS = 0x00000001;
 	
-	DECL_LUA_FACTORY ( MOAIGridPathGraph )
+	DECL_RUBY_FACTORY ( MOAIGridPathGraph, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIGridPathGraph			();
 					~MOAIGridPathGraph			();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void			SetGrid						( MOAIGrid* grid );
 };
 

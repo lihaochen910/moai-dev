@@ -18,23 +18,23 @@ private:
 
 	float mHeading;
 
-	MOAILuaStrongRef mCallback;
+	MOAIRubyStrongRef mCallback;
 
 	//----------------------------------------------------------------//
-	static int	_getHeading		( lua_State* L );
-	static int	_setCallback	( lua_State* L );
+	static mrb_value	_getHeading		( mrb_state* M, mrb_value context );
+	static mrb_value	_setCallback	( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAICompassSensor )
+	DECL_RUBY_FACTORY ( MOAICompassSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	static void			EnqueueCompassEvent		( u8 deviceID, u8 sensorID, float heading );
 						MOAICompassSensor		();
 						~MOAICompassSensor		();
 	void				ParseEvent				( ZLStream& eventStream );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

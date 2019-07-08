@@ -7,11 +7,11 @@
 #include <moai-sim/MOAIParticleScript.h>
 #include <moai-sim/MOAIParticleSystem.h>
 
-#define IMPL_LUA_PARTICLE_OP(opcode,format)									\
-	MOAI_LUA_SETUP ( MOAIParticleScript, "U" )								\
+#define IMPL_RUBY_PARTICLE_OP(opcode,format)								\
+	MOAI_RUBY_SETUP ( MOAIParticleScript, "U" )								\
 	Instruction& instruction = self->PushInstruction ( opcode, format );	\
-	instruction.Parse ( state, 2 );											\
-	return 0;
+	instruction.Parse ( state, 1 );											\
+	return mrb_nil_value ();
 
 #define READ_ADDR(reg,bytecode)									\
 	type = *( bytecode++ );										\
@@ -87,7 +87,7 @@ MOAIParticleScript::Instruction::Instruction () :
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleScript::Instruction::Parse ( MOAILuaState& state, u32 idx ) {
+void MOAIParticleScript::Instruction::Parse ( MOAIRubyState& state, u32 idx ) {
 
 	u64 bits;
 	u8 type;
@@ -104,7 +104,7 @@ void MOAIParticleScript::Instruction::Parse ( MOAILuaState& state, u32 idx ) {
 					this->mSize += sizeof ( u32 );
 					
 					this->mTypes [ i ] = PARAM_TYPE_FLAG;
-					this->mParams [ i ] = state.GetValue < u32 >( idx++, 0 );
+					this->mParams [ i ] = state.GetParamValue < u32 >( idx++, 0 );
 					break;
 				
 				case 'R':
@@ -112,7 +112,7 @@ void MOAIParticleScript::Instruction::Parse ( MOAILuaState& state, u32 idx ) {
 					this->mSize += sizeof ( u8 );
 					this->mSize += sizeof ( u8 );
 					
-					bits = state.GetValue < u64 >( idx++, 0 );
+					bits = state.GetParamValue < u64 >( idx++, 0 );
 					type = ( bits >> 32 ) & PARAM_TYPE_MASK;
 
 					if ( !( type & PARAM_TYPE_REG_MASK )) {
@@ -131,7 +131,7 @@ void MOAIParticleScript::Instruction::Parse ( MOAILuaState& state, u32 idx ) {
 					
 					this->mSize += sizeof ( u8 );
 					
-					bits = state.GetValue < u64 >( idx++, 0 );
+					bits = state.GetParamValue < u64 >( idx++, 0 );
 					
 					type = ( bits >> 32 ) & PARAM_TYPE_MASK;
 					this->mTypes [ i ] = type;
@@ -225,8 +225,8 @@ u8* MOAIParticleScript::Instruction::Write ( u8* cursor ) {
     @in		number v0
     @out	nil
 */
-int MOAIParticleScript::_abs ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( ABS, "RV" )
+mrb_value MOAIParticleScript::_abs ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( ABS, "RV" )
 }
 
 //----------------------------------------------------------------//
@@ -239,8 +239,8 @@ int MOAIParticleScript::_abs ( lua_State* L ) {
 	@in		number v1
 	@out	nil
 */
-int MOAIParticleScript::_add ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( ADD, "RVV" )
+mrb_value MOAIParticleScript::_add ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( ADD, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -254,8 +254,8 @@ int MOAIParticleScript::_add ( lua_State* L ) {
 	@in		number v0			Angle of vector (in degrees).
 	@out	nil
 */
-int MOAIParticleScript::_angleVec ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( ANGLE_VEC, "RRV" )
+mrb_value MOAIParticleScript::_angleVec ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( ANGLE_VEC, "RRV" )
 }
 
 //----------------------------------------------------------------//
@@ -274,8 +274,8 @@ int MOAIParticleScript::_angleVec ( lua_State* L ) {
  @opt		number r3	a
  @out	nil
  */
-int MOAIParticleScript::_color ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( COLOR, "RRRR" )
+mrb_value MOAIParticleScript::_color ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( COLOR, "RRRR" )
 }
 
 //----------------------------------------------------------------//
@@ -287,8 +287,8 @@ int MOAIParticleScript::_color ( lua_State* L ) {
  @in		number v0
  @out	nil
  */
-int MOAIParticleScript::_cos ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( COS, "RV" )
+mrb_value MOAIParticleScript::_cos ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( COS, "RV" )
 }
 
 //----------------------------------------------------------------//
@@ -302,8 +302,8 @@ int MOAIParticleScript::_cos ( lua_State* L ) {
 	@in		number v2
 	@out	nil
 */
-int MOAIParticleScript::_cycle ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( CYCLE, "RVVV" )
+mrb_value MOAIParticleScript::_cycle ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( CYCLE, "RVVV" )
 }
 
 //----------------------------------------------------------------//
@@ -316,8 +316,8 @@ int MOAIParticleScript::_cycle ( lua_State* L ) {
 	@in		number v1
 	@out	nil
 */
-int MOAIParticleScript::_div ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( DIV, "RVV" )
+mrb_value MOAIParticleScript::_div ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( DIV, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -332,8 +332,8 @@ int MOAIParticleScript::_div ( lua_State* L ) {
 	@in		number easeType		See MOAIEaseType for a list of ease types.
 	@out	nil
 */
-int MOAIParticleScript::_ease ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( EASE, "RVVI" )
+mrb_value MOAIParticleScript::_ease ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( EASE, "RVVI" )
 }
 
 //----------------------------------------------------------------//
@@ -348,8 +348,8 @@ int MOAIParticleScript::_ease ( lua_State* L ) {
 	@in		number easeType		See MOAIEaseType for a list of ease types.
 	@out	nil
 */
-int MOAIParticleScript::_easeDelta ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( EASE_DELTA, "RVVI" )
+mrb_value MOAIParticleScript::_easeDelta ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( EASE_DELTA, "RVVI" )
 }
 
 //----------------------------------------------------------------//
@@ -362,8 +362,8 @@ int MOAIParticleScript::_easeDelta ( lua_State* L ) {
 	@in		number v1
 	@out	nil
 */
-int MOAIParticleScript::_mul ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( MUL, "RVV" )
+mrb_value MOAIParticleScript::_mul ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( MUL, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -379,8 +379,8 @@ int MOAIParticleScript::_mul ( lua_State* L ) {
 	@in		number v1
 	@out	nil
 */
-int MOAIParticleScript::_norm ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( NORM, "RRVV" )
+mrb_value MOAIParticleScript::_norm ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( NORM, "RRVV" )
 }
 
 //----------------------------------------------------------------//
@@ -392,8 +392,8 @@ int MOAIParticleScript::_norm ( lua_State* L ) {
 	@in		number v0
 	@out	nil
 */
-int MOAIParticleScript::_oscillate ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( OSCILLATE, "RVVVV" )
+mrb_value MOAIParticleScript::_oscillate ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( OSCILLATE, "RVVVV" )
 }
 
 //----------------------------------------------------------------//
@@ -403,15 +403,14 @@ int MOAIParticleScript::_oscillate ( lua_State* L ) {
 	@in		number const		Const value to pack.
 	@out	number packed		The packed value.
 */
-int MOAIParticleScript::_packConst ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIParticleScript::_packConst ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	float val = state.GetValue < float >( 1, 0.0f );
+	float val = state.GetParamValue < float >( 1, 0.0f );
 	u32 bits;
 	memcpy ( &bits, &val, sizeof ( u32 ));
-	state.Push ( Pack64 ( bits, PARAM_TYPE_CONST ));
 
-	return 1;
+	return state.ToRValue ( Pack64 ( bits, PARAM_TYPE_CONST ) );
 }
 
 //----------------------------------------------------------------//
@@ -421,13 +420,12 @@ int MOAIParticleScript::_packConst ( lua_State* L ) {
 	@in		number regIdx		Register index to pack.
 	@out	number packed		The packed value.
 */
-int MOAIParticleScript::_packLiveReg ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIParticleScript::_packLiveReg ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u8 val = (state.GetValue < u8 >( 1, 0 ) - 1) % LIVE_REG_COUNT;
-	state.Push ( Pack64 ( val, PARAM_TYPE_LIVE_REG ));
+	u8 val = (state.GetParamValue < u8 >( 1, 0 ) - 1) % LIVE_REG_COUNT;
 
-	return 1;
+	return state.ToRValue ( Pack64 ( val, PARAM_TYPE_LIVE_REG ) );
 }
 
 //----------------------------------------------------------------//
@@ -437,13 +435,12 @@ int MOAIParticleScript::_packLiveReg ( lua_State* L ) {
 	@in		number regIdx		Register index to pack.
 	@out	number packed		The packed value.
 */
-int MOAIParticleScript::_packReg ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIParticleScript::_packReg ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u8 val = state.GetValue < u8 >( 1, 0 ) + MOAIParticle::TOTAL_PARTICLE_REG - 1;
-	state.Push ( Pack64 ( val, PARAM_TYPE_PARTICLE_REG ));
+	u8 val = state.GetParamValue < u8 >( 1, 0 ) + MOAIParticle::TOTAL_PARTICLE_REG - 1;
 
-	return 1;
+	return state.ToRValue ( Pack64 ( val, PARAM_TYPE_PARTICLE_REG ) );
 }
 
 //----------------------------------------------------------------//
@@ -456,8 +453,8 @@ int MOAIParticleScript::_packReg ( lua_State* L ) {
 	@in		number v1			Range maximum.
 	@out	nil
 */
-int MOAIParticleScript::_rand ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( RAND, "RVV" )
+mrb_value MOAIParticleScript::_rand ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( RAND, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -470,8 +467,8 @@ int MOAIParticleScript::_rand ( lua_State* L ) {
 	@in		number v1			Range maximum.
 	@out	nil
  */
-int MOAIParticleScript::_randInt ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( RAND_INT, "RVV" )
+mrb_value MOAIParticleScript::_randInt ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( RAND_INT, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -486,8 +483,8 @@ int MOAIParticleScript::_randInt ( lua_State* L ) {
 	@in		number v1			Maximum length of vector.
 	@out	nil
 */
-int MOAIParticleScript::_randVec ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( RAND_VEC, "RRVV" )
+mrb_value MOAIParticleScript::_randVec ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( RAND_VEC, "RRVV" )
 }
 
 //----------------------------------------------------------------//
@@ -499,8 +496,8 @@ int MOAIParticleScript::_randVec ( lua_State* L ) {
 	@in		number v0			Value to load.
 	@out	nil
 */
-int MOAIParticleScript::_set ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( SET, "RV" )
+mrb_value MOAIParticleScript::_set ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( SET, "RV" )
 }
 
 //----------------------------------------------------------------//
@@ -516,19 +513,19 @@ int MOAIParticleScript::_set ( lua_State* L ) {
 	@in		number v0					Value to load.
 	@out	nil
 */
-int MOAIParticleScript::_setLiveReg ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleScript, "UNN" )
+mrb_value MOAIParticleScript::_setLiveReg ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleScript, "UNN" )
 	/* assumption:
 	 * the packing system will always put the bits we care about in the
 	 * low-order parts of a packed value
 	 */
-	int reg			= state.GetValue < u64 >( 2, 0 ) & 0xFF;
-	float value		= state.GetValue < float >( 3, 0.0f );
+	int reg			= state.GetParamValue < u64 >( 1, 0 ) & 0xFF;
+	float value		= state.GetParamValue < float >( 2, 0.0f );
 	if ( reg < 0 || reg >= LIVE_REG_COUNT ) {
-		return 0;
+		return mrb_nil_value ();
 	}
 	self->mLiveRegisters[reg] = value;
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -540,8 +537,8 @@ int MOAIParticleScript::_setLiveReg ( lua_State* L ) {
 	@in		number v0
 	@out	nil
 */
-int MOAIParticleScript::_sin ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( SIN, "RV" )
+mrb_value MOAIParticleScript::_sin ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( SIN, "RV" )
 }
 
 //----------------------------------------------------------------//
@@ -554,8 +551,8 @@ int MOAIParticleScript::_sin ( lua_State* L ) {
 	@in		MOAIParticleScript self
 	@out	nil
 */
-int MOAIParticleScript::_sprite ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( SPRITE, "" )
+mrb_value MOAIParticleScript::_sprite ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( SPRITE, "" )
 }
 
 //----------------------------------------------------------------//
@@ -568,8 +565,8 @@ int MOAIParticleScript::_sprite ( lua_State* L ) {
     @in		number v1
     @out	nil
 */
-int MOAIParticleScript::_step ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( STEP, "RVV" )
+mrb_value MOAIParticleScript::_step ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( STEP, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -582,8 +579,8 @@ int MOAIParticleScript::_step ( lua_State* L ) {
 	@in		number v1
 	@out	nil
 */
-int MOAIParticleScript::_sub ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( SUB, "RVV" )
+mrb_value MOAIParticleScript::_sub ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( SUB, "RVV" )
 }
 
 //----------------------------------------------------------------//
@@ -595,8 +592,8 @@ int MOAIParticleScript::_sub ( lua_State* L ) {
  @in		number v0
  @out	nil
  */
-int MOAIParticleScript::_tan ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( TAN, "RV" )
+mrb_value MOAIParticleScript::_tan ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( TAN, "RV" )
 }
 
 //----------------------------------------------------------------//
@@ -607,8 +604,8 @@ int MOAIParticleScript::_tan ( lua_State* L ) {
 	@in		number r0
 	@out	nil
 */
-int MOAIParticleScript::_time ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( TIME, "R" )
+mrb_value MOAIParticleScript::_time ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( TIME, "R" )
 }
 
 //----------------------------------------------------------------//
@@ -622,8 +619,8 @@ int MOAIParticleScript::_time ( lua_State* L ) {
 	@in		number v2
 	@out	nil
 */
-int MOAIParticleScript::_wrap ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( WRAP, "RVVV" )
+mrb_value MOAIParticleScript::_wrap ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( WRAP, "RVVV" )
 }
 
 //----------------------------------------------------------------//
@@ -636,8 +633,8 @@ int MOAIParticleScript::_wrap ( lua_State* L ) {
 	@in		number v1
 	@out	nil
 */
-int MOAIParticleScript::_vecAngle ( lua_State* L ) {
-	IMPL_LUA_PARTICLE_OP ( VEC_ANGLE, "RVV" )
+mrb_value MOAIParticleScript::_vecAngle ( mrb_state* M, mrb_value context ) {
+	IMPL_RUBY_PARTICLE_OP ( VEC_ANGLE, "RVV" )
 }
 
 //================================================================//
@@ -686,7 +683,7 @@ MOAIParticleScript::MOAIParticleScript () :
 	int i;
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 
 	for (i = 0; i < LIVE_REG_COUNT; ++i) {
@@ -749,73 +746,64 @@ void MOAIParticleScript::PushSprite ( MOAIParticleSystem& system, float* registe
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleScript::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleScript::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "PARTICLE_X",			Pack64 ( MOAIParticle::PARTICLE_X,		PARAM_TYPE_PARTICLE_REG ));
-	state.SetField ( -1, "PARTICLE_Y",			Pack64 ( MOAIParticle::PARTICLE_Y,		PARAM_TYPE_PARTICLE_REG ));
-	state.SetField ( -1, "PARTICLE_DX",			Pack64 ( MOAIParticle::PARTICLE_DX,		PARAM_TYPE_PARTICLE_REG ));
-	state.SetField ( -1, "PARTICLE_DY",			Pack64 ( MOAIParticle::PARTICLE_DY,		PARAM_TYPE_PARTICLE_REG ));
+	state.DefineClassConst ( klass, "PARTICLE_X",			Pack64 ( MOAIParticle::PARTICLE_X,		PARAM_TYPE_PARTICLE_REG ));
+	state.DefineClassConst ( klass, "PARTICLE_Y",			Pack64 ( MOAIParticle::PARTICLE_Y,		PARAM_TYPE_PARTICLE_REG ));
+	state.DefineClassConst ( klass, "PARTICLE_DX",			Pack64 ( MOAIParticle::PARTICLE_DX,		PARAM_TYPE_PARTICLE_REG ));
+	state.DefineClassConst ( klass, "PARTICLE_DY",			Pack64 ( MOAIParticle::PARTICLE_DY,		PARAM_TYPE_PARTICLE_REG ));
 
-	state.SetField ( -1, "SPRITE_X_LOC",		Pack64 ( SPRITE_X_LOC,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_Y_LOC",		Pack64 ( SPRITE_Y_LOC,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_ROT",			Pack64 ( SPRITE_ROT,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_X_SCL",		Pack64 ( SPRITE_X_SCL,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_Y_SCL",		Pack64 ( SPRITE_Y_SCL,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_RED",			Pack64 ( SPRITE_RED,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_GREEN",		Pack64 ( SPRITE_GREEN,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_BLUE",			Pack64 ( SPRITE_BLUE,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_OPACITY",		Pack64 ( SPRITE_OPACITY,	PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_GLOW",			Pack64 ( SPRITE_GLOW,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "SPRITE_IDX",			Pack64 ( SPRITE_IDX,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_X_LOC",		Pack64 ( SPRITE_X_LOC,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_Y_LOC",		Pack64 ( SPRITE_Y_LOC,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_ROT",			Pack64 ( SPRITE_ROT,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_X_SCL",		Pack64 ( SPRITE_X_SCL,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_Y_SCL",		Pack64 ( SPRITE_Y_SCL,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_RED",			Pack64 ( SPRITE_RED,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_GREEN",		Pack64 ( SPRITE_GREEN,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_BLUE",			Pack64 ( SPRITE_BLUE,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_OPACITY",		Pack64 ( SPRITE_OPACITY,	PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_GLOW",			Pack64 ( SPRITE_GLOW,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "SPRITE_IDX",			Pack64 ( SPRITE_IDX,		PARAM_TYPE_SPRITE_REG ));
 	
 	
-	state.SetField ( -1, "PARTICLE_AGE",		Pack64 ( PARTICLE_AGE,		PARAM_TYPE_SPRITE_REG ));
-	state.SetField ( -1, "PARTICLE_TIME",		Pack64 ( PARTICLE_TIME,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "PARTICLE_AGE",		Pack64 ( PARTICLE_AGE,		PARAM_TYPE_SPRITE_REG ));
+	state.DefineClassConst ( klass, "PARTICLE_TIME",		Pack64 ( PARTICLE_TIME,		PARAM_TYPE_SPRITE_REG ));
 	
-	luaL_Reg regTable [] = {
-		{ "packConst",			_packConst },
-		{ "packLiveReg",		_packLiveReg },
-		{ "packReg",			_packReg },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "packConst",			_packConst, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "packLiveReg",		_packLiveReg, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "packReg",			_packReg, MRB_ARGS_REQ ( 1 ) );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleScript::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleScript::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	luaL_Reg regTable [] = {
-		{ "abs",				_abs },
-		{ "add",				_add },
-		{ "angleVec",			_angleVec },
-		{ "color",				_color },
-		{ "cos",				_cos },
-		{ "cycle",				_cycle },
-		{ "div",				_div },
-		{ "ease",				_ease },
-		{ "easeDelta",			_easeDelta },
-		{ "mul",				_mul },
-		{ "norm",				_norm },
-		{ "oscillate",			_oscillate },
-		{ "rand",				_rand },
-		{ "randInt",			_randInt },
-		{ "randVec",			_randVec },
-		{ "set",				_set },
-		{ "setLiveReg",			_setLiveReg },
-		{ "setReg",				_setLiveReg }, // TODO: mark as deprecated
-		{ "sin",				_sin },
-		{ "sprite",				_sprite },
-		{ "step",				_step },
-		{ "sub",				_sub },
-		{ "tan",				_tan },
-		{ "time",				_time },
-		{ "vecAngle",			_vecAngle },
-		{ "wrap",				_wrap },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "abs",				_abs, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "add",				_add, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "angleVec",			_angleVec, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "color",			_color, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineInstanceMethod ( klass, "cos",				_cos, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "cycle",			_cycle, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "div",				_div, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "ease",				_ease, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "easeDelta",		_easeDelta, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "mul",				_mul, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "norm",				_norm, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "oscillate",		_oscillate, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "rand",				_rand, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "randInt",			_randInt, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "randVec",			_randVec, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "set",				_set, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setLiveReg",		_setLiveReg, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setReg",			_setLiveReg, MRB_ARGS_REQ ( 2 ) ); // TODO: mark as deprecated
+	state.DefineInstanceMethod ( klass, "sin",				_sin, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "sprite",			_sprite, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "step",				_step, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "sub",				_sub, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "tan",				_tan, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "time",				_time, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "vecAngle",			_vecAngle, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "wrap",				_wrap, MRB_ARGS_REQ ( 4 ) );
+
 }
 
 //----------------------------------------------------------------//

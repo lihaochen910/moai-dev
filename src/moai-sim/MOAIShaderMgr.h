@@ -24,7 +24,7 @@ class MOAIShaderProgram;
 	@const MESH_SHADER
 */
 class MOAIShaderMgr :
-	public ZLContextClass < MOAIShaderMgr, MOAILuaObject > {
+	public ZLContextClass < MOAIShaderMgr, MOAIRubyObject > {
 public:
 
 	enum Preset {
@@ -48,12 +48,12 @@ private:
 	MOAIShader*			mShaders [ TOTAL_SHADERS ];
 	
 	//----------------------------------------------------------------//
-	static int				_getProgram				( lua_State* L );
-	static int				_getShader				( lua_State* L );
+	static mrb_value				_getProgram				( mrb_state* M, mrb_value context );
+	static mrb_value				_getShader				( mrb_state* M, mrb_value context );
 	
 public:
 	
-	DECL_LUA_SINGLETON ( MOAIShaderMgr )
+	DECL_RUBY_SINGLETON ( MOAIShaderMgr )
 	
 	//----------------------------------------------------------------//
 	void					AffirmAll				();
@@ -61,8 +61,8 @@ public:
 	MOAIShader*				GetShader				( u32 shaderID );
 							MOAIShaderMgr			();
 							~MOAIShaderMgr			();
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -23,11 +23,11 @@ void MOAIImageBlendMode::Clear () {
 }
 
 //----------------------------------------------------------------//
-void MOAIImageBlendMode::Init ( MOAILuaState& state, int idx ) {
+void MOAIImageBlendMode::Init ( MOAIRubyState& state, int idx ) {
 
-	this->mEquation		= ( ZLColor::BlendEquation )state.GetValue < u32 >( idx++, ( u32 )ZLColor::BLEND_EQ_NONE );
-	this->mSrcFactor	= ( ZLColor::BlendFactor )state.GetValue < u32 >( idx++, ( u32 )ZLColor::BLEND_FACTOR_ZERO );
-	this->mDstFactor	= ( ZLColor::BlendFactor )state.GetValue < u32 >( idx, ( u32 )ZLColor::BLEND_FACTOR_ZERO );
+	this->mEquation		= ( ZLColor::BlendEquation )state.GetParamValue < u32 >( idx++, ( u32 )ZLColor::BLEND_EQ_NONE );
+	this->mSrcFactor	= ( ZLColor::BlendFactor )state.GetParamValue < u32 >( idx++, ( u32 )ZLColor::BLEND_FACTOR_ZERO );
+	this->mDstFactor	= ( ZLColor::BlendFactor )state.GetParamValue < u32 >( idx, ( u32 )ZLColor::BLEND_FACTOR_ZERO );
 }
 
 //----------------------------------------------------------------//
@@ -49,17 +49,18 @@ MOAIImageBlendMode::MOAIImageBlendMode () {
 	@out	number averageB
 	@out	number averageA
 */
-int MOAIImage::_average ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_average ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
 	ZLColorVec average = self->Average ();
 	
-	lua_pushnumber ( state, average.mR );
-	lua_pushnumber ( state, average.mG );
-	lua_pushnumber ( state, average.mB );
-	lua_pushnumber ( state, average.mA );
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( average.mR );
+	ret [ 1 ] = state.ToRValue ( average.mG );
+	ret [ 2 ] = state.ToRValue ( average.mB );
+	ret [ 3 ] = state.ToRValue ( average.mA );
 	
-	return 4;
+	return mrb_ary_new_from_values ( M, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -73,19 +74,19 @@ int MOAIImage::_average ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAIImage::_bleedRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_bleedRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
 	ZLIntRect rect;
 	
-	rect.mXMin	= state.GetValue < int >( 2, 0 );
-	rect.mYMin	= state.GetValue < int >( 3, 0 );
-	rect.mXMax	= state.GetValue < int >( 4, 0 );
-	rect.mYMax	= state.GetValue < int >( 5, 0 );
+	rect.mXMin	= state.GetParamValue < int >( 1, 0 );
+	rect.mYMin	= state.GetParamValue < int >( 2, 0 );
+	rect.mXMax	= state.GetParamValue < int >( 3, 0 );
+	rect.mYMax	= state.GetParamValue < int >( 4, 0 );
 	
 	self->BleedRect ( rect );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -97,11 +98,11 @@ int MOAIImage::_bleedRect ( lua_State* L ) {
 	@opt	number sigma		Default valie is radius / 3 (https://en.wikipedia.org/wiki/Gaussian_blur)
 	@out	nil
 */
-int MOAIImage::_calculateGaussianKernel ( lua_State* L ) {
-	MOAI_LUA_SETUP_CLASS ( "" )
+mrb_value MOAIImage::_calculateGaussianKernel ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_CLASS ( "" )
 	
-	float radius	= state.GetValue < float >( 1, 1.0f );
-	float sigma		= state.GetValue < float >( 2, ( radius / 3.0f ));
+	float radius	= state.GetParamValue < float >( 1, 1.0f );
+	float sigma		= state.GetParamValue < float >( 2, ( radius / 3.0f ));
 	
 	if ( radius > 0.0f ) {
 	
@@ -110,13 +111,14 @@ int MOAIImage::_calculateGaussianKernel ( lua_State* L ) {
 		
 		MOAIImage::CalculateGaussianKernel ( radius, sigma, kernel, kernelWidth );
 
-		lua_newtable ( state );
+		mrb_value ary = mrb_ary_new ( M );
 		for ( int i = 0; i < kernelWidth; ++i ) {
-			state.SetFieldByIndex ( -1, i + 1, kernel [ i ]);
+			mrb_ary_set ( M, ary, i, state.ToRValue ( kernel [ i ] ) );
 		}
-		return 1;
+
+		return ary;
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -127,14 +129,12 @@ int MOAIImage::_calculateGaussianKernel ( lua_State* L ) {
 	@in		MOAIImage other
 	@out	boolean areEqual	A value indicating whether the images are equal.
 */
-int MOAIImage::_compare ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UU" )
+mrb_value MOAIImage::_compare ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UU" )
 
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, true );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, true );
 
-	lua_pushboolean ( state, self->Compare ( *image ));
-
-	return 1;
+	return state.ToRValue ( self->Compare ( *image ) );
 }
 
 //----------------------------------------------------------------//
@@ -151,17 +151,16 @@ int MOAIImage::_compare ( lua_State* L ) {
 	@opt	number pixelFmt		One of MOAIImage.PIXEL_FMT_TRUECOLOR, MOAIImage.PIXEL_FMT_INDEX_4, MOAIImage.PIXEL_FMT_INDEX_8
 	@out	MOAIImage image		Copy of the image initialized with given format.
 */
-int MOAIImage::_convert ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_convert ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	u32 colorFmt = state.GetValue < u32 >( 2, self->mColorFormat );
-	u32 pixelFmt = state.GetValue < u32 >( 3, self->mPixelFormat );
+	u32 colorFmt = state.GetParamValue < u32 >( 1, self->mColorFormat );
+	u32 pixelFmt = state.GetParamValue < u32 >( 2, self->mPixelFormat );
 	
-	MOAIImage* image = new MOAIImage ();
+	MOAIImage* image = state.CreateClassInstance < MOAIImage >();
 	image->Convert ( *self, ( ZLColor::ColorFormat )colorFmt, ( PixelFormat )pixelFmt );
-	image->PushLuaUserdata ( state );
 	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( image );
 }
 
 //----------------------------------------------------------------//
@@ -174,60 +173,59 @@ int MOAIImage::_convert ( lua_State* L ) {
 	@opt	boolean normalize	If true, the kernel will be normalized prior to the convolution. Default value is true.
 	@out	MOAIImage image		The resulting image.
 */
-int MOAIImage::_convolve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UT" )
+mrb_value MOAIImage::_convolve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UT" )
 
-	bool normalize = state.GetValue < bool >( 3, true );
+	bool normalize = state.GetParamValue < bool >( 2, true );
 
-	int kernelWidth = ( int )state.GetTableSize ( 2 );
-	
+	/*mrb_value ary = state.GetParamValue ( 1 );
+
+	int kernelWidth = ( int )state.GetArraySize ( ary );
+
 	if ( kernelWidth ) {
-	
-		MOAIImage* image = new MOAIImage ();
-	
+
+		MOAIImage* image = state.CreateClassInstance < MOAIImage >();
+
 		state.PushField ( 2, 1 );
-	
+
 		if ( state.IsType ( -1, LUA_TNUMBER )) {
-		
+
 			float* kernel = ( float* )alloca ( kernelWidth * sizeof ( float ));
-			
+
 			for ( int x = 0; x < kernelWidth; ++x ) {
 				kernel [ x ] = state.GetFieldValue < float >( 2, x + 1, 0.0f );
 			}
-			
+
 			if ( normalize ) {
 				ZLFloat::Normalize ( kernel, kernelWidth );
 			}
 			image->Convolve ( *self, kernel, kernelWidth );
 		}
 		else if ( state.IsType ( -1, LUA_TTABLE )) {
-		
+
 			int kernelHeight = kernelWidth;
 			kernelWidth = ( int )state.GetTableSize ( -1 );
-			
+
 			float* kernel = ( float* )alloca ( kernelWidth * kernelHeight * sizeof ( float ));
-			
+
 			for ( int y = 0; y < kernelHeight; ++y ) {
-				
+
 				state.PushField ( 2, y + 1 );
 				for ( int x = 0; x < kernelWidth; ++x ) {
 					kernel [( y * kernelWidth ) + x ] = state.GetFieldValue < float >( -1, x + 1, 0.0f );
 				}
 				state.Pop ();
 			}
-			
+
 			if ( normalize ) {
 				ZLFloat::Normalize ( kernel, kernelWidth * kernelHeight );
 			}
 			image->Convolve ( *self, kernel, kernelWidth, kernelHeight );
 		}
-	
-		state.Pop ();
-	
-		image->PushLuaUserdata ( state );
-		return 1;
-	}
-	return 0;
+
+		return state.ToRValue < MOAIRubyObject* >( image );
+	}*/
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -240,40 +238,37 @@ int MOAIImage::_convolve ( lua_State* L ) {
 	@opt	boolean normalize	If true, the kernel will be normalized prior to the convolution. Default value is true.
 	@out	MOAIImage image		The resulting image.
 */
-int MOAIImage::_convolve1D ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UT" )
+mrb_value MOAIImage::_convolve1D ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UT" )
 
-	bool horizontal		= state.GetValue < bool >( 3, true );
-	bool normalize		= state.GetValue < bool >( 4, true );
+	bool horizontal		= state.GetParamValue < bool >( 2, true );
+	bool normalize		= state.GetParamValue < bool >( 3, true );
 
-	size_t kernelWidth = state.GetTableSize ( 2 );
-	
-	if ( kernelWidth ) {
-	
-		MOAIImage* image = new MOAIImage ();
-	
-		state.PushField ( 2, 1 );
-	
-		if ( state.IsType ( -1, LUA_TNUMBER )) {
-		
-			float* kernel = ( float* )alloca ( kernelWidth * sizeof ( float ));
-			
-			for ( size_t x = 0; x < kernelWidth; ++x ) {
-				kernel [ x ] = state.GetFieldValue < float >( 2, ( int )( x + 1 ), 0.0f ); // TODO: cast
-			}
-			
-			if ( normalize ) {
-				ZLFloat::Normalize ( kernel, kernelWidth );
-			}
-			image->Convolve1D ( *self, kernel, kernelWidth, horizontal );
-		}
-	
-		state.Pop ();
-	
-		image->PushLuaUserdata ( state );
-		return 1;
-	}
-	return 0;
+	//size_t kernelWidth = state.GetTableSize ( 1 );
+	//
+	//if ( kernelWidth ) {
+	//
+	//	MOAIImage* image = state.CreateClassInstance < MOAIImage >();
+	//
+	//	state.PushField ( 2, 1 );
+	//
+	//	if ( state.IsType ( -1, LUA_TNUMBER )) {
+	//	
+	//		float* kernel = ( float* )alloca ( kernelWidth * sizeof ( float ));
+	//		
+	//		for ( size_t x = 0; x < kernelWidth; ++x ) {
+	//			kernel [ x ] = state.GetFieldValue < float >( 2, ( int )( x + 1 ), 0.0f ); // TODO: cast
+	//		}
+	//		
+	//		if ( normalize ) {
+	//			ZLFloat::Normalize ( kernel, kernelWidth );
+	//		}
+	//		image->Convolve1D ( *self, kernel, kernelWidth, horizontal );
+	//	}
+	//
+	//	return state.ToRValue < MOAIRubyObject* >( image );
+	//}
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -283,14 +278,13 @@ int MOAIImage::_convolve1D ( lua_State* L ) {
 	@in		MOAIImage self
 	@out	MOAIImage image		Copy of the image.
 */
-int MOAIImage::_copy ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_copy ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	MOAIImage* image = new MOAIImage ();
+	MOAIImage* image = state.CreateClassInstance < MOAIImage >();
 	image->Copy ( *self );
-	image->PushLuaUserdata ( state );
-	
-	return 1;
+
+	return state.ToRValue < MOAIRubyObject* >( image );
 }
 
 //----------------------------------------------------------------//
@@ -307,26 +301,26 @@ int MOAIImage::_copy ( lua_State* L ) {
 	@in		number height		Height of section to copy.
 	@out	nil
 */
-int MOAIImage::_copyBits ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UUNNNNNN" )
+mrb_value MOAIImage::_copyBits ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UUNNNNNN" )
 	
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, true );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, true );
 	if ( !image ) {
-		return 0;
+		return context;
 	}
 	
-	int srcX	= state.GetValue < int >( 3, 0 );
-	int srcY	= state.GetValue < int >( 4, 0 );
+	int srcX	= state.GetParamValue < int >( 2, 0 );
+	int srcY	= state.GetParamValue < int >( 3, 0 );
 	
-	int destX	= state.GetValue < int >( 5, 0 );
-	int destY	= state.GetValue < int >( 6, 0 );
+	int destX	= state.GetParamValue < int >( 4, 0 );
+	int destY	= state.GetParamValue < int >( 5, 0 );
 	
-	int width	= state.GetValue < int >( 7, 0 );
-	int height	= state.GetValue < int >( 8, 0 );
+	int width	= state.GetParamValue < int >( 6, 0 );
+	int height	= state.GetParamValue < int >( 7, 0 );
 	
 	self->Blit ( *image, srcX, srcY, destX, destY, width, height );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -353,34 +347,34 @@ int MOAIImage::_copyBits ( lua_State* L ) {
 	@opt	number equation		Default value is BLEND_EQ_ADD
 	@out	nil
 */
-int MOAIImage::_copyRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UUNNNNNN" )
+mrb_value MOAIImage::_copyRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UUNNNNNN" )
 	
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, true );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, true );
 	if ( !image ) {
-		return 0;
+		return context;
 	}
 	
 	ZLIntRect srcRect;
-	srcRect.mXMin = state.GetValue < int >( 3, 0 );
-	srcRect.mYMin = state.GetValue < int >( 4, 0 );
-	srcRect.mXMax = state.GetValue < int >( 5, 0 );
-	srcRect.mYMax = state.GetValue < int >( 6, 0 );
+	srcRect.mXMin = state.GetParamValue < int >( 2, 0 );
+	srcRect.mYMin = state.GetParamValue < int >( 3, 0 );
+	srcRect.mXMax = state.GetParamValue < int >( 4, 0 );
+	srcRect.mYMax = state.GetParamValue < int >( 5, 0 );
 	
 	ZLIntRect destRect;
-	destRect.mXMin = state.GetValue < int >( 7, 0 );
-	destRect.mYMin = state.GetValue < int >( 8, 0 );
-	destRect.mXMax = state.GetValue < int >( 9, destRect.mXMin + srcRect.Width ());
-	destRect.mYMax = state.GetValue < int >( 10, destRect.mYMin + srcRect.Height ());
+	destRect.mXMin = state.GetParamValue < int >( 6, 0 );
+	destRect.mYMin = state.GetParamValue < int >( 7, 0 );
+	destRect.mXMax = state.GetParamValue < int >( 8, destRect.mXMin + srcRect.Width ());
+	destRect.mYMax = state.GetParamValue < int >( 9, destRect.mYMin + srcRect.Height ());
 	
-	u32 filter = state.GetValue < u32 >( 11, MOAIImage::FILTER_LINEAR );
+	u32 filter = state.GetParamValue < u32 >( 10, MOAIImage::FILTER_LINEAR );
 	
 	MOAIImageBlendMode blendMode;
 	blendMode.Init ( state, 12 );
 
 	self->CopyRect ( *image, srcRect, destRect, filter, blendMode );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -394,17 +388,17 @@ int MOAIImage::_copyRect ( lua_State* L ) {
 	@opt	K
 	@out	nil
 */
-int MOAIImage::_desaturate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_desaturate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	float rY	= state.GetValue < float >( 2, LUMA_709_R );
-	float gY	= state.GetValue < float >( 3, LUMA_709_G );
-	float bY	= state.GetValue < float >( 4, LUMA_709_B );
-	float K		= state.GetValue < float >( 5, 1.0f );
+	float rY	= state.GetParamValue < float >( 1, LUMA_709_R );
+	float gY	= state.GetParamValue < float >( 2, LUMA_709_G );
+	float bY	= state.GetParamValue < float >( 3, LUMA_709_B );
+	float K		= state.GetParamValue < float >( 4, 1.0f );
 	
 	self->Desaturate ( *self, rY, gY, bY, K );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -420,16 +414,16 @@ int MOAIImage::_desaturate ( lua_State* L ) {
 	@opt	number a			Default value is 0.
 	@out	nil
 */
-int MOAIImage::_fillCircle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNN" )
+mrb_value MOAIImage::_fillCircle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNN" )
 	
-	float x0	= state.GetValue < float >( 2, 0.0f );
-	float y0	= state.GetValue < float >( 3, 0.0f );
-	float r		= state.GetValue < float >( 4, 0.0f );
-	u32 color	= state.GetColor32 ( 5, 0.0f, 0.0f, 0.0f, 0.0f );
+	float x0	= state.GetParamValue < float >( 1, 0.0f );
+	float y0	= state.GetParamValue < float >( 2, 0.0f );
+	float r		= state.GetParamValue < float >( 3, 0.0f );
+	u32 color	= state.GetColor32 ( 4, 0.0f, 0.0f, 0.0f, 0.0f );
 	
 	self->FillCircle ( x0, y0, r, color );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -446,17 +440,17 @@ int MOAIImage::_fillCircle ( lua_State* L ) {
 	@opt	number a			Default value is 0.
 	@out	nil
 */
-int MOAIImage::_fillEllipse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNNN" )
+mrb_value MOAIImage::_fillEllipse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNNN" )
 	
-	int x0	= state.GetValue < int >( 2, 0 );
-	int y0	= state.GetValue < int >( 3, 0 );
-	int rX	= state.GetValue < int >( 4, 0 );
-	int rY	= state.GetValue < int >( 5, 0 );
-	u32 color	= state.GetColor32 ( 6, 0.0f, 0.0f, 0.0f, 0.0f );
+	int x0	= state.GetParamValue < int >( 1, 0 );
+	int y0	= state.GetParamValue < int >( 2, 0 );
+	int rX	= state.GetParamValue < int >( 3, 0 );
+	int rY	= state.GetParamValue < int >( 4, 0 );
+	u32 color	= state.GetColor32 ( 5, 0.0f, 0.0f, 0.0f, 0.0f );
 	
 	self->FillEllipse ( x0, y0, rX, rY, color );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -474,15 +468,15 @@ int MOAIImage::_fillEllipse ( lua_State* L ) {
 	@opt	number a			Default value is 0.
 	@out	nil
 */
-int MOAIImage::_fillRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNNN" )
+mrb_value MOAIImage::_fillRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNNN" )
 
-	ZLIntRect rect = state.GetRect < int >( 2 );
-	u32 color = state.GetColor32 ( 6, 0.0f, 0.0f, 0.0f, 0.0f );
+	ZLIntRect rect = state.GetRect < int >( 1 );
+	u32 color = state.GetColor32 ( 5, 0.0f, 0.0f, 0.0f, 0.0f );
 
 	self->FillRect ( rect, color );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -493,14 +487,14 @@ int MOAIImage::_fillRect ( lua_State* L ) {
 	@opt	number gamma			Default value is 1.
 	@out	nil
 */
-int MOAIImage::_gammaCorrection ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_gammaCorrection ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	float gamma = state.GetValue < float >( 2, 1 );
+	float gamma = state.GetParamValue < float >( 1, 1 );
 	
 	self->GammaCorrection ( *self, gamma );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -522,20 +516,20 @@ int MOAIImage::_gammaCorrection ( lua_State* L ) {
 	@opt	number a			Default value is 1.
 	@out	nil
  */
-int	MOAIImage::_generateOutlineFromSDF( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNNN" )
+mrb_value MOAIImage::_generateOutlineFromSDF( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNNN" )
 	
-	ZLIntRect rect = state.GetRect < int >( 2 );
-	float distMin = state.GetValue < float >( 6, 0.46f );
-	float distMax = state.GetValue < float >( 7, 0.5f );
-	float r		= state.GetValue < float >( 8, 1.0f );
-	float g		= state.GetValue < float >( 9, 1.0f );
-	float b		= state.GetValue < float >( 10, 1.0f );
-	float a		= state.GetValue < float >( 11, 1.0f );
+	ZLIntRect rect = state.GetRect < int >( 1 );
+	float distMin = state.GetParamValue < float >( 5, 0.46f );
+	float distMax = state.GetParamValue < float >( 6, 0.5f );
+	float r		= state.GetParamValue < float >( 7, 1.0f );
+	float g		= state.GetParamValue < float >( 8, 1.0f );
+	float b		= state.GetParamValue < float >( 9, 1.0f );
+	float a		= state.GetParamValue < float >( 10, 1.0f );
 	
 	self->GenerateOutlineFromSDF ( rect, distMin, distMax, r, g, b, a );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -549,14 +543,14 @@ int	MOAIImage::_generateOutlineFromSDF( lua_State* L ) {
 	@in		number yMax
 	@out	nil
  */
-int MOAIImage::_generateSDF( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNNN" )
+mrb_value MOAIImage::_generateSDF( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNNN" )
 	
-	ZLIntRect rect = state.GetRect < int >( 2 );
+	ZLIntRect rect = state.GetRect < int >( 1 );
 	
 	self->GenerateSDF ( rect );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -578,15 +572,15 @@ int MOAIImage::_generateSDF( lua_State* L ) {
 	@opt	number sizeInPixels		Default is 5
 	@out	nil
 */
-int MOAIImage::_generateSDFAA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNNN" )
+mrb_value MOAIImage::_generateSDFAA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNNN" )
 	
-	ZLIntRect rect = state.GetRect <int>( 2 );
-	float threshold = state.GetValue < float >( 6, 5 );
+	ZLIntRect rect = state.GetRect < int >( 1 );
+	float threshold = state.GetParamValue < float >( 5, 5 );
 	
 	self->GenerateSDFAA ( rect, threshold );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -602,15 +596,15 @@ int MOAIImage::_generateSDFAA ( lua_State* L ) {
 	@opt	number threshold	Default is 256
 	@out	nil
 */
-int MOAIImage::_generateSDFDeadReckoning( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNNN" )
+mrb_value MOAIImage::_generateSDFDeadReckoning( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNNN" )
 	
-	ZLIntRect rect = state.GetRect <int>( 2 );
-	u32 threshold = state.GetValue < u32 >( 6, 256 );
+	ZLIntRect rect = state.GetRect <int>( 1 );
+	u32 threshold = state.GetParamValue < u32 >( 5, 256 );
 	
 	self->GenerateSDFDeadReckoning ( rect, threshold );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -623,16 +617,15 @@ int MOAIImage::_generateSDFDeadReckoning( lua_State* L ) {
 	@in		number y
 	@out	number color
 */
-int MOAIImage::_getColor32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNN" )
+mrb_value MOAIImage::_getColor32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNN" )
 	
-	u32 x		= state.GetValue < u32 >( 2, 0 );
-	u32 y		= state.GetValue < u32 >( 3, 0 );
+	u32 x		= state.GetParamValue < u32 >( 1, 0 );
+	u32 y		= state.GetParamValue < u32 >( 2, 0 );
 
 	u32 color = self->GetColor ( x, y );
-	lua_pushnumber ( state, color );
-	
-	return 1;
+
+	return state.ToRValue ( color );
 }
 
 //----------------------------------------------------------------//
@@ -642,18 +635,20 @@ int MOAIImage::_getColor32 ( lua_State* L ) {
 	@in		MOAIImage self
 	@out	rect
  */
-int MOAIImage::_getContentRect(lua_State *L) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_getContentRect( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
 	ZLIntRect contentRect = self->GetContentRect ();
 	int left, right, top, bottom;
 	contentRect.GetRect ( left, top, right, bottom );
-	lua_pushnumber ( state,  left);
-	lua_pushnumber ( state,	 top );
-	lua_pushnumber ( state,  right);
-	lua_pushnumber ( state,	 bottom );
-	
-	return 4;
+
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( left );
+	ret [ 1 ] = state.ToRValue ( top );
+	ret [ 2 ] = state.ToRValue ( right );
+	ret [ 3 ] = state.ToRValue ( bottom );
+
+	return mrb_ary_new_from_values ( M, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -663,11 +658,11 @@ int MOAIImage::_getContentRect(lua_State *L) {
 	@in		MOAIImage self
 	@out	byte array string
  */
-int MOAIImage::_getData(lua_State *L) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_getData( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 
-	lua_pushlstring ( state, ( const char* )self->mBitmap.GetBuffer (), self->mBitmap.GetSize ());
-	return 1;
+	//lua_pushlstring ( state, ( const char* )self->mBitmap.GetBuffer (), self->mBitmap.GetSize ());
+	return state.ToRValue < cc8* >( ( const char* )self->mBitmap.GetBuffer () );
 }
 
 //----------------------------------------------------------------//
@@ -677,12 +672,10 @@ int MOAIImage::_getData(lua_State *L) {
 	@in		MOAIImage self
 	@out	number colorFormat
 */
-int MOAIImage::_getFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_getFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	lua_pushnumber ( state, self->GetColorFormat ());
-	
-	return 1;
+	return state.Get ( self->GetColorFormat () );
 }
 
 //----------------------------------------------------------------//
@@ -697,23 +690,24 @@ int MOAIImage::_getFormat ( lua_State* L ) {
 	@out	number b
 	@out	number a
 */
-int MOAIImage::_getRGBA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNN" )
+mrb_value MOAIImage::_getRGBA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNN" )
 	
-	u32 x		= state.GetValue < u32 >( 2, 0 );
-	u32 y		= state.GetValue < u32 >( 3, 0 );
+	u32 x		= state.GetParamValue < u32 >( 1, 0 );
+	u32 y		= state.GetParamValue < u32 >( 2, 0 );
 
 	u32 color = self->GetColor ( x, y );
 	
 	ZLColorVec colorVec;
 	colorVec.SetRGBA ( color );
-	
-	lua_pushnumber ( state, colorVec.mR );
-	lua_pushnumber ( state, colorVec.mG );
-	lua_pushnumber ( state, colorVec.mB );
-	lua_pushnumber ( state, colorVec.mA );
-	
-	return 4;
+
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( colorVec.mR );
+	ret [ 1 ] = state.ToRValue ( colorVec.mG );
+	ret [ 2 ] = state.ToRValue ( colorVec.mB );
+	ret [ 3 ] = state.ToRValue ( colorVec.mA );
+
+	return mrb_ary_new_from_values ( M, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -725,18 +719,19 @@ int MOAIImage::_getRGBA ( lua_State* L ) {
 	@out	number width
 	@out	number height
 */
-int MOAIImage::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
 	u32 width		= self->GetWidth ();
 	u32 height		= self->GetHeight ();
 
-	float scale		= state.GetValue < float >( 2, 1.0f );
+	float scale		= state.GetParamValue < float >( 1, 1.0f );
 
-	lua_pushnumber ( state, ( float )width * scale );
-	lua_pushnumber ( state, ( float )height * scale );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( (float )width * scale );
+	ret [ 1 ] = state.ToRValue ( (float )height * scale );
+
+	return mrb_ary_new_from_values ( M, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -752,23 +747,23 @@ int MOAIImage::_getSize ( lua_State* L ) {
 								Default value is MOAIImage.COLOR_FMT_RGBA_8888.
 	@out	nil
 */
-int MOAIImage::_init ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_init ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 
-	MOAIImage* srcImage	= state.GetLuaObject < MOAIImage >( 2, false );
+	MOAIImage* srcImage	= state.GetRubyObject < MOAIImage >( 2, false );
 	if  ( srcImage ) {
 	
 		self->Init ( *srcImage );
 	}
 	else {
 
-		u32 width		= state.GetValue < u32 >( 2, 0 );
-		u32 height		= state.GetValue < u32 >( 3, width );
-		u32 colorFmt	= state.GetValue < u32 >( 4, ZLColor::RGBA_8888 );
+		u32 width		= state.GetParamValue < u32 >( 2, 0 );
+		u32 height		= state.GetParamValue < u32 >( 3, width );
+		u32 colorFmt	= state.GetParamValue < u32 >( 4, ZLColor::RGBA_8888 );
 
 		self->Init ( width, height, ( ZLColor::ColorFormat )colorFmt, TRUECOLOR );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -778,8 +773,8 @@ int MOAIImage::_init ( lua_State* L ) {
 	@in		MOAIImage self
 	@out	bool
  */
-int MOAIImage::_isOpaque(lua_State *L) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_isOpaque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
 	// TODO: this is so inefficient
 	
@@ -788,15 +783,13 @@ int MOAIImage::_isOpaque(lua_State *L) {
 			ZLColorVec color;
 			color.SetRGBA ( self->GetColor ( x, y ));
 			if ( color.mA != 255 ) {
-				lua_pushboolean ( L, 0 );
-				return 1;
+				return state.ToRValue ( false );
 			}
 		}
 	}
 	
 	// it's opaque!
-	lua_pushboolean ( L, 1 );
-	return 1;
+	return state.ToRValue ( true );
 }
 
 //----------------------------------------------------------------//
@@ -811,22 +804,22 @@ int MOAIImage::_isOpaque(lua_State *L) {
 								One of MOAIImage.TRUECOLOR, One of MOAIImage.PREMULTIPLY_ALPHA
 	@out	nil
 */
-int MOAIImage::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 
-	MOAIImage* srcImage	= state.GetLuaObject < MOAIImage >( 2, false );
+	MOAIImage* srcImage	= state.GetRubyObject < MOAIImage >( 1, false );
 	if  ( srcImage ) {
 	
 		self->Copy ( *srcImage );
 	}
 	else {
 
-		cc8* filename	= state.GetValue < cc8* >( 2, "" );
-		u32 transform	= state.GetValue < u32 >( 3, 0 );
+		cc8* filename	= state.GetParamValue < cc8* >( 1, "" );
+		u32 transform	= state.GetParamValue < u32 >( 2, 0 );
 
 		self->Load ( filename, transform );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -851,30 +844,31 @@ int MOAIImage::_load ( lua_State* L ) {
 										MOAIImage.TRUECOLOR, MOAIImage.PREMULTIPLY_ALPHA
 		@out	nil
 */
-int MOAIImage::_loadAsync ( lua_State *L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_loadAsync ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	MOAIDataBuffer* buffer	= state.GetLuaObject < MOAIDataBuffer >( 2, false );
-	MOAITaskQueue* queue	= state.GetLuaObject < MOAITaskQueue >( 3, true );
-	u32 transform			= state.GetValue < u32 >( 5, 0 );
+	// TODO
+	/*MOAIDataBuffer* buffer	= state.GetRubyObject < MOAIDataBuffer >( 1, false );
+	MOAITaskQueue* queue	= state.GetRubyObject < MOAITaskQueue >( 2, true );
+	u32 transform			= state.GetParamValue < u32 >( 4, 0 );
 	
 	if ( !queue ) {
-		return 0;
+		return context;
 	}
 	
-	MOAIImageLoadTask* task = new MOAIImageLoadTask ();
+	MOAIImageLoadTask* task = state.CreateClassInstance < MOAIImageLoadTask >();
 	
 	if ( buffer ) {
 		task->Init ( *buffer, *self, transform );
 	}
 	else {
-		cc8* filename = state.GetValue < cc8* >( 2, "" );
+		cc8* filename = state.GetParamValue < cc8* >( 2, "" );
 		task->Init ( filename, *self, transform );
 	}
-	task->SetCallback ( L, 4 );
-	task->Start ( *queue, MOAIMainThreadTaskSubscriber::Get ());
+	task->SetCallback ( M, 4 );
+	task->Start ( *queue, MOAIMainThreadTaskSubscriber::Get ());*/
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -887,11 +881,11 @@ int MOAIImage::_loadAsync ( lua_State *L ) {
 										One of MOAIImage.TRUECOLOR, One of MOAIImage.PREMULTIPLY_ALPHA
 	@out	nil
 */
-int MOAIImage::_loadFromBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UU" )
+mrb_value MOAIImage::_loadFromBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UU" )
 
-	MOAIDataBuffer* buffer = state.GetLuaObject < MOAIDataBuffer >( 2, true );
-	u32 transform = state.GetValue < u32 >( 3, 0 );
+	MOAIDataBuffer* buffer = state.GetRubyObject < MOAIDataBuffer >( 1, true );
+	u32 transform = state.GetParamValue < u32 >( 2, 0 );
 	if ( buffer ) {
 		void* bytes = 0;
 		size_t size = 0;
@@ -907,7 +901,7 @@ int MOAIImage::_loadFromBuffer ( lua_State* L ) {
 		buffer->Unlock();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -949,36 +943,36 @@ int MOAIImage::_loadFromBuffer ( lua_State* L ) {
 	
 	@out	nil
 */
-int MOAIImage::_mix ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_mix ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 
 	ZLMatrix4x4 mtx;
 
-	mtx.m [ ZLMatrix4x4::C0_R0 ]		= state.GetValue < float >( 2, 1.0f );
-	mtx.m [ ZLMatrix4x4::C1_R0 ]		= state.GetValue < float >( 3, 0.0f );
-	mtx.m [ ZLMatrix4x4::C2_R0 ]		= state.GetValue < float >( 4, 0.0f );
-	mtx.m [ ZLMatrix4x4::C3_R0 ]		= state.GetValue < float >( 5, 0.0f );
+	mtx.m [ ZLMatrix4x4::C0_R0 ]		= state.GetParamValue < float >( 1, 1.0f );
+	mtx.m [ ZLMatrix4x4::C1_R0 ]		= state.GetParamValue < float >( 2, 0.0f );
+	mtx.m [ ZLMatrix4x4::C2_R0 ]		= state.GetParamValue < float >( 3, 0.0f );
+	mtx.m [ ZLMatrix4x4::C3_R0 ]		= state.GetParamValue < float >( 4, 0.0f );
 	
-	mtx.m [ ZLMatrix4x4::C0_R1 ]		= state.GetValue < float >( 6, 0.0f );
-	mtx.m [ ZLMatrix4x4::C1_R1 ]		= state.GetValue < float >( 7, 1.0f );
-	mtx.m [ ZLMatrix4x4::C2_R1 ]		= state.GetValue < float >( 8, 0.0f );
-	mtx.m [ ZLMatrix4x4::C3_R1 ]		= state.GetValue < float >( 9, 0.0f );
+	mtx.m [ ZLMatrix4x4::C0_R1 ]		= state.GetParamValue < float >( 5, 0.0f );
+	mtx.m [ ZLMatrix4x4::C1_R1 ]		= state.GetParamValue < float >( 6, 1.0f );
+	mtx.m [ ZLMatrix4x4::C2_R1 ]		= state.GetParamValue < float >( 7, 0.0f );
+	mtx.m [ ZLMatrix4x4::C3_R1 ]		= state.GetParamValue < float >( 8, 0.0f );
 	
-	mtx.m [ ZLMatrix4x4::C0_R2 ]		= state.GetValue < float >( 10, 0.0f );
-	mtx.m [ ZLMatrix4x4::C1_R2 ]		= state.GetValue < float >( 11, 0.0f );
-	mtx.m [ ZLMatrix4x4::C2_R2 ]		= state.GetValue < float >( 12, 1.0f );
-	mtx.m [ ZLMatrix4x4::C3_R2 ]		= state.GetValue < float >( 13, 0.0f );
+	mtx.m [ ZLMatrix4x4::C0_R2 ]		= state.GetParamValue < float >( 9, 0.0f );
+	mtx.m [ ZLMatrix4x4::C1_R2 ]		= state.GetParamValue < float >( 10, 0.0f );
+	mtx.m [ ZLMatrix4x4::C2_R2 ]		= state.GetParamValue < float >( 11, 1.0f );
+	mtx.m [ ZLMatrix4x4::C3_R2 ]		= state.GetParamValue < float >( 12, 0.0f );
 	
-	mtx.m [ ZLMatrix4x4::C0_R3 ]		= state.GetValue < float >( 14, 0.0f );
-	mtx.m [ ZLMatrix4x4::C1_R3 ]		= state.GetValue < float >( 15, 0.0f );
-	mtx.m [ ZLMatrix4x4::C2_R3 ]		= state.GetValue < float >( 16, 0.0f );
-	mtx.m [ ZLMatrix4x4::C3_R3 ]		= state.GetValue < float >( 17, 1.0f );
+	mtx.m [ ZLMatrix4x4::C0_R3 ]		= state.GetParamValue < float >( 13, 0.0f );
+	mtx.m [ ZLMatrix4x4::C1_R3 ]		= state.GetParamValue < float >( 14, 0.0f );
+	mtx.m [ ZLMatrix4x4::C2_R3 ]		= state.GetParamValue < float >( 15, 0.0f );
+	mtx.m [ ZLMatrix4x4::C3_R3 ]		= state.GetParamValue < float >( 16, 1.0f );
 	
-	float K								= state.GetValue < float >( 18, 1.0f );
+	float K								= state.GetParamValue < float >( 17, 1.0f );
 	
 	self->Mix ( *self, mtx, K );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -991,14 +985,13 @@ int MOAIImage::_mix ( lua_State* L ) {
 	@out	MOAIImage image		Copy of the image padded to the next nearest power
 								of two along each dimension.
 */
-int MOAIImage::_padToPow2 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_padToPow2 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	MOAIImage* image = new MOAIImage ();
+	MOAIImage* image = state.CreateClassInstance < MOAIImage >();
 	image->PadToPow2 ( *self );
-	image->PushLuaUserdata ( state );
-	
-	return 1;
+
+	return state.ToRValue < MOAIRubyObject* > ( image );
 }
 
 //----------------------------------------------------------------//
@@ -1008,12 +1001,12 @@ int MOAIImage::_padToPow2 ( lua_State* L ) {
 	@in		MOAIImage self
 	@out	nil
 */
-int MOAIImage::_print ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_print ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
 	self->Print ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1027,12 +1020,12 @@ int MOAIImage::_print ( lua_State* L ) {
 								Default value is MOAIImage.FILTER_LINEAR.
 	@out	MOAIImage image
 */
-int MOAIImage::_resize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UN" )
+mrb_value MOAIImage::_resize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UN" )
 	
-	u32 width	= state.GetValue < u32 >( 2, 0 );
-	u32 height	= state.GetValue < u32 >( 3, width );
-	u32 filter	= state.GetValue < u32 >( 4, MOAIImage::FILTER_LINEAR );
+	u32 width	= state.GetParamValue < u32 >( 1, 0 );
+	u32 height	= state.GetParamValue < u32 >( 2, width );
+	u32 filter	= state.GetParamValue < u32 >( 3, MOAIImage::FILTER_LINEAR );
 	
 	ZLIntRect srcRect;
 	ZLIntRect destRect;
@@ -1040,12 +1033,11 @@ int MOAIImage::_resize ( lua_State* L ) {
 	srcRect.Init ( 0, 0, self->mWidth, self->mHeight );
 	destRect.Init ( 0, 0, width, height );
 	
-	MOAIImage* image = new MOAIImage ();
+	MOAIImage* image = state.CreateClassInstance < MOAIImage >();
 	image->Init ( width, height, self->mColorFormat, self->mPixelFormat );
 	image->CopyRect ( *self, srcRect, destRect, filter );
-	image->PushLuaUserdata ( state );
-	
-	return 1;
+
+	return state.ToRValue < MOAIRubyObject* >( image );
 }
 
 //----------------------------------------------------------------//
@@ -1071,29 +1063,28 @@ int MOAIImage::_resize ( lua_State* L ) {
 		@in		number yMax
 		@out	MOAIImage image
 */
-int MOAIImage::_resizeCanvas ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNN" )
+mrb_value MOAIImage::_resizeCanvas ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNN" )
 	
 	ZLIntRect rect;
 	
 	if ( state.CheckParams ( 4, "NN" )) {
-		rect.mXMin	= state.GetValue < int >( 2, 0 );
-		rect.mYMin	= state.GetValue < int >( 3, 0 );
-		rect.mXMax	= state.GetValue < int >( 4, 0 );
-		rect.mYMax	= state.GetValue < int >( 5, 0 );
+		rect.mXMin	= state.GetParamValue < int >( 1, 0 );
+		rect.mYMin	= state.GetParamValue < int >( 2, 0 );
+		rect.mXMax	= state.GetParamValue < int >( 3, 0 );
+		rect.mYMax	= state.GetParamValue < int >( 4, 0 );
 	}
 	else {
 		rect.mXMin	= 0;
 		rect.mYMin	= 0;
-		rect.mXMax	= state.GetValue < int >( 2, 0 );
-		rect.mYMax	= state.GetValue < int >( 3, 0 );
+		rect.mXMax	= state.GetParamValue < int >( 1, 0 );
+		rect.mYMax	= state.GetParamValue < int >( 2, 0 );
 	}
 	
-	MOAIImage* image = new MOAIImage ();
+	MOAIImage* image = state.CreateClassInstance < MOAIImage > ();
 	image->ResizeCanvas ( *self, rect );
-	image->PushLuaUserdata ( state );
-	
-	return 1;
+
+	return state.ToRValue < MOAIRubyObject* >( image );
 }
 
 //----------------------------------------------------------------//
@@ -1108,16 +1099,16 @@ int MOAIImage::_resizeCanvas ( lua_State* L ) {
 	@in		number color
 	@out	nil
 */
-int MOAIImage::_setColor32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNNN" )
+mrb_value MOAIImage::_setColor32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNNN" )
 
-	u32 x		= state.GetValue < u32 >( 2, 0 );
-	u32 y		= state.GetValue < u32 >( 3, 0 );
-	u32 color	= state.GetValue < u32 >( 4, 0 );
+	u32 x		= state.GetParamValue < u32 >( 1, 0 );
+	u32 y		= state.GetParamValue < u32 >( 2, 0 );
+	u32 color	= state.GetParamValue < u32 >( 3, 0 );
 
 	self->SetColor ( x, y, color );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1133,20 +1124,20 @@ int MOAIImage::_setColor32 ( lua_State* L ) {
 	@opt	number a	Default value is 1.
 	@out	nil
 */
-int MOAIImage::_setRGBA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "UNN" )
+mrb_value MOAIImage::_setRGBA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "UNN" )
 
-	u32 x		= state.GetValue < u32 >( 2, 0 );
-	u32 y		= state.GetValue < u32 >( 3, 0 );
+	u32 x		= state.GetParamValue < u32 >( 1, 0 );
+	u32 y		= state.GetParamValue < u32 >( 2, 0 );
 	
-	float r		= state.GetValue < float >( 4, 0.0f );
-	float g		= state.GetValue < float >( 5, 0.0f );
-	float b		= state.GetValue < float >( 6, 0.0f );
-	float a		= state.GetValue < float >( 7, 1.0f );
+	float r		= state.GetParamValue < float >( 3, 0.0f );
+	float g		= state.GetParamValue < float >( 4, 0.0f );
+	float b		= state.GetParamValue < float >( 5, 0.0f );
+	float a		= state.GetParamValue < float >( 6, 1.0f );
 
 	self->SetColor ( x, y, ZLColor::PackRGBA ( r, g, b, a ));
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1163,17 +1154,17 @@ int MOAIImage::_setRGBA ( lua_State* L ) {
 	@opt	number a	Default value is 0.
 	@out	nil
 */
-int MOAIImage::_simpleThreshold ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_simpleThreshold ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 
-	float r		= state.GetValue < float >( 2, 0.0f );
-	float g		= state.GetValue < float >( 3, 0.0f );
-	float b		= state.GetValue < float >( 4, 0.0f );
-	float a		= state.GetValue < float >( 5, 0.0f );
+	float r		= state.GetParamValue < float >( 1, 0.0f );
+	float g		= state.GetParamValue < float >( 2, 0.0f );
+	float b		= state.GetParamValue < float >( 3, 0.0f );
+	float a		= state.GetParamValue < float >( 4, 0.0f );
 
 	self->SimpleThreshold ( *self, r, g, b, a );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1193,11 +1184,11 @@ int MOAIImage::_simpleThreshold ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAIImage::_subdivideRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_CLASS ( "NNNNNN" )
+mrb_value MOAIImage::_subdivideRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_CLASS ( "NNNNNN" )
 
-	float tileWidth		= state.GetValue < float >( 1, 1.0f );
-	float tileHeight	= state.GetValue < float >( 2, 1.0f );
+	float tileWidth		= state.GetParamValue < float >( 1, 1.0f );
+	float tileHeight	= state.GetParamValue < float >( 2, 1.0f );
 
 	tileWidth	= ABS ( tileWidth );
 	tileHeight	= ABS ( tileHeight );
@@ -1213,9 +1204,11 @@ int MOAIImage::_subdivideRect ( lua_State* L ) {
 	u32 count	= 0;
 	u32 xCount	= 0;
 	u32 yCount	= 0;
-	
-	lua_newtable ( state );
-	
+
+	mrb_value ret = mrb_ary_new ( M );
+
+	mrb_value ary = mrb_ary_new ( M );
+
 	for ( u32 y = y0; y <= y1; ++y ) {
 		for ( u32 x = x0; x <= x1; ++x ) {
 		
@@ -1232,15 +1225,17 @@ int MOAIImage::_subdivideRect ( lua_State* L ) {
 				if (( sub.Width () > 0.0f ) && ( sub.Height () > 0.0f )) {
 			
 					count++;
-					state.Push ( count );
-				
-					lua_newtable ( state );
-					state.SetFieldByIndex < float >( -1, 1, sub.mXMin );
-					state.SetFieldByIndex < float >( -1, 2, sub.mYMin );
-					state.SetFieldByIndex < float >( -1, 3, sub.mXMax );
-					state.SetFieldByIndex < float >( -1, 4, sub.mYMax );
+					//state.Push ( count );
+
+					mrb_value sub_ary = mrb_ary_new ( M );
 					
-					lua_settable ( state, -3 );
+					mrb_ary_set ( M, sub_ary, 0, state.ToRValue ( sub.mXMin ) );
+					mrb_ary_set ( M, sub_ary, 1, state.ToRValue ( sub.mYMin ) );
+					mrb_ary_set ( M, sub_ary, 2, state.ToRValue ( sub.mXMax ) );
+					mrb_ary_set ( M, sub_ary, 3, state.ToRValue ( sub.mYMax ) );
+					
+					//lua_settable ( state, -3 );
+					mrb_ary_push ( M, ary, sub_ary );
 					
 					xCount = ( x - x0 ) + 1;
 					yCount = ( y - y0 ) + 1;
@@ -1249,10 +1244,11 @@ int MOAIImage::_subdivideRect ( lua_State* L ) {
 		}
 	}
 
-	state.Push ( xCount );
-	state.Push ( yCount );
+	mrb_ary_push ( M, ret, ary );
+	mrb_ary_push ( M, ret, state.ToRValue ( xCount ) );
+	mrb_ary_push ( M, ret, state.ToRValue ( yCount ) );
 
-	return 3;
+	return ret;
 }
 
 //----------------------------------------------------------------//
@@ -1264,18 +1260,17 @@ int MOAIImage::_subdivideRect ( lua_State* L ) {
 	@opt	string format
 	@out	boolean
 */
-int MOAIImage::_write ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImage, "U" )
+mrb_value MOAIImage::_write ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImage, "U" )
 	
-	cc8* filename = state.GetValue < cc8* >( 2, "" );
-	cc8* format = state.GetValue < cc8* >( 3, "png" );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
+	cc8* format = state.GetParamValue < cc8* >( 2, "png" );
 	
 	ZLFileStream stream;
 	stream.OpenWrite ( filename );
 	ZLResultCode result = self->Write ( stream, format );
 	
-	state.Push ( result == ZL_OK );
-	return 1;
+	return state.ToRValue ( result == ZL_OK );
 }
 
 //================================================================//
@@ -1283,20 +1278,20 @@ int MOAIImage::_write ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAIImage* MOAIImage::AffirmImage ( MOAILuaState& state, int idx ) {
+MOAIImage* MOAIImage::AffirmImage ( MOAIRubyState& state, int idx ) {
 
 	MOAIImage* image = 0;
 	
-	if ( state.IsType ( idx, LUA_TUSERDATA )) {
-		image = state.GetLuaObject < MOAIImage >( idx, false );
+	if ( state.ParamIsType ( idx, MRB_TT_DATA )) {
+		image = state.GetRubyObject < MOAIImage >( idx, false );
 	}
 	
-	if ( state.IsType ( idx, LUA_TSTRING )) {
+	if ( state.ParamIsType ( idx, MRB_TT_DATA )) {
 	
-		cc8* filename = state.GetValue < cc8* >( idx, "" );
+		cc8* filename = state.GetParamValue < cc8* >( idx, "" );
 		if ( ZLFileSys::CheckFileExists ( filename )) {
 	
-			image = new MOAIImage ();
+			image = state.CreateClassInstance < MOAIImage >();
 			if ( !image->Load ( filename )) {
 				// TODO: report error
 				delete image;
@@ -3086,7 +3081,7 @@ MOAIImage::MOAIImage () :
 	mWidth ( 0 ),
 	mHeight ( 0 ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -3141,107 +3136,98 @@ void MOAIImage::Print () {
 }
 
 //----------------------------------------------------------------//
-void MOAIImage::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIImage::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	state.SetField ( -1, "FILTER_LINEAR",				( u32 )MOAIImage::FILTER_LINEAR );
-	state.SetField ( -1, "FILTER_NEAREST",				( u32 )MOAIImage::FILTER_NEAREST );
+	state.DefineClassConst ( klass, "FILTER_LINEAR",				( u32 )MOAIImage::FILTER_LINEAR );
+	state.DefineClassConst ( klass, "FILTER_NEAREST",				( u32 )MOAIImage::FILTER_NEAREST );
 	
-	state.SetField ( -1, "POW_TWO",						( u32 )MOAIImageTransform::POW_TWO );
-	state.SetField ( -1, "QUANTIZE",					( u32 )MOAIImageTransform::QUANTIZE );
-	state.SetField ( -1, "TRUECOLOR",					( u32 )MOAIImageTransform::TRUECOLOR );
-	state.SetField ( -1, "PREMULTIPLY_ALPHA",			( u32 )MOAIImageTransform::PREMULTIPLY_ALPHA );
+	state.DefineClassConst ( klass, "POW_TWO",						( u32 )MOAIImageTransform::POW_TWO );
+	state.DefineClassConst ( klass, "QUANTIZE",					( u32 )MOAIImageTransform::QUANTIZE );
+	state.DefineClassConst ( klass, "TRUECOLOR",					( u32 )MOAIImageTransform::TRUECOLOR );
+	state.DefineClassConst ( klass, "PREMULTIPLY_ALPHA",			( u32 )MOAIImageTransform::PREMULTIPLY_ALPHA );
 	
-	state.SetField ( -1, "PIXEL_FMT_TRUECOLOR",			( u32 )TRUECOLOR );
-	state.SetField ( -1, "PIXEL_FMT_INDEX_4",			( u32 )INDEX_4 );
-	state.SetField ( -1, "PIXEL_FMT_INDEX_8",			( u32 )INDEX_8 );
+	state.DefineClassConst ( klass, "PIXEL_FMT_TRUECOLOR",			( u32 )TRUECOLOR );
+	state.DefineClassConst ( klass, "PIXEL_FMT_INDEX_4",			( u32 )INDEX_4 );
+	state.DefineClassConst ( klass, "PIXEL_FMT_INDEX_8",			( u32 )INDEX_8 );
 	
-	state.SetField ( -1, "COLOR_FMT_A_1",				( u32 )ZLColor::A_1 );
-	state.SetField ( -1, "COLOR_FMT_A_4",				( u32 )ZLColor::A_4 );
-	state.SetField ( -1, "COLOR_FMT_A_8",				( u32 )ZLColor::A_8 );
-	state.SetField ( -1, "COLOR_FMT_LA_8",				( u32 )ZLColor::LA_8 );
-	state.SetField ( -1, "COLOR_FMT_RGB_888",			( u32 )ZLColor::RGB_888 );
-	state.SetField ( -1, "COLOR_FMT_RGB_565",			( u32 )ZLColor::RGB_565 );
-	state.SetField ( -1, "COLOR_FMT_RGBA_5551",			( u32 )ZLColor::RGBA_5551 );
-	state.SetField ( -1, "COLOR_FMT_RGBA_4444",			( u32 )ZLColor::RGBA_4444 );
-	state.SetField ( -1, "COLOR_FMT_RGBA_8888",			( u32 )ZLColor::RGBA_8888 );
+	state.DefineClassConst ( klass, "COLOR_FMT_A_1",				( u32 )ZLColor::A_1 );
+	state.DefineClassConst ( klass, "COLOR_FMT_A_4",				( u32 )ZLColor::A_4 );
+	state.DefineClassConst ( klass, "COLOR_FMT_A_8",				( u32 )ZLColor::A_8 );
+	state.DefineClassConst ( klass, "COLOR_FMT_LA_8",				( u32 )ZLColor::LA_8 );
+	state.DefineClassConst ( klass, "COLOR_FMT_RGB_888",			( u32 )ZLColor::RGB_888 );
+	state.DefineClassConst ( klass, "COLOR_FMT_RGB_565",			( u32 )ZLColor::RGB_565 );
+	state.DefineClassConst ( klass, "COLOR_FMT_RGBA_5551",			( u32 )ZLColor::RGBA_5551 );
+	state.DefineClassConst ( klass, "COLOR_FMT_RGBA_4444",			( u32 )ZLColor::RGBA_4444 );
+	state.DefineClassConst ( klass, "COLOR_FMT_RGBA_8888",			( u32 )ZLColor::RGBA_8888 );
 	
-	state.SetField ( -1, "BLEND_EQ_ADD",						( u32 )ZLColor::BLEND_EQ_ADD );
-	state.SetField ( -1, "BLEND_EQ_NONE",						( u32 )ZLColor::BLEND_EQ_NONE );
-	state.SetField ( -1, "BLEND_EQ_SUB",						( u32 )ZLColor::BLEND_EQ_SUB );
-	state.SetField ( -1, "BLEND_EQ_SUB_INV",					( u32 )ZLColor::BLEND_EQ_SUB_INV );
+	state.DefineClassConst ( klass, "BLEND_EQ_ADD",						( u32 )ZLColor::BLEND_EQ_ADD );
+	state.DefineClassConst ( klass, "BLEND_EQ_NONE",						( u32 )ZLColor::BLEND_EQ_NONE );
+	state.DefineClassConst ( klass, "BLEND_EQ_SUB",						( u32 )ZLColor::BLEND_EQ_SUB );
+	state.DefineClassConst ( klass, "BLEND_EQ_SUB_INV",					( u32 )ZLColor::BLEND_EQ_SUB_INV );
 	
-	state.SetField ( -1, "BLEND_FACTOR_0001",					( u32 )ZLColor::BLEND_FACTOR_0001 );
-	state.SetField ( -1, "BLEND_FACTOR_1110",					( u32 )ZLColor::BLEND_FACTOR_1110 );
-	state.SetField ( -1, "BLEND_FACTOR_ONE",					( u32 )ZLColor::BLEND_FACTOR_ONE );
-	state.SetField ( -1, "BLEND_FACTOR_ZERO",					( u32 )ZLColor::BLEND_FACTOR_ZERO );
-	state.SetField ( -1, "BLEND_FACTOR_DST_ALPHA",				( u32 )ZLColor::BLEND_FACTOR_DST_ALPHA );
-	state.SetField ( -1, "BLEND_FACTOR_DST_COLOR",				( u32 )ZLColor::BLEND_FACTOR_DST_COLOR);
-	state.SetField ( -1, "BLEND_FACTOR_ONE_MINUS_DST_ALPHA",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_DST_ALPHA );
-	state.SetField ( -1, "BLEND_FACTOR_ONE_MINUS_DST_COLOR",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_DST_COLOR );
-	state.SetField ( -1, "BLEND_FACTOR_ONE_MINUS_SRC_ALPHA",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_SRC_ALPHA );
-	state.SetField ( -1, "BLEND_FACTOR_ONE_MINUS_SRC_COLOR",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_SRC_COLOR );
-	state.SetField ( -1, "BLEND_FACTOR_SRC_ALPHA",				( u32 )ZLColor::BLEND_FACTOR_SRC_ALPHA );
-	state.SetField ( -1, "BLEND_FACTOR_SRC_COLOR",				( u32 )ZLColor::BLEND_FACTOR_SRC_COLOR );
-	
-	luaL_Reg regTable [] = {
-		{ "calculateGaussianKernel",	_calculateGaussianKernel },
-		{ "subdivideRect",				_subdivideRect },
-		{ NULL, NULL }
-	};
+	state.DefineClassConst ( klass, "BLEND_FACTOR_0001",					( u32 )ZLColor::BLEND_FACTOR_0001 );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_1110",					( u32 )ZLColor::BLEND_FACTOR_1110 );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_ONE",					( u32 )ZLColor::BLEND_FACTOR_ONE );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_ZERO",					( u32 )ZLColor::BLEND_FACTOR_ZERO );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_DST_ALPHA",				( u32 )ZLColor::BLEND_FACTOR_DST_ALPHA );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_DST_COLOR",				( u32 )ZLColor::BLEND_FACTOR_DST_COLOR);
+	state.DefineClassConst ( klass, "BLEND_FACTOR_ONE_MINUS_DST_ALPHA",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_DST_ALPHA );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_ONE_MINUS_DST_COLOR",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_DST_COLOR );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_ONE_MINUS_SRC_ALPHA",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_SRC_ALPHA );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_ONE_MINUS_SRC_COLOR",	( u32 )ZLColor::BLEND_FACTOR_ONE_MINUS_SRC_COLOR );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_SRC_ALPHA",				( u32 )ZLColor::BLEND_FACTOR_SRC_ALPHA );
+	state.DefineClassConst ( klass, "BLEND_FACTOR_SRC_COLOR",				( u32 )ZLColor::BLEND_FACTOR_SRC_COLOR );
 
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "calculateGaussianKernel", _calculateGaussianKernel, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineStaticMethod ( klass, "subdivideRect", _subdivideRect, MRB_ARGS_REQ ( 5 ) );
+	
 }
 
 //----------------------------------------------------------------//
-void MOAIImage::RegisterLuaFuncs ( MOAILuaState& state ) {
-	UNUSED ( state );
+void MOAIImage::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "average",					_average },
-		{ "bleedRect",					_bleedRect },
-		{ "compare",					_compare },
-		{ "convert",					_convert },
-		{ "convertColors",				_convert }, // back compat
-		{ "convolve",					_convolve },
-		{ "convolve1D",					_convolve1D },
-		{ "convertToGrayScale",			_desaturate }, // back compat
-		{ "copy",						_copy },
-		{ "copyBits",					_copyBits },
-		{ "copyRect",					_copyRect },
-		{ "desaturate",					_desaturate },
-		{ "fillCircle",					_fillCircle },
-		{ "fillEllipse",				_fillEllipse },
-		{ "fillRect",					_fillRect },
-		{ "gammaCorrection",			_gammaCorrection },
-		{ "generateOutlineFromSDF",		_generateOutlineFromSDF },
-		{ "generateSDF",				_generateSDF },
-		{ "generateSDFAA",				_generateSDFAA },
-		{ "generateSDFDeadReckoning",	_generateSDFDeadReckoning },
-		{ "getColor32",					_getColor32 },
-		{ "getContentRect",				_getContentRect },
-		{ "getData",					_getData },
-		{ "getFormat",					_getFormat },
-		{ "getRGBA",					_getRGBA },
-		{ "getSize",					_getSize },
-		{ "init",						_init },
-		{ "isOpaque",					_isOpaque },
-		{ "load",						_load },
-		{ "loadAsync",					_loadAsync },
-		{ "loadFromBuffer",				_loadFromBuffer },
-		{ "mix",						_mix },
-		{ "padToPow2",					_padToPow2 },
-		{ "print",						_print },
-		{ "resize",						_resize },
-		{ "resizeCanvas",				_resizeCanvas },
-		{ "setColor32",					_setColor32 },
-		{ "setRGBA",					_setRGBA },
-		{ "simpleThreshold",			_simpleThreshold },
-		{ "write",						_write },
-		{ "writePNG",					_write }, // back compat
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "average", _average, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "bleedRect", _bleedRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "compare", _compare, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "convert", _convert, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "convertColors", _convert, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "convolve", _convolve, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "convolve1D", _convolve1D, MRB_ARGS_ARG ( 1, 2 ) );
+	state.DefineInstanceMethod ( klass, "convertToGrayScale", _desaturate, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "copy", _copy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "copyBits", _copyBits, MRB_ARGS_REQ ( 7 ) );
+	state.DefineInstanceMethod ( klass, "copyRect", _copyRect, MRB_ARGS_ARG ( 7, 6 ) );
+	state.DefineInstanceMethod ( klass, "desaturate", _desaturate, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "fillCircle", _fillCircle, MRB_ARGS_ARG ( 2, 4 ) );
+	state.DefineInstanceMethod ( klass, "fillEllipse", _fillEllipse, MRB_ARGS_ARG ( 3, 4 ) );
+	state.DefineInstanceMethod ( klass, "fillRect", _fillRect, MRB_ARGS_ARG ( 4, 4 ) );
+	state.DefineInstanceMethod ( klass, "gammaCorrection", _gammaCorrection, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "generateOutlineFromSDF", _generateOutlineFromSDF, MRB_ARGS_ARG ( 4, 6 ) );
+	state.DefineInstanceMethod ( klass, "generateSDF", _generateSDF, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "generateSDFAA", _generateSDFAA, MRB_ARGS_ARG ( 4, 1 ) );
+	state.DefineInstanceMethod ( klass, "generateSDFDeadReckoning", _generateSDFDeadReckoning, MRB_ARGS_ARG ( 4, 1 ) );
+	state.DefineInstanceMethod ( klass, "getColor32", _getColor32, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getContentRect", _getContentRect, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getData", _getData, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFormat", _getFormat, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getRGBA", _getRGBA, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getSize", _getSize, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "init", _init, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "isOpaque", _isOpaque, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "loadAsync", _loadAsync, MRB_ARGS_ARG ( 2, 2 ) );
+	state.DefineInstanceMethod ( klass, "loadFromBuffer", _loadFromBuffer, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "mix", _mix, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "padToPow2", _padToPow2, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "print", _print, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "resize", _resize, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "resizeCanvas", _resizeCanvas, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setColor32", _setColor32, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setRGBA", _setRGBA, MRB_ARGS_ARG ( 5, 1 ) );
+	state.DefineInstanceMethod ( klass, "simpleThreshold", _simpleThreshold, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "write", _write, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "writePNG", _write, MRB_ARGS_ARG ( 1, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -3353,13 +3339,13 @@ u32 MOAIImage::SampleColor ( float x, float y, u32 filter, bool wrapX, bool wrap
 }
 
 //----------------------------------------------------------------//
-void MOAIImage::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIImage::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIImage::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIImage::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

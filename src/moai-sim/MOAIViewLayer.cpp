@@ -30,10 +30,9 @@
 	@in		MOAIViewLayer self
 	@out	MOAICamera camera
 */
-int MOAIViewLayer::_getCamera ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "U" )
-	state.Push (( MOAILuaObject* )self->mCamera );
-	return 1;
+mrb_value MOAIViewLayer::_getCamera ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "U" )
+	return state.ToRValue < MOAIRubyObject* >( ( MOAIRubyObject* )self->mCamera );
 }
 
 //----------------------------------------------------------------//
@@ -55,30 +54,31 @@ int MOAIViewLayer::_getCamera ( lua_State* L ) {
 	@out	number y		Y center of fitting (use for camera location).
 	@out	number s		Scale of fitting (use for camera scale).
 */
-int MOAIViewLayer::_getFitting ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "UNNNN" )
+mrb_value MOAIViewLayer::_getFitting ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "UNNNN" )
 
 	ZLRect worldRect;
-	worldRect.mXMin = state.GetValue < float >( 2, 0.0f );
-	worldRect.mYMin = state.GetValue < float >( 3, 0.0f );
-	worldRect.mXMax = state.GetValue < float >( 4, 0.0f );
-	worldRect.mYMax = state.GetValue < float >( 5, 0.0f );
+	worldRect.mXMin = state.GetParamValue < float >( 1, 0.0f );
+	worldRect.mYMin = state.GetParamValue < float >( 2, 0.0f );
+	worldRect.mXMax = state.GetParamValue < float >( 3, 0.0f );
+	worldRect.mYMax = state.GetParamValue < float >( 4, 0.0f );
 
 	worldRect.Bless ();
 
-	float hPad = state.GetValue < float >( 6, 0.0f );
-	float vPad = state.GetValue < float >( 7, 0.0f );
+	float hPad = state.GetParamValue < float >( 5, 0.0f );
+	float vPad = state.GetParamValue < float >( 6, 0.0f );
 
 	float x = worldRect.mXMin + (( worldRect.mXMax - worldRect.mXMin ) * 0.5f );
 	float y = worldRect.mYMin + (( worldRect.mYMax - worldRect.mYMin ) * 0.5f );
 
-	lua_pushnumber ( state, x );
-	lua_pushnumber ( state, y );
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( x );
+	ret [ 1 ] = state.ToRValue ( y );
 
 	float fitting = self->GetFitting ( worldRect, hPad, vPad );
-	lua_pushnumber ( state, fitting );
+	ret [ 2 ] = state.ToRValue ( fitting );
 
-	return 3;
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
@@ -94,12 +94,12 @@ int MOAIViewLayer::_getFitting ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int MOAIViewLayer::_getFitting3D ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "UT" )
+mrb_value MOAIViewLayer::_getFitting3D ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "UT" )
 
-	if (( !self->mViewport ) || ( !self->mCamera ) || ( self->mCamera->GetType () != MOAICamera::CAMERA_TYPE_3D )) return 0;
+	/*if (( !self->mViewport ) || ( !self->mCamera ) || ( self->mCamera->GetType () != MOAICamera::CAMERA_TYPE_3D )) return mrb_nil_value ();
 	
-	ZLRect fitRect = state.GetValue < ZLRect >( 3, *self->mViewport );
+	ZLRect fitRect = state.GetParamValue < ZLRect >( 2, *self->mViewport );
 	
 	self->mCamera->ForceUpdate ();
 	
@@ -112,7 +112,7 @@ int MOAIViewLayer::_getFitting3D ( lua_State* L ) {
 		self->mCamera->GetLocalToWorldMtx ()
 	);
 
-	u32 itr = state.PushTableItr ( 2 );
+	u32 itr = state.PushTableItr ( 1 );
 	while ( state.TableItrNext ( itr )) {
 	
 		int type = lua_type ( state, -1 );
@@ -136,7 +136,7 @@ int MOAIViewLayer::_getFitting3D ( lua_State* L ) {
 			
 			case LUA_TUSERDATA: {
 			
-				MOAIPartitionHull* hull = state.GetLuaObject < MOAIPartitionHull >( -1, true );
+				MOAIPartitionHull* hull = state.GetRubyObject < MOAIPartitionHull >( -1, true );
 		
 				if ( hull ) {
 					ZLBox bounds = hull->GetWorldBounds ();
@@ -154,9 +154,9 @@ int MOAIViewLayer::_getFitting3D ( lua_State* L ) {
 	
 	state.Push ( position.mX );
 	state.Push ( position.mY );
-	state.Push ( position.mZ );
+	state.Push ( position.mZ );*/
 
-	return 3;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -164,12 +164,11 @@ int MOAIViewLayer::_getFitting3D ( lua_State* L ) {
 	@text	Return the viewport currently associated with the layer.
 	
 	@in		MOAIViewLayer self
-	@out	MOAILuaObject viewport
+	@out	MOAIRubyObject viewport
 */
-int MOAIViewLayer::_getViewport ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "U" )
-	state.Push (( MOAILuaObject* )self->mViewport );
-	return 1;
+mrb_value MOAIViewLayer::_getViewport ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "U" )
+	return state.ToRValue < MOAIRubyObject* >( ( MOAIRubyObject* )self->mViewport );
 }
 
 //----------------------------------------------------------------//
@@ -189,22 +188,22 @@ int MOAIViewLayer::_getViewport ( lua_State* L ) {
 		@opt	MOAICamera2D camera		Default value is nil.
 		@out	nil
 */
-int MOAIViewLayer::_setCamera ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "U" )
+mrb_value MOAIViewLayer::_setCamera ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "U" )
 
-	self->mCamera.Set ( *self, state.GetLuaObject < MOAICamera >( 2, true ));
+	self->mCamera.Set ( *self, state.GetRubyObject < MOAICamera >( 1, true ));
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIViewLayer::_setDebugCamera ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "U" )
+mrb_value MOAIViewLayer::_setDebugCamera ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "U" )
 
-	self->mDebugCamera.Set ( *self, state.GetLuaObject < MOAICamera >( 2, true ));
+	self->mDebugCamera.Set ( *self, state.GetRubyObject < MOAICamera >( 1, true ));
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -218,14 +217,14 @@ int MOAIViewLayer::_setDebugCamera ( lua_State* L ) {
 	@opt	number zParallax	Default value is 1.
 	@out	nil
 */
-int MOAIViewLayer::_setParallax ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "U" )
+mrb_value MOAIViewLayer::_setParallax ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "U" )
 
-	self->mParallax.mX = state.GetValue < float >( 2, 1.0f );
-	self->mParallax.mY = state.GetValue < float >( 3, 1.0f );
-	self->mParallax.mZ = state.GetValue < float >( 4, 1.0f );
+	self->mParallax.mX = state.GetParamValue < float >( 1, 1.0f );
+	self->mParallax.mY = state.GetParamValue < float >( 2, 1.0f );
+	self->mParallax.mZ = state.GetParamValue < float >( 3, 1.0f );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -236,12 +235,12 @@ int MOAIViewLayer::_setParallax ( lua_State* L ) {
 	@in		MOAIViewport viewport
 	@out	nil
 */
-int MOAIViewLayer::_setViewport ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "UU" )
+mrb_value MOAIViewLayer::_setViewport ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "UU" )
 
-	self->mViewport.Set ( *self, state.GetLuaObject < MOAIViewport >( 2, true ));
+	self->mViewport.Set ( *self, state.GetRubyObject < MOAIViewport >( 1, true ));
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -252,12 +251,12 @@ int MOAIViewLayer::_setViewport ( lua_State* L ) {
 	@opt	boolean showDebugLines		Default value is 'true'.
 	@out	nil
 */
-int	MOAIViewLayer::_showDebugLines ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "U" )
+mrb_value	MOAIViewLayer::_showDebugLines ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "U" )
 	
-	self->mShowDebugLines = state.GetValue < bool >( 2, true );
+	self->mShowDebugLines = state.GetParamValue < bool >( 1, true );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -271,8 +270,8 @@ int	MOAIViewLayer::_showDebugLines ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int MOAIViewLayer::_wndToWorld ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "UNN" )
+mrb_value MOAIViewLayer::_wndToWorld ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "UNN" )
 
 	ZLMatrix4x4 worldToWnd = self->GetWorldToWndMtx ();
 
@@ -280,8 +279,8 @@ int MOAIViewLayer::_wndToWorld ( lua_State* L ) {
 	wndToWorld.Inverse ();
 
 	ZLVec4D loc;
-	loc.mX = state.GetValue < float >( 2, 0.0f );
-	loc.mY = state.GetValue < float >( 3, 0.0f );
+	loc.mX = state.GetParamValue < float >( 1, 0.0f );
+	loc.mY = state.GetParamValue < float >( 2, 0.0f );
 	loc.mZ = worldToWnd.m [ ZLMatrix4x4::C3_R2 ] / worldToWnd.m [ ZLMatrix4x4::C3_R3 ];
 	loc.mW = 1.0f;
 
@@ -292,11 +291,12 @@ int MOAIViewLayer::_wndToWorld ( lua_State* L ) {
 		wndToWorld.Transform ( loc );
 	}
 
-	lua_pushnumber ( state, loc.mX );
-	lua_pushnumber ( state, loc.mY );
-	lua_pushnumber ( state, loc.mZ );
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( loc.mX );
+	ret [ 1 ] = state.ToRValue ( loc.mY );
+	ret [ 2 ] = state.ToRValue ( loc.mZ );
 
-	return 3;
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
@@ -316,8 +316,8 @@ int MOAIViewLayer::_wndToWorld ( lua_State* L ) {
 	@out	number yn
 	@out	number zn
 */
-int MOAIViewLayer::_wndToWorldRay ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "UNN" )
+mrb_value MOAIViewLayer::_wndToWorldRay ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "UNN" )
 
 	if ( self->mCamera ) {
 		self->mCamera->ForceUpdate ();
@@ -326,12 +326,12 @@ int MOAIViewLayer::_wndToWorldRay ( lua_State* L ) {
 	ZLMatrix4x4 wndToWorld = self->GetWndToWorldMtx ();
 
 	ZLVec4D loc;
-	loc.mX = state.GetValue < float >( 2, 0.0f );
-	loc.mY = state.GetValue < float >( 3, 0.0f );
+	loc.mX = state.GetParamValue < float >( 1, 0.0f );
+	loc.mY = state.GetParamValue < float >( 2, 0.0f );
 	loc.mZ = 0.0f;
 	loc.mW = 1.0f;
 
-	float d = state.GetValue < float >( 4, 0.0f );
+	float d = state.GetParamValue < float >( 3, 0.0f );
 
 	ZLVec4D origin;
 
@@ -346,10 +346,11 @@ int MOAIViewLayer::_wndToWorldRay ( lua_State* L ) {
 		origin = loc;
 		wndToWorld.Project ( origin );
 	}
-	
-	lua_pushnumber ( state, origin.mX );
-	lua_pushnumber ( state, origin.mY );
-	lua_pushnumber ( state, origin.mZ );
+
+	mrb_value ret [ 6 ];
+	ret [ 0 ] = state.ToRValue ( origin.mX );
+	ret [ 1 ] = state.ToRValue ( origin.mY );
+	ret [ 2 ] = state.ToRValue ( origin.mZ );
 
 	ZLVec3D norm;
 
@@ -383,11 +384,11 @@ int MOAIViewLayer::_wndToWorldRay ( lua_State* L ) {
 		}
 	}
 	
-	lua_pushnumber ( state, norm.mX * ns );
-	lua_pushnumber ( state, norm.mY * ns );
-	lua_pushnumber ( state, norm.mZ * ns );
+	ret [ 3 ] = state.ToRValue ( norm.mX * ns );
+	ret [ 4 ] = state.ToRValue ( norm.mY * ns );
+	ret [ 5 ] = state.ToRValue ( norm.mZ * ns );
 
-	return 6;
+	return mrb_ary_new_from_values ( state, 6, ret );
 }
 
 //----------------------------------------------------------------//
@@ -402,23 +403,24 @@ int MOAIViewLayer::_wndToWorldRay ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int MOAIViewLayer::_worldToWnd ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewLayer, "UNN" )
+mrb_value MOAIViewLayer::_worldToWnd ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewLayer, "UNN" )
 
 	ZLVec4D loc;
-	loc.mX = state.GetValue < float >( 2, 0.0f );
-	loc.mY = state.GetValue < float >( 3, 0.0f );
-	loc.mZ = state.GetValue < float >( 4, 0.0f );
+	loc.mX = state.GetParamValue < float >( 1, 0.0f );
+	loc.mY = state.GetParamValue < float >( 2, 0.0f );
+	loc.mZ = state.GetParamValue < float >( 3, 0.0f );
 	loc.mW = 1.0f;
 
 	ZLMatrix4x4 worldToWnd = self->GetWorldToWndMtx ();
 	worldToWnd.Project ( loc );
 
-	lua_pushnumber ( state, loc.mX );
-	lua_pushnumber ( state, loc.mY );
-	lua_pushnumber ( state, loc.mZ );
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( loc.mX );
+	ret [ 1 ] = state.ToRValue ( loc.mY );
+	ret [ 2 ] = state.ToRValue ( loc.mZ );
 
-	return 3;
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //================================================================//
@@ -436,6 +438,12 @@ float MOAIViewLayer::GetFitting ( ZLRect& worldRect, float hPad, float vPad ) {
 	float vFit = ( viewRect.Height () - ( vPad * 2 )) / worldRect.Height ();
 	
 	return ( hFit < vFit ) ? hFit : vFit;
+}
+
+//----------------------------------------------------------------//
+MOAIRubyClass* MOAIViewLayer::GetSuperRubyClass () {
+
+	return MOAIRubyObject::GetRubyClass ();
 }
 
 //----------------------------------------------------------------//
@@ -470,35 +478,31 @@ MOAIViewLayer::~MOAIViewLayer () {
 }
 
 //----------------------------------------------------------------//
-void MOAIViewLayer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIViewLayer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGraphicsProp::RegisterLuaClass ( state );
-	MOAILayer::RegisterLuaClass ( state );
+	MOAIGraphicsProp::RegisterRubyClass ( state, klass );
+	MOAILayer::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIViewLayer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIViewLayer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIGraphicsProp::RegisterLuaFuncs ( state );
-	MOAILayer::RegisterLuaFuncs ( state );
+	MOAIGraphicsProp::RegisterRubyFuncs ( state, klass );
+	MOAILayer::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getCamera", _getCamera, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFitting", _getFitting, MRB_ARGS_ARG ( 4, 2 ) );
+	state.DefineInstanceMethod ( klass, "getFitting3D", _getFitting3D, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getViewport", _getViewport, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDebugCamera", _setDebugCamera, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setCamera", _setCamera, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setParallax", _setParallax, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setViewport", _setViewport, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "showDebugLines", _showDebugLines, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "wndToWorld", _wndToWorld, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "wndToWorldRay", _wndToWorldRay, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "worldToWnd", _worldToWnd, MRB_ARGS_REQ ( 3 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getCamera",				_getCamera },
-		{ "getFitting",				_getFitting },
-		{ "getFitting3D",			_getFitting3D },
-		{ "getViewport",			_getViewport },
-		{ "setDebugCamera",			_setDebugCamera },
-		{ "setCamera",				_setCamera },
-		{ "setParallax",			_setParallax },
-		{ "setViewport",			_setViewport },
-		{ "showDebugLines",			_showDebugLines },
-		{ "wndToWorld",				_wndToWorld },
-		{ "wndToWorldRay",			_wndToWorldRay },
-		{ "worldToWnd",				_worldToWnd },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

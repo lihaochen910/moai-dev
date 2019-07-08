@@ -35,22 +35,22 @@ class MOAITimer :
 	public MOAIAction {
 protected:
 
-	MOAILuaSharedPtr < MOAIAnimCurve > mCurve;
+	MOAIRubySharedPtr < MOAIAnimCurve > mCurve;
 
 	float	mTime;
 	float	mCycle;
 	
 	//----------------------------------------------------------------//
-	static int		_getSpeed			( lua_State* L );
-	static int		_getTime			( lua_State* L );
-	static int		_getTimesExecuted	( lua_State* L );
-	static int		_reset				( lua_State* L );
-	static int		_setCurve			( lua_State* L );
-	static int		_setMode			( lua_State* L );
-	static int		_setSpan			( lua_State* L );
-	static int		_setSpeed			( lua_State* L );
-	static int		_setTime			( lua_State* L );
-	static int		_toggleDirection	( lua_State* L );
+	static mrb_value		_getSpeed			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTime			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTimesExecuted	( mrb_state* M, mrb_value context );
+	static mrb_value		_reset				( mrb_state* M, mrb_value context );
+	static mrb_value		_setCurve			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_setSpan			( mrb_state* M, mrb_value context );
+	static mrb_value		_setSpeed			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTime			( mrb_state* M, mrb_value context );
+	static mrb_value		_toggleDirection	( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			GenerateKeyframeCallbacks	( float t0, float t1, bool end );
@@ -78,7 +78,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAITimer )
+	DECL_RUBY_FACTORY ( MOAITimer, MOAIAction )
 	DECL_ATTR_HELPER ( MOAITimer )
 	
 	enum {
@@ -112,8 +112,8 @@ public:
 	float			GetTime				();
 					MOAITimer			();
 					~MOAITimer			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	void			SetSpan				( float span );
 	void			SetSpan				( float startTime, float endTime );
 	void			SetTime				( float time );

@@ -37,12 +37,12 @@ protected:
 	MOAIMesh*			mMesh;
 
 	//----------------------------------------------------------------//
-	static int			_addSelection				( lua_State* L );
-	static int			_clearSelection				( lua_State* L );
-	static int			_mergeSelection				( lua_State* L );
-	static int			_printSelection				( lua_State* L );
-	static int			_reserveSelections			( lua_State* L );
-	static int			_setMesh					( lua_State* L );
+	static mrb_value			_addSelection				( mrb_state* M, mrb_value context );
+	static mrb_value			_clearSelection				( mrb_state* M, mrb_value context );
+	static mrb_value			_mergeSelection				( mrb_state* M, mrb_value context );
+	static mrb_value			_printSelection				( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveSelections			( mrb_state* M, mrb_value context );
+	static mrb_value			_setMesh					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	ZLResult < u32 >	AffirmSpanSet				();
@@ -70,7 +70,7 @@ public:
 //		XOR,
 //	};
 
-	DECL_LUA_FACTORY ( MOAISelectionMesh )
+	DECL_RUBY_FACTORY ( MOAISelectionMesh, MOAIDeckProxy )
 
 	//----------------------------------------------------------------//
 	void				AddSelection				( u32 set, size_t base, size_t top );
@@ -81,12 +81,12 @@ public:
 						~MOAISelectionMesh			();
 	void				PrintSelection				( u32 set );
 	void				PrintSelections				();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveSelections			( u32 total );
 	void				Select						( u32 set, size_t base, size_t size );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

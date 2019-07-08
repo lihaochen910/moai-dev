@@ -80,17 +80,18 @@ void MOAITextStyleState::SetShader ( MOAIShader* shader ) {
 	@out	number b
 	@out	number a
 */
-int MOAITextStyle::_getColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
+mrb_value MOAITextStyle::_getColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
 
 	ZLColorVec color = ZLColor::Set ( self->mColor );
-	
-	lua_pushnumber ( state, color.mR );
-	lua_pushnumber ( state, color.mG );
-	lua_pushnumber ( state, color.mB );
-	lua_pushnumber ( state, color.mA );
 
-	return 4;
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( color.mR );
+	ret [ 1 ] = state.ToRValue ( color.mG );
+	ret [ 2 ] = state.ToRValue ( color.mB );
+	ret [ 3 ] = state.ToRValue ( color.mA );
+
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -100,16 +101,15 @@ int MOAITextStyle::_getColor ( lua_State* L ) {
 	@in		MOAITextStyle self
 	@out	MOAIFont font
 */
-int MOAITextStyle::_getFont ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
+mrb_value MOAITextStyle::_getFont ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
 
 	MOAIFont* font = self->GetFont ();
 	if ( font ) {
-		font->PushLuaUserdata ( state );
-		return 1;
+		return font->PushRubyUserdata ( state );
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -119,11 +119,14 @@ int MOAITextStyle::_getFont ( lua_State* L ) {
 	@in		MOAITextStyle self
 	@out	number scale
 */
-int MOAITextStyle::_getScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
-	state.Push ( self->mScale.mX );
-	state.Push ( self->mScale.mY );
-	return 2;
+mrb_value MOAITextStyle::_getScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mScale.mX );
+	ret [ 1 ] = state.ToRValue ( self->mScale.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -133,10 +136,9 @@ int MOAITextStyle::_getScale ( lua_State* L ) {
 	@in		MOAITextStyle self
 	@out	number size
 */
-int MOAITextStyle::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
-	lua_pushnumber ( state, self->mSize );
-	return 1;
+mrb_value MOAITextStyle::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
+	return state.ToRValue ( self->mSize );
 }
 
 //----------------------------------------------------------------//
@@ -150,10 +152,10 @@ int MOAITextStyle::_getSize ( lua_State* L ) {
 	@opt	number a	Default value is 1.
 	@out	nil
 */
-int MOAITextStyle::_setColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "UNNN" )
-	self->mColor = state.GetColor32 ( 2, 0.0f, 0.0f, 0.0f, 1.0f );
-	return 0;
+mrb_value MOAITextStyle::_setColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "UNNN" )
+	self->mColor = state.GetColor32 ( 1, 0.0f, 0.0f, 0.0f, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -164,13 +166,14 @@ int MOAITextStyle::_setColor ( lua_State* L ) {
 	@opt	MOAIFont font		Default value is nil.
 	@out	nil
 */
-int MOAITextStyle::_setFont ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
-	MOAIFont* font = state.GetLuaObject < MOAIFont >( 2, true );
+mrb_value MOAITextStyle::_setFont ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
+	MOAIFont* font = state.GetRubyObject < MOAIFont >( 1, true );
 	
 	self->SetFont ( font );
 	self->ScheduleUpdate ();
-	return 0;
+
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -181,13 +184,12 @@ int MOAITextStyle::_setFont ( lua_State* L ) {
 	@opt	variant shader			Shader or shader preset.
 	@out	MOAIShader shader		The shader that was set or created.
 */
-int MOAITextStyle::_setShader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
+mrb_value MOAITextStyle::_setShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
 	
-	MOAIShader* shader = MOAIShader::AffirmShader ( state, 2 );
+	MOAIShader* shader = MOAIShader::AffirmShader ( state, 1 );
 	self->SetShader ( shader );
-	state.Push ( shader );
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( shader );
 }
 
 //----------------------------------------------------------------//
@@ -212,23 +214,23 @@ int MOAITextStyle::_setShader ( lua_State* L ) {
 		@in		yMaxP			glyph yMax += yMaxP
 		@out	nil
 */
-int MOAITextStyle::_setPadding ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
+mrb_value MOAITextStyle::_setPadding ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
 	
 	// TODO: pasted from MOAIDynamicGlyphCache; find some central place for this
 	
-	if ( state.CheckParams ( 2, "NNNN", false )) {
+	if ( state.CheckParams ( 1, "NNNN", false )) {
 	
-		self->mPadding.mXMin = state.GetValue < float >( 2, 0.0f );
-		self->mPadding.mYMin = state.GetValue < float >( 3, 0.0f );
+		self->mPadding.mXMin = state.GetParamValue < float >( 1, 0.0f );
+		self->mPadding.mYMin = state.GetParamValue < float >( 2, 0.0f );
 		
-		self->mPadding.mXMax = state.GetValue < float >( 4, 0.0f );
-		self->mPadding.mYMax = state.GetValue < float >( 5, 0.0f );
+		self->mPadding.mXMax = state.GetParamValue < float >( 3, 0.0f );
+		self->mPadding.mYMax = state.GetParamValue < float >( 4, 0.0f );
 	}
 	else {
 	
-		float hPad = state.GetValue < float >( 2, 0.0f );
-		float vPad = state.GetValue < float >( 3, hPad );
+		float hPad = state.GetParamValue < float >( 1, 0.0f );
+		float vPad = state.GetParamValue < float >( 2, hPad );
 	
 		hPad *= 0.5f;
 		vPad *= 0.5f;
@@ -239,7 +241,7 @@ int MOAITextStyle::_setPadding ( lua_State* L ) {
 		self->mPadding.mXMax = hPad;
 		self->mPadding.mYMax = vPad;
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -252,11 +254,11 @@ int MOAITextStyle::_setPadding ( lua_State* L ) {
 	@opt	number scale		Default value is 1.
 	@out	nil
 */
-int MOAITextStyle::_setScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "U" )
-	self->mScale.mX = state.GetValue < float >( 2, 1.0f );
-	self->mScale.mY = state.GetValue < float >( 3, self->mScale.mX );
-	return 0;
+mrb_value MOAITextStyle::_setScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "U" )
+	self->mScale.mX = state.GetParamValue < float >( 1, 1.0f );
+	self->mScale.mY = state.GetParamValue < float >( 2, self->mScale.mX );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -268,16 +270,16 @@ int MOAITextStyle::_setScale ( lua_State* L ) {
 	@opt	number dpi				The device DPI (dots per inch of device screen). Default value is 72 (points same as pixels).
 	@out	nil
 */
-int MOAITextStyle::_setSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextStyle, "UN" )
+mrb_value MOAITextStyle::_setSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextStyle, "UN" )
 	
-	float points	= state.GetValue < float >( 2, 0.0f );
-	float dpi		= state.GetValue < float >( 3, DPI );
+	float points	= state.GetParamValue < float >( 1, 0.0f );
+	float dpi		= state.GetParamValue < float >( 2, DPI );
 	
 	self->SetSize ( POINTS_TO_PIXELS ( points, dpi ));
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -309,39 +311,35 @@ MOAITextStyle::~MOAITextStyle () {
 }
 
 //----------------------------------------------------------------//
-void MOAITextStyle::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITextStyle::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITextStyle::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITextStyle::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 	
-	luaL_Reg regTable [] = {
-		{ "getColor",				_getColor },
-		{ "getFont",				_getFont },
-		{ "getScale",				_getScale },
-		{ "getSize",				_getSize },
-		{ "setColor",				_setColor },
-		{ "setFont",				_setFont },
-		{ "setPadding",				_setPadding },
-		{ "setScale",				_setScale },
-		{ "setShader",				_setShader },
-		{ "setSize",				_setSize },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getColor",				_getColor, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFont",				_getFont, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getScale",				_getScale, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getSize",				_getSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setColor",				_setColor, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFont",				_setFont, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPadding",			_setPadding, MRB_ARGS_ARG ( 2, 2 ) );
+	state.DefineInstanceMethod ( klass, "setScale",				_setScale, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setShader",			_setShader, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setSize",				_setSize, MRB_ARGS_ARG ( 1, 1 ) );
 }
 
 //----------------------------------------------------------------//
-void MOAITextStyle::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAITextStyle::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAITextStyle::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAITextStyle::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
@@ -351,8 +349,8 @@ void MOAITextStyle::SetFont ( MOAIFont* font ) {
 
 	if ( this->mFont != font ) {
 	
-		this->LuaRetain ( font );
-		this->LuaRelease ( this->mFont );
+		this->RubyRetain ( font );
+		this->RubyRelease ( this->mFont );
 		this->mFont = font;
 		
 		if ( font && ( this->mSize == 0.0f )) {
@@ -366,8 +364,8 @@ void MOAITextStyle::SetShader ( MOAIShader* shader ) {
 
 	if ( this->mShader != shader ) {
 	
-		this->LuaRetain ( shader );
-		this->LuaRelease ( this->mShader );
+		this->RubyRetain ( shader );
+		this->RubyRelease ( this->mShader );
 		this->mShader = shader;
 	}
 }

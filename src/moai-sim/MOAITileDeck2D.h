@@ -24,13 +24,13 @@ private:
 	MOAIQuadBrush mQuad;
 	
 	//----------------------------------------------------------------//
-	static int		_setQuad				( lua_State* L );
-	static int		_setRect				( lua_State* L );
-	static int		_setUVQuad				( lua_State* L );
-	static int		_setUVRect				( lua_State* L );
-	static int		_setSize				( lua_State* L );
-	static int		_transform				( lua_State* L );
-	static int		_transformUV			( lua_State* L );
+	static mrb_value		_setQuad				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setUVQuad				( mrb_state* M, mrb_value context );
+	static mrb_value		_setUVRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setSize				( mrb_state* M, mrb_value context );
+	static mrb_value		_transform				( mrb_state* M, mrb_value context );
+	static mrb_value		_transformUV			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	ZLBounds				MOAIDeck_ComputeMaxBounds		();
@@ -42,15 +42,15 @@ private:
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAITileDeck2D )
+	DECL_RUBY_FACTORY ( MOAITileDeck2D, MOAIDeck )
 	
 	//----------------------------------------------------------------//
 					MOAITileDeck2D			();
 					~MOAITileDeck2D			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void			Transform				( const ZLAffine3D& mtx );
 	void			TransformUV				( const ZLAffine3D& mtx );
 };

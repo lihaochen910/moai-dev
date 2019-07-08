@@ -21,26 +21,26 @@ class MOAIViewLayer :
 	public virtual MOAILayer {
 protected:
 
-	MOAILuaSharedPtr < MOAICamera >			mCamera;
-	MOAILuaSharedPtr < MOAICamera >			mDebugCamera;
-	MOAILuaSharedPtr < MOAIViewport >		mViewport;
+	MOAIRubySharedPtr < MOAICamera >		mCamera;
+	MOAIRubySharedPtr < MOAICamera >		mDebugCamera;
+	MOAIRubySharedPtr < MOAIViewport >		mViewport;
 
 	ZLVec3D			mParallax;
 	bool			mShowDebugLines;
 
 	//----------------------------------------------------------------//
-	static int		_getCamera				( lua_State* L );
-	static int		_getFitting				( lua_State* L );
-	static int		_getFitting3D			( lua_State* L );
-	static int		_getViewport			( lua_State* L );
-	static int		_setDebugCamera			( lua_State* L );
-	static int		_setCamera				( lua_State* L );
-	static int		_setParallax			( lua_State* L );
-	static int		_setViewport			( lua_State* L );
-	static int		_showDebugLines			( lua_State* L );
-	static int		_wndToWorld				( lua_State* L );
-	static int		_wndToWorldRay			( lua_State* L );
-	static int		_worldToWnd				( lua_State* L );
+	static mrb_value		_getCamera				( mrb_state* M, mrb_value context );
+	static mrb_value		_getFitting				( mrb_state* M, mrb_value context );
+	static mrb_value		_getFitting3D			( mrb_state* M, mrb_value context );
+	static mrb_value		_getViewport			( mrb_state* M, mrb_value context );
+	static mrb_value		_setDebugCamera			( mrb_state* M, mrb_value context );
+	static mrb_value		_setCamera				( mrb_state* M, mrb_value context );
+	static mrb_value		_setParallax			( mrb_state* M, mrb_value context );
+	static mrb_value		_setViewport			( mrb_state* M, mrb_value context );
+	static mrb_value		_showDebugLines			( mrb_state* M, mrb_value context );
+	static mrb_value		_wndToWorld				( mrb_state* M, mrb_value context );
+	static mrb_value		_wndToWorldRay			( mrb_state* M, mrb_value context );
+	static mrb_value		_worldToWnd				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void					MOAIDrawable_Draw					( int subPrimID );
@@ -49,16 +49,17 @@ protected:
 
 public:
 
-	DECL_LUA_ABSTRACT ( MOAILayer )
+	DECL_RUBY_ABSTRACT ( MOAILayer )
 
 	//----------------------------------------------------------------//
 	float					GetFitting				( ZLRect& worldRect, float hPad, float vPad );
+	MOAIRubyClass*			GetSuperRubyClass		();
 	ZLMatrix4x4				GetWndToWorldMtx		() const;
 	ZLMatrix4x4				GetWorldToWndMtx		() const;
 							MOAIViewLayer			();
 							~MOAIViewLayer			();
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

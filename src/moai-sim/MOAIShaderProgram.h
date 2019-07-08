@@ -63,7 +63,6 @@ public:
 			MOAIShader instances. The shader program holds the graphics
 			resource, and the shader instances apply the (non-global)
 			uniform values.
-<<<<<<< HEAD
 
 	@const	UNIFORM_FLOAT
 	@const	UNIFORM_INDEX
@@ -80,8 +79,6 @@ public:
 	@const	GLOBAL_WORLD_VIEW
 	@const	GLOBAL_WORLD_VIEW_INVERSE
 	@const	GLOBAL_WORLD_VIEW_PROJ
-=======
->>>>>>> origin/partner/pi-develop
 */
 class MOAIShaderProgram :
 	public MOAIGfxResource,
@@ -115,14 +112,14 @@ protected:
 	ZLLeanArray < u8 >							mUniformBuffer;
 
 	//----------------------------------------------------------------//
-	static int			_declareUniform				( lua_State* L );
-	static int			_load						( lua_State* L );
-	static int			_reserveGlobals				( lua_State* L );
-	static int			_reserveTextures			( lua_State* L );
-	static int			_reserveUniforms			( lua_State* L );
-	static int			_setGlobal					( lua_State* L );
-	static int			_setTexture					( lua_State* L );
-	static int			_setVertexAttribute			( lua_State* L );
+	static mrb_value			_declareUniform				( mrb_state* M, mrb_value context );
+	static mrb_value			_load						( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveGlobals				( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveTextures			( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveUniforms			( mrb_state* M, mrb_value context );
+	static mrb_value			_setGlobal					( mrb_state* M, mrb_value context );
+	static mrb_value			_setTexture					( mrb_state* M, mrb_value context );
+	static mrb_value			_setVertexAttribute			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				AffirmUniforms				();
@@ -139,9 +136,9 @@ protected:
 	void				OnGPUUnbind					();
 	bool				OnGPUUpdate					();
 	void				OnUniformLocation			( u32 addr, void* userdata );
-	int					ReserveGlobals				( lua_State* L, int idx );
+	mrb_value			ReserveGlobals				( mrb_state* M, int idx );
 	void				ScheduleTextures			();
-	int					SetGlobal					( lua_State* L, int idx );
+	mrb_value			SetGlobal					( mrb_state* M, int idx );
 	void				UpdateUniforms				( ZLLeanArray < u8 >& buffer );
 	
 	//----------------------------------------------------------------//
@@ -149,7 +146,7 @@ protected:
 	
 public:
 
-	DECL_LUA_FACTORY ( MOAIShaderProgram )
+	DECL_RUBY_FACTORY ( MOAIShaderProgram, MOAIInstanceEventSource )
 
 	//----------------------------------------------------------------//
 	void				Clear						();
@@ -158,8 +155,8 @@ public:
 	void				Load						( cc8* vshSource, cc8* fshSource );
 						MOAIShaderProgram			();
 						~MOAIShaderProgram			();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveAttributes			( u32 nAttributes );
 	void				ReserveGlobals				( u32 nGlobals );
 	void				ReserveTextures				( u32 nTextures );

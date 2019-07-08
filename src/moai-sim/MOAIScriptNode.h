@@ -11,7 +11,7 @@
 // MOAIScriptNode
 //================================================================//
 /**	@lua	MOAIScriptNode
-	@text	User scriptable dependency node. User may specify Lua
+	@text	User scriptable dependency node. User may specify Ruby
 			callback to handle node updating as well as custom floating
 			point attributes.
 */
@@ -19,14 +19,14 @@ class MOAIScriptNode :
 	public virtual MOAINode {
 private:
 
-	MOAILuaMemberRef mOnUpdate;
+	MOAIRubyStrongRef		mOnUpdate;
 	ZLLeanArray < float >	mAttributes;
 	ZLLeanArray < cc8* >	mAttrNames;
 
 	//----------------------------------------------------------------//
-	static int		_reserveAttrs			( lua_State* L );
-	static int		_setCallback			( lua_State* L );
-	static int		_setAttrName			( lua_State* L );
+	static mrb_value		_reserveAttrs			( mrb_state* M, mrb_value context );
+	static mrb_value		_setCallback			( mrb_state* M, mrb_value context );
+	static mrb_value		_setAttrName			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MOAINode_ApplyAttrOp	( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -34,7 +34,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIScriptNode )
+	DECL_RUBY_FACTORY ( MOAIScriptNode, MOAINode )
 	
 	//----------------------------------------------------------------//
 					MOAIScriptNode			();
@@ -42,8 +42,8 @@ public:
 	void			NamedAttrAdd			( u32 attrID, MOAIAttribute& attr );
 	void			NamedAttrGet			( u32 attrID, MOAIAttribute& attr );
 	void			NamedAttrSet			( u32 attrID, MOAIAttribute& attr );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

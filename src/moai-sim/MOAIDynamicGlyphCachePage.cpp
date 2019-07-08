@@ -22,13 +22,13 @@ void MOAIDynamicGlyphCachePage::AffirmCanvas ( MOAIDynamicGlyphCache& owner, MOA
 		STLString debugName;
 		debugName.write ( "page %d - %s (%p)", this->mPageID, font.GetFilename (), &font );
 		
-		this->mImageTexture = new MOAIImageTexture ();
+		this->mImageTexture = MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < MOAIImageTexture >();
 		this->mImageTexture->Init ( MAX_TEXTURE_SIZE, ( u32 )this->mRows.mSize, owner.mColorFormat, MOAIImage::TRUECOLOR );
 		this->mImageTexture->SetDebugName ( debugName );
 		this->mImageTexture->SetFilter ( font.GetMinFilter (), font.GetMagFilter ());
 		this->mImageTexture->ClearBitmap ();
 		
-		owner.LuaRetain ( this->mImageTexture );
+		owner.RubyRetain ( this->mImageTexture );
 	}
 	else if ( this->mImageTexture->MOAIImage::GetHeight () < this->mRows.mSize ) {
 		
@@ -120,7 +120,7 @@ MOAIDynamicGlyphCachePage::RowSpan* MOAIDynamicGlyphCachePage::AllocRow ( u32 he
 void MOAIDynamicGlyphCachePage::Clear ( MOAIDynamicGlyphCache& owner ) {
 
 	if ( this->mImageTexture ) {
-		owner.LuaRelease ( this->mImageTexture );
+		owner.RubyRelease ( this->mImageTexture );
 		//delete this->mImageTexture;
 		this->mImageTexture = 0;
 	}

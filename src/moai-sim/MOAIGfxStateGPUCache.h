@@ -34,13 +34,13 @@ private:
 
 public:
 
-	MOAILuaSharedPtr < MOAIVertexBuffer >		mBuffer;
-	MOAILuaSharedPtr < MOAIVertexFormat >		mFormat;
+	MOAIRubySharedPtr < MOAIVertexBuffer >		mBuffer;
+	MOAIRubySharedPtr < MOAIVertexFormat >		mFormat;
 	
 	//----------------------------------------------------------------//
 				MOAIVertexBufferWithFormat		();
 				~MOAIVertexBufferWithFormat		();
-	void		SetBufferAndFormat				( MOAILuaObject& owner, MOAIVertexBuffer* buffer, MOAIVertexFormat* format );
+	void		SetBufferAndFormat				( MOAIRubyObject& owner, MOAIVertexBuffer* buffer, MOAIVertexFormat* format );
 	
 };
 

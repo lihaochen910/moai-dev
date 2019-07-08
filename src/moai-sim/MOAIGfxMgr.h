@@ -52,13 +52,13 @@ private:
 	u32					mMaxTextureSize;
 
 	//----------------------------------------------------------------//
-	static int			_enablePipelineLogging		( lua_State* L );
-	static int			_getFrameBuffer				( lua_State* L );
-	static int			_getMaxTextureSize			( lua_State* L );
-	static int			_getMaxTextureUnits			( lua_State* L );
-	static int			_getViewSize				( lua_State* L );
-	static int			_purgeResources				( lua_State* L );
-	static int			_renewResources				( lua_State* L );
+	static mrb_value			_enablePipelineLogging		( mrb_state* M, mrb_value context );
+	static mrb_value			_getFrameBuffer				( mrb_state* M, mrb_value context );
+	static mrb_value			_getMaxTextureSize			( mrb_state* M, mrb_value context );
+	static mrb_value			_getMaxTextureUnits			( mrb_state* M, mrb_value context );
+	static mrb_value			_getViewSize				( mrb_state* M, mrb_value context );
+	static mrb_value			_purgeResources				( mrb_state* M, mrb_value context );
+	static mrb_value			_renewResources				( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void				OnGlobalsFinalize			();
@@ -70,7 +70,7 @@ public:
 	friend class MOAIShaderProgram;
 	friend class MOAITextureBase;
 	
-	DECL_LUA_SINGLETON ( MOAIGfxMgr )
+	DECL_RUBY_SINGLETON ( MOAIGfxMgr )
 	
 	GET ( size_t, TextureMemoryUsage, mTextureMemoryUsage )
 	GET ( u32, MaxTextureSize, mMaxTextureSize )
@@ -94,7 +94,7 @@ public:
 					MOAIGfxMgr				();
 					~MOAIGfxMgr				();
 
-	void			RegisterLuaClass		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
 	
 	void			ReportTextureAlloc		( cc8* name, size_t size );
 	void			ReportTextureFree		( cc8* name, size_t size );

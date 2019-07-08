@@ -28,7 +28,7 @@ protected:
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAIStaticGlyphCache )
+	DECL_RUBY_FACTORY ( MOAIStaticGlyphCache, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 	MOAIImage*			GetGlyphImage				( MOAIGlyph& glyph );
@@ -38,11 +38,11 @@ public:
 	bool				IsDynamic					();
 						MOAIStaticGlyphCache		();
 						~MOAIStaticGlyphCache		();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveTextures				( u32 total );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	int					SetImage					( MOAIFont& font, MOAIImage& image );
 	void				SetTexture					( int id, MOAITexture* texture );
 };

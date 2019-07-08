@@ -18,14 +18,14 @@
 	@in		number max					Maximum angle in degrees.
 	@out	nil
 */
-int MOAIParticleEmitter::_setAngle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "UNN" )
+mrb_value MOAIParticleEmitter::_setAngle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "UNN" )
 
-	float min = state.GetValue < float >( 2, 0.0f );
-	float max = state.GetValue < float >( 3, 360.0f );
+	float min = state.GetParamValue < float >( 1, 0.0f );
+	float max = state.GetParamValue < float >( 2, 360.0f );
 
 	self->SetAngleRange ( min, max );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -37,14 +37,14 @@ int MOAIParticleEmitter::_setAngle ( lua_State* L ) {
 	@opt	number max					Maximum emission size. Defaults to min.
 	@out	nil
 */
-int MOAIParticleEmitter::_setEmission ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "UN" )
+mrb_value MOAIParticleEmitter::_setEmission ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "UN" )
 
-	u32 min = state.GetValue < u32 >( 2, 1 );
-	u32 max = state.GetValue < u32 >( 3, min );
+	u32 min = state.GetParamValue < u32 >( 1, 1 );
+	u32 max = state.GetParamValue < u32 >( 2, min );
 
 	self->SetEmissionRange ( min, max );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -56,24 +56,24 @@ int MOAIParticleEmitter::_setEmission ( lua_State* L ) {
 	@opt	number max					Maximum magnitude. Defaults to min.
 	@out	nil
 */
-int MOAIParticleEmitter::_setMagnitude ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "UN" )
+mrb_value MOAIParticleEmitter::_setMagnitude ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "UN" )
 
-	float min = state.GetValue < float >( 2, 1.0f );
-	float max = state.GetValue < float >( 3, min );
+	float min = state.GetParamValue < float >( 1, 1.0f );
+	float max = state.GetParamValue < float >( 2, min );
 
 	self->SetMagnitudeRange ( min, max );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIParticleEmitter::_setMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "U" )
+mrb_value MOAIParticleEmitter::_setMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "U" )
 	
-	self->mMaskProp.Set ( *self, state.GetLuaObject < MOAIPartitionHull >( 2, true ));
+	self->mMaskProp.Set ( *self, state.GetRubyObject < MOAIPartitionHull >( 1, true ));
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -93,21 +93,21 @@ int MOAIParticleEmitter::_setMask ( lua_State* L ) {
 		@in		number outerRadius
 		@out	nil
 */
-int MOAIParticleEmitter::_setRadius ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "UN" )
+mrb_value MOAIParticleEmitter::_setRadius ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "UN" )
 	
 	self->mShapeID = CIRCLE;
 
-	if ( state.GetTop () >= 3 ) {
-		self->mInnerRadius = state.GetValue < float >( 2, 0.0f );
-		self->mOuterRadius = state.GetValue < float >( 3, 0.0f );
+	if ( state.GetParamsCount () >= 3 ) {
+		self->mInnerRadius = state.GetParamValue < float >( 1, 0.0f );
+		self->mOuterRadius = state.GetParamValue < float >( 2, 0.0f );
 		
 	}
 	else {
 		self->mInnerRadius = 0.0f;
-		self->mOuterRadius = state.GetValue < float >( 2, 0.0f );
+		self->mOuterRadius = state.GetParamValue < float >( 1, 0.0f );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -121,21 +121,21 @@ int MOAIParticleEmitter::_setRadius ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAIParticleEmitter::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "UNNNN" )
+mrb_value MOAIParticleEmitter::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "UNNNN" )
 
 	ZLRect rect;
-	rect.mXMin = state.GetValue < float >( 2, 0.0f );
-	rect.mYMin = state.GetValue < float >( 3, 0.0f );
-	rect.mXMax = state.GetValue < float >( 4, 0.0f );
-	rect.mYMax = state.GetValue < float >( 5, 0.0f );
+	rect.mXMin = state.GetParamValue < float >( 1, 0.0f );
+	rect.mYMin = state.GetParamValue < float >( 2, 0.0f );
+	rect.mXMax = state.GetParamValue < float >( 3, 0.0f );
+	rect.mYMax = state.GetParamValue < float >( 4, 0.0f );
 	
 	rect.Bless ();
 	
 	self->SetRect ( rect );
 	self->SetShapeID ( RECT );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -146,12 +146,12 @@ int MOAIParticleEmitter::_setRect ( lua_State* L ) {
 	@in		number	state	index of MOAIParticleState in attached MOAIParticleSystem
 	@out	nil
 */
-int MOAIParticleEmitter::_setState ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "U" )
+mrb_value MOAIParticleEmitter::_setState ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "U" )
 	
-	self->mParticleState = state.GetValue < u32 >( 2, 1 ) - 1;
+	self->mParticleState = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -162,12 +162,12 @@ int MOAIParticleEmitter::_setState ( lua_State* L ) {
 	@in		MOAIParticleSystem system
 	@out	nil
 */
-int MOAIParticleEmitter::_setSystem ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "UU" )
+mrb_value MOAIParticleEmitter::_setSystem ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "UU" )
 
-	self->mSystem.Set ( *self, state.GetLuaObject < MOAIParticleSystem >( 2, true ));
+	self->mSystem.Set ( *self, state.GetRubyObject < MOAIParticleSystem >( 1, true ));
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -178,13 +178,13 @@ int MOAIParticleEmitter::_setSystem ( lua_State* L ) {
 	@opt	number total				Size of surge. Default value is a random emission value for emitter.
 	@out	nil
 */
-int MOAIParticleEmitter::_surge ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleEmitter, "U" )
+mrb_value MOAIParticleEmitter::_surge ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleEmitter, "U" )
 
-	u32 total = state.GetValue < u32 >( 2, self->GetRandomEmission ());
+	u32 total = state.GetParamValue < u32 >( 1, self->GetRandomEmission ());
 
 	self->Surge ( total );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -274,43 +274,39 @@ MOAIParticleEmitter::~MOAIParticleEmitter () {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleEmitter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleEmitter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	this->MOAITransform::RegisterLuaClass ( state );
-	this->MOAIAction::RegisterLuaClass ( state );
+	MOAITransform::RegisterRubyClass ( state, klass );
+	MOAIAction::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleEmitter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleEmitter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	this->MOAITransform::RegisterLuaFuncs ( state );
-	this->MOAIAction::RegisterLuaFuncs ( state );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
+	MOAIAction::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "setAngle",			_setAngle },
-		{ "setEmission",		_setEmission },
-		{ "setMagnitude",		_setMagnitude },
-		{ "setMask",			_setMask },
-		{ "setRadius",			_setRadius },
-		{ "setRect",			_setRect },
-		{ "setState",			_setState },
-		{ "setSystem",			_setSystem },
-		{ "surge",				_surge },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "setAngle",			_setAngle, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setEmission",		_setEmission, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMagnitude",		_setMagnitude, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMask",			_setMask, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setRadius",		_setRadius, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setRect",			_setRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setState",			_setState, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setSystem",		_setSystem, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "surge",			_surge, MRB_ARGS_ARG ( 0, 1 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleEmitter::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIParticleEmitter::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAITransform::SerializeIn ( state, serializer );
 	MOAIAction::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleEmitter::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIParticleEmitter::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAITransform::SerializeOut ( state, serializer );
 	MOAIAction::SerializeOut ( state, serializer );

@@ -24,7 +24,7 @@ private:
 	ZLIntRect	mRegion;
 
 	//----------------------------------------------------------------//
-	static int		_updateRegion			( lua_State* L );
+	static mrb_value		_updateRegion			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			OnClearDirty			();
@@ -34,17 +34,17 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIImageTexture )
+	DECL_RUBY_FACTORY ( MOAIImageTexture, MOAIImage )
 	
 	static const u32 DEFAULT_TRANSFORM = MOAIImageTransform::TRUECOLOR | MOAIImageTransform::PREMULTIPLY_ALPHA;
 	
 	//----------------------------------------------------------------//
 					MOAIImageTexture		();
 					~MOAIImageTexture		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void			UpdateRegion			();
 	void			UpdateRegion			( ZLIntRect rect );
 };

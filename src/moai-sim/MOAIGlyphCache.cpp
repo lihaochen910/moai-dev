@@ -15,7 +15,7 @@
 MOAIGlyphCache::MOAIGlyphCache () {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -37,13 +37,15 @@ void MOAIGlyphCache::PostRender ( MOAIGlyph& glyph ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIGlyphCache::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGlyphCache::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIGlyphCache::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGlyphCache::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//

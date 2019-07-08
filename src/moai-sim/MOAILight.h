@@ -19,16 +19,16 @@ class MOAILight :
 	public MOAIShaderUniformSchema {
 private:
 
-	MOAILuaSharedPtr < MOAILightFormat >	mFormat;
+	MOAIRubySharedPtr < MOAILightFormat >	mFormat;
 	ZLLeanArray < u8 >						mBuffer;
 	ZLLeanArray < MOAITexture* >			mTextures;
 
 	//----------------------------------------------------------------//
-	static int			_getFormat					( lua_State* L );
-	static int			_setFormat					( lua_State* L );
-	static int			_setTexture					( lua_State* L );
-	static int			_setTransform				( lua_State* L );
-	static int			_setUniform					( lua_State* L );
+	static mrb_value			_getFormat					( mrb_state* M, mrb_value context );
+	static mrb_value			_setFormat					( mrb_state* M, mrb_value context );
+	static mrb_value			_setTexture					( mrb_state* M, mrb_value context );
+	static mrb_value			_setTransform				( mrb_state* M, mrb_value context );
+	static mrb_value			_setUniform					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool								MOAINode_ApplyAttrOp						( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -36,15 +36,15 @@ private:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAILight )
+	DECL_RUBY_FACTORY ( MOAILight, MOAINode )
 
 	//----------------------------------------------------------------//
 	void				ApplyUniforms				( void* buffer, size_t bufferSize );
 	void				BindTextures				( u32 textureOffset );
 						MOAILight					();
 						~MOAILight					();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				SetFormat					( MOAILightFormat* format );
 };
 

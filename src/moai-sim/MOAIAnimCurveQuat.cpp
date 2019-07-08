@@ -20,10 +20,10 @@
 	@out	number yRot
 	@out	number zRot
 */
-int MOAIAnimCurveQuat::_getValueAtTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveQuat, "UN" );
+mrb_value MOAIAnimCurveQuat::_getValueAtTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveQuat, "UN" );
 
-	float time = state.GetValue < float >( 2, 0 );
+	float time = state.GetParamValue < float >( 1, 0 );
 	
 	MOAIAnimKeySpan span = self->GetSpan ( time );
 	ZLQuaternion quat = self->GetValue ( span );
@@ -31,13 +31,13 @@ int MOAIAnimCurveQuat::_getValueAtTime ( lua_State* L ) {
 	ZLVec3D value;
 	quat.Get ( value.mX, value.mY, value.mZ );
 
-	state.Push ( value.mX );
-	state.Push ( value.mY );
-	state.Push ( value.mZ );
-	
-	state.Push ( span.mKeyID + 1 );
-	
-	return 4;
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( value.mX );
+	ret [ 1 ] = state.ToRValue ( value.mY );
+	ret [ 2 ] = state.ToRValue ( value.mZ );
+	ret [ 3 ] = state.ToRValue ( span.mKeyID + 1 );
+
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -57,21 +57,21 @@ int MOAIAnimCurveQuat::_getValueAtTime ( lua_State* L ) {
 	@opt	number weight			Blends between chosen ease type (of any) and a linear transition. Defaults to 1.
 	@out	nil
 */
-int MOAIAnimCurveQuat::_setKey ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveQuat, "UNNNN" );
+mrb_value MOAIAnimCurveQuat::_setKey ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveQuat, "UNNNN" );
 
-	u32 index		= state.GetValue < u32 >( 2, 1 ) - 1;
-	float time		= state.GetValue < float >( 3, 0.0f );
-	ZLVec3D value	= state.GetVec3D < float >( 4 );
-	u32 mode		= state.GetValue < u32 >( 7, ZLInterpolate::kSmooth );
-	float weight	= state.GetValue < float >( 8, 1.0f );
+	u32 index		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float time		= state.GetParamValue < float >( 2, 0.0f );
+	ZLVec3D value	= state.GetVec3D < float >( 3 );
+	u32 mode		= state.GetParamValue < u32 >( 6, ZLInterpolate::kSmooth );
+	float weight	= state.GetParamValue < float >( 7, 1.0f );
 	
-	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), M )) {
 		
 		self->SetKey ( index, time, mode, weight );
 		self->SetSample ( index, value.mX, value.mY, value.mZ );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -161,23 +161,19 @@ MOAIAnimCurveQuat::~MOAIAnimCurveQuat () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveQuat::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIAnimCurveQuat::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaClass ( state );
+	MOAIAnimCurveBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveQuat::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAnimCurveQuat::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaFuncs ( state );
+	MOAIAnimCurveBase::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getValueAtTime",		_getValueAtTime },
-		{ "setKey",				_setKey },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getValueAtTime", _getValueAtTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setKey", _setKey, MRB_ARGS_ARG ( 5, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

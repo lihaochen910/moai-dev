@@ -38,27 +38,27 @@
 		@in		MOAIIndexBuffer indexBuffer		Source size in bytes taken from source buffer.
 		@out	nil
 */
-int MOAIIndexBuffer::_copyFromStream ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIIndexBuffer, "U" )
+mrb_value MOAIIndexBuffer::_copyFromStream ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIIndexBuffer, "U" )
 	
 	// TODO: report trunctations!
 	
-	MOAIIndexBuffer* idxBuffer = state.GetLuaObject < MOAIIndexBuffer >( 2, false );
+	MOAIIndexBuffer* idxBuffer = state.GetRubyObject < MOAIIndexBuffer >( 1, false );
 	if ( idxBuffer ) {
 	
-		size_t size = state.GetValue < u32 >( 3, ( u32 )( idxBuffer->GetLength () - idxBuffer->GetCursor () ));
+		size_t size = state.GetParamValue < u32 >( 2, ( u32 )( idxBuffer->GetLength () - idxBuffer->GetCursor () ));
 		self->CopyFromStream ( *idxBuffer, size, idxBuffer->mIndexSize );
 	}
 	else {
 	
-		MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+		MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 		if ( stream ) {
-			size_t size = state.GetValue < u32 >( 3, ( u32 )( stream->GetLength () - stream->GetCursor () ));
-			u32 srcInputSizeInBytes = state.GetValue ( 4, 4 );
+			size_t size = state.GetParamValue < u32 >( 2, ( u32 )( stream->GetLength () - stream->GetCursor () ));
+			u32 srcInputSizeInBytes = state.GetParamValue ( 3, 4 );
 			self->CopyFromStream ( *stream, size, srcInputSizeInBytes );
 		}
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -69,13 +69,13 @@ int MOAIIndexBuffer::_copyFromStream ( lua_State* L ) {
 	@opt	number primType				Default value is GL_TRIANGLES.
 	@out	number totalElements
 */
-int MOAIIndexBuffer::_countElements ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIIndexBuffer, "U" )
+mrb_value MOAIIndexBuffer::_countElements ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIIndexBuffer, "U" )
 
 	u32 totalElements = 0;
 	
 	// prim type, index size in bytes
-	u32  primType = state.GetValue < u32 >( 2, ZGL_PRIM_TRIANGLES );
+	u32  primType = state.GetParamValue < u32 >( 1, ZGL_PRIM_TRIANGLES );
 	
 	totalElements = ( u32 )( self->GetSize () / self->mIndexSize );
 	
@@ -86,8 +86,7 @@ int MOAIIndexBuffer::_countElements ( lua_State* L ) {
 		totalElements /= 3;
 	}
 	
-	state.Push ( totalElements );
-	return 1;
+	return state.ToRValue ( totalElements );
 }
 
 //----------------------------------------------------------------//
@@ -97,11 +96,11 @@ int MOAIIndexBuffer::_countElements ( lua_State* L ) {
 	@in		MOAIIndexBuffer self
 	@out	nil
 */
-int MOAIIndexBuffer::_printIndices ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIIndexBuffer, "U" )
+mrb_value MOAIIndexBuffer::_printIndices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIIndexBuffer, "U" )
 	
 	self->PrintIndices ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -114,12 +113,12 @@ int MOAIIndexBuffer::_printIndices ( lua_State* L ) {
 	@in		MOAIIndexBuffer self
 	@out	nil
 */
-int MOAIIndexBuffer::_setIndexSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIIndexBuffer, "U" )
+mrb_value MOAIIndexBuffer::_setIndexSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIIndexBuffer, "U" )
 	
-	u32 indexSize = state.GetValue < u32 >( 2, 4 );
+	u32 indexSize = state.GetParamValue < u32 >( 1, 4 );
 	self->SetIndexSize ( indexSize ); // TODO: convert index size
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -201,37 +200,33 @@ void MOAIIndexBuffer::PrintIndices () {
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexBuffer::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIGfxBuffer::RegisterLuaClass ( state );
+void MOAIIndexBuffer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGfxBuffer::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIGfxBuffer::RegisterLuaFuncs ( state );
+void MOAIIndexBuffer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGfxBuffer::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "copyFromStream", _copyFromStream, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "countElements", _countElements, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "printIndices", _printIndices, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setIndexSize", _setIndexSize, MRB_ARGS_ARG ( 0, 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "copyFromStream",			_copyFromStream },
-		{ "countElements",			_countElements },
-		{ "printIndices",			_printIndices },
-		{ "setIndexSize",			_setIndexSize },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexBuffer::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIIndexBuffer::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAIGfxBuffer::SerializeIn ( state, serializer );
 	
-	this->mIndexSize = state.GetFieldValue < u32 >( -1, "mIndexSize", 0 );
+	// this->mIndexSize = state.GetFieldValue < u32 >( -1, "mIndexSize", 0 );
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexBuffer::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIIndexBuffer::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAIGfxBuffer::SerializeOut ( state, serializer );
 	
-	state.SetField < u32 >( -1, "mIndexSize", this->mIndexSize );
+	// state.SetField < u32 >( -1, "mIndexSize", this->mIndexSize );
 }
 
 //----------------------------------------------------------------//

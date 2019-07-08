@@ -39,7 +39,7 @@ void MOAIImageLoadTask::Init ( cc8* filename, MOAIImage& target, u32 transform )
 
 	this->mFilename = filename;
 	this->mTransform = transform;
-	this->mTarget->LuaRetain ();
+	this->mTarget->RubyRetain ();
 }
 
 //----------------------------------------------------------------//
@@ -49,8 +49,8 @@ void MOAIImageLoadTask::Init ( MOAIDataBuffer& data, MOAIImage& target, u32 tran
 	this->mTarget = &target;
 
 	this->mTransform = transform;
-	this->mDataBuffer->LuaRetain ();
-	this->mTarget->LuaRetain ();
+	this->mDataBuffer->RubyRetain ();
+	this->mTarget->RubyRetain ();
 }
 
 //----------------------------------------------------------------//
@@ -63,11 +63,11 @@ MOAIImageLoadTask::MOAIImageLoadTask () :
 MOAIImageLoadTask::~MOAIImageLoadTask () {
 
 	if ( this->mDataBuffer ) {
-		this->mDataBuffer->LuaRelease ();
+		this->mDataBuffer->RubyRelease ();
 	}
 	
 	if ( this->mTarget ) {
-		this->mTarget->LuaRelease ();
+		this->mTarget->RubyRelease ();
 	}
 }
 
@@ -78,28 +78,31 @@ void MOAIImageLoadTask::Publish () {
 	this->mTarget->Take ( this->mImage );
 
 	if ( this->mOnFinish ) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		if ( this->mOnFinish.PushRef ( state )) {
-			this->mTarget->PushLuaUserdata ( state );
-			state.DebugCall ( 1, 0 );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+		if ( this->mOnFinish ) {
+
+			mrb_value argv [ 1 ];
+			argv [ 0 ] = state.ToRValue < MOAIRubyObject* >( this->mTarget );
+
+			state.FuncCall ( this->mOnFinish, "call", 1, argv );
 		}
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIImageLoadTask::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAITask::RegisterLuaClass ( state );
+void MOAIImageLoadTask::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAITask::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIImageLoadTask::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAITask::RegisterLuaFuncs ( state );
+void MOAIImageLoadTask::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAITask::RegisterRubyFuncs ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIImageLoadTask::SetCallback ( lua_State* L, int idx ) {
+void MOAIImageLoadTask::SetCallback ( mrb_state* M, int idx ) {
 
-	MOAILuaState state ( L );
-	this->mOnFinish.SetRef ( state, idx );
+	MOAIRubyState state ( M );
+	this->mOnFinish.SetRef ( state.GetParamValue ( idx ) );
 }
 

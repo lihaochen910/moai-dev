@@ -18,16 +18,16 @@
 	@opt	number size		Default value is 0.
 	@out	nil
 */
-int MOAIDeckRemapper::_reserve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeckRemapper, "U" )
+mrb_value MOAIDeckRemapper::_reserve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeckRemapper, "U" )
 
-	u32 size = state.GetValue < u32 >( 2, 0 );
+	u32 size = state.GetParamValue < u32 >( 1, 0 );
 	self->mRemap.Init ( size );
 	
 	for ( u32 i = 0; i < size; ++i ) {
 		self->mRemap [ i ] = i;
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -40,12 +40,12 @@ int MOAIDeckRemapper::_reserve ( lua_State* L ) {
 	@opt	number base		Default value is 0.
 	@out	nil
 */
-int MOAIDeckRemapper::_setBase ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeckRemapper, "U" )
+mrb_value MOAIDeckRemapper::_setBase ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeckRemapper, "U" )
 	
-	self->mBase = state.GetValue < u32 >( 2, 0 );
+	self->mBase = state.GetParamValue < u32 >( 1, 0 );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -57,11 +57,11 @@ int MOAIDeckRemapper::_setBase ( lua_State* L ) {
 	@opt	number remap		New value for index. Default value is index (i.e. remove the remap).
 	@out	nil
 */
-int MOAIDeckRemapper::_setRemap ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeckRemapper, "UN" )
+mrb_value MOAIDeckRemapper::_setRemap ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeckRemapper, "UN" )
 
-	u32 idx		= state.GetValue < u32 >( 2, 1 );
-	u32 remap	= state.GetValue < u32 >( 3, idx );
+	u32 idx		= state.GetParamValue < u32 >( 1, 1 );
+	u32 remap	= state.GetParamValue < u32 >( 2, idx );
 	
 	idx			= idx - 1;
 	remap		= remap - 1;
@@ -71,7 +71,7 @@ int MOAIDeckRemapper::_setRemap ( lua_State* L ) {
 	if ( code < self->mRemap.Size ()) {
 		self->mRemap [ code ] = remap;
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -93,26 +93,22 @@ MOAIDeckRemapper::~MOAIDeckRemapper () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckRemapper::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDeckRemapper::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaClass ( state );
-	MOAIDeckProxy::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
+	MOAIDeckProxy::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckRemapper::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDeckRemapper::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaFuncs ( state );
-	MOAIDeckProxy::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
+	MOAIDeckProxy::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "reserve", _reserve, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setBase", _setBase, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setRemap", _setRemap, MRB_ARGS_ARG ( 0, 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "reserve",			_reserve },
-		{ "setBase",			_setBase },
-		{ "setRemap",			_setRemap },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

@@ -54,11 +54,11 @@ void MOAIActionStackMgr::Push ( MOAIAction& action ) {
 }
 
 //================================================================//
-// lua
+// ruby
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	addChild
+/**	@ruby	addChild
 	@text	Attaches a child action for updating.
 
 	@in		MOAIAction self
@@ -66,22 +66,21 @@ void MOAIActionStackMgr::Push ( MOAIAction& action ) {
 	@opt	boolean defer		Default value is 'false.'
 	@out	MOAIAction self
 */
-int MOAIAction::_addChild ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_addChild ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 	
-	MOAIAction* action		= state.GetLuaObject < MOAIAction >( 2, true );
-	bool defer				= state.GetValue < bool >( 3, false );
+	MOAIAction* action		= state.GetRubyObject < MOAIAction >( 1, true );
+	bool defer				= state.GetParamValue < bool >( 2, false );
 	
 	if ( action ) {
 		action->Attach ( self, defer );
 	}
-	state.CopyToTop ( 1 );
 
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	attach
+/**	@ruby	attach
 	@text	Attaches a child to a parent action. The child will receive
 			updates from the parent only if the parent is in the action tree.
 
@@ -90,89 +89,85 @@ int MOAIAction::_addChild ( lua_State* L ) {
 	@opt	boolean defer			Default value is 'false.'
 	@out	MOAIAction self
 */
-int MOAIAction::_attach ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_attach ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 	
-	MOAIAction* parent		= state.GetLuaObject < MOAIAction >( 2, true );
-	bool defer				= state.GetValue < bool >( 3, false );
+	MOAIAction* parent		= state.GetRubyObject < MOAIAction >( 1, true );
+	bool defer				= state.GetParamValue < bool >( 2, false );
 	
 	self->Attach ( parent, defer );
-	state.CopyToTop ( 1 );
 	
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	clear
+/**	@ruby	clear
 	@text	Removes all child actions.
 
 	@in		MOAIAction self
 	@out	MOAIAction self
 */
-int MOAIAction::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 
 	self->ClearChildren ();
-	state.CopyToTop ( 1 );
 	
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	defer
+/**	@ruby	defer
 	@text	Defers action's update until the next time the action tree is processed.
 
 	@in		MOAIAction self
 	@out	nil
 */
-int MOAIAction::_defer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_defer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 	
-	bool defer = state.GetValue < bool >( 2, false );
+	bool defer = state.GetParamValue < bool >( 1, false );
 	self->Defer ( defer );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	detach
+/**	@ruby	detach
 	@text	Detaches an action from its parent (if any) thereby removing
 			it from the action tree. Same effect as calling stop ().
 
 	@in		MOAIAction self
 	@out	MOAIAction self
 */
-int MOAIAction::_detach ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_detach ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 	
 	self->Detach ();
-	state.CopyToTop ( 1 );
 	
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	getChildren
+/**	@ruby	getChildren
 	@text	Get action's children (if any).
 
 	@in		MOAIAction self
 	@out	...					Child actions (returned as multiple values).
 */
-int MOAIAction::_getChildren ( lua_State *L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_getChildren ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 	
-	u32 total = 0;
 	ChildIt childIt = self->mChildren.Head ();
-	for ( ; childIt; childIt = childIt->Next ()) {
-		lua_checkstack ( L, 2 );
-		total++;
-		childIt->Data ()->PushLuaUserdata ( state );
+
+	mrb_value array = mrb_ary_new ( state );
+
+	for ( ; childIt; childIt = childIt->Next () ) {
+		mrb_ary_push ( state, array, childIt->Data ()->GetMRBObject () );
 	}
-	
-	return total;
+	return array;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	hasChildren
+/**	@ruby	hasChildren
 	@text	Returns 'true; if action has children and the number of
 			children.
 
@@ -180,77 +175,74 @@ int MOAIAction::_getChildren ( lua_State *L ) {
 	@out	boolean hasChildren
 	@out	number nChildren
 */
-int MOAIAction::_hasChildren ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_hasChildren ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 
 	size_t count = self->mChildren.Count ();
 
-	state.Push ( count > 0 );
-	state.Push (( u32 )count );
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( count > 0 );
+	ret [ 1 ] = state.ToRValue ( ( u32 )count );
 
-	return 2;
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	isActive
+/**	@ruby	isActive
 	@text	Checks to see if an action is currently in the action tree.
 
 	@in		MOAIAction self
 	@out	boolean isActive
 */
-int MOAIAction::_isActive ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" );
+mrb_value MOAIAction::_isActive ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" );
 
-	lua_pushboolean ( state, self->IsActive ());
-	return 1;
+	return state.ToRValue ( self->IsActive () );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	isBusy
+/**	@ruby	isBusy
 	@text	Checks to see if an action is currently busy. An action is
 			'busy' only if it is 'active' and not 'done.'
 
 	@in		MOAIAction self
 	@out	boolean isBusy
 */
-int MOAIAction::_isBusy ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" );
+mrb_value MOAIAction::_isBusy ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" );
 
-	lua_pushboolean ( state, self->IsBusy ());
-	return 1;
+	return state.ToRValue ( self->IsBusy () );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	isDone
+/**	@ruby	isDone
 	@text	Checks to see if an action is 'done.' Definition of 'done'
 			is up to individual action implementations.
 
 	@in		MOAIAction self
 	@out	boolean isDone
 */
-int MOAIAction::_isDone ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" );
+mrb_value MOAIAction::_isDone ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" );
 
-	lua_pushboolean ( state, self->IsDone ());
-	return 1;
+	return state.ToRValue ( self->IsDone () );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	isPaused
+/**	@ruby	isPaused
 	@text	Checks to see if an action is 'paused.'
  
 	@in		MOAIAction self
 	@out	bool isPaused
 */
-int MOAIAction::_isPaused ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" );
+mrb_value MOAIAction::_isPaused ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" );
 	
-	lua_pushboolean ( state, self->IsPaused ());
-	return 1;
+	return state.ToRValue ( self->IsPaused () );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	pause
+/**	@ruby	pause
 	@text	Leaves the action in the action tree but prevents it from
 			receiving updates. Call pause ( false ) or start () to unpause.
 
@@ -258,29 +250,29 @@ int MOAIAction::_isPaused ( lua_State* L ) {
 	@opt	boolean pause			Default value is 'true.'
 	@out	nil
 */
-int MOAIAction::_pause ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" );
+mrb_value MOAIAction::_pause ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" );
 
-	self->mActionFlags = state.GetValue < bool >( 2, true ) ? self->mActionFlags | FLAGS_IS_PAUSED : self->mActionFlags & ~FLAGS_IS_PAUSED;
-	return 0;
+	self->mActionFlags = state.GetParamValue < bool >( 1, true ) ? self->mActionFlags | FLAGS_IS_PAUSED : self->mActionFlags & ~FLAGS_IS_PAUSED;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setAutoStop
+/**	@ruby	setAutoStop
 	@text	Flag action to automatically stop (and be removed from action tree)
 			when no longer busy.
 
 	@in		MOAIAction self
 	@out	nil
 */
-int MOAIAction::_setAutoStop ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" );
-	self->mActionFlags = state.GetValue < bool >( 2, false ) ? self->mActionFlags | FLAGS_AUTO_STOP : self->mActionFlags & ~FLAGS_AUTO_STOP;
-	return 0;
+mrb_value MOAIAction::_setAutoStop ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" );
+	self->mActionFlags = state.GetParamValue < bool >( 0, false ) ? self->mActionFlags | FLAGS_AUTO_STOP : self->mActionFlags & ~FLAGS_AUTO_STOP;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	start
+/**	@ruby	start
 	@text	Adds the action to a parent action or the root of the action tree.
 
 	@in		MOAIAction self
@@ -288,38 +280,36 @@ int MOAIAction::_setAutoStop ( lua_State* L ) {
 	@opt	boolean defer			Action will first run during the next sim step, even if it visited during the current sim step. Default value is 'false.'
 	@out	MOAIAction self
 */
-int MOAIAction::_start ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_start ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 
-	MOAIAction* parent		= state.GetLuaObject < MOAIAction >( 2, true );
-	bool defer				= state.GetValue < bool >( 3, false );
+	MOAIAction* parent		= state.GetRubyObject < MOAIAction >( 1, true );
+	bool defer				= state.GetParamValue < bool >( 2, false );
 	
 	self->Start ( parent, defer );
 
-	state.CopyToTop ( 1 );
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	stop
+/**	@ruby	stop
 	@text	Removed the action from its parent action; action will
 			stop being updated.
 
 	@in		MOAIAction self
 	@out	MOAIAction self
 */
-int MOAIAction::_stop ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_stop ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 
 	self->Detach ();
-	state.CopyToTop ( 1 );
 	self->mActionFlags &= ~FLAGS_IS_PAUSED;
 
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	throttle
+/**	@ruby	throttle
 	@text	Sets the actions throttle. Throttle is a scalar on time.
 			Is is passed to the action's children.
 	
@@ -327,30 +317,29 @@ int MOAIAction::_stop ( lua_State* L ) {
 	@opt	number throttle	Default value is 1.
 	@out	MOAIAction self
 */
-int MOAIAction::_throttle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_throttle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAction, "U" )
 
-	self->mThrottle = state.GetValue < float >( 2, 1.0f );
-	state.CopyToTop ( 1 );
+	self->mThrottle = state.GetParamValue < float >( 1, 1.0f );
 	
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	update
+/**	@ruby	update
 	@text	Update action manually. This call will not update child actions.
 	
 	@in		MOAIAction  self
 	@opt	number      step     Default value is sim step
 	@out	MOAIAction  self
 */
-int MOAIAction::_update ( lua_State* L ) {
-    MOAI_LUA_SETUP ( MOAIAction, "U" )
+mrb_value MOAIAction::_update ( mrb_state* M, mrb_value context ) {
+    MOAI_RUBY_SETUP ( MOAIAction, "U" )
     
-    double step = state.GetValue < double >( 2, MOAISim::Get ().GetStep ());
+    double step = state.GetParamValue < double >( 1, MOAISim::Get ().GetStep () );
     self->MOAIAction_Update ( step );
     
-    return 0;
+    return context;
 }
 
 //================================================================//
@@ -366,7 +355,7 @@ void MOAIAction::Attach ( MOAIAction* parent, bool defer ) {
 	this->Retain ();
 
 	if ( parent ) {
-		parent->LuaRetain ( this );
+		parent->RubyRetain ( this );
 	}
 	
 	if ( oldParent ) {
@@ -391,7 +380,7 @@ void MOAIAction::Attach ( MOAIAction* parent, bool defer ) {
 		this->UnblockAll ();
 		this->mParent = 0;
 		
-		oldParent->LuaRelease ( this );
+		oldParent->RubyRelease ( this );
 	}
 	
 	if ( oldParent && ( !parent )) {
@@ -486,7 +475,7 @@ MOAIAction::MOAIAction () :
 	this->mLink.Data ( this );
 
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 		RTTI_EXTEND ( MOAIInstanceEventSource )
 	RTTI_END
 }
@@ -498,44 +487,36 @@ MOAIAction::~MOAIAction () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAction::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIAction::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIInstanceEventSource::RegisterLuaClass ( state );
-
-	state.SetField ( -1, "EVENT_ACTION_PRE_UPDATE",		( u32 )EVENT_ACTION_PRE_UPDATE );
-	state.SetField ( -1, "EVENT_ACTION_POST_UPDATE",	( u32 )EVENT_ACTION_POST_UPDATE );
-	state.SetField ( -1, "EVENT_START",					( u32 )EVENT_START );
-	state.SetField ( -1, "EVENT_STOP",					( u32 )EVENT_STOP );
+	state.DefineClassConst ( klass, "EVENT_ACTION_PRE_UPDATE", state.ToRValue ( ( u32 )EVENT_ACTION_PRE_UPDATE ) );
+	state.DefineClassConst ( klass, "EVENT_ACTION_POST_UPDATE", state.ToRValue ( ( u32 )EVENT_ACTION_POST_UPDATE ) );
+	state.DefineClassConst ( klass, "EVENT_START", state.ToRValue ( ( u32 )EVENT_START ) );
+	state.DefineClassConst ( klass, "EVENT_STOP", state.ToRValue ( ( u32 )EVENT_STOP ) );
 
 }
 
 //----------------------------------------------------------------//
-void MOAIAction::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAction::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIInstanceEventSource::RegisterLuaFuncs ( state );
+	state.DefineInstanceMethod ( klass, "addChild", _addChild, MRB_ARGS_REQ ( 1 ) | MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "attach", _attach, MRB_ARGS_OPT ( 2 ) );
+	state.DefineInstanceMethod ( klass, "clear", _clear, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "defer", _defer, MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "detach", _detach, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getChildren", _getChildren, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "hasChildren", _hasChildren, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isActive", _isActive, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isBusy", _isBusy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isDone", _isDone, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isPaused", _isPaused, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pause", _pause, MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setAutoStop", _setAutoStop, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "start", _start, MRB_ARGS_OPT ( 2 ) );
+	state.DefineInstanceMethod ( klass, "stop", _stop, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "throttle", _throttle, MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "update", _update, MRB_ARGS_OPT ( 1 ) );
 
-	luaL_Reg regTable [] = {
-		{ "addChild",				_addChild },
-		{ "attach",					_attach },
-		{ "clear",					_clear },
-		{ "defer",					_defer },
-		{ "detach",					_detach },
-		{ "getChildren",			_getChildren },
-		{ "hasChildren",			_hasChildren },
-		{ "isActive",				_isActive },
-		{ "isBusy",					_isBusy },
-		{ "isDone",					_isDone },
-		{ "isPaused",				_isPaused },
-		{ "pause",					_pause },
-		{ "setAutoStop",			_setAutoStop },
-		{ "start",					_start },
-		{ "stop",					_stop },
-		{ "throttle",				_throttle },
-		{ "update",					_update },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -553,7 +534,7 @@ void MOAIAction::ResetPass ( u32 pass ) {
 //----------------------------------------------------------------//
 void MOAIAction::Update ( MOAIActionTree& tree, double step ) {
 
-	if ( this->IsPaused () || this->IsBlocked ()) return;
+	if ( this->IsPaused () || this->IsBlocked () ) return;
 
 	MOAIActionStackMgr::Get ().Push ( *this );
 
@@ -576,9 +557,9 @@ void MOAIAction::Update ( MOAIActionTree& tree, double step ) {
 	
 	this->mActionFlags |= FLAGS_IS_UPDATING;
 	
-	this->InvokeListenerWithSelf ( EVENT_ACTION_PRE_UPDATE );
+	this->InvokeListener ( EVENT_ACTION_PRE_UPDATE );
 	this->MOAIAction_Update ( step );
-	this->InvokeListenerWithSelf ( EVENT_ACTION_POST_UPDATE );
+	this->InvokeListener ( EVENT_ACTION_POST_UPDATE );
 
 	if ( profilingEnabled ) {
 		double elapsed = ZLDeviceTime::GetTimeInSeconds () - t0;
@@ -674,13 +655,13 @@ bool MOAIAction::MOAIAction_IsDone () {
 //----------------------------------------------------------------//
 void MOAIAction::MOAIAction_Start () {
 
-	this->InvokeListenerWithSelf ( EVENT_START );
+	this->InvokeListener ( EVENT_START );
 }
 
 //----------------------------------------------------------------//
 void MOAIAction::MOAIAction_Stop () {
 
-	this->InvokeListenerWithSelf ( EVENT_STOP );
+	this->InvokeListener ( EVENT_STOP );
 }
 
 //----------------------------------------------------------------//

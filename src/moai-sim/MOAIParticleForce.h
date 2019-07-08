@@ -35,11 +35,11 @@ private:
 	float		mPull;
 
 	//----------------------------------------------------------------//
-	static int		_initAttractor			( lua_State* L );
-	static int		_initBasin				( lua_State* L );
-	static int		_initLinear				( lua_State* L );
-	static int		_initRadial				( lua_State* L );
-	static int		_setType				( lua_State* L );
+	static mrb_value		_initAttractor			( mrb_state* M, mrb_value context );
+	static mrb_value		_initBasin				( mrb_state* M, mrb_value context );
+	static mrb_value		_initLinear				( mrb_state* M, mrb_value context );
+	static mrb_value		_initRadial				( mrb_state* M, mrb_value context );
+	static mrb_value		_setType				( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			MOAINode_Update			();
@@ -59,14 +59,14 @@ public:
 		OFFSET,
 	};
 	
-	DECL_LUA_FACTORY ( MOAIParticleForce )
+	DECL_RUBY_FACTORY ( MOAIParticleForce, MOAITransform )
 
 	//----------------------------------------------------------------//
 	void			Eval					( const ZLVec3D& loc, float mass, ZLVec3D& acceleration, ZLVec3D& offset );
 					MOAIParticleForce		();
 					~MOAIParticleForce		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

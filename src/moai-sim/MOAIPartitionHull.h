@@ -53,29 +53,29 @@ protected:
 	ZLBounds					mWorldBounds;
 
 	//----------------------------------------------------------------//
-	static int			_getBounds					( lua_State* L );
-	static int			_getDeck					( lua_State* L );
-	static int			_getDims					( lua_State* L );
-	static int			_getGrid					( lua_State* L );
-	static int			_getIndex					( lua_State* L );
-	static int			_getPartition				( lua_State* L );
-	static int			_getPriority				( lua_State* L );
-	static int			_getWorldBounds				( lua_State* L );
-	static int			_getWorldBoundsCenter		( lua_State* L );
-	static int			_inside						( lua_State* L );
-	static int			_setBounds					( lua_State* L );
-	static int			_setBoundsPad				( lua_State* L );
-	static int			_setDeck					( lua_State* L );
-	static int			_setExpandForSort			( lua_State* L );
-	static int			_setFlag					( lua_State* L ); // TODO: macro
-	static int			_setGrid					( lua_State* L );
-	static int			_setGridScale				( lua_State* L );
-	static int			_setHitGranularity			( lua_State* L );
-	static int			_setIndex					( lua_State* L );
-	static int			_setPartition				( lua_State* L );
-	static int			_setPriority				( lua_State* L );
-	static int			_setQueryMask				( lua_State* L );
-	static int			_setRemapper				( lua_State* L );
+	static mrb_value			_getBounds					( mrb_state* M, mrb_value context );
+	static mrb_value			_getDeck					( mrb_state* M, mrb_value context );
+	static mrb_value			_getDims					( mrb_state* M, mrb_value context );
+	static mrb_value			_getGrid					( mrb_state* M, mrb_value context );
+	static mrb_value			_getIndex					( mrb_state* M, mrb_value context );
+	static mrb_value			_getPartition				( mrb_state* M, mrb_value context );
+	static mrb_value			_getPriority				( mrb_state* M, mrb_value context );
+	static mrb_value			_getWorldBounds				( mrb_state* M, mrb_value context );
+	static mrb_value			_getWorldBoundsCenter		( mrb_state* M, mrb_value context );
+	static mrb_value			_inside						( mrb_state* M, mrb_value context );
+	static mrb_value			_setBounds					( mrb_state* M, mrb_value context );
+	static mrb_value			_setBoundsPad				( mrb_state* M, mrb_value context );
+	static mrb_value			_setDeck					( mrb_state* M, mrb_value context );
+	static mrb_value			_setExpandForSort			( mrb_state* M, mrb_value context );
+	static mrb_value			_setFlag					( mrb_state* M, mrb_value context ); // TODO: macro
+	static mrb_value			_setGrid					( mrb_state* M, mrb_value context );
+	static mrb_value			_setGridScale				( mrb_state* M, mrb_value context );
+	static mrb_value			_setHitGranularity			( mrb_state* M, mrb_value context );
+	static mrb_value			_setIndex					( mrb_state* M, mrb_value context );
+	static mrb_value			_setPartition				( mrb_state* M, mrb_value context );
+	static mrb_value			_setPriority				( mrb_state* M, mrb_value context );
+	static mrb_value			_setQueryMask				( mrb_state* M, mrb_value context );
+	static mrb_value			_setRemapper				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	virtual void		MOAIPartitionHull_AddToSortBuffer			( MOAIPartitionResultBuffer& buffer, u32 key = 0 ) = 0;
@@ -153,10 +153,10 @@ public:
 	bool				InsideModelBounds		( const ZLVec3D& vec, float pad );
 						MOAIPartitionHull		();
 						~MOAIPartitionHull		();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void				SetPartition			( MOAIPartition* partition );
 };
 

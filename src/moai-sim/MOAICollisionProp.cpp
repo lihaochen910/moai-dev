@@ -42,55 +42,55 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionProp::_collisionMove ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionProp, "U" )
+mrb_value MOAICollisionProp::_collisionMove ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionProp, "U" )
 	
-	ZLVec3D move	= state.GetValue < ZLVec3D >( 2, ZLVec3D::ORIGIN );
-	u32 detach		= state.GetValue < u32 >( 5, SURFACE_MOVE_DETACH );
-	u32 maxSteps	= state.GetValue < u32 >( 6, DEFAULT_MAX_MOVE_STEPS );
+	ZLVec3D move	= state.GetParamValue < ZLVec3D >( 1, ZLVec3D::ORIGIN );
+	u32 detach		= state.GetParamValue < u32 >( 4, SURFACE_MOVE_DETACH );
+	u32 maxSteps	= state.GetParamValue < u32 >( 5, DEFAULT_MAX_MOVE_STEPS );
 	
 	self->Move ( move, detach, maxSteps );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionProp::_getOverlaps ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionProp, "U" )
+mrb_value MOAICollisionProp::_getOverlaps ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionProp, "U" )
 
-	u32 total = 0;
 	MOAIPropOverlapLink* link = self->mOverlapLinks;
-	for ( ; link; link = link->mNext, ++total ) {
-		state.Push ( link->mOtherLink->mProp );
+	mrb_value ary = mrb_ary_new ( M );
+	for ( ; link; link = link->mNext ) {
+		mrb_ary_push ( M, ary, state.ToRValue < MOAIRubyObject* >( link->mOtherLink->mProp ) );
 	}
-	return total;
+	return ary;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionProp::_hasOverlaps ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionProp, "U" )
+mrb_value MOAICollisionProp::_hasOverlaps ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionProp, "U" )
 
-	return self->mOverlapLinks != 0;
+	return state.ToRValue ( self->mOverlapLinks != 0 );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-//int MOAICollisionProp::_setGroupMask ( lua_State* L ) {
-//	MOAI_LUA_SETUP ( MOAICollisionProp, "U" )
+//mrb_value MOAICollisionProp::_setGroupMask ( mrb_state* M, mrb_value context ) {
+//	MOAI_RUBY_SETUP ( MOAICollisionProp, "U" )
 //	
-//	self->mGroupMask = state.GetValue < u32 >( 2, 0 );
-//	return 0;
+//	self->mGroupMask = state.GetParamValue < u32 >( 2, 0 );
+//	return mrb_nil_value ();
 //}
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionProp::_setOverlapFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionProp, "U" )
+mrb_value MOAICollisionProp::_setOverlapFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionProp, "U" )
 	
-	self->mOverlapFlags = state.GetValue < u32 >( 2, 0 );
-	return 0;
+	self->mOverlapFlags = state.GetParamValue < u32 >( 1, 0 );
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -404,72 +404,68 @@ void MOAICollisionProp::Move ( ZLVec3D move, u32 detach, u32 maxSteps ) {
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionProp::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICollisionProp::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIPartitionHull::RegisterLuaClass ( state );
-	MOAIIndexedPropBase::RegisterLuaClass ( state );
+	MOAIPartitionHull::RegisterRubyClass ( state, klass );
+	MOAIIndexedPropBase::RegisterRubyClass ( state, klass );
 	
 	MOAIDebugLinesMgr::Get ().ReserveStyleSet < MOAICollisionProp >( TOTAL_DEBUG_LINE_STYLES );
 	
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_PROP_MASTER",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( (u32) -1 ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_ACTIVE_PROP_BOUNDS",					MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_ACTIVE_PROP_BOUNDS ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_ACTIVE_OVERLAP_PROP_BOUNDS",			MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_ACTIVE_OVERLAP_PROP_BOUNDS ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_ACTIVE_TOUCHED_PROP_BOUNDS",			MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_ACTIVE_TOUCHED_PROP_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_PROP_MASTER",							MOAIDebugLinesMgr::Pack < MOAICollisionProp >( (u32) -1 ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_ACTIVE_PROP_BOUNDS",					MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_ACTIVE_PROP_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_ACTIVE_OVERLAP_PROP_BOUNDS",			MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_ACTIVE_OVERLAP_PROP_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_ACTIVE_TOUCHED_PROP_BOUNDS",			MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_ACTIVE_TOUCHED_PROP_BOUNDS ));
 	
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_NORMAL",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_NORMAL ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_EDGE_NORMAL",	MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_EDGE_NORMAL ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_TANGENT",		MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_TANGENT ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CROSSING",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CROSSING ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_POINT_LEAVING",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_LEAVING ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_CONTACT_POINT_PARALLEL",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_PARALLEL ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_NORMAL",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_NORMAL ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_EDGE_NORMAL",	MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_EDGE_NORMAL ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_TANGENT",		MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CORNER_TANGENT ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_POINT_CROSSING",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_CROSSING ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_POINT_LEAVING",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_LEAVING ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_CONTACT_POINT_PARALLEL",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_CONTACT_POINT_PARALLEL ));
 	
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_MOVE_RETICLE",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_MOVE_RETICLE ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_MOVE_RETICLE",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_MOVE_RETICLE ));
 	
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_OVERLAP_PROP_BOUNDS",				MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_OVERLAP_PROP_BOUNDS ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_OVERLAPS",							MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_OVERLAPS ));
-	state.SetField ( -1, "DEBUG_DRAW_COLLISION_WORLD_BOUNDS",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_WORLD_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_OVERLAP_PROP_BOUNDS",					MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_OVERLAP_PROP_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_OVERLAPS",							MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_OVERLAPS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_COLLISION_WORLD_BOUNDS",						MOAIDebugLinesMgr::Pack < MOAICollisionProp >( DEBUG_DRAW_COLLISION_WORLD_BOUNDS ));
 	
-	state.SetField ( -1, "OVERLAP_EVENTS_ON_UPDATE",		( u32 )OVERLAP_EVENTS_ON_UPDATE );
-	state.SetField ( -1, "OVERLAP_EVENTS_CONTINUOUS",		( u32 )OVERLAP_EVENTS_CONTINUOUS );
-	state.SetField ( -1, "OVERLAP_EVENTS_LIFECYCLE",		( u32 )OVERLAP_EVENTS_LIFECYCLE );
-	state.SetField ( -1, "OVERLAP_GRANULARITY_FINE",		( u32 )OVERLAP_GRANULARITY_FINE );
-	state.SetField ( -1, "OVERLAP_CALCULATE_BOUNDS",		( u32 )OVERLAP_CALCULATE_BOUNDS );
+	state.DefineClassConst ( klass, "OVERLAP_EVENTS_ON_UPDATE",		( u32 )OVERLAP_EVENTS_ON_UPDATE );
+	state.DefineClassConst ( klass, "OVERLAP_EVENTS_CONTINUOUS",	( u32 )OVERLAP_EVENTS_CONTINUOUS );
+	state.DefineClassConst ( klass, "OVERLAP_EVENTS_LIFECYCLE",		( u32 )OVERLAP_EVENTS_LIFECYCLE );
+	state.DefineClassConst ( klass, "OVERLAP_GRANULARITY_FINE",		( u32 )OVERLAP_GRANULARITY_FINE );
+	state.DefineClassConst ( klass, "OVERLAP_CALCULATE_BOUNDS",		( u32 )OVERLAP_CALCULATE_BOUNDS );
 	
-	state.SetField ( -1, "SURFACE_MOVE_DETACH",				( u32 )SURFACE_MOVE_DETACH );
-	state.SetField ( -1, "SURFACE_MOVE_SLIDE",				( u32 )SURFACE_MOVE_SLIDE );
-	state.SetField ( -1, "SURFACE_MOVE_LOCK",				( u32 )SURFACE_MOVE_LOCK );
+	state.DefineClassConst ( klass, "SURFACE_MOVE_DETACH",			( u32 )SURFACE_MOVE_DETACH );
+	state.DefineClassConst ( klass, "SURFACE_MOVE_SLIDE",			( u32 )SURFACE_MOVE_SLIDE );
+	state.DefineClassConst ( klass, "SURFACE_MOVE_LOCK",			( u32 )SURFACE_MOVE_LOCK );
 	
-	state.SetField ( -1, "CATEGORY_MASK_ALL",				( u32 )CATEGORY_MASK_ALL );
+	state.DefineClassConst ( klass, "CATEGORY_MASK_ALL",			( u32 )CATEGORY_MASK_ALL );
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionProp::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICollisionProp::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIPartitionHull::RegisterLuaFuncs ( state );
-	MOAIIndexedPropBase::RegisterLuaFuncs ( state );
+	MOAIPartitionHull::RegisterRubyFuncs ( state, klass );
+	MOAIIndexedPropBase::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "collisionMove",		_collisionMove },
-		{ "getOverlaps",		_getOverlaps },
-		{ "hasOverlaps",		_hasOverlaps },
-		//{ "setGroupMask",		_setGroupMask },
-		{ "setOverlapFlags",	_setOverlapFlags },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "collisionMove",	_collisionMove, MRB_ARGS_ARG ( 3, 2 ) );
+	state.DefineInstanceMethod ( klass, "getOverlaps",		_getOverlaps, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "hasOverlaps",		_hasOverlaps, MRB_ARGS_NONE () );
+	//state.DefineInstanceMethod ( klass, "setGroupMask",		_setGroupMask, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setOverlapFlags",	_setOverlapFlags, MRB_ARGS_ARG ( 0, 1 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionProp::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAICollisionProp::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
 	MOAIPartitionHull::SerializeIn ( state, serializer );
 	MOAIIndexedPropBase::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionProp::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAICollisionProp::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	
 	MOAIPartitionHull::SerializeOut ( state, serializer );
 	MOAIIndexedPropBase::SerializeOut ( state, serializer );

@@ -15,12 +15,12 @@
 //================================================================//
 
 //----------------------------------------------------------------//
-int MOAIStretchDeck::_setStretchFactor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchDeck, "U" )
+mrb_value MOAIStretchDeck::_setStretchFactor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchDeck, "U" )
 
-	self->mStretchFactor = state.GetValue < float >( 2, 0.0f );
+	self->mStretchFactor = state.GetParamValue < float >( 1, 0.0f );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -70,22 +70,18 @@ MOAIStretchDeck::~MOAIStretchDeck () {
 }
 
 //----------------------------------------------------------------//
-void MOAIStretchDeck::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIStretchDeck::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaClass ( state );
+	MOAIDeck::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIStretchDeck::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIStretchDeck::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setStretchFactor",		_setStretchFactor },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "setStretchFactor", _setStretchFactor, MRB_ARGS_ARG ( 0, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

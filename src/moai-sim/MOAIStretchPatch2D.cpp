@@ -21,8 +21,8 @@
 	@in		MOAIStretchPatch2D self
 	@out	nil
 */
-int MOAIStretchPatch2D::_ninePatch ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "U" )
+mrb_value MOAIStretchPatch2D::_ninePatch ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "U" )
 
 	self->mRows.Init ( 3 );
 	self->SetRow ( 0, 0.25, false );
@@ -34,7 +34,7 @@ int MOAIStretchPatch2D::_ninePatch ( lua_State* L ) {
 	self->SetColumn ( 1, 0.50, true );
 	self->SetColumn ( 2, 0.25, false );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -45,14 +45,14 @@ int MOAIStretchPatch2D::_ninePatch ( lua_State* L ) {
 	@in		number nColumns
 	@out	nil
 */
-int MOAIStretchPatch2D::_reserveColumns ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UN" )
+mrb_value MOAIStretchPatch2D::_reserveColumns ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->mCols.Init ( total );
 
 	self->mNeedsUpdate = true;
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -63,14 +63,14 @@ int MOAIStretchPatch2D::_reserveColumns ( lua_State* L ) {
 	@in		number nRows
 	@out	nil
 */
-int MOAIStretchPatch2D::_reserveRows ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UN" )
+mrb_value MOAIStretchPatch2D::_reserveRows ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->mRows.Init ( total );
 
 	self->mNeedsUpdate = true;
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -82,16 +82,16 @@ int MOAIStretchPatch2D::_reserveRows ( lua_State* L ) {
 	@in		number nUVRects
 	@out	nil
 */
-int MOAIStretchPatch2D::_reserveUVRects ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UN" )
+mrb_value MOAIStretchPatch2D::_reserveUVRects ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->mUVRects.Init ( total );
 
 	for ( u32 i = 0; i < total; ++i ) {
 		self->mUVRects [ i ].Init ( 0.0f, 1.0f, 1.0f, 0.0f );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -104,17 +104,17 @@ int MOAIStretchPatch2D::_reserveUVRects ( lua_State* L ) {
 	@in		boolean canStretch
 	@out	nil
 */
-int MOAIStretchPatch2D::_setColumn ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UNNB" )
+mrb_value MOAIStretchPatch2D::_setColumn ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UNNB" )
 
-	u32 idx				= state.GetValue < u32 >( 2, 1 ) - 1;
-	float percent		= state.GetValue < float >( 3, 0.0f );
-	bool canStretch		= state.GetValue < bool >( 4, false );
+	u32 idx				= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float percent		= state.GetParamValue < float >( 2, 0.0f );
+	bool canStretch		= state.GetParamValue < bool >( 3, false );
 
-	if ( MOAILogMgr::CheckIndexPlusOne ( idx, self->mCols.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( idx, self->mCols.Size (), M )) {
 		self->SetColumn ( idx, percent, canStretch );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -128,13 +128,13 @@ int MOAIStretchPatch2D::_setColumn ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAIStretchPatch2D::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UNNNN" )
+mrb_value MOAIStretchPatch2D::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UNNNN" )
 	
-	self->mRect = state.GetRect < float >( 2 );
+	self->mRect = state.GetRect < float >( 1 );
 	self->SetBoundsDirty ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -147,17 +147,17 @@ int MOAIStretchPatch2D::_setRect ( lua_State* L ) {
 	@in		boolean canStretch
 	@out	nil
 */
-int MOAIStretchPatch2D::_setRow ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UNNB" )
+mrb_value MOAIStretchPatch2D::_setRow ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UNNB" )
 
-	u32 idx				= state.GetValue < u32 >( 2, 1 ) - 1;
-	float percent		= state.GetValue < float >( 3, 0.0f );
-	bool canStretch		= state.GetValue < bool >( 4, false );
+	u32 idx				= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float percent		= state.GetParamValue < float >( 2, 0.0f );
+	bool canStretch		= state.GetParamValue < bool >( 3, false );
 
-	if ( MOAILogMgr::CheckIndexPlusOne ( idx, self->mRows.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( idx, self->mRows.Size (), M )) {
 		self->SetRow ( idx, percent, canStretch );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -172,15 +172,15 @@ int MOAIStretchPatch2D::_setRow ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAIStretchPatch2D::_setUVRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStretchPatch2D, "UNNNNN" )
+mrb_value MOAIStretchPatch2D::_setUVRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStretchPatch2D, "UNNNNN" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
-	if ( MOAILogMgr::CheckIndexPlusOne ( idx, self->mUVRects.Size (), L )) {
-		self->mUVRects [ idx ] = state.GetRect < float >( 3 );
+	if ( MOAILogMgr::CheckIndexPlusOne ( idx, self->mUVRects.Size (), M )) {
+		self->mUVRects [ idx ] = state.GetRect < float >( 2 );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -307,41 +307,37 @@ MOAIStretchPatch2D::~MOAIStretchPatch2D () {
 }
 
 //----------------------------------------------------------------//
-void MOAIStretchPatch2D::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIStretchPatch2D::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStretchDeck::RegisterLuaClass ( state );
-	MOAIMaterialBatchHolder::RegisterLuaClass ( state );
+	MOAIStretchDeck::RegisterRubyClass ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIStretchPatch2D::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIStretchPatch2D::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStretchDeck::RegisterLuaFuncs ( state );
-	MOAIMaterialBatchHolder::RegisterLuaFuncs ( state );
+	MOAIStretchDeck::RegisterRubyFuncs ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "ninePatch",			_ninePatch },
-		{ "reserveColumns",		_reserveColumns },
-		{ "reserveRows",		_reserveRows },
-		{ "reserveUVRects",		_reserveUVRects },
-		{ "setColumn",			_setColumn },
-		{ "setRect",			_setRect },
-		{ "setRow",				_setRow },
-		{ "setUVRect",			_setUVRect },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "ninePatch",			_ninePatch, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveColumns",		_reserveColumns, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveRows",		_reserveRows, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveUVRects",		_reserveUVRects, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setColumn",			_setColumn, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setRect",			_setRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setRow",				_setRow, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setUVRect",			_setUVRect, MRB_ARGS_REQ ( 5 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIStretchPatch2D::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIStretchPatch2D::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIStretchPatch2D::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIStretchPatch2D::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

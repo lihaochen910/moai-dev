@@ -35,17 +35,17 @@ private:
 	ZLColorVec		mPenColor;
 
 	//----------------------------------------------------------------//
-	static int		_enableAntiAliasing			( lua_State* L );
-	static int		_extractSystemFont			( lua_State* L );
-	static int		_setPenColor				( lua_State* L );
-	static int		_strokeGlyph				( lua_State* L );
+	static mrb_value		_enableAntiAliasing			( mrb_state* M, mrb_value context );
+	static mrb_value		_extractSystemFont			( mrb_state* M, mrb_value context );
+	static mrb_value		_setPenColor				( mrb_state* M, mrb_value context );
+	static mrb_value		_strokeGlyph				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	static void		ExtractSystemFont			( cc8* fontName, ZLStream& stream );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIFreeTypeFontReader )
+	DECL_RUBY_FACTORY ( MOAIFreeTypeFontReader, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	int				CloseFontFile				();
@@ -56,13 +56,13 @@ public:
 					MOAIFreeTypeFontReader		();
 					~MOAIFreeTypeFontReader		();
 	int				OpenFontFile				( cc8* filename );
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	int				RenderGlyph					( MOAIImage& image, float x, float y );
 	int				SelectFace					( float size );
 	int				SelectGlyph					( u32 c );
-	void			SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void			SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	int				StrokeGlyph					( MOAIImage& image, float x, float y, float strokeSize, u32 capStyle, u32 joinStyle, float miterLimit );
 };
 

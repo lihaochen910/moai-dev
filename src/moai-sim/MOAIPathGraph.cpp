@@ -25,11 +25,13 @@ MOAIPathGraph::~MOAIPathGraph () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPathGraph::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPathGraph::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIPathGraph::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPathGraph::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }

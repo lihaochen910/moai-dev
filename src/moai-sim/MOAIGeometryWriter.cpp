@@ -79,33 +79,33 @@ public:
 		@opt	number blendMode
 		@out 	nil
 */
-int MOAIGeometryWriter::_applyColor ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_applyColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream			= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream			= state.GetRubyObject < MOAIStream >( 2, true );
 	
 	if ( format && vtxStream ) {
 	
-		size_t length = state.GetValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
+		size_t length = state.GetParamValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
 	
 		ZLColorVec color	= state.GetColor ( 4, 0.0f, 0.0f, 0.0f, 1.0f );
-		MOAIRegion* region	= state.GetLuaObject < MOAIRegion >( 7, false );
+		MOAIRegion* region	= state.GetRubyObject < MOAIRegion >( 7, false );
 		
 		if ( region ) {
 		
-			float pad	= state.GetValue < float >( 9, 0.0f );
-			u32 mode	= state.GetValue < u32 >( 10, COLOR_MULTIPLY );
+			float pad	= state.GetParamValue < float >( 9, 0.0f );
+			u32 mode	= state.GetParamValue < u32 >( 10, COLOR_MULTIPLY );
 			
 			MOAIGeometryWriter::ApplyColor ( *format, *vtxStream, length, mode, *region, pad, color );
 		}
 		else {
 		
-			u32 mode	= state.GetValue < u32 >( 8, COLOR_MULTIPLY );
+			u32 mode	= state.GetParamValue < u32 >( 8, COLOR_MULTIPLY );
 			MOAIGeometryWriter::ApplyColor ( *format, *vtxStream, length, mode, color );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -135,30 +135,30 @@ int MOAIGeometryWriter::_applyColor ( lua_State* L ) {
 	@opt	number z1
 	@out 	nil
 */
-int MOAIGeometryWriter::_applyLightFromImage ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_applyLightFromImage ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 2, true );
 	MOAIImage* image			= MOAIImage::AffirmImage ( state, 4 );
 	
 	if ( format && vtxStream && image ) {
 	
-		size_t length				= state.GetValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
+		size_t length				= state.GetParamValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
 	
-		u32 mode					= state.GetValue < u32 >( 5, COLOR_MULTIPLY );
+		u32 mode					= state.GetParamValue < u32 >( 5, COLOR_MULTIPLY );
 	
 		bool gradient				= state.CheckParams ( 6, "NNNNNNNN", false );
 		
-		float a0					= state.GetValue < float >( 7, 0.0f );
-		float a1					= state.GetValue < float >( 8, 0.0f );
+		float a0					= state.GetParamValue < float >( 7, 0.0f );
+		float a1					= state.GetParamValue < float >( 8, 0.0f );
 		
 		ZLVec3D v0					= state.GetVec3D ( 9, 0.0f );
 		ZLVec3D v1					= state.GetVec3D ( 12, 0.0f );
 	
 		self->ApplyLightFromImage ( *format, *vtxStream, length, mode, *image, gradient, a0, a1, v0, v1 );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -190,15 +190,15 @@ int MOAIGeometryWriter::_applyLightFromImage ( lua_State* L ) {
 	@opt	number blendMode
 	@out 	nil
 */
-int MOAIGeometryWriter::_applyLinearGradient ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_applyLinearGradient ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 2, true );
 	
 	if ( format && vtxStream  ) {
 	
-		size_t length	= state.GetValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
+		size_t length	= state.GetParamValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
 	
 		ZLVec3D v0		= state.GetVec3D ( 4, 0.0f );
 		ZLVec3D v1		= state.GetVec3D ( 7, 0.0f );
@@ -206,14 +206,14 @@ int MOAIGeometryWriter::_applyLinearGradient ( lua_State* L ) {
 		ZLColorVec c0	= state.GetColor ( 10, 0.0f, 0.0f, 0.0f, 1.0f );
 		ZLColorVec c1	= state.GetColor ( 14, 0.0f, 0.0f, 0.0f, 1.0f );
 		
-		bool cap0		= state.GetValue < bool >( 18, false );
-		bool cap1		= state.GetValue < bool >( 19, false );
+		bool cap0		= state.GetParamValue < bool >( 18, false );
+		bool cap1		= state.GetParamValue < bool >( 19, false );
 		
-		u32 mode		= state.GetValue < u32 >( 20, COLOR_MULTIPLY );
+		u32 mode		= state.GetParamValue < u32 >( 20, COLOR_MULTIPLY );
 		
 		MOAIGeometryWriter::ApplyLinearGradient ( *format, *vtxStream, length, mode, v0, v1, c0, c1, cap0, cap1 );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -243,55 +243,53 @@ int MOAIGeometryWriter::_applyLinearGradient ( lua_State* L ) {
 		@opt	number idxSizeInBytes
 		@out 	MOAIMesh mesh
 */
-int MOAIGeometryWriter::_getMesh ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_getMesh ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, false );
-	MOAIStream* idxStream		= state.GetLuaObject < MOAIStream >( 4, false );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 2, false );
+	MOAIStream* idxStream		= state.GetRubyObject < MOAIStream >( 4, false );
 	
 	if ( format && vtxStream && idxStream ) {
 	
-		size_t vtxStreamLength = state.GetValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
-		size_t idxStreamLength = state.GetValue < u32 >( 5, ( u32 )( idxStream->GetLength () - idxStream->GetCursor ()));
+		size_t vtxStreamLength = state.GetParamValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
+		size_t idxStreamLength = state.GetParamValue < u32 >( 5, ( u32 )( idxStream->GetLength () - idxStream->GetCursor ()));
 	
-		MOAIVertexBuffer* vtxBuffer		= state.GetLuaObject < MOAIVertexBuffer >( 6, false );
-		MOAIIndexBuffer* idxBuffer		= state.GetLuaObject < MOAIIndexBuffer >( 7, false );
+		MOAIVertexBuffer* vtxBuffer		= state.GetRubyObject < MOAIVertexBuffer >( 6, false );
+		MOAIIndexBuffer* idxBuffer		= state.GetRubyObject < MOAIIndexBuffer >( 7, false );
 	
 		if ( vtxBuffer && idxBuffer ) {
 			
-			u32 idxSizeInBytes = state.GetValue < u32 >( 8, 4 );
+			u32 idxSizeInBytes = state.GetParamValue < u32 >( 8, 4 );
 			u32 totalElements = MOAIGeometryWriter::GetMesh ( *format, *vtxStream, vtxStreamLength, *idxStream, idxStreamLength, *vtxBuffer, *idxBuffer, idxSizeInBytes );
 			
-			state.Push ( totalElements );
-			return 1;
+			return state.ToRValue ( totalElements );
 		}
 		else {
 	
-			u32 idxSizeInBytes = state.GetValue < u32 >( 6, 4 );
+			u32 idxSizeInBytes = state.GetParamValue < u32 >( 6, 4 );
 			MOAIMesh* mesh = MOAIGeometryWriter::GetMesh ( *format, *vtxStream, vtxStreamLength, *idxStream, idxStreamLength, idxSizeInBytes );
-			state.Push ( mesh );
-			return 1;
+			return state.ToRValue < MOAIRubyObject* >( mesh );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGeometryWriter::_offsetIndices ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_offsetIndices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIStream* idxStream = state.GetLuaObject < MOAIStream >( 1, true );
+	MOAIStream* idxStream = state.GetRubyObject < MOAIStream >( 1, true );
 	
 	if ( idxStream ) {
 	
-		size_t length	= state.GetValue < u32 >( 2, ( u32 )( idxStream->GetLength () - idxStream->GetCursor ()));
-		s32 offset		= state.GetValue < s32 >( 3, 0 );
+		size_t length	= state.GetParamValue < u32 >( 2, ( u32 )( idxStream->GetLength () - idxStream->GetCursor ()));
+		s32 offset		= state.GetParamValue < s32 >( 3, 0 );
 	
 		MOAIGeometryWriter::OffsetIndices ( *idxStream, length, offset );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -304,17 +302,17 @@ int MOAIGeometryWriter::_offsetIndices ( lua_State* L ) {
 	@in		MOAIStream idxStream
 	@out 	nil
 */
-int MOAIGeometryWriter::_pruneVertices ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_pruneVertices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, true );
-	MOAIStream* idxStream		= state.GetLuaObject < MOAIStream >( 3, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 2, true );
+	MOAIStream* idxStream		= state.GetRubyObject < MOAIStream >( 3, true );
 	
 	if ( format && vtxStream && idxStream ) {
 		MOAIGeometryWriter::PruneVertices ( *format, *vtxStream, *idxStream );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -329,44 +327,44 @@ int MOAIGeometryWriter::_pruneVertices ( lua_State* L ) {
 	@opt	number zSnap		Default valie is ySnap.
 	@out 	nil
 */
-int MOAIGeometryWriter::_snapCoords ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_snapCoords ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 2, true );
 	
 	if ( format && vtxStream ) {
 	
-		size_t length	= state.GetValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
+		size_t length	= state.GetParamValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
 	
-		float xSnap = state.GetValue < float >( 4, 0.0f );
-		float ySnap = state.GetValue < float >( 5, xSnap );
-		float zSnap = state.GetValue < float >( 6, ySnap );
+		float xSnap = state.GetParamValue < float >( 4, 0.0f );
+		float ySnap = state.GetParamValue < float >( 5, xSnap );
+		float zSnap = state.GetParamValue < float >( 6, ySnap );
 	
 		MOAIGeometryWriter::SnapCoords ( *format, *vtxStream, length, xSnap, ySnap, zSnap );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGeometryWriter::_translateCoords ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_translateCoords ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* vtxStream			= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* vtxStream			= state.GetRubyObject < MOAIStream >( 2, true );
 	
 	if ( format && vtxStream ) {
 	
-		size_t length	= state.GetValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
+		size_t length	= state.GetParamValue < u32 >( 3, ( u32 )( vtxStream->GetLength () - vtxStream->GetCursor ()));
 	
-		float xOff = state.GetValue < float >( 4, 0.0f );
-		float yOff = state.GetValue < float >( 5, 0.0f );
-		float zOff = state.GetValue < float >( 6, 0.0f );
+		float xOff = state.GetParamValue < float >( 4, 0.0f );
+		float yOff = state.GetParamValue < float >( 5, 0.0f );
+		float zOff = state.GetParamValue < float >( 6, 0.0f );
 	
 		MOAIGeometryWriter::TranslateCoords ( *format, *vtxStream, length, xOff, yOff, zOff );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -383,23 +381,23 @@ int MOAIGeometryWriter::_translateCoords ( lua_State* L ) {
 	@in		number zMax
 	@out 	nil
 */
-int MOAIGeometryWriter::_writeBox ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_writeBox ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* stream			= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* stream			= state.GetRubyObject < MOAIStream >( 2, true );
 	
 	if ( format && stream  ) {
 		MOAIGeometryWriter::WriteBox ( *format, *stream, state.GetBox ( 3 ));
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: implement
-int MOAIGeometryWriter::_writeCone ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
-	return 0;
+mrb_value MOAIGeometryWriter::_writeCone ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -414,15 +412,15 @@ int MOAIGeometryWriter::_writeCone ( lua_State* L ) {
 	@opt	number z		Default value is 0.
 	@out 	nil
 */
-int MOAIGeometryWriter::_writeCube ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+mrb_value MOAIGeometryWriter::_writeCube ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
 	
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 1, true );
-	MOAIStream* stream			= state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 1, true );
+	MOAIStream* stream			= state.GetRubyObject < MOAIStream >( 2, true );
 	
 	if ( format && stream  ) {
 	
-		float size = state.GetValue < float >( 3, 1.0f );
+		float size = state.GetParamValue < float >( 3, 1.0f );
 		if ( size > 0.0f ) {
 			
 			ZLVec3D origin	= state.GetVec3D ( 4, 0.0f );
@@ -442,28 +440,28 @@ int MOAIGeometryWriter::_writeCube ( lua_State* L ) {
 			MOAIGeometryWriter::WriteBox ( *format, *stream, box );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: implement
-int MOAIGeometryWriter::_writeCylinder ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
-	return 0;
+mrb_value MOAIGeometryWriter::_writeCylinder ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: implement
-int MOAIGeometryWriter::_writeIcoSphere ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
-	return 0;
+mrb_value MOAIGeometryWriter::_writeIcoSphere ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: implement
-int MOAIGeometryWriter::_writeUVSphere ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGeometryWriter, "" )
-	return 0;
+mrb_value MOAIGeometryWriter::_writeUVSphere ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGeometryWriter, "" )
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -602,13 +600,14 @@ void MOAIGeometryWriter::ApplyLinearGradient ( const MOAIVertexFormat& format, Z
 
 //----------------------------------------------------------------//
 MOAIMesh* MOAIGeometryWriter::GetMesh ( const MOAIVertexFormat& format, ZLStream& vtxStream, size_t vtxStreamLength, ZLStream& idxStream, size_t idxStreamLength, u32 idxSizeInBytes ) {
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 
-	MOAIVertexBuffer* vtxBuffer = new MOAIVertexBuffer ();
-	MOAIIndexBuffer* idxBuffer = new MOAIIndexBuffer ();
+	MOAIVertexBuffer* vtxBuffer = state.CreateClassInstance < MOAIVertexBuffer >();
+	MOAIIndexBuffer* idxBuffer = state.CreateClassInstance < MOAIIndexBuffer >();
 
 	u32 totalElements = MOAIGeometryWriter::GetMesh ( format, vtxStream, vtxStreamLength, idxStream, idxStreamLength, *vtxBuffer, *idxBuffer, idxSizeInBytes );
 	
-	MOAIMesh* mesh = new MOAIMesh ();
+	MOAIMesh* mesh = state.CreateClassInstance < MOAIMesh >();
 	
 	mesh->SetVertexBuffer ( 0, vtxBuffer, ( MOAIVertexFormat* )&format ); // not ideal, but we're gonna do it
 	mesh->SetIndexBuffer ( idxBuffer );
@@ -660,7 +659,7 @@ u32 MOAIGeometryWriter::GetMesh ( const MOAIVertexFormat& format, ZLStream& vtxS
 //----------------------------------------------------------------//
 MOAIGeometryWriter::MOAIGeometryWriter () {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -762,37 +761,34 @@ void MOAIGeometryWriter::PruneVertices ( const MOAIVertexFormat& format, MOAIStr
 }
 
 //----------------------------------------------------------------//
-void MOAIGeometryWriter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGeometryWriter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "COLOR_ADD",				( u32 )COLOR_ADD );
-	state.SetField ( -1, "COLOR_MULTIPLY",			( u32 )COLOR_MULTIPLY );
-	state.SetField ( -1, "COLOR_OVERWRITE",			( u32 )COLOR_OVERWRITE );
-	state.SetField ( -1, "COLOR_SUBTRACT",			( u32 )COLOR_SUBTRACT );
+	state.DefineClassConst ( klass, "COLOR_ADD",				( u32 )COLOR_ADD );
+	state.DefineClassConst ( klass, "COLOR_MULTIPLY",			( u32 )COLOR_MULTIPLY );
+	state.DefineClassConst ( klass, "COLOR_OVERWRITE",			( u32 )COLOR_OVERWRITE );
+	state.DefineClassConst ( klass, "COLOR_SUBTRACT",			( u32 )COLOR_SUBTRACT );
 
-	luaL_Reg regTable [] = {
-		{ "applyColor",				_applyColor },
-		{ "applyLightFromImage",	_applyLightFromImage },
-		{ "applyLinearGradient",	_applyLinearGradient },
-		{ "getMesh",				_getMesh },
-		{ "offsetIndices",			_offsetIndices },
-		{ "pruneVertices",			_pruneVertices },
-		{ "snapCoords",				_snapCoords },
-		{ "translateCoords",		_translateCoords },
-		{ "writeBox",				_writeBox },
-		{ "writeCone",				_writeCone },
-		{ "writeCube",				_writeCube },
-		{ "writeCylinder",			_writeCylinder },
-		{ "writeIcoSphere",			_writeIcoSphere },
-		{ "writeUVSphere",			_writeUVSphere },
-		{ NULL, NULL }
-	};
+	state.DefineStaticMethod ( klass, "applyColor",				_applyColor, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "applyLightFromImage",	_applyLightFromImage, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "applyLinearGradient",	_applyLinearGradient, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "getMesh",				_getMesh, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "offsetIndices",			_offsetIndices, MRB_ARGS_REQ ( 3 ) );
+	state.DefineStaticMethod ( klass, "pruneVertices",			_pruneVertices, MRB_ARGS_REQ ( 2 ) );
+	state.DefineStaticMethod ( klass, "snapCoords",				_snapCoords, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "translateCoords",		_translateCoords, MRB_ARGS_REQ ( 6 ) );
+	state.DefineStaticMethod ( klass, "writeBox",				_writeBox, MRB_ARGS_REQ ( 8 ) );
+	state.DefineStaticMethod ( klass, "writeCone",				_writeCone, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "writeCube",				_writeCube, MRB_ARGS_ARG ( 1, 4 ) );
+	state.DefineStaticMethod ( klass, "writeCylinder",			_writeCylinder, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "writeIcoSphere",			_writeIcoSphere, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "writeUVSphere",			_writeUVSphere, MRB_ARGS_ANY () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIGeometryWriter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGeometryWriter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//

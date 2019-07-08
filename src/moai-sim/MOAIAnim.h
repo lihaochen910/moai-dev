@@ -14,8 +14,8 @@ class MOAIAnimCurveBase;
 class MOAIAnimLink {
 public:
 
-	MOAILuaSharedPtr < MOAIAnimCurveBase > mCurve;
-	MOAILuaSharedPtr < MOAINode > mTarget;
+	MOAIRubySharedPtr < MOAIAnimCurveBase > mCurve;
+	MOAIRubySharedPtr < MOAINode > mTarget;
 	u32 mAttrID;
 	bool mRelative;
 };
@@ -35,17 +35,17 @@ private:
 	ZLLeanArray < MOAIAnimLink > mLinks;
 
 	//----------------------------------------------------------------//
-	static int		_apply				( lua_State* L );
-	static int		_getLength			( lua_State* L );
-	static int		_reserveLinks		( lua_State* L );
-	static int		_setLink			( lua_State* L );
+	static mrb_value		_apply				( mrb_state* M, mrb_value context );
+	static mrb_value		_getLength			( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveLinks		( mrb_state* M, mrb_value context );
+	static mrb_value		_setLink			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			MOAIAction_Update	( double step );
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAIAnim )
+	DECL_RUBY_FACTORY ( MOAIAnim, MOAITimer )
 	
 	GET ( float, Length, mLength )
 	
@@ -56,8 +56,8 @@ public:
 	void			ClearLinks			();
 					MOAIAnim			();
 					~MOAIAnim			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	void			ReserveLinks		( u32 totalLinks );
 	void			SetLink				( u32 linkID, MOAIAnimCurveBase* curve, MOAINode* target, u32 attrID, bool relative );
 };

@@ -22,12 +22,11 @@
 	@text	Returns glyph cache.
 	
 	@in		MOAIFont self
-	@out	MOAILuaObject cache
+	@out	MOAIRubyObject cache
 */
-int MOAIFont::_getCache ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	state.Push (( MOAILuaObject* )self->mCache );
-	return 1;
+mrb_value MOAIFont::_getCache ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	return state.ToRValue < MOAIRubyObject* >( ( MOAIRubyObject* )self->mCache );
 }
 
 //----------------------------------------------------------------//
@@ -37,10 +36,9 @@ int MOAIFont::_getCache ( lua_State* L ) {
 	@in		MOAIFont self
 	@out	number defaultSize
 */
-int MOAIFont::_getDefaultSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	state.Push ( self->mDefaultSize );
-	return 1;
+mrb_value MOAIFont::_getDefaultSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	return state.ToRValue ( self->mDefaultSize );
 }
 
 //----------------------------------------------------------------//
@@ -50,10 +48,9 @@ int MOAIFont::_getDefaultSize ( lua_State* L ) {
 	@in		MOAIFont self
 	@out	string name
 */
-int MOAIFont::_getFilename ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	state.Push ( self->mFilename );
-	return 1;
+mrb_value MOAIFont::_getFilename ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	return state.ToRValue ( self->mFilename.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -63,10 +60,9 @@ int MOAIFont::_getFilename ( lua_State* L ) {
 	@in		MOAIFont self
 	@out	number flags
 */
-int MOAIFont::_getFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	state.Push ( self->mFlags );
-	return 1;
+mrb_value MOAIFont::_getFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	return state.ToRValue ( self->mFlags );
 }
 
 //----------------------------------------------------------------//
@@ -80,17 +76,16 @@ int MOAIFont::_getFlags ( lua_State* L ) {
 	@in		MOAIFont self
 	@out	MOAIImage image
 */
-int MOAIFont::_getImage ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
+mrb_value MOAIFont::_getImage ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
 
 	if ( self->mCache ) {
 		MOAIImage* image = self->mCache->GetImage ();
 		if ( image ) {
-			state.Push ( image );
-			return 1;
+			return state.ToRValue < MOAIRubyObject* >( image );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -98,12 +93,11 @@ int MOAIFont::_getImage ( lua_State* L ) {
 	@text	Returns font reader.
 	
 	@in		MOAIFont self
-	@out	MOAILuaObject reader
+	@out	MOAIRubyObject reader
 */
-int MOAIFont::_getReader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	state.Push (( MOAILuaObject* )self->mReader );
-	return 1;
+mrb_value MOAIFont::_getReader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	return state.ToRValue < MOAIRubyObject* >( ( MOAIRubyObject* )self->mReader );
 }
 
 //----------------------------------------------------------------//
@@ -114,13 +108,13 @@ int MOAIFont::_getReader ( lua_State* L ) {
 	@in		string filename			The path to the font file to load.
 	@out	nil
 */
-int MOAIFont::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "US" )
+mrb_value MOAIFont::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "US" )
 
-	cc8* filename	= state.GetValue < cc8* >( 2, "" );
+	cc8* filename	= state.GetParamValue < cc8* >( 1, "" );
 	self->Init ( filename );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -129,41 +123,41 @@ int MOAIFont::_load ( lua_State* L ) {
  
 	@in		MOAIFont self
 	@in		string filename			The path to the BMFont file to load.
-	@opt	table textures			Table of preloaded textures.
+	@opt	array textures			Array of preloaded textures.
 	@out	nil
 */
-int	MOAIFont::_loadFromBMFont ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "US" )
+mrb_value MOAIFont::_loadFromBMFont ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "US" )
 	
-	cc8* filename	= state.GetValue < cc8* >( 2, "" );
+	cc8* filename	= state.GetParamValue < cc8* >( 1, "" );
 	self->Init ( filename );
 
 	// Check if there are preloaded textures
 	MOAITexture** preloadedTextures = 0;
-	u16 numPreloadedTextures = ( u16 )lua_objlen ( state, 3 );
+	u16 numPreloadedTextures = ( u16 )RARRAY_LEN ( state.GetParamValue ( 2 ) );
 
 	if ( numPreloadedTextures > 0 ) {
 
-		preloadedTextures = new MOAITexture* [ numPreloadedTextures ];
-		memset ( preloadedTextures, 0, sizeof ( MOAITexture* ) * numPreloadedTextures );
-		
-		// Get all the preloaded textures
-		for ( u16 i=0; i<numPreloadedTextures; i++ ) {
-			lua_pushinteger ( state, i + 1 );
-			lua_gettable ( state, -2 );
-			
-			MOAITexture* texture = state.GetLuaObject < MOAITexture >( -1, true );
-			preloadedTextures [i] = texture;
+		//preloadedTextures = new MOAITexture* [ numPreloadedTextures ];
+		//memset ( preloadedTextures, 0, sizeof ( MOAITexture* ) * numPreloadedTextures );
+		//
+		//// Get all the preloaded textures
+		//for ( u16 i=0; i<numPreloadedTextures; i++ ) {
+		//	lua_pushinteger ( state, i + 1 );
+		//	lua_gettable ( state, -2 );
+		//	
+		//	MOAITexture* texture = state.GetRubyObject < MOAITexture >( -1, true );
+		//	preloadedTextures [i] = texture;
 
-			lua_pop ( state, 1 );
-		}
+		//	lua_pop ( state, 1 );
+		//}
 	}
 
 	self->InitWithBMFont ( filename, numPreloadedTextures, preloadedTextures );
 
 	delete [] preloadedTextures;
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -176,12 +170,12 @@ int	MOAIFont::_loadFromBMFont ( lua_State* L ) {
 	@opt	number dpi				The device DPI (dots per inch of device screen). Default value is 72 (points same as pixels).
 	@out	nil
 */
-int MOAIFont::_preloadGlyphs ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
+mrb_value MOAIFont::_preloadGlyphs ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
 
-	cc8* charCodes	= state.GetValue < cc8* >( 2, "" );
-	float points	= state.GetValue < float >( 3, 0 );
-	float dpi		= state.GetValue < float >( 4, DPI );
+	cc8* charCodes	= state.GetParamValue < cc8* >( 1, "" );
+	float points	= state.GetParamValue < float >( 2, 0 );
+	float dpi		= state.GetParamValue < float >( 3, DPI );
 	
 	float size = POINTS_TO_PIXELS ( points, dpi );
 	
@@ -195,7 +189,7 @@ int MOAIFont::_preloadGlyphs ( lua_State* L ) {
 		self->AffirmGlyph ( size, c );
 	}
 	self->ProcessGlyphs ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -216,15 +210,15 @@ int MOAIFont::_preloadGlyphs ( lua_State* L ) {
 		@opt	number dpi				The device DPI (dots per inch of device screen). Default value is 72 (points same as pixels).
 		@out	nil
 */
-int MOAIFont::_rebuildKerningTables ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
+mrb_value MOAIFont::_rebuildKerningTables ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
 	
 	if ( self->mReader ) {
 	
-		if ( state.IsType ( 2, LUA_TNUMBER )) {
+		if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
 			
-			float points	= state.GetValue < float >( 2, 0 );
-			float dpi		= state.GetValue < float >( 3, DPI );
+			float points	= state.GetParamValue < float >( 1, 0 );
+			float dpi		= state.GetParamValue < float >( 2, DPI );
 			
 			float size = POINTS_TO_PIXELS ( points, dpi );
 			self->RebuildKerning ( size );
@@ -233,7 +227,7 @@ int MOAIFont::_rebuildKerningTables ( lua_State* L ) {
 			self->RebuildKerning ();
 		}
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -249,10 +243,10 @@ int MOAIFont::_rebuildKerningTables ( lua_State* L ) {
 	@opt	MOAIGlyphCache cache		Default value is nil.
 	@out	nil
 */
-int MOAIFont::_setCache ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	self->mCache.Set ( *self, state.GetLuaObject < MOAIGlyphCache >( 2, true ));
-	return 0;
+mrb_value MOAIFont::_setCache ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	self->mCache.Set ( *self, state.GetRubyObject < MOAIGlyphCache >( 1, true ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -266,15 +260,15 @@ int MOAIFont::_setCache ( lua_State* L ) {
 	@opt	number dpi				The device DPI (dots per inch of device screen). Default value is 72 (points same as pixels).
 	@out	nil
 */
-int MOAIFont::_setDefaultSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
+mrb_value MOAIFont::_setDefaultSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
 	
-	float points	= state.GetValue < float >( 2, 0 );
-	float dpi		= state.GetValue < float >( 3, DPI );
+	float points	= state.GetParamValue < float >( 1, 0 );
+	float dpi		= state.GetParamValue < float >( 2, DPI );
 			
 	self->mDefaultSize = POINTS_TO_PIXELS ( points, dpi );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -284,20 +278,20 @@ int MOAIFont::_setDefaultSize ( lua_State* L ) {
 	@in		MOAIFont self
 	@opt	number minFilter
 	@out	number magFilter
-	@out	MOAILuaObject cache
+	@out	MOAIRubyObject cache
 */
-int MOAIFont::_setFilter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
+mrb_value MOAIFont::_setFilter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
 	
-	int min = state.GetValue < int >( 2, ZGL_SAMPLE_LINEAR );
-	int mag = state.GetValue < int >( 3, min );
+	int min = state.GetParamValue < int >( 1, ZGL_SAMPLE_LINEAR );
+	int mag = state.GetParamValue < int >( 2, min );
 	
 	MOAITextureBase::CheckFilterModes ( min, mag );
 	
 	self->mMinFilter = min;
 	self->mMagFilter = mag;
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -312,10 +306,10 @@ int MOAIFont::_setFilter ( lua_State* L ) {
 									Alternatively, pass '0' to clear the flags.
 	@out	nil
 */
-int MOAIFont::_setFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	self->mFlags = state.GetValue < u32 >( 2, DEFAULT_FLAGS );
-	return 0;
+mrb_value MOAIFont::_setFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	self->mFlags = state.GetParamValue < u32 >( 1, DEFAULT_FLAGS );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -333,21 +327,21 @@ int MOAIFont::_setFlags ( lua_State* L ) {
 	@in		MOAIImage image
 	@out	nil
 */
-int MOAIFont::_setImage ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "UU" )
+mrb_value MOAIFont::_setImage ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "UU" )
 
 	if ( !self->mCache ) {
-		MOAIGlyphCache* glyphCache = new MOAIStaticGlyphCache ();
+		MOAIGlyphCache* glyphCache = state.CreateClassInstance < MOAIStaticGlyphCache >();
 		self->mCache.Set ( *self, glyphCache );
 	}
 
 	assert ( self->mCache );
 
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, true );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, true );
 	if ( image ) {
 		self->mCache->SetImage ( *self, *image );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -361,10 +355,10 @@ int MOAIFont::_setImage ( lua_State* L ) {
 	@opt	MOAIFontReader reader		Default value is nil.
 	@out	nil
 */
-int MOAIFont::_setReader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
-	self->mReader.Set ( *self, state.GetLuaObject < MOAIFontReader >( 2, true ));
-	return 0;
+mrb_value MOAIFont::_setReader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
+	self->mReader.Set ( *self, state.GetRubyObject < MOAIFontReader >( 1, true ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -376,14 +370,13 @@ int MOAIFont::_setReader ( lua_State* L ) {
 	@in		MOAIShader shader
 	@out	MOAIShader shader
 */
-int MOAIFont::_setShader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFont, "U" )
+mrb_value MOAIFont::_setShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFont, "U" )
 
-	MOAIShader* shader = MOAIShader::AffirmShader ( state, 2 );
+	MOAIShader* shader = MOAIShader::AffirmShader ( state, 1 );
 	self->mShader.Set ( *self, shader );
 
-	state.Push ( shader );
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( shader );
 }
 
 //================================================================//
@@ -404,7 +397,7 @@ int MOAIFont::_setShader ( lua_State* L ) {
 		@opt	number dpi				The device DPI (dots per inch of device screen). Default value is 72 (points same as pixels).
 		@out	nil
 	*/
-	int MOAIFont::_loadFromTTF ( lua_State* L ) {
+	mrb_value MOAIFont::_loadFromTTF ( mrb_state* M, mrb_value context ) {
 	}
 
 #endif
@@ -598,7 +591,7 @@ MOAIFont::MOAIFont () :
 	mMagFilter ( ZGL_SAMPLE_LINEAR ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 		RTTI_EXTEND ( MOAIInstanceEventSource )
 	RTTI_END
 }
@@ -751,41 +744,37 @@ void MOAIFont::RebuildKerning ( MOAIGlyphSet& glyphSet ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFont::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIInstanceEventSource::RegisterLuaClass ( state );
+void MOAIFont::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIInstanceEventSource::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "EVENT_RENDER_GLYPH",		( u32 )EVENT_RENDER_GLYPH );
+	state.DefineClassConst ( klass, "EVENT_RENDER_GLYPH",		( u32 )EVENT_RENDER_GLYPH );
 	
-	state.SetField ( -1, "DEFAULT_FLAGS",			( u32 )DEFAULT_FLAGS );
-	state.SetField ( -1, "FONT_AUTOLOAD_KERNING",	( u32 )FONT_AUTOLOAD_KERNING );
+	state.DefineClassConst ( klass, "DEFAULT_FLAGS",			( u32 )DEFAULT_FLAGS );
+	state.DefineClassConst ( klass, "FONT_AUTOLOAD_KERNING",	( u32 )FONT_AUTOLOAD_KERNING );
 }
 
 //----------------------------------------------------------------//
-void MOAIFont::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIInstanceEventSource::RegisterLuaFuncs ( state );
+void MOAIFont::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIInstanceEventSource::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getCache", _getCache, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDefaultSize", _getDefaultSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFlags", _getFlags, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFilename", _getFilename, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getImage", _getImage, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getReader", _getReader, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "loadFromBMFont", _loadFromBMFont, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "preloadGlyphs", _preloadGlyphs, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "rebuildKerningTables", _rebuildKerningTables, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setCache", _setCache, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDefaultSize", _setDefaultSize, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFilter", _setFilter, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFlags", _setFlags, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setImage", _setImage, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setReader", _setReader, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setShader", _setShader, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getCache",					_getCache },
-		{ "getDefaultSize",				_getDefaultSize },
-		{ "getFlags",					_getFlags },
-		{ "getFilename",				_getFilename },
-		{ "getImage",					_getImage },
-		{ "getReader",					_getReader },
-		{ "load",						_load },
-		{ "loadFromBMFont",				_loadFromBMFont },
-		{ "preloadGlyphs",				_preloadGlyphs },	
-		{ "rebuildKerningTables",		_rebuildKerningTables },
-		{ "setCache",					_setCache },
-		{ "setDefaultSize",				_setDefaultSize },
-		{ "setFilter",					_setFilter },
-		{ "setFlags",					_setFlags },
-		{ "setImage",					_setImage },
-		{ "setReader",					_setReader },
-		{ "setShader",					_setShader },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -805,23 +794,25 @@ void MOAIFont::RenderGlyph ( MOAIGlyph& glyph ) {
 		float x = glyph.mSrcX - glyph.mBearingX;
 		float y = glyph.mSrcY + glyph.mBearingY;
 
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		if ( this->PushListenerAndSelf ( EVENT_RENDER_GLYPH, state )) {
-			
-			state.Push ( fontReader );
-			state.Push ( image );
-		
-			state.Push ( glyph.GetCode ());
-		
-			state.Push ( x );
-			state.Push ( y );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+		mrb_value listener = this->GetListener ( state, EVENT_RENDER_GLYPH );
+		if ( !state.IsNil ( listener ) ) {
 
-			state.Push ( glyph.GetSrcX ());
-			state.Push ( glyph.GetSrcY ());
-			state.Push ( glyph.GetSrcX () + glyph.GetWidth ());
-			state.Push ( glyph.GetSrcY () + glyph.GetHeight ());
-		
-			state.DebugCall ( 10, 0 );
+			mrb_value ret [ 9 ];
+			ret [ 0 ] = state.ToRValue < MOAIRubyObject* >( fontReader );
+			ret [ 1 ] = state.ToRValue < MOAIRubyObject* >( image );
+
+			ret [ 2 ] = state.ToRValue ( glyph.GetCode () );
+
+			ret [ 3 ] = state.ToRValue ( x );
+			ret [ 4 ] = state.ToRValue ( y );
+
+			ret [ 5 ] = state.ToRValue ( glyph.GetSrcX () );
+			ret [ 6 ] = state.ToRValue ( glyph.GetSrcY () );
+			ret [ 7 ] = state.ToRValue ( glyph.GetSrcX () + glyph.GetWidth () );
+			ret [ 8 ] = state.ToRValue ( glyph.GetSrcY () + glyph.GetHeight () );
+			
+			state.FuncCall ( listener, "call", 9, ret );
 		}
 		else {
 			fontReader->RenderGlyph ( *image, x, y );
@@ -830,10 +821,10 @@ void MOAIFont::RenderGlyph ( MOAIGlyph& glyph ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFont::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIFont::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( serializer );
 
-	this->mFilename = state.GetFieldValue ( -1, "mFilename", this->mFilename );
+	/*this->mFilename = state.GetFieldValue ( -1, "mFilename", this->mFilename );
 	this->mFlags = state.GetFieldValue ( -1, "mFlags", this->mFlags );
 	this->mDefaultSize = state.GetFieldValue ( -1, "mDefaultSize", this->mDefaultSize );
 	
@@ -841,33 +832,33 @@ void MOAIFont::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer )
 
 		u32 itr = state.PushTableItr ( -1 );
 		while ( state.TableItrNext ( itr )) {
-			float size = state.GetValue < float >( -2, 0 );
+			float size = state.GetParamValue < float >( -2, 0 );
 			MOAIGlyphSet& glyphSet = this->mGlyphSets [ size ];
 			glyphSet.SerializeIn ( state );
 		}
 		state.Pop ( 1 );
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//
-void MOAIFont::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIFont::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( serializer );
 
-	state.SetField ( -1, "mFilename", this->mFilename );
-	state.SetField ( -1, "mFlags", this->mFlags );
-	state.SetField ( -1, "mDefaultSize", this->mDefaultSize );
+	// state.SetField ( -1, "mFilename", this->mFilename );
+	// state.SetField ( -1, "mFlags", this->mFlags );
+	// state.SetField ( -1, "mDefaultSize", this->mDefaultSize );
 	
-	lua_newtable ( state );
-	GlyphSetsIt glyphSetsIt = this->mGlyphSets.begin ();
-	for ( ; glyphSetsIt != this->mGlyphSets.end (); ++glyphSetsIt ) {
+	// lua_newtable ( state );
+	// GlyphSetsIt glyphSetsIt = this->mGlyphSets.begin ();
+	// for ( ; glyphSetsIt != this->mGlyphSets.end (); ++glyphSetsIt ) {
 	
-		float size = glyphSetsIt->first;
-		MOAIGlyphSet& glyphSet = glyphSetsIt->second;
+	// 	float size = glyphSetsIt->first;
+	// 	MOAIGlyphSet& glyphSet = glyphSetsIt->second;
 	
-		lua_pushnumber ( state, size );
-		lua_newtable ( state );
-		glyphSet.SerializeOut ( state );
-		lua_settable ( state, -3 );
-	}
-	lua_setfield ( state, -2, "mGlyphSets" );
+	// 	lua_pushnumber ( state, size );
+	// 	lua_newtable ( state );
+	// 	glyphSet.SerializeOut ( state );
+	// 	lua_settable ( state, -3 );
+	// }
+	// lua_setfield ( state, -2, "mGlyphSets" );
 }

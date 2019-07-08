@@ -16,12 +16,10 @@
 	@in		MOAICompassSensor self
 	@out	number heading
 */
-int MOAICompassSensor::_getHeading ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICompassSensor, "U" )
+mrb_value MOAICompassSensor::_getHeading ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICompassSensor, "U" )
 	
-	lua_pushnumber ( state, self->mHeading );
-	
-	return 1;
+	return state.ToRValue ( self->mHeading );
 }
 
 //----------------------------------------------------------------//
@@ -32,12 +30,11 @@ int MOAICompassSensor::_getHeading ( lua_State* L ) {
 	@opt	function callback			Default value is nil.
 	@out	nil
 */
-int MOAICompassSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICompassSensor, "U" )
+mrb_value MOAICompassSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICompassSensor, "U" )
 	
-	self->mCallback.SetRef ( state, 2 );
-	
-	return 0;
+	self->mCallback.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -70,28 +67,27 @@ void MOAICompassSensor::ParseEvent ( ZLStream& eventStream ) {
 	this->mHeading = eventStream.Read < float >( 0.0f );
 	
 	if ( this->mCallback ) {
-		MOAIScopedLuaState state = this->mCallback.GetSelf ();
-		lua_pushnumber ( state, this->mHeading );
-		state.DebugCall ( 1, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 1 ];
+		argv [ 0 ] = state.ToRValue ( this->mHeading );
+
+		state.FuncCall ( this->mCallback, "call", 1, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAICompassSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICompassSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAICompassSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICompassSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getHeading",			_getHeading },
-		{ "setCallback",		_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getHeading", _getHeading, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

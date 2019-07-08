@@ -27,12 +27,14 @@ public:
 	@out	number x
 	@out	number y
 */
-int MOAIJoystickSensor::_getVector ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIJoystickSensor, "U" )
+mrb_value MOAIJoystickSensor::_getVector ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIJoystickSensor, "U" )
 	
-	lua_pushnumber ( state, self->mX );
-	lua_pushnumber ( state, self->mY );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mX );
+	ret [ 1 ] = state.ToRValue ( self->mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -43,12 +45,11 @@ int MOAIJoystickSensor::_getVector ( lua_State* L ) {
 	@opt	function callback			Default value is nil.
 	@out	nil
 */
-int MOAIJoystickSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIJoystickSensor, "U" )
+mrb_value MOAIJoystickSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIJoystickSensor, "U" )
 	
-	self->mOnStick.SetRef ( state, 2 );
-	
-	return 0;
+	self->mOnStick.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -82,29 +83,28 @@ void MOAIJoystickSensor::ParseEvent ( ZLStream& eventStream ) {
 	this->mY = eventStream.Read < float >( 0.0f );
 	
 	if ( this->mOnStick ) {
-		MOAIScopedLuaState state = this->mOnStick.GetSelf ();
-		lua_pushnumber ( state, this->mX );
-		lua_pushnumber ( state, this->mY );
-		state.DebugCall ( 2, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 2 ];
+		argv [ 0 ] = state.ToRValue ( this->mX );
+		argv [ 1 ] = state.ToRValue ( this->mY );
+
+		state.FuncCall ( this->mOnStick, "call", 1, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIJoystickSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIJoystickSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIJoystickSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIJoystickSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getVector",		_getVector },
-		{ "setCallback",	_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getVector", _getVector, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

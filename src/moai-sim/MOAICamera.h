@@ -28,20 +28,20 @@ private:
 	u32				mType;
 
 	//----------------------------------------------------------------//
-	static int		_getFarPlane			( lua_State* L );
-	static int		_getFieldOfView			( lua_State* L );
-	static int		_getFloorMove			( lua_State* L );
-	static int		_getFocalLength			( lua_State* L );
-	static int		_getNearPlane			( lua_State* L );
-	static int		_getViewVector			( lua_State* L );
-	static int		_lookAt					( lua_State* L );
-	static int		_moveFieldOfView		( lua_State* L );
-	static int		_seekFieldOfView		( lua_State* L );
-	static int		_setFarPlane			( lua_State* L );
-	static int		_setFieldOfView			( lua_State* L );
-	static int		_setNearPlane			( lua_State* L );
-	static int		_setOrtho				( lua_State* L );
-	static int		_setType				( lua_State* L );
+	static mrb_value		_getFarPlane			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFieldOfView			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFloorMove			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFocalLength			( mrb_state* M, mrb_value context );
+	static mrb_value		_getNearPlane			( mrb_state* M, mrb_value context );
+	static mrb_value		_getViewVector			( mrb_state* M, mrb_value context );
+	static mrb_value		_lookAt					( mrb_state* M, mrb_value context );
+	static mrb_value		_moveFieldOfView		( mrb_state* M, mrb_value context );
+	static mrb_value		_seekFieldOfView		( mrb_state* M, mrb_value context );
+	static mrb_value		_setFarPlane			( mrb_state* M, mrb_value context );
+	static mrb_value		_setFieldOfView			( mrb_state* M, mrb_value context );
+	static mrb_value		_setNearPlane			( mrb_state* M, mrb_value context );
+	static mrb_value		_setOrtho				( mrb_state* M, mrb_value context );
+	static mrb_value		_setType				( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			LookAt					( float x, float y, float z );
@@ -63,7 +63,7 @@ public:
 		CAMERA_TYPE_WINDOW,
 	};
 	
-	DECL_LUA_FACTORY ( MOAICamera )
+	DECL_RUBY_FACTORY ( MOAICamera, MOAITransform )
 	DECL_ATTR_HELPER ( MOAICamera )
 
 	enum {
@@ -86,8 +86,8 @@ public:
 	ZLVec3D			GetViewVector			() const;
 					MOAICamera				();
 					~MOAICamera				();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			SetProjMtx				();
 	void			SetProjMtx				( const ZLMatrix4x4& mtx );
 };

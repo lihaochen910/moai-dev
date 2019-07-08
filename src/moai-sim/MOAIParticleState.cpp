@@ -22,12 +22,12 @@ class MOAIDataBuffer;
 	@in		MOAIParticleState self
 	@out	nil
 */
-int MOAIParticleState::_clearForces ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "U" )
+mrb_value MOAIParticleState::_clearForces ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "U" )
 	
 	self->ClearForces ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -38,14 +38,14 @@ int MOAIParticleState::_clearForces ( lua_State* L ) {
 	@in		MOAIParticleForce force
 	@out	nil
 */
-int MOAIParticleState::_pushForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "UU" )
+mrb_value MOAIParticleState::_pushForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "UU" )
 	
-	MOAIParticleForce* force = state.GetLuaObject < MOAIParticleForce >( 2, true );
+	MOAIParticleForce* force = state.GetRubyObject < MOAIParticleForce >( 1, true );
 	if ( force ) {
 		self->PushForce ( *force );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -56,12 +56,12 @@ int MOAIParticleState::_pushForce ( lua_State* L ) {
 	@in		number damping
 	@out	nil
 */
-int MOAIParticleState::_setDamping ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "UN" )
+mrb_value MOAIParticleState::_setDamping ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "UN" )
 
-	self->mDamping = state.GetValue < float >( 2, 0.0f );
+	self->mDamping = state.GetParamValue < float >( 1, 0.0f );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -72,17 +72,17 @@ int MOAIParticleState::_setDamping ( lua_State* L ) {
 	@opt	MOAIParticleScript script
 	@out	nil
 */
-int MOAIParticleState::_setInitScript ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "U" )
+mrb_value MOAIParticleState::_setInitScript ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "U" )
 
-	MOAIParticleScript* init = state.GetLuaObject < MOAIParticleScript >( 2, true );
+	MOAIParticleScript* init = state.GetRubyObject < MOAIParticleScript >( 1, true );
 
 	if ( init ) {
 		init->Compile ();
 	}
 	self->mInit.Set ( *self, init );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -95,16 +95,16 @@ int MOAIParticleState::_setInitScript ( lua_State* L ) {
 	@opt	number maxMass			Default value is minMass.
 	@out	nil
 */
-int MOAIParticleState::_setMass ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "UN" )
+mrb_value MOAIParticleState::_setMass ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "UN" )
 
-	float m0 = state.GetValue < float >( 2, 0.0f );
-	float m1 = state.GetValue < float >( 3, m0 );
+	float m0 = state.GetParamValue < float >( 1, 0.0f );
+	float m1 = state.GetParamValue < float >( 2, m0 );
 
 	self->mMassRange [ 0 ] = m0;
 	self->mMassRange [ 1 ] = m1;
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -115,12 +115,12 @@ int MOAIParticleState::_setMass ( lua_State* L ) {
 	@opt	MOAIParticleState next		Default value is nil.
 	@out	nil
 */
-int MOAIParticleState::_setNext ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "U" )
+mrb_value MOAIParticleState::_setNext ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "U" )
 	
-	self->mNext.Set ( *self, state.GetLuaObject < MOAIParticleState >( 2, true ));
+	self->mNext.Set ( *self, state.GetRubyObject < MOAIParticleState >( 1, true ));
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -131,12 +131,12 @@ int MOAIParticleState::_setNext ( lua_State* L ) {
 	@opt	MOAIParticlePlugin plugin
 	@out	nil
 */
-int MOAIParticleState::_setPlugin ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "U" )
+mrb_value MOAIParticleState::_setPlugin ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "U" )
 
-	self->mPlugin.Set ( *self, state.GetLuaObject < MOAIParticlePlugin >( 2, true ));
+	self->mPlugin.Set ( *self, state.GetRubyObject < MOAIParticlePlugin >( 1, true ));
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -147,17 +147,17 @@ int MOAIParticleState::_setPlugin ( lua_State* L ) {
 	@opt	MOAIParticleScript script
 	@out	nil
 */
-int MOAIParticleState::_setRenderScript ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "U" )
+mrb_value MOAIParticleState::_setRenderScript ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "U" )
 
-	MOAIParticleScript* render = state.GetLuaObject < MOAIParticleScript >( 2, true );
+	MOAIParticleScript* render = state.GetRubyObject < MOAIParticleScript >( 1, true );
 
 	if ( render ) {
 		render->Compile ();
 	}
 	self->mRender.Set ( *self, render );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -170,16 +170,16 @@ int MOAIParticleState::_setRenderScript ( lua_State* L ) {
 	@opt	number maxTerm			Default value is minTerm.
 	@out	nil
 */
-int MOAIParticleState::_setTerm ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleState, "UN" )
+mrb_value MOAIParticleState::_setTerm ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleState, "UN" )
 
-	float t0 = state.GetValue < float >( 2, 0.0f );
-	float t1 = state.GetValue < float >( 3, t0 );
+	float t0 = state.GetParamValue < float >( 1, 0.0f );
+	float t1 = state.GetParamValue < float >( 2, t0 );
 
 	self->mTermRange [ 0 ] = t0;
 	self->mTermRange [ 1 ] = t1;
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -194,7 +194,7 @@ void MOAIParticleState::ClearForces () {
 		ForceNode* forceNode = this->mForces.Head ();
 		this->mForces.PopFront ();
 		
-		this->LuaRelease ( forceNode->Data ());
+		this->RubyRelease ( forceNode->Data ());
 		delete forceNode;
 	}
 }
@@ -245,7 +245,7 @@ MOAIParticleState::MOAIParticleState () :
 	mDamping ( 0.0f ) {
 
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 	
 	this->mMassRange [ 0 ] = 1.0f;
@@ -269,7 +269,7 @@ MOAIParticleState::~MOAIParticleState () {
 //----------------------------------------------------------------//
 void MOAIParticleState::PushForce ( MOAIParticleForce& force ) {
 
-	this->LuaRetain ( &force );
+	this->RubyRetain ( &force );
 
 	ForceNode* forceNode = new ForceNode ();
 	forceNode->Data ( &force );
@@ -278,27 +278,24 @@ void MOAIParticleState::PushForce ( MOAIParticleForce& force ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleState::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleState::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleState::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleState::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "clearForces",			_clearForces },
-		{ "pushForce",				_pushForce },
-		{ "setDamping",				_setDamping },
-		{ "setInitScript",			_setInitScript },
-		{ "setMass",				_setMass },
-		{ "setPlugin",				_setPlugin },
-		{ "setNext",				_setNext },
-		{ "setRenderScript",		_setRenderScript },
-		{ "setTerm",				_setTerm },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "clearForces",			_clearForces, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pushForce",			_pushForce, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setDamping",			_setDamping, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setInitScript",		_setInitScript, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMass",				_setMass, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setPlugin",			_setPlugin, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setNext",				_setNext, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setRenderScript",		_setRenderScript, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTerm",				_setTerm, MRB_ARGS_ARG ( 1, 1 ) );
+
 }
 
 //----------------------------------------------------------------//

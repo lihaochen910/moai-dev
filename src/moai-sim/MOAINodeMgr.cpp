@@ -12,26 +12,26 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAINodeMgr::_reset ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAINodeMgr, "" )
+mrb_value MOAINodeMgr::_reset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAINodeMgr, "" )
 	self->Reset ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAINodeMgr::_setMaxIterations ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAINodeMgr, "" )
-	self->mMaxIterations = state.GetValue < u32 >( 2, DEFAULT_MAX_ITERATIONS );
-	return 0;
+mrb_value MOAINodeMgr::_setMaxIterations ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAINodeMgr, "" )
+	self->mMaxIterations = state.GetParamValue < u32 >( 1, DEFAULT_MAX_ITERATIONS );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAINodeMgr::_update ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAINodeMgr, "" )
+mrb_value MOAINodeMgr::_update ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAINodeMgr, "" )
 	self->Update ();
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -144,21 +144,17 @@ void MOAINodeMgr::Remove ( MOAINode& node ) {
 }
 
 //----------------------------------------------------------------//
-void MOAINodeMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAINodeMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "reset",					_reset },
-		{ "setMaxIterations",		_setMaxIterations },
-		{ "update",					_update },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "reset",				_reset, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setMaxIterations",	_setMaxIterations, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "update",				_update, MRB_ARGS_NONE () );
 }
 
 //----------------------------------------------------------------//
-void MOAINodeMgr::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAINodeMgr::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//

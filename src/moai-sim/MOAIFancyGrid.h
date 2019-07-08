@@ -33,14 +33,14 @@ private:
 	ZLLeanArray < MOAIColor* >	mPalette;
 
 	//----------------------------------------------------------------//
-	static int		_fillColor			( lua_State* L );
-	static int		_getColor			( lua_State* L );
-	static int		_getPaletteColor	( lua_State* L );
-	static int		_getTileColor		( lua_State* L );
-	static int		_reservePalette		( lua_State* L );
-	static int		_setColor			( lua_State* L );
-	static int		_setColorRow		( lua_State* L );
-	static int		_setPaletteColor	( lua_State* L );
+	static mrb_value		_fillColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_getColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_getPaletteColor	( mrb_state* M, mrb_value context );
+	static mrb_value		_getTileColor		( mrb_state* M, mrb_value context );
+	static mrb_value		_reservePalette		( mrb_state* M, mrb_value context );
+	static mrb_value		_setColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setColorRow		( mrb_state* M, mrb_value context );
+	static mrb_value		_setPaletteColor	( mrb_state* M, mrb_value context );
 
 protected:
 
@@ -56,7 +56,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIFancyGrid )
+	DECL_RUBY_FACTORY ( MOAIFancyGrid, MOAIGrid )
 	
 	//----------------------------------------------------------------//	
 	void			FillColor			( u32 value );
@@ -71,13 +71,13 @@ public:
 					MOAIFancyGrid		();
 					~MOAIFancyGrid		();
 	
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	
 	void			ReservePalette		( u32 size );
 	
-	void			SerializeIn			( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut		( MOAILuaState& state, MOAISerializer& serializer );
+	void			SerializeIn			( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut		( MOAIRubyState& state, MOAISerializer& serializer );
 	
 	void			SetColor			( int addr, u32 value );
 	void			SetColor			( int xTile, int yTile, u32 value );

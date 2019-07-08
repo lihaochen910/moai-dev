@@ -17,24 +17,24 @@ class MOAITableLayer :
 	public virtual MOAILayer {
 protected:
 
-	MOAILuaMemberRef	mRenderTable;
+	MOAIRubyStrongRef	mRenderTable;
 
 	//----------------------------------------------------------------//
-	static int			_getRenderTable			( lua_State* L );
-	static int			_setRenderTable			( lua_State* L );
+	static mrb_value	_getRenderTable			( mrb_state* M, mrb_value context );
+	static mrb_value	_setRenderTable			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				MOAIDrawable_Draw		( int subPrimID );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAITableLayer )
+	DECL_RUBY_FACTORY ( MOAITableLayer, MOAILayer )
 
 	//----------------------------------------------------------------//
 						MOAITableLayer			();
 						~MOAITableLayer			();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -19,7 +19,7 @@
 	@const PLANE_YZ
 */
 class MOAIPartition :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	static const u32 INTERFACE_MASK_BITS = 32;
@@ -42,19 +42,19 @@ private:
 	u32 mPlaneID; // One of ZLBox::PLANE_XY, ZLBox::PLANE_XZ, ZLBox::PLANE_YZ
 
 	//----------------------------------------------------------------//
-	static int		_clear					( lua_State* L );
-	static int		_getInterfaceMask		( lua_State* L );
-	static int		_hullForPoint			( lua_State* L );
-	static int		_hullForRay				( lua_State* L );
-	static int		_hullList				( lua_State* L );
-	static int		_hullListForPoint		( lua_State* L );
-	static int		_hullListForRay			( lua_State* L );
-	static int		_hullListForRect		( lua_State* L );
-	//static int		_insertHull				( lua_State* L );
-	//static int		_removeHull				( lua_State* L );
-	static int		_reserveLevels			( lua_State* L );
-	static int		_setLevel				( lua_State* L );
-	static int		_setPlane				( lua_State* L );
+	static mrb_value		_clear					( mrb_state* M, mrb_value context );
+	static mrb_value		_getInterfaceMask		( mrb_state* M, mrb_value context );
+	static mrb_value		_hullForPoint			( mrb_state* M, mrb_value context );
+	static mrb_value		_hullForRay				( mrb_state* M, mrb_value context );
+	static mrb_value		_hullList				( mrb_state* M, mrb_value context );
+	static mrb_value		_hullListForPoint		( mrb_state* M, mrb_value context );
+	static mrb_value		_hullListForRay			( mrb_state* M, mrb_value context );
+	static mrb_value		_hullListForRect		( mrb_state* M, mrb_value context );
+	//static mrb_value		_insertHull				( mrb_state* M, mrb_value context );
+	//static mrb_value		_removeHull				( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveLevels			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLevel				( mrb_state* M, mrb_value context );
+	static mrb_value		_setPlane				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	u32				AffirmInterfaceMask		( u32 typeID );
@@ -73,7 +73,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIPartition )
+	DECL_RUBY_FACTORY ( MOAIPartition, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 	void			Clear					();
@@ -90,8 +90,8 @@ public:
 	bool			IsGlobal				( MOAIPartitionHull& hull );
 					MOAIPartition			();
 					~MOAIPartition			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			RemoveHull				( MOAIPartitionHull& hull );
 	void			ReserveLevels			( int totalLevels );
 	void			SetLevel				( int levelID, float cellSize, int width, int height );

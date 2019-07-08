@@ -18,16 +18,16 @@ private:
 
 	ZLBounds				mBounds;
 
-	MOAILuaMemberRef		mOnBounds;
-	MOAILuaMemberRef		mOnDraw;
+	MOAIRubyStrongRef		mOnBounds;
+	MOAIRubyStrongRef		mOnDraw;
 
 	//----------------------------------------------------------------//
-	static int				_setBounds						( lua_State* L );
-	static int				_setBoundsCallback				( lua_State* L );
-	static int				_setDrawCallback				( lua_State* L );
+	static mrb_value		_setBounds						( mrb_state* M, mrb_value context );
+	static mrb_value		_setBoundsCallback				( mrb_state* M, mrb_value context );
+	static mrb_value		_setDrawCallback				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
-	void					SetBounds						( MOAILuaState& state, int idx );
+	void					SetBounds						( MOAIRubyState& state, int idx );
 
 	//----------------------------------------------------------------//
 	ZLBounds				MOAIDeck_ComputeMaxBounds		();
@@ -39,13 +39,13 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIDrawDeck )
+	DECL_RUBY_FACTORY ( MOAIDrawDeck, MOAIStretchDeck )
 	
 	//----------------------------------------------------------------//
 							MOAIDrawDeck					();
 							~MOAIDrawDeck					();
-	void					RegisterLuaClass				( MOAILuaState& state );
-	void					RegisterLuaFuncs				( MOAILuaState& state );
+	void					RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

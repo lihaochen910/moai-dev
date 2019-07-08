@@ -29,7 +29,7 @@ public:
 	MOAIShaderUniformHandle			GetUniformHandleForAttributeID		( void* buffer, u32 attrID ) const;
 									MOAIShaderUniformSchema				();
 	virtual							~MOAIShaderUniformSchema			();
-	void							SetUniform							( lua_State* L, int idx, void* buffer, u32 uniformID, u32 index ) const;
+	void							SetUniform							( mrb_state* M, int idx, void* buffer, u32 uniformID, u32 index ) const;
 	
 	
 	//----------------------------------------------------------------//

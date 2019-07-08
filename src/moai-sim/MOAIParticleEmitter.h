@@ -39,19 +39,19 @@ protected:
 	u32		mEmission;
 	u32		mParticleState;
 
-	MOAILuaSharedPtr < MOAIParticleSystem > mSystem;
-	MOAILuaSharedPtr < MOAIPartitionHull > mMaskProp;
+	MOAIRubySharedPtr < MOAIParticleSystem > mSystem;
+	MOAIRubySharedPtr < MOAIPartitionHull > mMaskProp;
 
 	//----------------------------------------------------------------//
-	static int		_setAngle				( lua_State* L );
-	static int		_setEmission			( lua_State* L );
-	static int		_setMagnitude			( lua_State* L );
-	static int		_setMask				( lua_State* L );
-	static int		_setRadius				( lua_State* L );
-	static int		_setRect				( lua_State* L );
-	static int		_setState				( lua_State* L );
-	static int		_setSystem				( lua_State* L );
-	static int		_surge					( lua_State* L );
+	static mrb_value		_setAngle				( mrb_state* M, mrb_value context );
+	static mrb_value		_setEmission			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMagnitude			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMask				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRadius				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setState				( mrb_state* M, mrb_value context );
+	static mrb_value		_setSystem				( mrb_state* M, mrb_value context );
+	static mrb_value		_surge					( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	u32				GetRandomEmission		();
@@ -71,7 +71,7 @@ public:
 		RECT,
 	};
 	
-	DECL_LUA_FACTORY ( MOAIParticleEmitter )
+	DECL_RUBY_FACTORY ( MOAIParticleEmitter, MOAIAction )
 
 	SET ( ZLRect, Rect, mRect )
 	SET ( u32, ShapeID, mShapeID )
@@ -79,10 +79,10 @@ public:
 	//----------------------------------------------------------------//
 					MOAIParticleEmitter		();
 					~MOAIParticleEmitter	();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void			SetAngleRange			( float min, float max );
 	void			SetEmissionRange		( u32 min, u32 max );
 	void			SetMagnitudeRange		( float min, float max );

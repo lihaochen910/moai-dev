@@ -39,59 +39,63 @@ SUPPRESS_EMPTY_FILE_WARNING
 //================================================================//
 
 //----------------------------------------------------------------//
-int	MOAIParticlePexPlugin::_getBlendMode( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
+mrb_value MOAIParticlePexPlugin::_getBlendMode( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
 	
-	lua_pushnumber ( state, self->mBlendFuncSrc );
-	lua_pushnumber ( state, self->mBlendFuncDst );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mBlendFuncSrc );
+	ret [ 1 ] = state.ToRValue ( self->mBlendFuncDst );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIParticlePexPlugin::_getDuration ( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
+mrb_value MOAIParticlePexPlugin::_getDuration ( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
 	
-	lua_pushnumber ( state, self->mDuration );
-	return 1;
+	return state.ToRValue ( self->mDuration );
 }
 
 //----------------------------------------------------------------//
-int MOAIParticlePexPlugin::_getEmission ( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
-	lua_pushnumber ( state, self->mEmissionCount );
-	return 1;
+mrb_value MOAIParticlePexPlugin::_getEmission ( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
+	return state.ToRValue ( self->mEmissionCount );
 }
 
 //----------------------------------------------------------------//
-int MOAIParticlePexPlugin::_getFrequency ( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
-	lua_pushnumber ( state, self->mEmissionRate );
-	return 1;
+mrb_value MOAIParticlePexPlugin::_getFrequency ( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
+	return state.ToRValue ( self->mEmissionRate );
 }
 
 //----------------------------------------------------------------//
-int MOAIParticlePexPlugin::_getLifespan ( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
-	lua_pushnumber ( state, self->mLifespanTerm [ 0 ]);
-	lua_pushnumber ( state, self->mLifespanTerm [ 1 ]);
-	return 2;
+mrb_value MOAIParticlePexPlugin::_getLifespan ( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mLifespanTerm [ 0 ] );
+	ret [ 1 ] = state.ToRValue ( self->mLifespanTerm [ 1 ] );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIParticlePexPlugin::_getMaxParticles	( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
-	lua_pushnumber ( state, self->mNumParticles );
-	return 1;
+mrb_value MOAIParticlePexPlugin::_getMaxParticles	( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
+	return state.ToRValue ( self->mNumParticles );
 }
 
 //----------------------------------------------------------------//
-int MOAIParticlePexPlugin::_getRect( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
-	lua_pushnumber ( state, -self->mSourcePosVariance [ 0 ]);
-	lua_pushnumber ( state, -self->mSourcePosVariance [ 1 ]);
-	lua_pushnumber ( state, self->mSourcePosVariance [ 0 ]);
-	lua_pushnumber ( state, self->mSourcePosVariance [ 1 ]);
-	return 4;
+mrb_value MOAIParticlePexPlugin::_getRect( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
+
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( -self->mSourcePosVariance [ 0 ] );
+	ret [ 1 ] = state.ToRValue ( -self->mSourcePosVariance [ 1 ] );
+	ret [ 2 ] = state.ToRValue ( self->mSourcePosVariance [ 0 ] );
+	ret [ 3 ] = state.ToRValue ( self->mSourcePosVariance [ 1 ] );
+
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -101,12 +105,10 @@ int MOAIParticlePexPlugin::_getRect( lua_State* L ){
 	@in		MOAIParticlePexPlugin self
 	@out	string textureName
 */
-int MOAIParticlePexPlugin::_getTextureName( lua_State* L ){
-	MOAI_LUA_SETUP ( MOAIParticlePexPlugin, "U" )
+mrb_value MOAIParticlePexPlugin::_getTextureName( mrb_state* M, mrb_value context ){
+	MOAI_RUBY_SETUP ( MOAIParticlePexPlugin, "U" )
 
-	lua_pushstring ( state, self->mTextureName );
-
-	return 1;
+	return state.ToRValue ( self->mTextureName );
 }
 
 //----------------------------------------------------------------//
@@ -116,26 +118,24 @@ int MOAIParticlePexPlugin::_getTextureName( lua_State* L ){
 	@in		string fileName					file to load
 	@out	MOAIParticlePexPlugin plugin	The plugin object that has been initialized with XML's data
 */
-int MOAIParticlePexPlugin::_load( lua_State* L ){
-	UNUSED ( L );
+mrb_value MOAIParticlePexPlugin::_load( mrb_state* M, mrb_value context ){
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 	if ( !state.CheckParams ( 1, "S" )) {							
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_ParamTypeMismatch );		
-		return 0;													
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_ParamTypeMismatch );		
+		return mrb_nil_value ();													
 	}																
 		
-	cc8* xml = lua_tostring ( state, 1 );
+	cc8* xml = state.ToCValue < cc8* >( state.GetParamValue ( 1 ) );
 
-	if ( MOAILogMgr::CheckFileExists ( xml, L )) {
+	if ( MOAILogMgr::CheckFileExists ( xml, M )) {
 		TiXmlDocument doc;
 		doc.LoadFile ( xml );
-		MOAIParticlePexPlugin *particle = new MOAIParticlePexPlugin();
+		MOAIParticlePexPlugin* particle = state.CreateClassInstance < MOAIParticlePexPlugin >();
 		MOAIParticlePexPlugin::Parse ( xml, *particle, doc.RootElement ());
-		particle->PushLuaUserdata ( state );
-		return 1;
+		return particle->PushRubyUserdata ( state );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -740,35 +740,26 @@ void MOAIParticlePexPlugin::Parse ( cc8* filename, MOAIParticlePexPlugin& plugin
 }
 
 //----------------------------------------------------------------//
-void MOAIParticlePexPlugin::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIParticlePlugin::RegisterLuaClass ( state );
+void MOAIParticlePexPlugin::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIParticlePlugin::RegisterRubyClass ( state, klass );
 
-	//UNUSED ( state );
-	luaL_Reg regTable [] = {
-		{ "load", _load },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "load", _load, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIParticlePexPlugin::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIParticlePlugin::RegisterLuaFuncs ( state );
+void MOAIParticlePexPlugin::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIParticlePlugin::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable[] = {
-		{ "getBlendMode",		_getBlendMode },
-		{ "getDuration",		_getDuration },
-		{ "getEmission",		_getEmission },
-		{ "getFrequency",		_getFrequency },
-		{ "getLifespan",		_getLifespan },
-		{ "getMaxParticles",	_getMaxParticles },
-		{ "getRect",			_getRect },
-		{ "getTextureName",		_getTextureName },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getBlendMode",		_getBlendMode, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDuration",		_getDuration, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getEmission",		_getEmission, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFrequency",		_getFrequency, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLifespan",		_getLifespan, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMaxParticles",	_getMaxParticles, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getRect",			_getRect, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTextureName",		_getTextureName, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 #endif

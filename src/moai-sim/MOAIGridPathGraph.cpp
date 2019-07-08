@@ -34,13 +34,13 @@ public:
 	@opt	MOAIGrid grid					Default value is nil.
 	@out	nil
 */
-int MOAIGridPathGraph::_setGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridPathGraph, "U" )
+mrb_value MOAIGridPathGraph::_setGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridPathGraph, "U" )
 
-	MOAIGrid* grid = state.GetLuaObject < MOAIGrid >( 2, true );
+	MOAIGrid* grid = state.GetRubyObject < MOAIGrid >( 1, true );
 	self->SetGrid ( grid );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -242,25 +242,20 @@ void MOAIGridPathGraph::PushNeighbors ( MOAIPathFinder& pathFinder, int nodeID )
 }
 
 //----------------------------------------------------------------//
-void MOAIGridPathGraph::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGridPathGraph::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "MANHATTAN_DISTANCE", ( u32 )MANHATTAN_DISTANCE );
-	state.SetField ( -1, "DIAGONAL_DISTANCE", ( u32 )DIAGONAL_DISTANCE );
-	state.SetField ( -1, "EUCLIDEAN_DISTANCE", ( u32 )EUCLIDEAN_DISTANCE );
+	state.DefineClassConst ( klass, "MANHATTAN_DISTANCE", ( u32 )MANHATTAN_DISTANCE );
+	state.DefineClassConst ( klass, "DIAGONAL_DISTANCE", ( u32 )DIAGONAL_DISTANCE );
+	state.DefineClassConst ( klass, "EUCLIDEAN_DISTANCE", ( u32 )EUCLIDEAN_DISTANCE );
 	
-	state.SetField ( -1, "NO_DIAGONALS", ( u32 )NO_DIAGONALS );
+	state.DefineClassConst ( klass, "NO_DIAGONALS", ( u32 )NO_DIAGONALS );
 }
 
 //----------------------------------------------------------------//
-void MOAIGridPathGraph::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIPathGraph::RegisterLuaFuncs ( state );
+void MOAIGridPathGraph::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIPathGraph::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "setGrid",			_setGrid },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+		state.DefineInstanceMethod ( klass, "setGrid", _setGrid, MRB_ARGS_REQ ( 1 ) );
 }
 
 //----------------------------------------------------------------//

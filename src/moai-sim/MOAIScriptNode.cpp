@@ -32,42 +32,42 @@ protected:
 	@in		number nAttributes
 	@out	nil
 */
-int MOAIScriptNode::_reserveAttrs ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIScriptNode, "UN" );
+mrb_value MOAIScriptNode::_reserveAttrs ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIScriptNode, "UN" );
 
-	u32 size = state.GetValue < u32 >( 2, 0 );
+	u32 size = state.GetParamValue < u32 >( 1, 0 );
 	self->mAttributes.Init ( size );
 	self->mAttributes.Fill ( 0.0f );
 	
 	self->mAttrNames.Init ( size );
 	self->mAttrNames.Fill ( 0 );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 /**	@lua	setCallback
-	@text	Sets a Lua function to be called whenever the node is updated.
+	@text	Sets a Ruby function to be called whenever the node is updated.
 	
 	@in		MOAIScriptNode self
 	@in		function onUpdate
 	@out	nil
 */
-int MOAIScriptNode::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIScriptNode, "UF" );
+mrb_value MOAIScriptNode::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIScriptNode, "UF" );
 
-	self->mOnUpdate.SetRef ( *self, state, 2 );
-	return 0;
+	self->mOnUpdate.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 
-int MOAIScriptNode::_setAttrName ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIScriptNode, "U" );
+mrb_value MOAIScriptNode::_setAttrName ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIScriptNode, "U" );
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
-	self->mAttrNames [ idx ] = state.GetValue < cc8* >( 3, 0 );
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	self->mAttrNames [ idx ] = state.GetParamValue < cc8* >( 2, 0 );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -87,14 +87,14 @@ MOAIScriptNode::~MOAIScriptNode () {
 //----------------------------------------------------------------//
 void MOAIScriptNode::NamedAttrAdd ( u32 attrID, MOAIAttribute &attr ) {
 	
-	cc8* attrName = this->mAttrNames [ attrID ];
+	/*cc8* attrName = this->mAttrNames [ attrID ];
 	switch ( attr.GetTypeID ()) {
 		case MOAIAttribute::ATTR_TYPE_FLOAT_32: {
 			float value = attr.GetValue ( 0.0f );
 			
 			if ( value != 0.0f ) {
 				
-				MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+				MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 				this->PushMemberTable ( state );
 				float cur = state.GetFieldValue < float >( -1, attrName, 0.0f );
 				state.SetField ( -1, attrName, cur + value );
@@ -105,22 +105,22 @@ void MOAIScriptNode::NamedAttrAdd ( u32 attrID, MOAIAttribute &attr ) {
 			int value = ( int )attr.GetValue ( 0 );
 			
 			if ( value != 0 ) {
-				MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+				MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 				this->PushMemberTable ( state );
 				int cur = state.GetFieldValue < int >( -1, attrName, 0 );
 				state.SetField ( -1, attrName, cur + value );
 			}
 			break;
 		}
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//
 void MOAIScriptNode::NamedAttrGet ( u32 attrID, MOAIAttribute &attr ) {
 	
-	cc8* attrName = this->mAttrNames [ attrID ];
+	/*cc8* attrName = this->mAttrNames [ attrID ];
 	
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 	this->PushMemberTable ( state );
 	state.PushField ( -1, attrName );
 	
@@ -135,72 +135,65 @@ void MOAIScriptNode::NamedAttrGet ( u32 attrID, MOAIAttribute &attr ) {
 		value.mSource = this;
 		value.mFieldName = attrName;
 		attr.ApplyVariantNoAdd ( value, MOAIAttribute::GET, MOAIAttribute::ATTR_WRITE );
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//
 void MOAIScriptNode::NamedAttrSet ( u32 attrID, MOAIAttribute &attr ) {
 	
-	cc8* attrName = this->mAttrNames [ attrID ];
+	/*cc8* attrName = this->mAttrNames [ attrID ];
 	switch ( attr.GetTypeID ()) {
 		case MOAIAttribute::ATTR_TYPE_FLOAT_32: {
 
 			float value = attr.GetValue ( 0.0f );
-			MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+			MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 			this->PushMemberTable ( state );
 			state.SetField ( -1, attrName, value );
-			
+
 			break;
 		}
 		case MOAIAttribute::ATTR_TYPE_INT_32: {
-			
+
 			int value = attr.GetValue ( 0 );
-			MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+			MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 			this->PushMemberTable ( state );
 			state.SetField ( -1, attrName, value );
-			
+
 			break;
 		}
 		case MOAIAttribute::ATTR_TYPE_VARIANT: {
-			
+
 			MOAIMemberTableAttr value;
 			value = attr.GetVariant < MOAIMemberTableAttr >( value );
 			MOAIScriptNode* source = value.mSource;
 			cc8* sourceField = value.mFieldName;
-			
+
 			if ( source && sourceField ) {
-			
-				MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+
+				MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 				source->PushMemberTable ( state );
 				this->PushMemberTable ( state );
 				state.PushField ( -2, sourceField );
-				
+
 				lua_setfield ( state, -2, attrName );
 			}
 			break;
 		}
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//
-void MOAIScriptNode::RegisterLuaClass ( MOAILuaState& state ) {
-
-	MOAINode::RegisterLuaClass ( state );
+void MOAIScriptNode::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIScriptNode::RegisterLuaFuncs ( MOAILuaState& state ) {
-	
-	MOAINode::RegisterLuaFuncs ( state );
-	
-	luaL_Reg regTable [] = {
-		{ "reserveAttrs",			_reserveAttrs },
-		{ "setAttrName",			_setAttrName },
-		{ "setCallback",			_setCallback },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+void MOAIScriptNode::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+
+	state.DefineInstanceMethod ( klass, "reserveAttrs",	_reserveAttrs, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setAttrName",	_setAttrName, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setCallback",	_setCallback, MRB_ARGS_REQ ( 1 ) );
 }
 
 //================================================================//
@@ -246,10 +239,13 @@ void MOAIScriptNode::MOAINode_Update () {
 
 	if ( this->mOnUpdate ) {
 		
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		if ( this->mOnUpdate.PushRef ( state )) {
-			this->PushLuaUserdata ( state );
-			state.DebugCall ( 1, 0 );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+		
+		if ( state.IsType ( this->mOnUpdate, MRB_TT_PROC ) ) {
+			state.FuncCall ( this->mOnUpdate, "call", 0, 0 );
+		}
+		else if ( state.IsType ( this->mOnUpdate, MRB_TT_FIBER ) ) {
+			state.FiberResume ( this->mOnUpdate );
 		}
 	}
 }

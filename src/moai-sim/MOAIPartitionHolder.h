@@ -11,15 +11,15 @@ class MOAIPartition;
 //================================================================//
 // TODO: doxygen
 class MOAIPartitionHolder :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 
-	MOAILuaSharedPtr < MOAIPartition >		mPartition;
+	MOAIRubySharedPtr < MOAIPartition >		mPartition;
 
 	//----------------------------------------------------------------//
-	static int			_clear						( lua_State* L );
-	static int			_getPartition				( lua_State* L );
-	static int			_setPartition				( lua_State* L );
+	static mrb_value			_clear						( mrb_state* M, mrb_value context );
+	static mrb_value			_getPartition				( mrb_state* M, mrb_value context );
+	static mrb_value			_setPartition				( mrb_state* M, mrb_value context );
 
 public:
 	
@@ -27,8 +27,8 @@ public:
 	MOAIPartition*		GetPartition				();
 						MOAIPartitionHolder			();
 						~MOAIPartitionHolder		();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

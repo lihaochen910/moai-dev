@@ -47,14 +47,14 @@ private:
 	bool	mNeedsUpdate;
 
 	//----------------------------------------------------------------//
-	static int		_ninePatch				( lua_State* L );
-	static int		_reserveColumns			( lua_State* L );
-	static int		_reserveRows			( lua_State* L );
-	static int		_reserveUVRects			( lua_State* L );
-	static int		_setColumn				( lua_State* L );
-	static int		_setRect				( lua_State* L );
-	static int		_setRow					( lua_State* L );
-	static int		_setUVRect				( lua_State* L );
+	static mrb_value		_ninePatch				( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveColumns			( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveRows			( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveUVRects			( mrb_state* M, mrb_value context );
+	static mrb_value		_setColumn				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRow					( mrb_state* M, mrb_value context );
+	static mrb_value		_setUVRect				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			DrawStretch				( u32 idx, float xStretch, float yStretch );
@@ -70,15 +70,15 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIStretchPatch2D )
+	DECL_RUBY_FACTORY ( MOAIStretchPatch2D, MOAIStretchDeck )
 	
 	//----------------------------------------------------------------//
 					MOAIStretchPatch2D		();
 					~MOAIStretchPatch2D		();
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			SetColumn				( u32 idx, float percent, bool canStretch );
 	void			SetRow					( u32 idx, float percent, bool canStretch );
 };

@@ -23,8 +23,8 @@ private:
 	ZLVec3D			mLoc;
 	
 	//----------------------------------------------------------------//
-	static int		_setParent				( lua_State* L );
-	static int		_setRect				( lua_State* L );
+	static mrb_value		_setParent				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRect				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	ZLRect			GetRect					();
@@ -34,7 +34,7 @@ private:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAICameraAnchor2D )
+	DECL_RUBY_FACTORY ( MOAICameraAnchor2D, MOAINode )
 	DECL_ATTR_HELPER ( MOAICameraAnchor2D )
 
 	friend class MOAICameraFitter2D;
@@ -47,8 +47,8 @@ public:
 	//----------------------------------------------------------------//
 					MOAICameraAnchor2D		();
 	virtual			~MOAICameraAnchor2D		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -56,31 +56,31 @@ protected:
 	u32				mEulerOrder;
 
 	//----------------------------------------------------------------//
-	static int	_addLoc			( lua_State* L );
-	static int	_addPiv			( lua_State* L );
-	static int	_addRot			( lua_State* L );
-	static int	_addScl			( lua_State* L );
-	static int	_getLoc			( lua_State* L );
-	static int	_getPiv			( lua_State* L );
-	static int	_getRot			( lua_State* L );
-	static int	_getScl			( lua_State* L );
-	static int	_move			( lua_State* L );
-	static int	_moveLoc		( lua_State* L );
-	static int	_movePiv		( lua_State* L );
-	static int	_moveRot		( lua_State* L );
-	static int	_moveScl		( lua_State* L );
-	static int	_seek			( lua_State* L );
-	static int	_seekLoc		( lua_State* L );
-	static int	_seekPiv		( lua_State* L );
-	static int	_seekRot		( lua_State* L );
-	static int	_seekScl		( lua_State* L );
-	static int	_setLoc			( lua_State* L );
-	static int	_setPiv			( lua_State* L );
-	static int	_setRot			( lua_State* L );
-	static int	_setScl			( lua_State* L );
-	static int	_setShearByX	( lua_State* L );
-	static int	_setShearByY	( lua_State* L );
-	static int	_setShearByZ	( lua_State* L );
+	static mrb_value	_addLoc			( mrb_state* M, mrb_value context );
+	static mrb_value	_addPiv			( mrb_state* M, mrb_value context );
+	static mrb_value	_addRot			( mrb_state* M, mrb_value context );
+	static mrb_value	_addScl			( mrb_state* M, mrb_value context );
+	static mrb_value	_getLoc			( mrb_state* M, mrb_value context );
+	static mrb_value	_getPiv			( mrb_state* M, mrb_value context );
+	static mrb_value	_getRot			( mrb_state* M, mrb_value context );
+	static mrb_value	_getScl			( mrb_state* M, mrb_value context );
+	static mrb_value	_move			( mrb_state* M, mrb_value context );
+	static mrb_value	_moveLoc		( mrb_state* M, mrb_value context );
+	static mrb_value	_movePiv		( mrb_state* M, mrb_value context );
+	static mrb_value	_moveRot		( mrb_state* M, mrb_value context );
+	static mrb_value	_moveScl		( mrb_state* M, mrb_value context );
+	static mrb_value	_seek			( mrb_state* M, mrb_value context );
+	static mrb_value	_seekLoc		( mrb_state* M, mrb_value context );
+	static mrb_value	_seekPiv		( mrb_state* M, mrb_value context );
+	static mrb_value	_seekRot		( mrb_state* M, mrb_value context );
+	static mrb_value	_seekScl		( mrb_state* M, mrb_value context );
+	static mrb_value	_setLoc			( mrb_state* M, mrb_value context );
+	static mrb_value	_setPiv			( mrb_state* M, mrb_value context );
+	static mrb_value	_setRot			( mrb_state* M, mrb_value context );
+	static mrb_value	_setScl			( mrb_state* M, mrb_value context );
+	static mrb_value	_setShearByX	( mrb_state* M, mrb_value context );
+	static mrb_value	_setShearByY	( mrb_state* M, mrb_value context );
+	static mrb_value	_setShearByZ	( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	static float	ClampEuler									( float r );
@@ -91,7 +91,7 @@ protected:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAITransform )
+	DECL_RUBY_FACTORY ( MOAITransform, MOAINode )
 	DECL_ATTR_HELPER ( MOAITransform )
 
 	enum {
@@ -141,10 +141,10 @@ public:
 	ZLAffine3D				GetBillboardMtx				( const ZLAffine3D& faceCameraMtx ) const;
 							MOAITransform				();
 							~MOAITransform				();
-	void					RegisterLuaClass			( MOAILuaState& state );
-	void					RegisterLuaFuncs			( MOAILuaState& state );
-	void					SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void					SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void					RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void					SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void					SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	void					SetLoc						( float x, float y, float z );
 	void					SetPiv						( float x, float y, float z );
 	void					SetRot						( float x, float y, float z );

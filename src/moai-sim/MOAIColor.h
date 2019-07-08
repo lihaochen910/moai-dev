@@ -31,13 +31,13 @@ protected:
 	ZLColorVec	mColor;
 	
 	//----------------------------------------------------------------//
-	static int		_getColor			( lua_State* L );
-	static int		_moveColor			( lua_State* L );
-	static int		_packRGBA			( lua_State* L );
-	static int		_seekColor			( lua_State* L );
-	static int		_setColor			( lua_State* L );
-	static int		_setParent			( lua_State* L );
-	static int		_unpackRGBA			( lua_State* L );
+	static mrb_value		_getColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_moveColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_packRGBA			( mrb_state* M, mrb_value context );
+	static mrb_value		_seekColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setParent			( mrb_state* M, mrb_value context );
+	static mrb_value		_unpackRGBA			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MOAINode_ApplyAttrOp		( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -45,7 +45,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIColor )
+	DECL_RUBY_FACTORY ( MOAIColor, MOAINode )
 	DECL_ATTR_HELPER ( MOAIColor )
 	
 	enum {
@@ -62,13 +62,13 @@ public:
 	};
 	
 	//----------------------------------------------------------------//
-	static MOAIColor*	AffirmColor			( MOAILuaState& state, int idx );
+	static MOAIColor*	AffirmColor			( MOAIRubyState& state, int idx );
 	ZLColorVec			GetColorTrait		() const;
 	bool				IsClear				();
 						MOAIColor			();
 						~MOAIColor			();
-	void				RegisterLuaClass	( MOAILuaState& state );
-	void				RegisterLuaFuncs	( MOAILuaState& state );
+	void				RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

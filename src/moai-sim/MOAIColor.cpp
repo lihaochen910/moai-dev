@@ -20,15 +20,16 @@
 	@out	number bDelta
 	@out	number aDelta
 */
-int MOAIColor::_getColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIColor, "U" )
+mrb_value MOAIColor::_getColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIColor, "U" )
 
-	state.Push ( self->mR );
-	state.Push ( self->mG );
-	state.Push ( self->mB );
-	state.Push ( self->mA );
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( self->mR );
+	ret [ 1 ] = state.ToRValue ( self->mG );
+	ret [ 2 ] = state.ToRValue ( self->mB );
+	ret [ 3 ] = state.ToRValue ( self->mA );
 	
-	return 4;
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -47,18 +48,18 @@ int MOAIColor::_getColor ( lua_State* L ) {
 
 	@out	MOAIEaseDriver easeDriver
 */
-int MOAIColor::_moveColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIColor, "UNNNNN" )
+mrb_value MOAIColor::_moveColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIColor, "UNNNNN" )
 
-	float delay		= state.GetValue < float >( 6, 0.0f );
+	float delay		= state.GetParamValue < float >( 5, 0.0f );
 	
 	if ( delay > 0.0f ) {
 	
-		u32 mode = state.GetValue < u32 >( 7, ZLInterpolate::kSmooth );
+		u32 mode = state.GetParamValue < u32 >( 6, ZLInterpolate::kSmooth );
 		
-		MOAIEaseDriver* action = new MOAIEaseDriver ();
+		MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 		
-		action->ParseForMove ( state, 2, self, 4, mode,
+		action->ParseForMove ( state, 1, self, 3, mode,
 			MOAIColorAttr::Pack ( ATTR_R_COL ), 0.0f,
 			MOAIColorAttr::Pack ( ATTR_G_COL ), 0.0f,
 			MOAIColorAttr::Pack ( ATTR_B_COL ), 0.0f,
@@ -67,34 +68,32 @@ int MOAIColor::_moveColor ( lua_State* L ) {
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
 
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( action );
 	}
 	
-	if ( !state.CheckVector ( 2, 4, 0, 0 )) {
-		self->mR += state.GetValue < float >( 2, 0.0f );
-		self->mG += state.GetValue < float >( 3, 0.0f );
-		self->mB += state.GetValue < float >( 4, 0.0f );
-		self->mA += state.GetValue < float >( 5, 0.0f );
+	if ( !state.CheckVector ( 1, 4, 0, 0 )) {
+		self->mR += state.GetParamValue < float >( 1, 0.0f );
+		self->mG += state.GetParamValue < float >( 2, 0.0f );
+		self->mB += state.GetParamValue < float >( 3, 0.0f );
+		self->mA += state.GetParamValue < float >( 4, 0.0f );
 		self->ScheduleUpdate ();
 	}
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIColor::_packRGBA ( lua_State* L ) {
-	MOAI_LUA_SETUP_CLASS ( "" )
+mrb_value MOAIColor::_packRGBA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_CLASS ( "" )
 
-	float r		= state.GetValue < float >( 1, 1.0f );
-	float g		= state.GetValue < float >( 2, 1.0f );
-	float b		= state.GetValue < float >( 3, 1.0f );
-	float a		= state.GetValue < float >( 4, 1.0f );
+	float r		= state.GetParamValue < float >( 1, 1.0f );
+	float g		= state.GetParamValue < float >( 2, 1.0f );
+	float b		= state.GetParamValue < float >( 3, 1.0f );
+	float a		= state.GetParamValue < float >( 4, 1.0f );
 
-	state.Push ( ZLColor::PackRGBA ( r, g, b, a ));
-	return 1;
+	return state.ToRValue ( ZLColor::PackRGBA ( r, g, b, a ) );
 }
 
 //----------------------------------------------------------------//
@@ -114,19 +113,19 @@ int MOAIColor::_packRGBA ( lua_State* L ) {
 
 	@out	MOAIEaseDriver easeDriver
 */
-int MOAIColor::_seekColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIColor, "UNNNNN" )
+mrb_value MOAIColor::_seekColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIColor, "UNNNNN" )
 
-	float delay		= state.GetValue < float >( 6, 0.0f );
+	float delay		= state.GetParamValue < float >( 5, 0.0f );
 	
 	
 	if ( delay > 0.0f ) {
 	
-		u32 mode = state.GetValue < u32 >( 7, ZLInterpolate::kSmooth );
+		u32 mode = state.GetParamValue < u32 >( 6, ZLInterpolate::kSmooth );
 		
-		MOAIEaseDriver* action = new MOAIEaseDriver ();
+		MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 		
-		action->ParseForSeek ( state, 2, self, 4, mode,
+		action->ParseForSeek ( state, 1, self, 3, mode,
 			MOAIColorAttr::Pack ( ATTR_R_COL ), self->mR, 0.0f,
 			MOAIColorAttr::Pack ( ATTR_G_COL ), self->mG, 0.0f,
 			MOAIColorAttr::Pack ( ATTR_B_COL ), self->mB, 0.0f,
@@ -135,18 +134,17 @@ int MOAIColor::_seekColor ( lua_State* L ) {
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
 
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( action );
 	}
 	
-	ZLColorVec color = state.GetColor ( 2, 0.0f, 0.0f, 0.0f, 0.0f );
+	ZLColorVec color = state.GetColor ( 1, 0.0f, 0.0f, 0.0f, 0.0f );
 	if ( !color.IsEqual ( *self )) {
 		self->Set ( color.mR, color.mG, color.mB, color.mA );
 		self->ScheduleUpdate ();
 	}
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -160,16 +158,16 @@ int MOAIColor::_seekColor ( lua_State* L ) {
 	@opt	number a	Default value is 1.
 	@out	nil
 */
-int MOAIColor::_setColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIColor, "UNNN" )
+mrb_value MOAIColor::_setColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIColor, "UNNN" )
 
-	ZLColorVec color = state.GetColor ( 2, 0.0f, 0.0f, 0.0f, 1.0f );
+	ZLColorVec color = state.GetColor ( 1, 0.0f, 0.0f, 0.0f, 1.0f );
 	if ( !color.IsEqual ( *self )) {
 		self->Set ( color.mR, color.mG, color.mB, color.mA );
 		self->ScheduleUpdate ();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -180,30 +178,29 @@ int MOAIColor::_setColor ( lua_State* L ) {
 	@opt	MOAINode parent		Default value is nil.
 	@out	nil
 */
-int MOAIColor::_setParent ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIColor, "U" )
+mrb_value MOAIColor::_setParent ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIColor, "U" )
 
-	MOAINode* parent = state.GetLuaObject < MOAINode >( 2, true );
+	MOAINode* parent = state.GetRubyObject < MOAINode >( 1, true );
 	
 	self->SetAttrLink ( PACK_ATTR ( MOAIColor, INHERIT_COLOR ), parent, PACK_ATTR ( MOAIColor, COLOR_TRAIT ));
 	
 	//MOAILogF ( state, MOAISTRING_FunctionDeprecated_S, "setParent" );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIColor::_unpackRGBA ( lua_State* L ) {
-	MOAI_LUA_SETUP_CLASS ( "" )
+mrb_value MOAIColor::_unpackRGBA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_CLASS ( "" )
 
-	u32 rgba = state.GetValue < u32 >( 1, 0xffffffff );
+	u32 rgba = state.GetParamValue < u32 >( 1, 0xffffffff );
 
 	ZLColorVec color;
 	color.SetRGBA ( rgba );
 
-	state.Push ( color );
-	return 4;
+	return state.Get ( color );
 }
 
 //================================================================//
@@ -211,21 +208,21 @@ int MOAIColor::_unpackRGBA ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAIColor* MOAIColor::AffirmColor ( MOAILuaState& state, int idx ) {
+MOAIColor* MOAIColor::AffirmColor ( MOAIRubyState& state, int idx ) {
 
 	MOAIColor* color = 0;
 	
-	if ( state.IsType ( idx, LUA_TUSERDATA )) {
-		color = state.GetLuaObject < MOAIColor >( idx, false );
+	if ( state.ParamIsType ( idx, MRB_TT_DATA )) {
+		color = state.GetRubyObject < MOAIColor >( idx, false );
 	}
 	else {
 	
-		float r = state.GetValue < float >( 2, 0.0f );
-		float g = state.GetValue < float >( 3, 0.0f );
-		float b = state.GetValue < float >( 4, 0.0f );
-		float a = state.GetValue < float >( 5, 1.0f );
+		float r = state.GetParamValue < float >( 1, 0.0f );
+		float g = state.GetParamValue < float >( 2, 0.0f );
+		float b = state.GetParamValue < float >( 3, 0.0f );
+		float a = state.GetParamValue < float >( 4, 1.0f );
 
-		color = new MOAIColor ();
+		color = state.CreateClassInstance < MOAIColor >();
 		color->Set ( r, g, b, a );
 		color->ScheduleUpdate ();
 	}
@@ -260,43 +257,35 @@ MOAIColor::~MOAIColor () {
 }
 
 //----------------------------------------------------------------//
-void MOAIColor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIColor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAINode::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "ATTR_R_COL", MOAIColorAttr::Pack ( ATTR_R_COL ));
-	state.SetField ( -1, "ATTR_G_COL", MOAIColorAttr::Pack ( ATTR_G_COL ));
-	state.SetField ( -1, "ATTR_B_COL", MOAIColorAttr::Pack ( ATTR_B_COL ));
-	state.SetField ( -1, "ATTR_A_COL", MOAIColorAttr::Pack ( ATTR_A_COL ));
+	state.DefineClassConst ( klass, "ATTR_R_COL", MOAIColorAttr::Pack ( ATTR_R_COL ));
+	state.DefineClassConst ( klass, "ATTR_G_COL", MOAIColorAttr::Pack ( ATTR_G_COL ));
+	state.DefineClassConst ( klass, "ATTR_B_COL", MOAIColorAttr::Pack ( ATTR_B_COL ));
+	state.DefineClassConst ( klass, "ATTR_A_COL", MOAIColorAttr::Pack ( ATTR_A_COL ));
 	
-	state.SetField ( -1, "ADD_COLOR", MOAIColorAttr::Pack ( ADD_COLOR ));
-	state.SetField ( -1, "INHERIT_COLOR", MOAIColorAttr::Pack ( INHERIT_COLOR ));
-	state.SetField ( -1, "COLOR_TRAIT", MOAIColorAttr::Pack ( COLOR_TRAIT ));
+	state.DefineClassConst ( klass, "ADD_COLOR", MOAIColorAttr::Pack ( ADD_COLOR ));
+	state.DefineClassConst ( klass, "INHERIT_COLOR", MOAIColorAttr::Pack ( INHERIT_COLOR ));
+	state.DefineClassConst ( klass, "COLOR_TRAIT", MOAIColorAttr::Pack ( COLOR_TRAIT ));
+
+	state.DefineStaticMethod ( klass, "packRGBA", _packRGBA, MRB_ARGS_REQ ( 4 ) );
+	state.DefineStaticMethod ( klass, "unpackRGBA", _unpackRGBA, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "packRGBA",				_packRGBA },
-		{ "unpackRGBA",				_unpackRGBA },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIColor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIColor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getColor", _getColor, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "moveColor", _moveColor, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "seekColor", _seekColor, MRB_ARGS_ARG ( 5, 1 ) );
+	state.DefineInstanceMethod ( klass, "setColor", _setColor, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineInstanceMethod ( klass, "setParent", _setParent, MRB_ARGS_ARG ( 0, 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getColor",				_getColor },
-		{ "moveColor",				_moveColor },
-		{ "seekColor",				_seekColor },
-		{ "setColor",				_setColor },
-		{ "setParent",				_setParent },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

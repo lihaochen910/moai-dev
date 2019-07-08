@@ -17,13 +17,13 @@
 	@opt	MOAINode parent
 	@out	nil
 */
-int MOAICameraAnchor2D::_setParent ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraAnchor2D, "U" )
+mrb_value MOAICameraAnchor2D::_setParent ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraAnchor2D, "U" )
 	
-	MOAINode* parent = state.GetLuaObject < MOAINode >( 2, true );
+	MOAINode* parent = state.GetRubyObject < MOAINode >( 1, true );
 	self->SetAttrLink ( PACK_ATTR ( MOAICameraAnchor2D, INHERIT_LOC ), parent, PACK_ATTR ( MOAITransformBase, TRANSFORM_TRAIT ));
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -37,17 +37,17 @@ int MOAICameraAnchor2D::_setParent ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAICameraAnchor2D::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraAnchor2D, "UNNNN" )
+mrb_value MOAICameraAnchor2D::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraAnchor2D, "UNNNN" )
 
-	float x0	= state.GetValue < float >( 2, 0.0f );
-	float y0	= state.GetValue < float >( 3, 0.0f );
-	float x1	= state.GetValue < float >( 4, 0.0f );
-	float y1	= state.GetValue < float >( 5, 0.0f );
+	float x0	= state.GetParamValue < float >( 1, 0.0f );
+	float y0	= state.GetParamValue < float >( 2, 0.0f );
+	float x1	= state.GetParamValue < float >( 3, 0.0f );
+	float y1	= state.GetParamValue < float >( 4, 0.0f );
 	
 	self->mRect.Init ( x0, y0, x1, y1 );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -80,25 +80,21 @@ MOAICameraAnchor2D::~MOAICameraAnchor2D () {
 }
 
 //----------------------------------------------------------------//
-void MOAICameraAnchor2D::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICameraAnchor2D::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAINode::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "INHERIT_LOC", MOAICameraAnchor2DAttr::Pack ( INHERIT_LOC ));
+	state.DefineClassConst ( klass, "INHERIT_LOC", MOAICameraAnchor2DAttr::Pack ( INHERIT_LOC ));
 }
 
 //----------------------------------------------------------------//
-void MOAICameraAnchor2D::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICameraAnchor2D::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setParent",			_setParent },
-		{ "setRect",			_setRect },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "setParent", _setParent, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setRect", _setRect, MRB_ARGS_REQ ( 4 ) );
+
 }
 
 //================================================================//

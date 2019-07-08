@@ -184,18 +184,18 @@ void MOAIBitmapFontPage::RipBitmap ( cc8* filename, cc8* charCodes ) {
 	@opt	number dpi				The device DPI (dots per inch of device screen). Default value is 72 (points same as pixels).
 	@out	nil
 */
-int MOAIBitmapFontReader::_loadPage ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBitmapFontReader, "USSN" )
+mrb_value MOAIBitmapFontReader::_loadPage ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBitmapFontReader, "USSN" )
 	
-	cc8* filename	= state.GetValue < cc8* >( 2, "" );
-	cc8* charCodes	= state.GetValue < cc8* >( 3, "" );
-	float points	= state.GetValue < float >( 4, 0 );
-	float dpi		= state.GetValue < float >( 5, DPI );
+	cc8* filename	= state.GetParamValue < cc8* >( 1, "" );
+	cc8* charCodes	= state.GetParamValue < cc8* >( 2, "" );
+	float points	= state.GetParamValue < float >( 3, 0 );
+	float dpi		= state.GetParamValue < float >( 4, DPI );
 	
 	float size = POINTS_TO_PIXELS ( points, dpi );
 	
 	self->LoadPage ( filename, size, charCodes );
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -259,20 +259,16 @@ MOAIBitmapFontReader::~MOAIBitmapFontReader () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBitmapFontReader::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIFontReader::RegisterLuaClass ( state );
+void MOAIBitmapFontReader::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIFontReader::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBitmapFontReader::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIFontReader::RegisterLuaFuncs ( state );
-	
-	luaL_Reg regTable [] = {
-		{ "loadPage",				_loadPage },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+void MOAIBitmapFontReader::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIFontReader::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "loadPage", _loadPage, MRB_ARGS_NONE () );
+
 }
 
 //----------------------------------------------------------------//
@@ -329,11 +325,11 @@ int MOAIBitmapFontReader::SelectGlyph ( u32 c ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIBitmapFontReader::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIBitmapFontReader::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAIFontReader::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIBitmapFontReader::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIBitmapFontReader::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAIFontReader::SerializeOut ( state, serializer );
 }

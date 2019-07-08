@@ -19,10 +19,9 @@
 	@in		MOAITableLayer self
 	@out	table renderTable
 */
-int MOAITableLayer::_getRenderTable ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITableLayer, "U" )
-	state.Push ( self->mRenderTable );
-	return 1;
+mrb_value MOAITableLayer::_getRenderTable ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITableLayer, "U" )
+	return self->mRenderTable;
 }
 
 //----------------------------------------------------------------//
@@ -36,10 +35,10 @@ int MOAITableLayer::_getRenderTable ( lua_State* L ) {
 	@in		table renderTable
 	@out	nil
 */
-int MOAITableLayer::_setRenderTable ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITableLayer, "U" )
-	self->mRenderTable.SetRef ( *self, state, 2 );
-	return 0;
+mrb_value MOAITableLayer::_setRenderTable ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITableLayer, "U" )
+	self->mRenderTable.SetRef ( state.GetParamValue ( 1 ) );
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -59,23 +58,19 @@ MOAITableLayer::~MOAITableLayer () {
 }
 
 //----------------------------------------------------------------//
-void MOAITableLayer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITableLayer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAILayer::RegisterLuaClass ( state );
+	MOAILayer::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITableLayer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITableLayer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAILayer::RegisterLuaFuncs ( state );
+	MOAILayer::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getRenderTable",				_getRenderTable },
-		{ "setRenderTable",				_setRenderTable },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getRenderTable",	_getRenderTable, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setRenderTable",	_setRenderTable, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//
@@ -94,7 +89,7 @@ void MOAITableLayer::MOAIDrawable_Draw ( int subPrimID ) {
 	gfxState.SetScissorRect ();
 	this->ClearSurface ();
 	
-	MOAIDrawable::Draw ( this->mRenderTable );
+	MOAIDrawable::Draw ( MOAIRubyRuntime::Get ().State (), this->mRenderTable );
 		
 	// restore the frame buffer
 	gfxState.SetFrameBuffer ( this->GetFrameBuffer ());

@@ -20,27 +20,26 @@
 	@in		MOAIPartition self
 	@out	nil
 */
-int MOAIPartition::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "U" )
+mrb_value MOAIPartition::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "U" )
 
 	self->Clear ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIPartition::_getInterfaceMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "U" )
+mrb_value MOAIPartition::_getInterfaceMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "U" )
 
 	u32 interfaceMask = MASK_ANY;
-	u32 typeID = state.GetValue < u32 >( 2, 0 );
+	u32 typeID = state.GetParamValue < u32 >( 1, 0 );
 
 	if ( typeID ) {
 		interfaceMask = self->GetInterfaceMask ( typeID );
 	}
-	state.Push ( interfaceMask );
-	return 1;
+	return state.ToRValue ( interfaceMask );
 }
 
 //----------------------------------------------------------------//
@@ -61,22 +60,22 @@ int MOAIPartition::_getInterfaceMask ( lua_State* L ) {
 	@opt	number queryMask
 	@out	MOAIPartitionHull hull			The hull under the point or nil if no hull found.
 */
-int MOAIPartition::_hullForPoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UNN" )
+mrb_value MOAIPartition::_hullForPoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UNN" )
 
 	ZLVec3D vec;
-	vec.mX = state.GetValue < float >( 2, 0.0f );
-	vec.mY = state.GetValue < float >( 3, 0.0f );
-	vec.mZ = state.GetValue < float >( 4, 0.0f );
+	vec.mX = state.GetParamValue < float >( 1, 0.0f );
+	vec.mY = state.GetParamValue < float >( 2, 0.0f );
+	vec.mZ = state.GetParamValue < float >( 3, 0.0f );
 
-	u32 sortMode = state.GetValue < u32 >( 5, MOAIPartitionResultBuffer::SORT_PRIORITY_ASCENDING );
-	float xScale = state.GetValue < float >( 6, 0.0f );
-	float yScale = state.GetValue < float >( 7, 0.0f );
-	float zScale = state.GetValue < float >( 8, 0.0f );
-	float priorityScale = state.GetValue < float >( 9, 1.0f );
+	u32 sortMode = state.GetParamValue < u32 >( 4, MOAIPartitionResultBuffer::SORT_PRIORITY_ASCENDING );
+	float xScale = state.GetParamValue < float >( 5, 0.0f );
+	float yScale = state.GetParamValue < float >( 6, 0.0f );
+	float zScale = state.GetParamValue < float >( 7, 0.0f );
+	float priorityScale = state.GetParamValue < float >( 8, 1.0f );
 
-	u32 interfaceMask	= state.GetValue < u32 >( 10, MASK_ANY );
-	u32 queryMask		= state.GetValue < u32 >( 11, MASK_ANY );
+	u32 interfaceMask	= state.GetParamValue < u32 >( 9, MASK_ANY );
+	u32 queryMask		= state.GetParamValue < u32 >( 10, MASK_ANY );
 
 	MOAIScopedPartitionResultBufferHandle scopedBufferHandle = MOAIPartitionResultMgr::Get ().GetBufferHandle ();
 	MOAIPartitionResultBuffer& buffer = scopedBufferHandle;
@@ -93,11 +92,10 @@ int MOAIPartition::_hullForPoint ( lua_State* L ) {
 		// since we're just looking for one hull, do a one-pass traversal to find the best result
 		MOAIPartitionHull* hull = buffer.FindBest ();
 		if ( hull ) {
-			hull->PushLuaUserdata ( state );
-			return 1;
+			return hull->PushRubyUserdata ( state );
 		}
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -115,22 +113,22 @@ int MOAIPartition::_hullForPoint ( lua_State* L ) {
 	@opt	number queryMask
 	@out	MOAIPartitionHull hull		The hull under the point in order of depth or nil if no hull found.
 */
-int MOAIPartition::_hullForRay ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UNN" )
+mrb_value MOAIPartition::_hullForRay ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UNN" )
 	
 	ZLVec3D vec;
-	vec.mX = state.GetValue < float >( 2, 0.0f );
-	vec.mY = state.GetValue < float >( 3, 0.0f );
-	vec.mZ = state.GetValue < float >( 4, 0.0f );
+	vec.mX = state.GetParamValue < float >( 1, 0.0f );
+	vec.mY = state.GetParamValue < float >( 2, 0.0f );
+	vec.mZ = state.GetParamValue < float >( 3, 0.0f );
 	
 	ZLVec3D direction;
-	direction.mX = state.GetValue < float >( 5, 0.0f );
-	direction.mY = state.GetValue < float >( 6, 0.0f );
-	direction.mZ = state.GetValue < float >( 7, 0.0f );
+	direction.mX = state.GetParamValue < float >( 4, 0.0f );
+	direction.mY = state.GetParamValue < float >( 5, 0.0f );
+	direction.mZ = state.GetParamValue < float >( 6, 0.0f );
 	direction.Norm ();
 	
-	u32 interfaceMask	= state.GetValue < u32 >( 8, MASK_ANY );
-	u32 queryMask		= state.GetValue < u32 >( 9, MASK_ANY );
+	u32 interfaceMask	= state.GetParamValue < u32 >( 7, MASK_ANY );
+	u32 queryMask		= state.GetParamValue < u32 >( 8, MASK_ANY );
 	
 	MOAIScopedPartitionResultBufferHandle scopedBufferHandle = MOAIPartitionResultMgr::Get ().GetBufferHandle ();
 	MOAIPartitionResultBuffer& buffer = scopedBufferHandle;
@@ -141,12 +139,11 @@ int MOAIPartition::_hullForRay ( lua_State* L ) {
 		
 		MOAIPartitionHull* hull = buffer.FindBest ();
 		if ( hull ) {
-			hull->PushLuaUserdata ( state );
-			return 1;
+			return hull->PushRubyUserdata ( state );
 		}
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -163,16 +160,16 @@ int MOAIPartition::_hullForRay ( lua_State* L ) {
 	@opt	number queryMask
 	@out	... props				The props pushed onto the stack.
 */
-int MOAIPartition::_hullList ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "U" )
+mrb_value MOAIPartition::_hullList ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "U" )
 
-	u32 sortMode = state.GetValue < u32 >( 2, MOAIPartitionResultBuffer::SORT_NONE );
-	float xScale = state.GetValue < float >( 3, 0.0f );
-	float yScale = state.GetValue < float >( 4, 0.0f );
-	float zScale = state.GetValue < float >( 5, 0.0f );
-	float priorityScale = state.GetValue < float >( 6, 1.0f );		
-	u32 interfaceMask	= state.GetValue < u32 >( 7, MASK_ANY );
-	u32 queryMask		= state.GetValue < u32 >( 8, MASK_ANY );
+	u32 sortMode = state.GetParamValue < u32 >( 1, MOAIPartitionResultBuffer::SORT_NONE );
+	float xScale = state.GetParamValue < float >( 2, 0.0f );
+	float yScale = state.GetParamValue < float >( 3, 0.0f );
+	float zScale = state.GetParamValue < float >( 4, 0.0f );
+	float priorityScale = state.GetParamValue < float >( 5, 1.0f );		
+	u32 interfaceMask	= state.GetParamValue < u32 >( 6, MASK_ANY );
+	u32 queryMask		= state.GetParamValue < u32 >( 7, MASK_ANY );
 
 	MOAIScopedPartitionResultBufferHandle scopedBufferHandle = MOAIPartitionResultMgr::Get ().GetBufferHandle ();
 	MOAIPartitionResultBuffer& buffer = scopedBufferHandle;
@@ -182,10 +179,9 @@ int MOAIPartition::_hullList ( lua_State* L ) {
 	
 		buffer.GenerateKeys ( sortMode, xScale, yScale, zScale, priorityScale );
 		buffer.Sort ( sortMode );
-		buffer.PushHulls ( L );
-		return total;
+		return buffer.PushHulls ( M );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -205,21 +201,21 @@ int MOAIPartition::_hullList ( lua_State* L ) {
 	@opt	number queryMask
 	@out	... props				The props under the point, all pushed onto the stack.
 */
-int MOAIPartition::_hullListForPoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UNN" )
+mrb_value MOAIPartition::_hullListForPoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UNN" )
 
 	ZLVec3D vec;
-	vec.mX = state.GetValue < float >( 2, 0.0f );
-	vec.mY = state.GetValue < float >( 3, 0.0f );
-	vec.mZ = state.GetValue < float >( 4, 0.0f );
+	vec.mX = state.GetParamValue < float >( 1, 0.0f );
+	vec.mY = state.GetParamValue < float >( 2, 0.0f );
+	vec.mZ = state.GetParamValue < float >( 3, 0.0f );
 
-	u32 sortMode = state.GetValue < u32 >( 5, MOAIPartitionResultBuffer::SORT_NONE );
-	float xScale = state.GetValue < float >( 6, 0.0f );
-	float yScale = state.GetValue < float >( 7, 0.0f );
-	float zScale = state.GetValue < float >( 8, 0.0f );
-	float priorityScale = state.GetValue < float >( 9, 1.0f );		
-	u32 interfaceMask	= state.GetValue < u32 >( 10, MASK_ANY );
-	u32 queryMask		= state.GetValue < u32 >( 11, MASK_ANY );
+	u32 sortMode = state.GetParamValue < u32 >( 4, MOAIPartitionResultBuffer::SORT_NONE );
+	float xScale = state.GetParamValue < float >( 5, 0.0f );
+	float yScale = state.GetParamValue < float >( 6, 0.0f );
+	float zScale = state.GetParamValue < float >( 7, 0.0f );
+	float priorityScale = state.GetParamValue < float >( 8, 1.0f );		
+	u32 interfaceMask	= state.GetParamValue < u32 >( 9, MASK_ANY );
+	u32 queryMask		= state.GetParamValue < u32 >( 10, MASK_ANY );
 
 	MOAIScopedPartitionResultBufferHandle scopedBufferHandle = MOAIPartitionResultMgr::Get ().GetBufferHandle ();
 	MOAIPartitionResultBuffer& buffer = scopedBufferHandle;
@@ -229,10 +225,9 @@ int MOAIPartition::_hullListForPoint ( lua_State* L ) {
 	
 		buffer.GenerateKeys ( sortMode, xScale, yScale, zScale, priorityScale );
 		buffer.Sort ( sortMode );
-		buffer.PushHulls ( L );
-		return total;
+		return buffer.PushHulls ( M );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -255,27 +250,27 @@ int MOAIPartition::_hullListForPoint ( lua_State* L ) {
 	@opt	number queryMask
 	@out	... props				The props under the point in order of depth, all pushed onto the stack.
 */
-int MOAIPartition::_hullListForRay ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UNN" )
+mrb_value MOAIPartition::_hullListForRay ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UNN" )
 
 	ZLVec3D vec;
-	vec.mX = state.GetValue < float >( 2, 0.0f );
-	vec.mY = state.GetValue < float >( 3, 0.0f );
-	vec.mZ = state.GetValue < float >( 4, 0.0f );
+	vec.mX = state.GetParamValue < float >( 1, 0.0f );
+	vec.mY = state.GetParamValue < float >( 2, 0.0f );
+	vec.mZ = state.GetParamValue < float >( 3, 0.0f );
 	
 	ZLVec3D direction;
-	direction.mX = state.GetValue < float >( 5, 0.0f );
-	direction.mY = state.GetValue < float >( 6, 0.0f );
-	direction.mZ = state.GetValue < float >( 7, 0.0f );
+	direction.mX = state.GetParamValue < float >( 4, 0.0f );
+	direction.mY = state.GetParamValue < float >( 5, 0.0f );
+	direction.mZ = state.GetParamValue < float >( 6, 0.0f );
 	direction.Norm ();
 	
-	u32 sortMode = state.GetValue < u32 >( 8, MOAIPartitionResultBuffer::SORT_KEY_ASCENDING );
-	float xScale = state.GetValue < float >( 9, 0.0f );
-	float yScale = state.GetValue < float >( 10, 0.0f );
-	float zScale = state.GetValue < float >( 11, 0.0f );
-	float priorityScale = state.GetValue < float >( 12, 1.0f );		
-	u32 interfaceMask	= state.GetValue < u32 >( 13, MASK_ANY );
-	u32 queryMask		= state.GetValue < u32 >( 14, MASK_ANY );
+	u32 sortMode = state.GetParamValue < u32 >( 7, MOAIPartitionResultBuffer::SORT_KEY_ASCENDING );
+	float xScale = state.GetParamValue < float >( 8, 0.0f );
+	float yScale = state.GetParamValue < float >( 9, 0.0f );
+	float zScale = state.GetParamValue < float >( 10, 0.0f );
+	float priorityScale = state.GetParamValue < float >( 11, 1.0f );		
+	u32 interfaceMask	= state.GetParamValue < u32 >( 12, MASK_ANY );
+	u32 queryMask		= state.GetParamValue < u32 >( 13, MASK_ANY );
 	
 	MOAIScopedPartitionResultBufferHandle scopedBufferHandle = MOAIPartitionResultMgr::Get ().GetBufferHandle ();
 	MOAIPartitionResultBuffer& buffer = scopedBufferHandle;
@@ -286,10 +281,9 @@ int MOAIPartition::_hullListForRay ( lua_State* L ) {
 	
 		buffer.GenerateKeys ( sortMode, xScale, yScale, zScale, priorityScale );
 		buffer.Sort ( sortMode );
-		buffer.PushHulls ( L );
-		return total;
+		return buffer.PushHulls ( M );
 	}
-	return 0;
+	return context;	
 }
 
 //----------------------------------------------------------------//
@@ -310,24 +304,24 @@ int MOAIPartition::_hullListForRay ( lua_State* L ) {
 	@opt	number queryMask
 	@out	... props				The props under the rect, all pushed onto the stack.
 */
-int MOAIPartition::_hullListForRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UNNNN" )
+mrb_value MOAIPartition::_hullListForRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UNNNN" )
 	
 	ZLRect rect;
 	
-	rect.mXMin = state.GetValue < float >( 2, 0.0f );
-	rect.mYMin = state.GetValue < float >( 3, 0.0f );
+	rect.mXMin = state.GetParamValue < float >( 1, 0.0f );
+	rect.mYMin = state.GetParamValue < float >( 2, 0.0f );
 	
-	rect.mXMax = state.GetValue < float >( 4, 0.0f );
-	rect.mYMax = state.GetValue < float >( 5, 0.0f );
+	rect.mXMax = state.GetParamValue < float >( 3, 0.0f );
+	rect.mYMax = state.GetParamValue < float >( 4, 0.0f );
 	
-	u32 sortMode = state.GetValue < u32 >( 6, MOAIPartitionResultBuffer::SORT_NONE );
-	float xScale = state.GetValue < float >( 7, 0.0f );
-	float yScale = state.GetValue < float >( 8, 0.0f );
-	float zScale = state.GetValue < float >( 9, 0.0f );
-	float priorityScale = state.GetValue < float >( 10, 1.0f );	
-	u32 interfaceMask	= state.GetValue < u32 >( 11, MASK_ANY );
-	u32 queryMask		= state.GetValue < u32 >( 12, MASK_ANY );
+	u32 sortMode = state.GetParamValue < u32 >( 5, MOAIPartitionResultBuffer::SORT_NONE );
+	float xScale = state.GetParamValue < float >( 6, 0.0f );
+	float yScale = state.GetParamValue < float >( 7, 0.0f );
+	float zScale = state.GetParamValue < float >( 8, 0.0f );
+	float priorityScale = state.GetParamValue < float >( 9, 1.0f );	
+	u32 interfaceMask	= state.GetParamValue < u32 >( 10, MASK_ANY );
+	u32 queryMask		= state.GetParamValue < u32 >( 11, MASK_ANY );
 	
 	MOAIScopedPartitionResultBufferHandle scopedBufferHandle = MOAIPartitionResultMgr::Get ().GetBufferHandle ();
 	MOAIPartitionResultBuffer& buffer = scopedBufferHandle;
@@ -337,10 +331,9 @@ int MOAIPartition::_hullListForRect ( lua_State* L ) {
 	
 		buffer.GenerateKeys ( sortMode, xScale, yScale, zScale, priorityScale );
 		buffer.Sort ( sortMode );
-		buffer.PushHulls ( L );
-		return total;
+		return buffer.PushHulls ( M );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -352,16 +345,16 @@ int MOAIPartition::_hullListForRect ( lua_State* L ) {
 	@in		MOAIPartitionHull hull
 	@out	nil
 */
-//int MOAIPartition::_insertHull ( lua_State* L ) {
-//	MOAI_LUA_SETUP ( MOAIPartition, "UU" )
+//mrb_value MOAIPartition::_insertHull ( mrb_state* M, mrb_value context ) {
+//	MOAI_RUBY_SETUP ( MOAIPartition, "UU" )
 //
-//	MOAIPartitionHull* hull = state.GetLuaObject < MOAIPartitionHull >( 2, true );
-//	if ( !hull ) return 0;
+//	MOAIPartitionHull* hull = state.GetRubyObject < MOAIPartitionHull >( 2, true );
+//	if ( !hull ) return context;
 //
 //	self->InsertHull ( *hull );
 //	hull->ScheduleUpdate ();
 //
-//	return 0;
+//	return context;
 //}
 
 //----------------------------------------------------------------//
@@ -372,16 +365,16 @@ int MOAIPartition::_hullListForRect ( lua_State* L ) {
 	@in		MOAIPartitionHull hull
 	@out	nil
 */
-//int MOAIPartition::_removeHull ( lua_State* L ) {
-//	MOAI_LUA_SETUP ( MOAIPartition, "UU" )
+//mrb_value MOAIPartition::_removeHull ( mrb_state* M, mrb_value context ) {
+//	MOAI_RUBY_SETUP ( MOAIPartition, "UU" )
 //
-//	MOAIPartitionHull* hull = state.GetLuaObject < MOAIPartitionHull >( 2, true );
-//	if ( !hull ) return 0;
+//	MOAIPartitionHull* hull = state.GetRubyObject < MOAIPartitionHull >( 2, true );
+//	if ( !hull ) return context;
 //
 //	self->RemoveHull ( *hull );
 //	hull->ScheduleUpdate ();
 //
-//	return 0;
+//	return context;
 //}
 
 //----------------------------------------------------------------//
@@ -394,14 +387,14 @@ int MOAIPartition::_hullListForRect ( lua_State* L ) {
 	@in		number nLevels
 	@out	nil
 */
-int MOAIPartition::_reserveLevels ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UN" )
+mrb_value MOAIPartition::_reserveLevels ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UN" )
 
-	u32 totalLevels = state.GetValue < u32 >( 2, 0 );
+	u32 totalLevels = state.GetParamValue < u32 >( 1, 0 );
 	
 	self->ReserveLevels ( totalLevels );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -423,17 +416,17 @@ int MOAIPartition::_reserveLevels ( lua_State* L ) {
 	@in		number yCells		Height of level in cells.
 	@out	nil
 */
-int MOAIPartition::_setLevel ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "UNNNN" )
+mrb_value MOAIPartition::_setLevel ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "UNNNN" )
 
-	u32 levelID		= state.GetValue < u32 >( 2, 1 ) - 1;
-	float cellSize	= state.GetValue < float >( 3, 1.0f );
-	u32 width		= state.GetValue < u32 >( 4, 0 );
-	u32 height		= state.GetValue < u32 >( 5, 0 );
+	u32 levelID		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float cellSize	= state.GetParamValue < float >( 2, 1.0f );
+	u32 width		= state.GetParamValue < u32 >( 3, 0 );
+	u32 height		= state.GetParamValue < u32 >( 4, 0 );
 
 	self->SetLevel ( levelID, cellSize, width, height );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -448,13 +441,13 @@ int MOAIPartition::_setLevel ( lua_State* L ) {
 	@in		number planeID		One of MOAIPartition::PLANE_XY, MOAIPartition::PLANE_XZ, MOAIPartition::PLANE_YZ. Default value is MOAIPartition::PLANE_XY.
 	@out	nil
 */
-int MOAIPartition::_setPlane ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartition, "U" )
+mrb_value MOAIPartition::_setPlane ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartition, "U" )
 
-	u32 planeID	= state.GetValue < u32 >( 2, ZLBox::PLANE_XY );
+	u32 planeID	= state.GetParamValue < u32 >( 1, ZLBox::PLANE_XY );
 	self->SetPlane ( planeID );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -620,7 +613,7 @@ void MOAIPartition::InsertHull ( MOAIPartitionHull& hull ) {
 	
 	if ( hull.mPartition == this ) return;
 	
-	this->LuaRetain ( &hull );
+	this->RubyRetain ( &hull );
 	
 	if ( hull.mPartition ) {
 		hull.mPartition->RemoveHull ( hull );
@@ -661,7 +654,7 @@ MOAIPartition::MOAIPartition () :
 	mPlaneID ( ZLBox::PLANE_XY ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -690,34 +683,30 @@ void MOAIPartition::Rebuild () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPartition::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPartition::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	state.SetField ( -1, "PLANE_XY",	( u32 )ZLBox::PLANE_XY );
-	state.SetField ( -1, "PLANE_XZ",	( u32 )ZLBox::PLANE_XZ );
-	state.SetField ( -1, "PLANE_YZ",	( u32 )ZLBox::PLANE_YZ );
+	state.DefineClassConst ( klass, "PLANE_XY",	( u32 )ZLBox::PLANE_XY );
+	state.DefineClassConst ( klass, "PLANE_XZ",	( u32 )ZLBox::PLANE_XZ );
+	state.DefineClassConst ( klass, "PLANE_YZ",	( u32 )ZLBox::PLANE_YZ );
 }
 
 //----------------------------------------------------------------//
-void MOAIPartition::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPartition::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+
+	state.DefineInstanceMethod ( klass, "clear", _clear, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getInterfaceMask", _getInterfaceMask, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "hullForPoint", _hullForPoint, MRB_ARGS_ARG ( 3, 7 ) );
+	state.DefineInstanceMethod ( klass, "hullForRay", _hullForRay, MRB_ARGS_ARG ( 6, 2 ) );
+	state.DefineInstanceMethod ( klass, "hullList", _hullList, MRB_ARGS_ARG ( 0, 7 ) );
+	state.DefineInstanceMethod ( klass, "hullListForPoint", _hullListForPoint, MRB_ARGS_ARG ( 3, 7 ) );
+	state.DefineInstanceMethod ( klass, "hullListForRay", _hullListForRay, MRB_ARGS_ARG ( 6, 7 ) );
+	state.DefineInstanceMethod ( klass, "hullListForRect", _hullListForRect, MRB_ARGS_ARG ( 4, 7 ) );
+	//state.DefineInstanceMethod ( klass, "insertHull", _insertHull, MRB_ARGS_NONE () );
+	//state.DefineInstanceMethod ( klass, "removeHull", _removeHull, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveLevels", _reserveLevels, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setLevel", _setLevel, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setPlane", _setPlane, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "clear",						_clear },
-		{ "getInterfaceMask",			_getInterfaceMask },
-		{ "hullForPoint",				_hullForPoint },
-		{ "hullForRay",					_hullForRay },
-		{ "hullList",					_hullList },
-		{ "hullListForPoint",			_hullListForPoint },
-		{ "hullListForRay",				_hullListForRay },
-		{ "hullListForRect",			_hullListForRect },
-		//{ "insertHull",					_insertHull },
-		//{ "removeHull",					_removeHull },
-		{ "reserveLevels",				_reserveLevels },
-		{ "setLevel",					_setLevel },
-		{ "setPlane",					_setPlane },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -733,7 +722,7 @@ void MOAIPartition::RemoveHull ( MOAIPartitionHull& hull ) {
 	hull.mInterfaceMask = 0;
 	this->MOAIPartition_OnRemoveHull ( hull );
 
-	this->LuaRelease ( &hull );
+	this->RubyRelease ( &hull );
 }
 
 //----------------------------------------------------------------//

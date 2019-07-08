@@ -9,7 +9,7 @@
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	getValueAtTime
+/**	@ruby	getValueAtTime
 	@text	Return the interpolated vector components given a point in
 			time along the curve. This does not change the curve's built in TIME
 			attribute (it simply performs the requisite computation on demand).
@@ -20,25 +20,25 @@
 	@out	number y
 	@out	number z
 */
-int MOAIAnimCurveVec::_getValueAtTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveVec, "UN" );
+mrb_value MOAIAnimCurveVec::_getValueAtTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveVec, "UN" );
 
-	float time = state.GetValue < float >( 2, 0 );
+	float time = state.GetParamValue < float >( 1, 0 );
 	
 	MOAIAnimKeySpan span = self->GetSpan ( time );
 	ZLVec3D value = self->GetValue ( span );
-	
-	state.Push ( value.mX );
-	state.Push ( value.mY );
-	state.Push ( value.mZ );
-	
-	state.Push ( span.mKeyID + 1 );
-	
-	return 4;
+
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( value.mX );
+	ret [ 1 ] = state.ToRValue ( value.mY );
+	ret [ 2 ] = state.ToRValue ( value.mZ );
+	ret [ 3 ] = state.ToRValue ( span.mKeyID + 1 );
+
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setKey
+/**	@ruby	setKey
 	@text	Initialize a key frame at a given time with a give vector.
 			Also set the transition type between the specified key frame
 			and the next key frame.
@@ -54,21 +54,21 @@ int MOAIAnimCurveVec::_getValueAtTime ( lua_State* L ) {
 	@opt	number weight			Blends between chosen ease type (of any) and a linear transition. Defaults to 1.
 	@out	nil
 */
-int MOAIAnimCurveVec::_setKey ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveVec, "UNNNN" );
+mrb_value MOAIAnimCurveVec::_setKey ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveVec, "UNNNN" );
 
-	u32 index		= state.GetValue < u32 >( 2, 1 ) - 1;
-	float time		= state.GetValue < float >( 3, 0.0f );
-	ZLVec3D value	= state.GetVec3D < float >( 4 );
-	u32 mode		= state.GetValue < u32 >( 7, ZLInterpolate::kSmooth );
-	float weight	= state.GetValue < float >( 8, 1.0f );
+	u32 index		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float time		= state.GetParamValue < float >( 2, 0.0f );
+	ZLVec3D value	= state.GetVec3D < float >( 3 );
+	u32 mode		= state.GetParamValue < u32 >( 6, ZLInterpolate::kSmooth );
+	float weight	= state.GetParamValue < float >( 7, 1.0f );
 	
-	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), M )) {
 		
 		self->SetKey ( index, time, mode, weight );
 		self->SetSample ( index, value );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -163,23 +163,19 @@ MOAIAnimCurveVec::~MOAIAnimCurveVec () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveVec::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIAnimCurveVec::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaClass ( state );
+	MOAIAnimCurveBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveVec::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAnimCurveVec::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaFuncs ( state );
+	MOAIAnimCurveBase::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getValueAtTime",		_getValueAtTime },
-		{ "setKey",				_setKey },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getValueAtTime", _getValueAtTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setKey", _setKey, MRB_ARGS_ARG ( 5, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

@@ -58,11 +58,11 @@ protected:
 	size_t				mTextureSize;
 
 	//----------------------------------------------------------------//
-	static int			_getSize				( lua_State* L );
-	static int			_release				( lua_State* L );
-	static int			_setDebugName			( lua_State* L );
-	static int			_setFilter				( lua_State* L );
-	static int			_setWrap				( lua_State* L );
+	static mrb_value			_getSize				( mrb_state* M, mrb_value context );
+	static mrb_value			_release				( mrb_state* M, mrb_value context );
+	static mrb_value			_setDebugName			( mrb_state* M, mrb_value context );
+	static mrb_value			_setFilter				( mrb_state* M, mrb_value context );
+	static mrb_value			_setWrap				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				CleanupOnError				();
@@ -91,13 +91,13 @@ public:
 	bool				IsValid						();
 						MOAITextureBase				();
 						~MOAITextureBase			();
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	void				SetFilter					( int filter );
 	void				SetFilter					( int min, int mag );
 	void				SetWrap						( int wrap );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

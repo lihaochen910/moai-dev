@@ -11,26 +11,26 @@
 //================================================================//
 // TODO: doxygen
 class MOAIMaterialHolder :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 	
 	MOAIMaterial mMaterial;
 
 	//----------------------------------------------------------------//
-	static int			_getBlendMode			( lua_State* L );
-	static int			_getCullMode			( lua_State* L );
-	static int			_getDepthMask			( lua_State* L );
-	static int			_getDepthTest			( lua_State* L );
-	static int			_getLight				( lua_State* L );
-	static int			_getShader				( lua_State* L );
-	static int			_getTexture				( lua_State* L );
-	static int			_setBlendMode			( lua_State* L );
-	static int			_setCullMode			( lua_State* L );
-	static int			_setDepthMask			( lua_State* L );
-	static int			_setDepthTest			( lua_State* L );
-	static int			_setLight				( lua_State* L );
-	static int			_setShader				( lua_State* L );
-	static int			_setTexture				( lua_State* L );
+	static mrb_value			_getBlendMode			( mrb_state* M, mrb_value context );
+	static mrb_value			_getCullMode			( mrb_state* M, mrb_value context );
+	static mrb_value			_getDepthMask			( mrb_state* M, mrb_value context );
+	static mrb_value			_getDepthTest			( mrb_state* M, mrb_value context );
+	static mrb_value			_getLight				( mrb_state* M, mrb_value context );
+	static mrb_value			_getShader				( mrb_state* M, mrb_value context );
+	static mrb_value			_getTexture				( mrb_state* M, mrb_value context );
+	static mrb_value			_setBlendMode			( mrb_state* M, mrb_value context );
+	static mrb_value			_setCullMode			( mrb_state* M, mrb_value context );
+	static mrb_value			_setDepthMask			( mrb_state* M, mrb_value context );
+	static mrb_value			_setDepthTest			( mrb_state* M, mrb_value context );
+	static mrb_value			_setLight				( mrb_state* M, mrb_value context );
+	static mrb_value			_setShader				( mrb_state* M, mrb_value context );
+	static mrb_value			_setTexture				( mrb_state* M, mrb_value context );
 
 public:
 
@@ -39,7 +39,7 @@ public:
 	//----------------------------------------------------------------//
 					MOAIMaterialHolder			();
 					~MOAIMaterialHolder			();
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

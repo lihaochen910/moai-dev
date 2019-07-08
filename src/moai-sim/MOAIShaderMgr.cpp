@@ -37,34 +37,32 @@
 								MOAIShaderMgr.LINE_SHADER, MOAIShaderMgr.MESH_SHADER
 	@out	nil
 */
-int MOAIShaderMgr::_getProgram ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIShaderMgr::_getProgram ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u32 shaderID = state.GetValue < u32 >( 1, UNKNOWN_SHADER );
+	u32 shaderID = state.GetParamValue < u32 >( 1, UNKNOWN_SHADER );
 	
 	if ( shaderID < TOTAL_SHADERS ) {
 	
 		MOAIShaderProgram* program = MOAIShaderMgr::Get ().GetProgram ( shaderID );
-		state.Push ( program );
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( program );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShaderMgr::_getShader ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIShaderMgr::_getShader ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u32 shaderID = state.GetValue < u32 >( 1, UNKNOWN_SHADER );
+	u32 shaderID = state.GetParamValue < u32 >( 1, UNKNOWN_SHADER );
 	
 	if ( shaderID < TOTAL_SHADERS ) {
 	
 		MOAIShader* shader = MOAIShaderMgr::Get ().GetShader ( shaderID );
-		state.Push ( shader );
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( shader );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -90,8 +88,8 @@ MOAIShaderProgram* MOAIShaderMgr::GetProgram ( u32 shaderID ) {
 		
 		if ( !program ) {
 
-			program = new MOAIShaderProgram ();
-			this->LuaRetain ( program );
+			program = MOAIRubyRuntime::Get ().State ().CreateClassInstance < MOAIShaderProgram >();
+			this->RubyRetain ( program );
 			
 			switch ( shaderID ) {
 				
@@ -218,9 +216,9 @@ MOAIShader* MOAIShaderMgr::GetShader ( u32 shaderID ) {
 
 			MOAIShaderProgram* program = this->GetProgram ( shaderID );
 			if ( program ) {
-
-				shader = new MOAIShader ();
-				this->LuaRetain ( shader );
+				
+				shader = MOAIRubyRuntime::Get ().State ().CreateClassInstance < MOAIShader > ();
+				this->RubyRetain ( shader );
 				shader->SetProgram ( program );
 				this->mShaders [ shaderID ] = shader;
 			}
@@ -232,7 +230,7 @@ MOAIShader* MOAIShaderMgr::GetShader ( u32 shaderID ) {
 //----------------------------------------------------------------//
 MOAIShaderMgr::MOAIShaderMgr () {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 
 	for ( u32 i = 0; i < TOTAL_SHADERS; ++i ) {
 		this->mPrograms [ i ] = 0;
@@ -248,40 +246,37 @@ MOAIShaderMgr::~MOAIShaderMgr () {
 
 	for ( u32 i = 0; i < TOTAL_SHADERS; ++i ) {
 		if ( this->mPrograms [ i ]) {
-			this->LuaRelease ( this->mPrograms [ i ]);
+			this->RubyRelease ( this->mPrograms [ i ]);
 		}
 	}
 	
 	for ( u32 i = 0; i < TOTAL_SHADERS; ++i ) {
 		if ( this->mShaders [ i ]) {
-			this->LuaRelease ( this->mShaders [ i ]);
+			this->RubyRelease ( this->mShaders [ i ]);
 		}
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIShaderMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIShaderMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "DECK2D_SHADER",			( u32 )DECK2D_SHADER );
-	state.SetField ( -1, "DECK2D_SNAPPING_SHADER",	( u32 )DECK2D_SNAPPING_SHADER );
-	state.SetField ( -1, "DECK2D_TEX_ONLY_SHADER",	( u32 )DECK2D_TEX_ONLY_SHADER );
-	state.SetField ( -1, "FONT_SHADER",				( u32 )FONT_SHADER );
-	state.SetField ( -1, "FONT_SNAPPING_SHADER",	( u32 )FONT_SNAPPING_SHADER );
-	state.SetField ( -1, "FONT_EFFECTS_SHADER",	    ( u32 )FONT_EFFECTS_SHADER );
-	state.SetField ( -1, "LINE_SHADER",				( u32 )LINE_SHADER );
-	state.SetField ( -1, "LINE_SHADER_3D",			( u32 )LINE_SHADER_3D );
-	state.SetField ( -1, "MESH_SHADER",				( u32 )MESH_SHADER );
+	state.DefineClassConst ( klass, "DECK2D_SHADER",			( u32 )DECK2D_SHADER );
+	state.DefineClassConst ( klass, "DECK2D_SNAPPING_SHADER",	( u32 )DECK2D_SNAPPING_SHADER );
+	state.DefineClassConst ( klass, "DECK2D_TEX_ONLY_SHADER",	( u32 )DECK2D_TEX_ONLY_SHADER );
+	state.DefineClassConst ( klass, "FONT_SHADER",				( u32 )FONT_SHADER );
+	state.DefineClassConst ( klass, "FONT_SNAPPING_SHADER",	( u32 )FONT_SNAPPING_SHADER );
+	state.DefineClassConst ( klass, "FONT_EFFECTS_SHADER",	    ( u32 )FONT_EFFECTS_SHADER );
+	state.DefineClassConst ( klass, "LINE_SHADER",				( u32 )LINE_SHADER );
+	state.DefineClassConst ( klass, "LINE_SHADER_3D",			( u32 )LINE_SHADER_3D );
+	state.DefineClassConst ( klass, "MESH_SHADER",				( u32 )MESH_SHADER );
+
+	state.DefineStaticMethod ( klass, "getProgram", _getProgram, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "getShader", _getShader, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getProgram",				_getProgram },
-		{ "getShader",				_getShader },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIShaderMgr::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIShaderMgr::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }

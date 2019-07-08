@@ -44,23 +44,23 @@ private:
 	ZLBox								mParticleBounds;
 	
 	//----------------------------------------------------------------//
-	static int		_capParticles			( lua_State* L );
-	static int		_capSprites				( lua_State* L );
-	static int		_clearSprites			( lua_State* L );
-	static int		_isIdle					( lua_State* L );
-	static int		_getState				( lua_State* L );
-	static int		_pushParticle			( lua_State* L );
-	static int		_pushSprite				( lua_State* L );
-	static int		_reserveParticles		( lua_State* L );
-	static int		_reserveRects			( lua_State* L );
-	static int		_reserveSprites			( lua_State* L );
-	static int		_reserveStates			( lua_State* L );
-	static int		_setComputeBounds		( lua_State* L );
-	static int		_setDrawOrder			( lua_State* L );
-	static int		_setSpriteColor			( lua_State* L );
-	static int		_setSpriteDeckIdx		( lua_State* L );
-	static int		_setState				( lua_State* L );
-	static int		_surge					( lua_State* L );
+	static mrb_value		_capParticles			( mrb_state* M, mrb_value context );
+	static mrb_value		_capSprites				( mrb_state* M, mrb_value context );
+	static mrb_value		_clearSprites			( mrb_state* M, mrb_value context );
+	static mrb_value		_isIdle					( mrb_state* M, mrb_value context );
+	static mrb_value		_getState				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushParticle			( mrb_state* M, mrb_value context );
+	static mrb_value		_pushSprite				( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveParticles		( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveRects			( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveSprites			( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveStates			( mrb_state* M, mrb_value context );
+	static mrb_value		_setComputeBounds		( mrb_state* M, mrb_value context );
+	static mrb_value		_setDrawOrder			( mrb_state* M, mrb_value context );
+	static mrb_value		_setSpriteColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setSpriteDeckIdx		( mrb_state* M, mrb_value context );
+	static mrb_value		_setState				( mrb_state* M, mrb_value context );
+	static mrb_value		_surge					( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void					ClearStates				();
@@ -86,7 +86,7 @@ public:
 	friend class MOAIParticleScript;
 	friend class MOAIParticleState;
 	
-	DECL_LUA_FACTORY ( MOAIParticleSystem )
+	DECL_RUBY_FACTORY ( MOAIParticleSystem, MOAIAction )
 
 	//----------------------------------------------------------------//
 					MOAIParticleSystem		();
@@ -95,14 +95,14 @@ public:
 	bool			PushParticle			( float x, float y, float dx, float dy );
 	bool			PushParticle			( float x, float y, float dx, float dy, u32 stateIdx );
 	bool			PushSprite				( const AKUParticleSprite& sprite );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			ReserveParticles		( u32 maxParticles, u32 particleSize );
 	void			ReserveRects			( u32 total );
 	void			ReserveSprites			( u32 maxSprites );
 	void			ReserveStates			( u32 total );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void			SetConstant				( u32 idx, float value );
 	void			SetRect					( u32 idx, ZLRect& rect );
 };

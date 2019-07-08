@@ -73,7 +73,7 @@ private:
 	u32					mActiveStack [ MAX_TOUCHES ];
 	u32					mAllocStack [ MAX_TOUCHES ];
 		
-	MOAILuaStrongRef	mCallback;
+	MOAIRubyStrongRef	mCallback;
 		
 	u32					mLingerTop;
 	MOAITouchLinger		mLingerTouches [ MAX_TOUCHES ];
@@ -86,18 +86,18 @@ private:
 	float				mTapTime;
 
 	//----------------------------------------------------------------//
-	static int		_countTouches			( lua_State* L );
-	static int		_down					( lua_State* L );
-	static int		_getActiveTouches		( lua_State* L );
-	static int		_getCenterLoc			( lua_State* L );
-	static int		_getTouch				( lua_State* L );
-	static int		_hasTouches				( lua_State* L );
-	static int		_isDown					( lua_State* L );
-	static int		_setAcceptCancel		( lua_State* L );
-	static int		_setCallback			( lua_State* L );
-	static int		_setTapMargin			( lua_State* L ); 
-	static int		_setTapTime				( lua_State* L );
-	static int		_up						( lua_State* L );
+	static mrb_value		_countTouches			( mrb_state* M, mrb_value context );
+	static mrb_value		_down					( mrb_state* M, mrb_value context );
+	static mrb_value		_getActiveTouches		( mrb_state* M, mrb_value context );
+	static mrb_value		_getCenterLoc			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTouch				( mrb_state* M, mrb_value context );
+	static mrb_value		_hasTouches				( mrb_state* M, mrb_value context );
+	static mrb_value		_isDown					( mrb_state* M, mrb_value context );
+	static mrb_value		_setAcceptCancel		( mrb_state* M, mrb_value context );
+	static mrb_value		_setCallback			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTapMargin			( mrb_state* M, mrb_value context ); 
+	static mrb_value		_setTapTime				( mrb_state* M, mrb_value context );
+	static mrb_value		_up						( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	u32				AddTouch				();
@@ -115,7 +115,7 @@ public:
 		TOUCH_CANCEL,
 	};
 
-	DECL_LUA_FACTORY ( MOAITouchSensor )
+	DECL_RUBY_FACTORY ( MOAITouchSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	void				ClearState					();
@@ -124,8 +124,8 @@ public:
 						MOAITouchSensor				();
 						~MOAITouchSensor			();
 	void				ParseEvent					( ZLStream& eventStream );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ResetState					();
 };
 

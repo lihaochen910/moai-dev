@@ -172,8 +172,10 @@ void MOAIGfxStateVertexCache::InitBuffers () {
 
 	if ( !this->mVtxBuffer ) {
 
-		this->mVtxBuffer = new MOAIVertexBuffer ();
-		this->mIdxBuffer = new MOAIIndexBuffer ();
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().GetMainState ();
+
+		this->mVtxBuffer = state.CreateClassInstance < MOAIVertexBuffer >();
+		this->mIdxBuffer = state.CreateClassInstance < MOAIIndexBuffer >();
 		
 		this->mIdxBuffer->SetIndexSize ( INDEX_SIZE );
 

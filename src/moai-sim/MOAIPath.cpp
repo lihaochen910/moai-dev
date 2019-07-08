@@ -13,73 +13,73 @@
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPath::_bless ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPath, "U" );
+mrb_value MOAIPath::_bless ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPath, "U" );
 
 	self->Bless ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPath::_evaluate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPath, "U" );
+mrb_value MOAIPath::_evaluate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPath, "U" );
 
-	float t			= state.GetValue < float >( 2, 0.0f );
+	float t			= state.GetParamValue < float >( 1, 0.0f );
 	
 	ZLVec2D result = self->Evaluate ( t );
 
-	state.Push ( result.mX );
-	state.Push ( result.mY );
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( result.mX );
+	ret [ 1 ] = state.ToRValue ( result.mY );
 
-	return 2;
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPath::_getLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPath, "U" );
+mrb_value MOAIPath::_getLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPath, "U" );
 	
-	state.Push ( self->GetLength ());
-	return 1;
+	return state.ToRValue ( self->GetLength () );
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPath::_reserve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPath, "U" );
+mrb_value MOAIPath::_reserve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPath, "U" );
 
-	size_t size = state.GetValue < u32 >( 2, 0 );
+	size_t size = state.GetParamValue < u32 >( 1, 0 );
 	self->Reserve ( size );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPath::_setPoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPath, "U" );
+mrb_value MOAIPath::_setPoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPath, "U" );
 
-	size_t idx		= state.GetValue < u32 >( 2, 1 ) - 1;
-	float x			= state.GetValue < float >( 3, 0.0f );
-	float y			= state.GetValue < float >( 4, 0.0f );
+	size_t idx		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float x			= state.GetParamValue < float >( 2, 0.0f );
+	float y			= state.GetParamValue < float >( 3, 0.0f );
 	
 	self->SetPoint ( idx, x, y );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPath::_setThresholds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPath, "U" );
+mrb_value MOAIPath::_setThresholds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPath, "U" );
 
-	float flatness	= state.GetValue < float >( 2, DEFAULT_FLATNESS );
-	float angle		= state.GetValue < float >( 3, DEFAULT_ANGLE );
+	float flatness	= state.GetParamValue < float >( 1, DEFAULT_FLATNESS );
+	float angle		= state.GetParamValue < float >( 2, DEFAULT_ANGLE );
 	
 	self->SetFlatness ( flatness );
 	self->SetAngle ( angle );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -157,7 +157,7 @@ MOAIPath::MOAIPath () :
 	mAngle ( DEFAULT_ANGLE ),
 	mLength ( 0.0f ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -165,24 +165,21 @@ MOAIPath::~MOAIPath () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPath::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPath::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIPath::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPath::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "bless",				_bless },
-		{ "evaluate",			_evaluate },
-		{ "getLength",			_getLength },
-		{ "reserve",			_reserve },
-		{ "setPoint",			_setPoint },
-		{ "setThresholds",		_setThresholds },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "bless",			_bless, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "evaluate",			_evaluate, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getLength",		_getLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserve",			_reserve, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPoint",			_setPoint, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setThresholds",	_setThresholds, MRB_ARGS_ARG ( 0, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

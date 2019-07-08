@@ -14,35 +14,33 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILayer::_draw ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value MOAILayer::_draw ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 
 	self->Draw ( MOAIPartitionHull::NO_SUBPRIM_ID );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILayer::_getClearMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
-	state.Push ( self->mClearMode );
-	return 1;
+mrb_value MOAILayer::_getClearMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
+	return state.ToRValue ( self->mClearMode );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILayer::_getFrameBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
-	state.Push ( self->GetFrameBuffer ());
-	return 1;
+mrb_value MOAILayer::_getFrameBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
+	return state.ToRValue < MOAIRubyObject* >( self->GetFrameBuffer () );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILayer::_pushRenderPass ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
+mrb_value MOAILayer::_pushRenderPass ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
 	MOAIRenderMgr::Get ().PushDrawable ( self );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -68,31 +66,31 @@ int MOAILayer::_pushRenderPass ( lua_State* L ) {
 		@in		MOAIColor color
 		@out	nil
 */
-int MOAILayer::_setClearColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
+mrb_value MOAILayer::_setClearColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
 	
-	MOAIColor* color = state.GetLuaObject < MOAIColor >( 2, true );
+	MOAIColor* color = state.GetRubyObject < MOAIColor >( 1, true );
 	if ( color ) {
 		self->SetClearColor ( color );
 		self->mClearFlags |= ZGL_CLEAR_COLOR_BUFFER_BIT;
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	// don't clear the color
 	self->mClearFlags &= ~ZGL_CLEAR_COLOR_BUFFER_BIT;
 	self->SetClearColor ( 0 );
 
-	if ( state.GetTop () > 1 ) {
+	if ( state.GetParamsCount () > 1 ) {
 	
-		float r = state.GetValue < float >( 2, 0.0f );
-		float g = state.GetValue < float >( 3, 0.0f );
-		float b = state.GetValue < float >( 4, 0.0f );
-		float a = state.GetValue < float >( 5, 1.0f );
+		float r = state.GetParamValue < float >( 1, 0.0f );
+		float g = state.GetParamValue < float >( 2, 0.0f );
+		float b = state.GetParamValue < float >( 3, 0.0f );
+		float a = state.GetParamValue < float >( 4, 1.0f );
 		
 		self->mClearColor = ZLColor::PackRGBA ( r, g, b, a );
 		self->mClearFlags |= ZGL_CLEAR_COLOR_BUFFER_BIT;
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -105,10 +103,10 @@ int MOAILayer::_setClearColor ( lua_State* L ) {
 	@in		boolean clearDepth	Whether to clear the depth buffer each frame.
 	@out	nil
 */
-int MOAILayer::_setClearDepth ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
+mrb_value MOAILayer::_setClearDepth ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
 	
-	bool clearDepth = state.GetValue < bool >( 2, false );
+	bool clearDepth = state.GetParamValue < bool >( 1, false );
 	
 	if ( clearDepth ) {
 		self->mClearFlags |= ZGL_CLEAR_DEPTH_BUFFER_BIT;
@@ -116,25 +114,25 @@ int MOAILayer::_setClearDepth ( lua_State* L ) {
 	else {
 		self->mClearFlags &= ~ZGL_CLEAR_DEPTH_BUFFER_BIT;
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILayer::_setClearMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
-	self->mClearMode = state.GetValue < u32 >( 2, CLEAR_ON_BUFFER_FLAG );
-	return 1;
+mrb_value MOAILayer::_setClearMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
+	self->mClearMode = state.GetParamValue < u32 >( 1, CLEAR_ON_BUFFER_FLAG );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILayer::_setFrameBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayer, "U" )
+mrb_value MOAILayer::_setFrameBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayer, "U" )
 	
-	MOAIFrameBuffer* frameBuffer = state.GetLuaObject < MOAIFrameBuffer >( 2, true );
+	MOAIFrameBuffer* frameBuffer = state.GetRubyObject < MOAIFrameBuffer >( 1, true );
 	self->SetFrameBuffer ( frameBuffer );
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -184,7 +182,7 @@ MOAILayer::MOAILayer () :
 	mClearMode ( CLEAR_ON_BUFFER_FLAG ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 		RTTI_EXTEND ( MOAIDrawable )
 	RTTI_END
 }
@@ -197,29 +195,25 @@ MOAILayer::~MOAILayer () {
 }
 
 //----------------------------------------------------------------//
-void MOAILayer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAILayer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "CLEAR_ALWAYS",			( u32 )CLEAR_ALWAYS );
-	state.SetField ( -1, "CLEAR_NEVER",				( u32 )CLEAR_NEVER );
-	state.SetField ( -1, "CLEAR_ON_BUFFER_FLAG",	( u32 )CLEAR_ON_BUFFER_FLAG );
+	state.DefineClassConst ( klass, "CLEAR_ALWAYS",			( u32 )CLEAR_ALWAYS );
+	state.DefineClassConst ( klass, "CLEAR_NEVER",			( u32 )CLEAR_NEVER );
+	state.DefineClassConst ( klass, "CLEAR_ON_BUFFER_FLAG",	( u32 )CLEAR_ON_BUFFER_FLAG );
 }
 
 //----------------------------------------------------------------//
-void MOAILayer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAILayer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "draw",						_draw },
-		{ "getClearMode",				_getClearMode },
-		{ "getFrameBuffer",				_getFrameBuffer },
-		{ "pushRenderPass",				_pushRenderPass },
-		{ "setClearColor",				_setClearColor },
-		{ "setClearDepth",				_setClearDepth },
-		{ "setClearMode",				_setClearMode },
-		{ "setFrameBuffer",				_setFrameBuffer },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "draw",				_draw, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getClearMode",		_getClearMode, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFrameBuffer",	_getFrameBuffer, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pushRenderPass",	_pushRenderPass, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setClearColor",	_setClearColor, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setClearDepth",	_setClearDepth, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setClearMode",		_setClearMode, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setFrameBuffer",	_setFrameBuffer, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

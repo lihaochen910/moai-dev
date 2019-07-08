@@ -84,11 +84,11 @@ private:
 	MOAICollisionWorld*					mCollisionWorld;
 	
 	//----------------------------------------------------------------//
-	static int				_collisionMove			( lua_State* L );
-	static int				_getOverlaps			( lua_State* L );
-	static int				_hasOverlaps			( lua_State* L );
-	//static int				_setGroupMask			( lua_State* L );
-	static int				_setOverlapFlags		( lua_State* L );
+	static mrb_value				_collisionMove			( mrb_state* M, mrb_value context );
+	static mrb_value				_getOverlaps			( mrb_state* M, mrb_value context );
+	static mrb_value				_hasOverlaps			( mrb_state* M, mrb_value context );
+	//static mrb_value				_setGroupMask			( mrb_state* M, mrb_value context );
+	static mrb_value				_setOverlapFlags		( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void					ClearOverlapLink		( MOAIPropOverlap& overlap );
@@ -135,7 +135,7 @@ public:
 		SURFACE_MOVE_LOCK,
 	};
 
-	DECL_LUA_FACTORY ( MOAICollisionProp )
+	DECL_RUBY_FACTORY ( MOAICollisionProp, MOAITransform )
 
 	static const u32 OVERLAP_ENABLE					= 0x01;		// prop behaves as collision region
 	static const u32 OVERLAP_EVENTS_ON_UPDATE		= 0x02;		// will send overlap update events
@@ -153,10 +153,10 @@ public:
 	void						Move							( ZLVec3D move, u32 detach, u32 maxSteps );
 								MOAICollisionProp				();
 	virtual						~MOAICollisionProp				();
-	void						RegisterLuaClass				( MOAILuaState& state );
-	void						RegisterLuaFuncs				( MOAILuaState& state );
-	void						SerializeIn						( MOAILuaState& state, MOAIDeserializer& serializer );
-	void						SerializeOut					( MOAILuaState& state, MOAISerializer& serializer );
+	void						RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void						RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
+	void						SerializeIn						( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void						SerializeOut					( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

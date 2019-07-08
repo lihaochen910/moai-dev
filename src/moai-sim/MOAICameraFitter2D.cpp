@@ -16,12 +16,12 @@
 	@in		MOAICameraFitter2D self
 	@out	nil
 */
-int MOAICameraFitter2D::_clearAnchors ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_clearAnchors ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
 	self->Clear ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -32,14 +32,14 @@ int MOAICameraFitter2D::_clearAnchors ( lua_State* L ) {
 	@opt	number mask		Default value is FITTING_MODE_MASK
 	@out	nil
 */
-int MOAICameraFitter2D::_clearFitMode( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_clearFitMode( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	u32 mask = state.GetValue < u32 >( 2, FITTING_MODE_MASK );
+	u32 mask = state.GetParamValue < u32 >( 1, FITTING_MODE_MASK );
 
 	self->mFittingMode &= ~mask;
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -52,12 +52,11 @@ int MOAICameraFitter2D::_clearFitMode( lua_State* L ) {
 	@in		MOAICameraFitter2D self
 	@out	number distance
 */
-int MOAICameraFitter2D::_getFitDistance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_getFitDistance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
 	float distance = self->GetFitDistance ();
-	lua_pushnumber ( state, distance );
-	return 1;
+	return state.ToRValue ( distance );
 }
 
 //----------------------------------------------------------------//
@@ -68,12 +67,14 @@ int MOAICameraFitter2D::_getFitDistance ( lua_State* L ) {
 	@out	number x
 	@out	number y
 */
-int MOAICameraFitter2D::_getFitLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_getFitLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	lua_pushnumber ( state, self->mFitLoc.mX );
-	lua_pushnumber ( state, self->mFitLoc.mY );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mFitLoc.mX );
+	ret [ 1 ] = state.ToRValue ( self->mFitLoc.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -83,11 +84,10 @@ int MOAICameraFitter2D::_getFitLoc ( lua_State* L ) {
 	@in		MOAICameraFitter2D self
 	@out	number mask
 */
-int MOAICameraFitter2D::_getFitMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_getFitMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	state.Push ( self->mFittingMode );
-	return 1;
+	return state.ToRValue ( self->mFittingMode );
 }
 
 //----------------------------------------------------------------//
@@ -97,11 +97,10 @@ int MOAICameraFitter2D::_getFitMode ( lua_State* L ) {
 	@in		MOAICameraFitter2D self
 	@out	number scale
 */
-int MOAICameraFitter2D::_getFitScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_getFitScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	lua_pushnumber ( state, self->mFitScale );
-	return 1;
+	return state.ToRValue ( self->mFitScale );
 }
 
 //----------------------------------------------------------------//
@@ -112,12 +111,14 @@ int MOAICameraFitter2D::_getFitScale ( lua_State* L ) {
  @out	number x
  @out	number y
  */
-int MOAICameraFitter2D::_getTargetLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_getTargetLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	lua_pushnumber ( state, self->mTargetLoc.mX );
-	lua_pushnumber ( state, self->mTargetLoc.mY );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mTargetLoc.mX );
+	ret [ 1 ] = state.ToRValue ( self->mTargetLoc.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -127,11 +128,10 @@ int MOAICameraFitter2D::_getTargetLoc ( lua_State* L ) {
  @in	MOAICameraFitter2D self
  @out	number scale
  */
-int MOAICameraFitter2D::_getTargetScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_getTargetScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	lua_pushnumber ( state, self->mTargetScale );
-	return 1;
+	return state.ToRValue ( self->mTargetScale );
 }
 
 //----------------------------------------------------------------//
@@ -142,14 +142,14 @@ int MOAICameraFitter2D::_getTargetScale ( lua_State* L ) {
 	@in		MOAICameraAnchor2D anchor
 	@out	nil
 */
-int MOAICameraFitter2D::_insertAnchor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "UU" )
+mrb_value MOAICameraFitter2D::_insertAnchor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "UU" )
 
-	MOAICameraAnchor2D* anchor = state.GetLuaObject < MOAICameraAnchor2D >( 2, true );
+	MOAICameraAnchor2D* anchor = state.GetRubyObject < MOAICameraAnchor2D >( 1, true );
 	if ( anchor ) {
 		self->AddAnchor ( *anchor );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -160,14 +160,14 @@ int MOAICameraFitter2D::_insertAnchor ( lua_State* L ) {
 	@in		MOAICameraAnchor2D anchor
 	@out	nil
 */
-int MOAICameraFitter2D::_removeAnchor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "UU" )
+mrb_value MOAICameraFitter2D::_removeAnchor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "UU" )
 
-	MOAICameraAnchor2D* anchor = state.GetLuaObject < MOAICameraAnchor2D >( 2, true );
+	MOAICameraAnchor2D* anchor = state.GetRubyObject < MOAICameraAnchor2D >( 1, true );
 	if ( anchor ) {
 		self->RemoveAnchor ( *anchor );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -189,15 +189,15 @@ int MOAICameraFitter2D::_removeAnchor ( lua_State* L ) {
 		@in		MOAICameraFitter2D self
 		@out	nil
 */
-int MOAICameraFitter2D::_setBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	if ( state.CheckParams ( 2, "NNNN" )) {
+	if ( state.CheckParams ( 1, "NNNN" )) {
 
-		float x0	= state.GetValue < float >( 2, 0.0f );
-		float y0	= state.GetValue < float >( 3, 0.0f );
-		float x1	= state.GetValue < float >( 4, 0.0f );
-		float y1	= state.GetValue < float >( 5, 0.0f );
+		float x0	= state.GetParamValue < float >( 1, 0.0f );
+		float y0	= state.GetParamValue < float >( 2, 0.0f );
+		float x1	= state.GetParamValue < float >( 3, 0.0f );
+		float y1	= state.GetParamValue < float >( 4, 0.0f );
 
 		self->mBounds.Init ( x0, y0, x1, y1 );
 		self->mFittingMode |= FITTING_MODE_APPLY_BOUNDS;
@@ -207,7 +207,7 @@ int MOAICameraFitter2D::_setBounds ( lua_State* L ) {
 		self->mFittingMode &= ~FITTING_MODE_APPLY_BOUNDS;
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -221,11 +221,11 @@ int MOAICameraFitter2D::_setBounds ( lua_State* L ) {
 	@opt	MOAITransform camera		Default value is nil.
 	@out	nil
 */
-int MOAICameraFitter2D::_setCamera ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setCamera ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mCamera.Set ( *self, state.GetLuaObject < MOAITransform >( 2, true ));
-	return 0;
+	self->mCamera.Set ( *self, state.GetRubyObject < MOAITransform >( 1, true ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -241,11 +241,11 @@ int MOAICameraFitter2D::_setCamera ( lua_State* L ) {
 	@opt	number damper		Default value is 0.
 	@out	nil
 */
-int MOAICameraFitter2D::_setDamper ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setDamper ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mDamper = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mDamper = state.GetParamValue < float >( 1, 0.0f );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -258,20 +258,20 @@ int MOAICameraFitter2D::_setDamper ( lua_State* L ) {
 	@opt	boolean snap	Default value is false.
 	@out	nil
 */
-int MOAICameraFitter2D::_setFitLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setFitLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mFitLoc.mX = state.GetValue < float >( 2, 0.0f );
-	self->mFitLoc.mY = state.GetValue < float >( 3, 0.0f );
+	self->mFitLoc.mX = state.GetParamValue < float >( 1, 0.0f );
+	self->mFitLoc.mY = state.GetParamValue < float >( 2, 0.0f );
 
 	self->mFittingMode &= ~FITTING_MODE_APPLY_ANCHORS;
 	self->UpdateTarget ();
 
-	bool snap = state.GetValue < bool >( 4, false );
+	bool snap = state.GetParamValue < bool >( 3, false );
 	if ( snap && self->mCamera ) {
 		self->SnapToTargetLoc ( *self->mCamera );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -282,11 +282,11 @@ int MOAICameraFitter2D::_setFitLoc ( lua_State* L ) {
 	@opt	number mask		Default value is FITTING_MODE_DEFAULT
 	@out	nil
 */
-int MOAICameraFitter2D::_setFitMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setFitMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mFittingMode |= state.GetValue < u32 >( 2, FITTING_MODE_DEFAULT );
-	return 0;
+	self->mFittingMode |= state.GetParamValue < u32 >( 1, FITTING_MODE_DEFAULT );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -298,19 +298,19 @@ int MOAICameraFitter2D::_setFitMode ( lua_State* L ) {
 	@opt	boolean snap	Default value is false.
 	@out	nil
 */
-int MOAICameraFitter2D::_setFitScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setFitScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mFitScale = state.GetValue < float >( 2, 1.0f );
+	self->mFitScale = state.GetParamValue < float >( 1, 1.0f );
 
 	self->mFittingMode &= ~FITTING_MODE_APPLY_ANCHORS;
 	self->UpdateTarget ();
 
-	bool snap = state.GetValue < bool >( 3, false );
+	bool snap = state.GetParamValue < bool >( 2, false );
 	if ( snap && self->mCamera ) {
 		self->SnapToTargetScale ( *self->mCamera );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -322,11 +322,11 @@ int MOAICameraFitter2D::_setFitScale ( lua_State* L ) {
 	@opt	number min					Default value is 0.
 	@out	nil
 */
-int MOAICameraFitter2D::_setMin ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setMin ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mMin = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mMin = state.GetParamValue < float >( 1, 0.0f );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -337,11 +337,11 @@ int MOAICameraFitter2D::_setMin ( lua_State* L ) {
 	@opt	MOAIViewport viewport			Default value is nil.
 	@out	nil
 */
-int MOAICameraFitter2D::_setViewport ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_setViewport ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	self->mViewport.Set ( *self, state.GetLuaObject < MOAIViewport >( 2, true ));
-	return 0;
+	self->mViewport.Set ( *self, state.GetRubyObject < MOAIViewport >( 1, true ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -359,10 +359,10 @@ int MOAICameraFitter2D::_setViewport ( lua_State* L ) {
 		@in		MOAITransform transform
 		@out	nil
 */
-int MOAICameraFitter2D::_snapToTarget ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_snapToTarget ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
-	MOAITransform* camera = state.GetLuaObject < MOAITransform >( 2, true );
+	MOAITransform* camera = state.GetRubyObject < MOAITransform >( 1, true );
 	if ( camera ) {
 		self->SnapToTargetLoc ( *camera );
 		self->SnapToTargetScale ( *camera );
@@ -373,7 +373,7 @@ int MOAICameraFitter2D::_snapToTarget ( lua_State* L ) {
 			self->SnapToTargetScale ( *self->mCamera );
 		}
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -385,17 +385,17 @@ int MOAICameraFitter2D::_snapToTarget ( lua_State* L ) {
 	@in		MOAITransform node
 	@out	nil
 */
-int MOAICameraFitter2D::_startTrackingNode ( lua_State* L ) {
-	MOAI_LUA_SETUP (MOAICameraFitter2D, "UU" )
+mrb_value MOAICameraFitter2D::_startTrackingNode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP (MOAICameraFitter2D, "UU" )
 
-	MOAITransform* node = state.GetLuaObject < MOAITransform >( 2, true );
+	MOAITransform* node = state.GetRubyObject < MOAITransform >( 1, true );
 	if ( node ) {
 		self->StartTrackingNode ( *node );
 	} else {
 		self->mFittingMode &= ~FITTING_MODE_TRACK_NODE;
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -405,12 +405,12 @@ int MOAICameraFitter2D::_startTrackingNode ( lua_State* L ) {
 	@in		MOAICameraFitter2D self
 	@out	nil
 */
-int MOAICameraFitter2D::_stopTrackingNode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICameraFitter2D, "U" )
+mrb_value MOAICameraFitter2D::_stopTrackingNode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICameraFitter2D, "U" )
 
 	self->StopTrackingNode ();
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -421,7 +421,7 @@ int MOAICameraFitter2D::_stopTrackingNode ( lua_State* L ) {
 void MOAICameraFitter2D::AddAnchor ( MOAICameraAnchor2D& anchor ) {
 
 	if ( !this->mAnchors.contains ( &anchor )) {
-		this->LuaRetain ( &anchor );
+		this->RubyRetain ( &anchor );
 		this->mAnchors.insert ( &anchor );
 	}
 }
@@ -433,7 +433,7 @@ void MOAICameraFitter2D::Clear () {
 		AnchorIt anchorIt = this->mAnchors.begin ();
 		MOAICameraAnchor2D* anchor = *anchorIt;
 		this->mAnchors.erase ( anchorIt );
-		this->LuaRelease ( anchor );
+		this->RubyRelease ( anchor );
 	}
 
 	this->mCamera.Set ( *this, 0 );
@@ -546,7 +546,7 @@ void MOAICameraFitter2D::RemoveAnchor ( MOAICameraAnchor2D& anchor ) {
 
 	if ( this->mAnchors.contains ( &anchor )) {
 		this->mAnchors.erase ( &anchor );
-		this->LuaRelease ( &anchor );
+		this->RubyRelease ( &anchor );
 	}
 }
 
@@ -569,52 +569,48 @@ void MOAICameraFitter2D::SnapToTargetScale ( MOAITransform& camera ) {
 }
 
 //----------------------------------------------------------------//
-void MOAICameraFitter2D::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICameraFitter2D::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAction::RegisterLuaClass ( state );
-	MOAINode::RegisterLuaClass ( state );
+	MOAIAction::RegisterRubyClass ( state, klass );
+	MOAINode::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "FITTING_MODE_SEEK_LOC", ( u32 )FITTING_MODE_SEEK_LOC );
-	state.SetField ( -1, "FITTING_MODE_SEEK_SCALE", ( u32 )FITTING_MODE_SEEK_SCALE );
-	state.SetField ( -1, "FITTING_MODE_APPLY_ANCHORS", ( u32 )FITTING_MODE_APPLY_ANCHORS );
-	state.SetField ( -1, "FITTING_MODE_APPLY_BOUNDS", ( u32 )FITTING_MODE_APPLY_BOUNDS );
-	state.SetField ( -1, "FITTING_MODE_DEFAULT", ( u32 )FITTING_MODE_DEFAULT );
-	state.SetField ( -1, "FITTING_MODE_TRACK_NODE", ( u32 )FITTING_MODE_TRACK_NODE);
-	state.SetField ( -1, "FITTING_MODE_MASK", ( u32 )FITTING_MODE_MASK );
+	state.DefineClassConst ( klass, "FITTING_MODE_SEEK_LOC", ( u32 )FITTING_MODE_SEEK_LOC );
+	state.DefineClassConst ( klass, "FITTING_MODE_SEEK_SCALE", ( u32 )FITTING_MODE_SEEK_SCALE );
+	state.DefineClassConst ( klass, "FITTING_MODE_APPLY_ANCHORS", ( u32 )FITTING_MODE_APPLY_ANCHORS );
+	state.DefineClassConst ( klass, "FITTING_MODE_APPLY_BOUNDS", ( u32 )FITTING_MODE_APPLY_BOUNDS );
+	state.DefineClassConst ( klass, "FITTING_MODE_DEFAULT", ( u32 )FITTING_MODE_DEFAULT );
+	state.DefineClassConst ( klass, "FITTING_MODE_TRACK_NODE", ( u32 )FITTING_MODE_TRACK_NODE);
+	state.DefineClassConst ( klass, "FITTING_MODE_MASK", ( u32 )FITTING_MODE_MASK );
 }
 
 //----------------------------------------------------------------//
-void MOAICameraFitter2D::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICameraFitter2D::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAction::RegisterLuaFuncs ( state );
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAIAction::RegisterRubyFuncs ( state, klass );
+	MOAINode::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "clearAnchors",		_clearAnchors },
-		{ "clearFitMode",		_clearFitMode },
-		{ "getFitDistance",		_getFitDistance },
-		{ "getFitLoc",			_getFitLoc },
-		{ "getFitMode",			_getFitMode },
-		{ "getFitScale",		_getFitScale },
-		{ "getTargetLoc",		_getTargetLoc },
-		{ "getTargetScale",		_getTargetScale },
-		{ "insertAnchor",		_insertAnchor },
-		{ "removeAnchor",		_removeAnchor },
-		{ "setBounds",			_setBounds },
-		{ "setCamera",			_setCamera },
-		{ "setDamper",			_setDamper },
-		{ "setFitLoc",			_setFitLoc },
-		{ "setFitMode",			_setFitMode },
-		{ "setFitScale",		_setFitScale },
-		{ "setMin",				_setMin },
-		{ "setViewport",		_setViewport },
-		{ "snapToTarget",		_snapToTarget },
-		{ "startTrackingNode",_startTrackingNode },
-		{ "stopTrackingNode",	_stopTrackingNode },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "clearAnchors", _clearAnchors, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "clearFitMode", _clearFitMode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getFitDistance", _getFitDistance, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFitLoc", _getFitLoc, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFitMode", _getFitMode, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFitScale", _getFitScale, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTargetLoc", _getTargetLoc, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTargetScale", _getTargetScale, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "insertAnchor", _insertAnchor, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "removeAnchor", _removeAnchor, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setBounds", _setBounds, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "setCamera", _setCamera, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDamper", _setDamper, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFitLoc", _setFitLoc, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setFitMode", _setFitMode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFitScale", _setFitScale, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setMin", _setMin, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setViewport", _setViewport, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "snapToTarget", _snapToTarget, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "startTrackingNode", _startTrackingNode, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "stopTrackingNode", _stopTrackingNode, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

@@ -188,7 +188,7 @@ void MOAIFont::InitWithBMFont ( cc8* filename, const u32 numPreloadedTextures, M
 			}
 			
 			if ( texture == 0 ) {
-				texture = new MOAITexture ();
+				texture = MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < MOAITexture >();
 				texture->Init ( texturename, MOAITexture::DEFAULT_TRANSFORM );
 			}
 				

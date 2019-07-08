@@ -36,14 +36,14 @@ private:
 	
 	ZLLeanArray < MOAIMetaTile > mBrushes;
 	
-	MOAILuaSharedPtr < MOAIGrid > mGrid;
-	MOAILuaSharedPtr < MOAIDeck > mDeck;
+	MOAIRubySharedPtr < MOAIGrid > mGrid;
+	MOAIRubySharedPtr < MOAIDeck > mDeck;
 	
 	//----------------------------------------------------------------//
-	static int		_reserveMetaTiles		( lua_State* L );
-	static int		_setDeck				( lua_State* L );
-	static int		_setGrid				( lua_State* L );
-	static int		_setMetaTile			( lua_State* L );
+	static mrb_value		_reserveMetaTiles		( mrb_state* M, mrb_value context );
+	static mrb_value		_setDeck				( mrb_state* M, mrb_value context );
+	static mrb_value		_setGrid				( mrb_state* M, mrb_value context );
+	static mrb_value		_setMetaTile			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	ZLBounds				MOAIDeck_ComputeMaxBounds		();
@@ -55,17 +55,17 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIMetaTileDeck2D )
+	DECL_RUBY_FACTORY ( MOAIMetaTileDeck2D, MOAIDeck )
 	
 	//using MOAIDeck::DrawIndex;
 	
 	//----------------------------------------------------------------//
 							MOAIMetaTileDeck2D		();
 							~MOAIMetaTileDeck2D		();
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
-	void					SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void					SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void					SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void					SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

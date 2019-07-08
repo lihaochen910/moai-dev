@@ -15,7 +15,7 @@
 			indexed terrain types for graph nodes.
 */
 class MOAIPathTerrainDeck :
-	public MOAILuaObject {
+	public MOAIRubyObject {
 private:
 
 	friend class MOAIPathFinder;
@@ -27,11 +27,11 @@ private:
 	u32						mVectorSize;
 
 	//----------------------------------------------------------------//
-	static int		_getMask					( lua_State* L );
-	static int		_getTerrainVec				( lua_State* L );
-	static int		_setMask					( lua_State* L );
-	static int		_setTerrainVec				( lua_State* L );
-	static int		_reserve					( lua_State* L );
+	static mrb_value		_getMask			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTerrainVec		( mrb_state* M, mrb_value context );
+	static mrb_value		_setMask			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTerrainVec		( mrb_state* M, mrb_value context );
+	static mrb_value		_reserve			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	u32				GetMask						( u32 idx );
@@ -39,15 +39,15 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIPathTerrainDeck )
+	DECL_RUBY_FACTORY ( MOAIPathTerrainDeck, MOAIRubyObject )
 	
 	GET ( u32, VectorSize, mVectorSize )
 	
 	//----------------------------------------------------------------//
 					MOAIPathTerrainDeck			();
 					~MOAIPathTerrainDeck		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -17,23 +17,23 @@ class MOAIScissorRect :
 private:
 	
 	ZLRect									mRect;
-	MOAILuaSharedPtr < MOAIScissorRect >	mScissorRect;
+	MOAIRubySharedPtr < MOAIScissorRect >	mScissorRect;
 	
 	//----------------------------------------------------------------//
-	static int		_getRect				( lua_State* L );
-	static int		_setRect				( lua_State* L );
-	static int		_setScissorRect			( lua_State* L );
+	static mrb_value		_getRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setScissorRect			( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIScissorRect )
+	DECL_RUBY_FACTORY ( MOAIScissorRect, MOAITransform )
 
 	//----------------------------------------------------------------//
 	ZLRect			GetScissorRect			( const ZLMatrix4x4& worldToWndMtx ) const;
 					MOAIScissorRect			();
 					~MOAIScissorRect		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

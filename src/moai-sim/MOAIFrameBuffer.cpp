@@ -20,18 +20,18 @@
 	@opt	boolean discard			If true, image will be discarded from the frame buffer.
 	@out	MOAIImage image			The frame grab image, or nil if none exists.
 */	
-int MOAIFrameBuffer::_getGrabbedImage ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFrameBuffer, "U" )
+mrb_value MOAIFrameBuffer::_getGrabbedImage ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFrameBuffer, "U" )
 	
-	bool discard = state.GetValue < bool >( 2, false );
+	bool discard = state.GetParamValue < bool >( 1, false );
 	
-	self->mFrameImage.PushRef ( state );
+	//self->mFrameImage.PushRef ( state );
 	
 	if ( discard ) {
 		self->mFrameImage.Set ( *self, 0 );
 	}
 	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( self->mFrameImage );
 }
 
 //----------------------------------------------------------------//
@@ -45,22 +45,23 @@ int MOAIFrameBuffer::_getGrabbedImage ( lua_State* L ) {
 	@opt	function callback		The function to execute when the frame has been saved into the image specified
 	@out	nil
 */
-int MOAIFrameBuffer::_grabNextFrame ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFrameBuffer, "U" )
+mrb_value MOAIFrameBuffer::_grabNextFrame ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFrameBuffer, "U" )
 
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, false );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, false );
 	
 	if ( image ) {
 		self->mFrameImage.Set ( *self, image );
 	}
 	else if ( !self->mFrameImage ) {
 	
-		image = new MOAIImage ();
+		image = state.CreateClassInstance < MOAIImage >();
 		image->Init ( self->mBufferWidth, self->mBufferHeight, ZLColor::RGBA_8888, MOAIImage::TRUECOLOR );
 		self->mFrameImage.Set ( *self, image );
 	}
 	
-	self->mGrabNextFrame = self->mFrameImage != 0;
+	//self->mGrabNextFrame = self->mFrameImage != 0;
+	self->mGrabNextFrame = self->mFrameImage;
 	
 	if ( self->mGrabNextFrame ) {
 		self->mOnFrameFinish.SetRef ( *self, state, 3 );
@@ -69,7 +70,7 @@ int MOAIFrameBuffer::_grabNextFrame ( lua_State* L ) {
 		self->mOnFrameFinish.Clear ();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -79,10 +80,9 @@ int MOAIFrameBuffer::_grabNextFrame ( lua_State* L ) {
 	@in		MOAIFrameBuffer self
 	@out	table renderTable
 */
-int MOAIFrameBuffer::_isPendingGrab ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFrameBuffer, "U" )
-	state.Push ( self->mGrabNextFrame );
-	return 1;
+mrb_value MOAIFrameBuffer::_isPendingGrab ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFrameBuffer, "U" )
+	return state.ToRValue ( self->mGrabNextFrame );
 }
 
 //================================================================//
@@ -157,7 +157,7 @@ MOAIFrameBuffer::MOAIFrameBuffer () :
 	mGrabNextFrame ( false ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -191,34 +191,30 @@ void MOAIFrameBuffer::OnReadPixels ( const ZLCopyOnWrite& buffer, void * userdat
 		image->Init ( buffer.GetBuffer (), this->mBufferWidth, this->mBufferHeight, ZLColor::RGBA_8888 );
 
 		if ( this->mOnFrameFinish ) {
-			MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+			/*MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 			if ( this->mOnFrameFinish.PushRef ( state )) {
 				this->mFrameImage.PushRef ( state );
 				state.DebugCall ( 1, 0 );
-			}
+			}*/
 		}
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIFrameBuffer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFrameBuffer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAILuaObject::RegisterLuaClass ( state );
+	MOAIRubyObject::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIFrameBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIFrameBuffer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAILuaObject::RegisterLuaFuncs ( state );
+	MOAIRubyObject::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getGrabbedImage",			_getGrabbedImage },
-		{ "grabNextFrame",				_grabNextFrame },
-		{ "isPendingGrab",				_isPendingGrab },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getGrabbedImage", _getGrabbedImage, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "grabNextFrame", _grabNextFrame, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "isPendingGrab", _isPendingGrab, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -234,7 +230,7 @@ void MOAIFrameBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
 //	this->ClearSurface ();
 //	
 //	if ( this->mRenderTable ) {
-//		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+//		MOAIScopedRubyState state = MOAIRubyRuntime::Get ().State ();
 //		state.Push ( this->mRenderTable );
 //		this->RenderTable ( state, -1 );
 //		state.Pop ( 1 );

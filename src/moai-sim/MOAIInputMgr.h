@@ -15,7 +15,7 @@
 	@text	Base class for input streams and device sets.
 */
 class MOAIInputMgr :
-	public ZLContextClass < MOAIInputMgr, MOAILuaObject >,
+	public ZLContextClass < MOAIInputMgr, MOAIRubyObject >,
 	public virtual ZLMemStream {
 private:
 
@@ -41,20 +41,23 @@ private:
 
 	double	mLastUpdate;	// last update in *device* time
 
-	MOAILuaSharedPtr < MOAIStream > mRecorder;
+	MOAIRubySharedPtr < MOAIStream > mRecorder;
 	bool mPlayback;
 	
-	MOAILuaStrongRef	mEventCallback;
+	MOAIRubyStrongRef	mEventCallback;
+	MOAIRubyStrongRef	mDevicesHash;
 
 	//----------------------------------------------------------------//
-	static int			_autoTimestamp				( lua_State* L );
-	static int			_deferEvents				( lua_State* L );
-	static int			_discardEvents				( lua_State* L );
-	static int			_playback					( lua_State* L );
-	static int			_setAutosuspend				( lua_State* L );
-	static int			_setEventCallback			( lua_State* L );
-	static int			_setRecorder				( lua_State* L );
-	static int			_suspendEvents				( lua_State* L );
+	static mrb_value			_autoTimestamp				( mrb_state* M, mrb_value context );
+	static mrb_value			_deferEvents				( mrb_state* M, mrb_value context );
+	static mrb_value			_discardEvents				( mrb_state* M, mrb_value context );
+	static mrb_value			_getDevices					( mrb_state* M, mrb_value context );
+	static mrb_value			_methodMissing				( mrb_state* M, mrb_value context );
+	static mrb_value			_playback					( mrb_state* M, mrb_value context );
+	static mrb_value			_setAutosuspend				( mrb_state* M, mrb_value context );
+	static mrb_value			_setEventCallback			( mrb_state* M, mrb_value context );
+	static mrb_value			_setRecorder				( mrb_state* M, mrb_value context );
+	static mrb_value			_suspendEvents				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool				CanWrite					();
@@ -66,7 +69,7 @@ private:
 
 public:
 
-	DECL_LUA_SINGLETON ( MOAIInputMgr )
+	DECL_RUBY_SINGLETON ( MOAIInputMgr )
 
 	SET ( double, Timebase, mTimebase )
 	SET ( double, Timestamp, mTimestamp )
@@ -82,8 +85,8 @@ public:
 	//bool				IsDone						();
 						MOAIInputMgr				();
 						~MOAIInputMgr				();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveDevices				( u8 total );
 	void				ReserveSensors				( u8 deviceID, u8 total );
 	void				ResetSensorState			();
@@ -103,7 +106,7 @@ public:
 		MOAIInputDevice* device = this->GetDevice ( deviceID );
 		if ( device ) {
 			if ( sensorID < device->mSensors.Size ()) {
-				MOAISensor* sensor = new TYPE;
+				MOAISensor* sensor = MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < TYPE >();
 				sensor->SetType ( ZLTypeID < TYPE >::GetID ());
 				device->SetSensor ( sensorID, name, sensor );
 			}

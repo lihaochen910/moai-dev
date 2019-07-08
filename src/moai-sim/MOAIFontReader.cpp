@@ -74,117 +74,118 @@ MOAIFontFaceMetrics::MOAIFontFaceMetrics () :
 //================================================================//
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_close ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "U" )
+mrb_value MOAIFontReader::_close ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "U" )
 	u32 result = self->CloseFontFile ();
-	state.Push ( result != MOAIFontReader::OK );
-	return 1;
+	return state.ToRValue ( result != MOAIFontReader::OK );
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_getFaceMetrics ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "U" )
+mrb_value MOAIFontReader::_getFaceMetrics ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "U" )
 	
 	MOAIFontFaceMetrics faceMetrics;
 	int result = self->GetFaceMetrics ( faceMetrics );
 	
 	if ( result == MOAIFontReader::OK ) {
-		state.Push ( faceMetrics.mHeight );
-		state.Push ( faceMetrics.mAscent );
+		mrb_value ret [ 2 ];
+		ret [ 0 ] = state.ToRValue ( faceMetrics.mHeight );
+		ret [ 1 ] = state.ToRValue ( faceMetrics.mAscent );
+
+		return mrb_ary_new_from_values ( state, 2, ret );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_getGlyphMetrics ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "U" )
+mrb_value MOAIFontReader::_getGlyphMetrics ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "U" )
 	
 	MOAIGlyphMetrics glyphMetrics;
 	int result = self->GetGlyphMetrics ( glyphMetrics );
 	
 	if ( result == MOAIFontReader::OK ) {
-		state.Push ( glyphMetrics.mWidth );
-		state.Push ( glyphMetrics.mHeight );
-		state.Push ( glyphMetrics.mAdvanceX );
-		state.Push ( glyphMetrics.mBearingX );
-		state.Push ( glyphMetrics.mBearingY );
-		return 5;
+		mrb_value ret [ 5 ];
+		ret [ 0 ] = state.ToRValue ( glyphMetrics.mWidth );
+		ret [ 1 ] = state.ToRValue ( glyphMetrics.mHeight );
+		ret [ 2 ] = state.ToRValue ( glyphMetrics.mAdvanceX );
+		ret [ 3 ] = state.ToRValue ( glyphMetrics.mBearingX );
+		ret [ 4 ] = state.ToRValue ( glyphMetrics.mBearingY );
+
+		return mrb_ary_new_from_values ( state, 5, ret );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_getKernVec ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "UN" )
+mrb_value MOAIFontReader::_getKernVec ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "UN" )
 	
-	u32 c = state.GetValue < u32 >( 2, MOAIFontReader::GLYPH_CODE_NULL );
+	u32 c = state.GetParamValue < u32 >( 1, MOAIFontReader::GLYPH_CODE_NULL );
 	
 	MOAIKernVec kernVec;
 	int result = self->GetKernVec ( c, kernVec );
 	
 	if ( result == MOAIFontReader::OK ) {
-		state.Push ( kernVec.mX );
-		state.Push ( kernVec.mY );
-		return 2;
+		mrb_value ret [ 2 ];
+		ret [ 0 ] = state.ToRValue ( kernVec.mX );
+		ret [ 1 ] = state.ToRValue ( kernVec.mY );
+
+		return mrb_ary_new_from_values ( state, 2, ret );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_hasKerning ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "U" )
-	state.Push ( self->HasKerning ());
-	return 1;
+mrb_value MOAIFontReader::_hasKerning ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "U" )
+	return state.ToRValue ( self->HasKerning () );
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_open ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "US" )
-	u32 result = self->OpenFontFile ( state.GetValue < cc8* >( 2, NULL ));
-	state.Push ( result != MOAIFontReader::OK );
-	return 1;
+mrb_value MOAIFontReader::_open ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "US" )
+	u32 result = self->OpenFontFile ( state.GetParamValue < cc8* >( 1, NULL ));
+	return state.ToRValue ( result != MOAIFontReader::OK );
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_renderGlyph ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "UU" )
+mrb_value MOAIFontReader::_renderGlyph ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "UU" )
 	
 	int result = MOAIFontReader::FONT_ERROR;
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, true );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, true );
 	
 	if ( image ) {
 	
-		float x = state.GetValue < float >( 3, 0.0f );
-		float y = state.GetValue < float >( 4, 0.0f );
+		float x = state.GetParamValue < float >( 2, 0.0f );
+		float y = state.GetParamValue < float >( 3, 0.0f );
 
 		result = self->RenderGlyph ( *image, x, y );
 	}
-	state.Push ( result != MOAIFontReader::OK );
-	return 1;
+	return state.ToRValue ( result != MOAIFontReader::OK );
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_selectFace ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "U" )
-	u32 result = self->SelectFace ( state.GetValue < float >( 2, 0.0f ));
-	state.Push ( result != MOAIFontReader::OK );
-	return 1;
+mrb_value MOAIFontReader::_selectFace ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "U" )
+	u32 result = self->SelectFace ( state.GetParamValue < float >( 1, 0.0f ));
+	return state.ToRValue ( result != MOAIFontReader::OK );
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_selectGlyph ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "UN" )
-	u32 result = self->SelectGlyph ( state.GetValue < u32 >( 2, MOAIFontReader::GLYPH_CODE_NULL ));
-	state.Push ( result != MOAIFontReader::OK );
-	return 1;
+mrb_value MOAIFontReader::_selectGlyph ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "UN" )
+	u32 result = self->SelectGlyph ( state.GetParamValue < u32 >( 1, MOAIFontReader::GLYPH_CODE_NULL ));
+	return state.ToRValue ( result != MOAIFontReader::OK );
 }
 
 //----------------------------------------------------------------//
-int MOAIFontReader::_setBlendMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFontReader, "U" )
+mrb_value MOAIFontReader::_setBlendMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFontReader, "U" )
 	
-	self->mBlendMode.Init ( state, 2 );
-	return 0;
+	self->mBlendMode.Init ( state, 1 );
+	return context;
 }
 
 //================================================================//
@@ -218,7 +219,7 @@ int MOAIFontReader::GetKernVec ( u32 c, MOAIKernVec& kernVec ) {
 MOAIFontReader::MOAIFontReader () {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -235,38 +236,35 @@ int MOAIFontReader::OpenFontFile ( cc8* filename ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFontReader::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFontReader::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIFontReader::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIFontReader::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+
+	state.DefineInstanceMethod ( klass, "close", _close, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFaceMetrics", _getFaceMetrics, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getGlyphMetrics", _getGlyphMetrics, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getKernVec", _getKernVec, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "hasKerning", _hasKerning, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "open", _open, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "renderGlyph", _renderGlyph, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "selectFace", _selectFace, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "selectGlyph", _selectGlyph, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setBlendMode", _setBlendMode, MRB_ARGS_NONE () );
 	
-	luaL_Reg regTable [] = {
-		{ "close",				_close },
-		{ "getFaceMetrics",		_getFaceMetrics },
-		{ "getGlyphMetrics",	_getGlyphMetrics },
-		{ "getKernVec",			_getKernVec },
-		{ "hasKerning",			_hasKerning },
-		{ "open",				_open },
-		{ "renderGlyph",		_renderGlyph },
-		{ "selectFace",			_selectFace },
-		{ "selectGlyph",		_selectGlyph },
-		{ "setBlendMode",		_setBlendMode },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIFontReader::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIFontReader::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIFontReader::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIFontReader::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

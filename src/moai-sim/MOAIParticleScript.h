@@ -37,7 +37,7 @@ class MOAIParticleSystem;
 
 */
 class MOAIParticleScript :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
 	friend class MOAIParticleState;
@@ -113,7 +113,7 @@ private:
 		u32		GetSize			();
 		void	Init			( u32 opcode, cc8* format );
 				Instruction		();
-		void	Parse			( MOAILuaState& state, u32 idx );
+		void	Parse			( MOAIRubyState& state, u32 idx );
 		u8*		Write			( u8* cursor );
 	};
 
@@ -126,34 +126,34 @@ private:
 	float	mLiveRegisters [ LIVE_REG_COUNT ]; // TODO: OK to let user reserve these?
 
 	//----------------------------------------------------------------//
-	static int		_abs				( lua_State* L );
-	static int		_add				( lua_State* L );
-	static int		_angleVec			( lua_State* L );
-	static int		_color				( lua_State* L );
-	static int		_cos				( lua_State* L );
-	static int		_cycle				( lua_State* L );
-	static int		_div				( lua_State* L );
-	static int		_ease				( lua_State* L );
-	static int		_easeDelta			( lua_State* L );
-	static int		_mul				( lua_State* L );
-	static int		_norm				( lua_State* L );
-	static int		_oscillate			( lua_State* L );
-	static int		_packConst			( lua_State* L );
-	static int		_packLiveReg		( lua_State* L );
-	static int		_packReg			( lua_State* L );
-	static int		_rand				( lua_State* L );
-	static int		_randInt			( lua_State* L );
-	static int		_randVec			( lua_State* L );
-	static int		_set				( lua_State* L );
-	static int		_setLiveReg			( lua_State* L );
-	static int		_sin				( lua_State* L );
-	static int		_sprite				( lua_State* L );
-	static int		_step				( lua_State* L );
-	static int		_sub				( lua_State* L );
-	static int		_tan				( lua_State* L );
-	static int		_time				( lua_State* L );
-	static int		_vecAngle			( lua_State* L );
-	static int		_wrap				( lua_State* L );
+	static mrb_value		_abs				( mrb_state* M, mrb_value context );
+	static mrb_value		_add				( mrb_state* M, mrb_value context );
+	static mrb_value		_angleVec			( mrb_state* M, mrb_value context );
+	static mrb_value		_color				( mrb_state* M, mrb_value context );
+	static mrb_value		_cos				( mrb_state* M, mrb_value context );
+	static mrb_value		_cycle				( mrb_state* M, mrb_value context );
+	static mrb_value		_div				( mrb_state* M, mrb_value context );
+	static mrb_value		_ease				( mrb_state* M, mrb_value context );
+	static mrb_value		_easeDelta			( mrb_state* M, mrb_value context );
+	static mrb_value		_mul				( mrb_state* M, mrb_value context );
+	static mrb_value		_norm				( mrb_state* M, mrb_value context );
+	static mrb_value		_oscillate			( mrb_state* M, mrb_value context );
+	static mrb_value		_packConst			( mrb_state* M, mrb_value context );
+	static mrb_value		_packLiveReg		( mrb_state* M, mrb_value context );
+	static mrb_value		_packReg			( mrb_state* M, mrb_value context );
+	static mrb_value		_rand				( mrb_state* M, mrb_value context );
+	static mrb_value		_randInt			( mrb_state* M, mrb_value context );
+	static mrb_value		_randVec			( mrb_state* M, mrb_value context );
+	static mrb_value		_set				( mrb_state* M, mrb_value context );
+	static mrb_value		_setLiveReg			( mrb_state* M, mrb_value context );
+	static mrb_value		_sin				( mrb_state* M, mrb_value context );
+	static mrb_value		_sprite				( mrb_state* M, mrb_value context );
+	static mrb_value		_step				( mrb_state* M, mrb_value context );
+	static mrb_value		_sub				( mrb_state* M, mrb_value context );
+	static mrb_value		_tan				( mrb_state* M, mrb_value context );
+	static mrb_value		_time				( mrb_state* M, mrb_value context );
+	static mrb_value		_vecAngle			( mrb_state* M, mrb_value context );
+	static mrb_value		_wrap				( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	static u64		Pack64					( u32 low, u32 hi );
@@ -163,7 +163,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIParticleScript )
+	DECL_RUBY_FACTORY ( MOAIParticleScript, MOAIRubyObject )
 	
 	enum {
 		PARAM_TYPE_FLAG				= 0x00,
@@ -180,8 +180,8 @@ public:
 	u8*				Compile					();
 					MOAIParticleScript		();
 					~MOAIParticleScript		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			Run						( MOAIParticleSystem& system, MOAIParticle& particle, float t0, float t1 );
 };
 

@@ -111,18 +111,18 @@ private:
 	u32		mEmissionCount;
 	float	mEmissionRate;
 	
-	//MOAILuaSharedPtr < MOAIImage > mImage;
+	//MOAIRubySharedPtr < MOAIImage > mImage;
 	
 	//----------------------------------------------------------------//
-	static int		_getBlendMode		( lua_State* L );
-	static int		_getDuration		( lua_State* L );
-	static int		_getEmission		( lua_State* L );
-	static int		_getFrequency		( lua_State* L );
-	static int		_getLifespan		( lua_State* L );
-	static int		_getMaxParticles	( lua_State* L );
-	static int		_getRect			( lua_State* L );
-	static int		_getTextureName		( lua_State* L );
-	static int		_load				( lua_State* L );
+	static mrb_value		_getBlendMode		( mrb_state* M, mrb_value context );
+	static mrb_value		_getDuration		( mrb_state* M, mrb_value context );
+	static mrb_value		_getEmission		( mrb_state* M, mrb_value context );
+	static mrb_value		_getFrequency		( mrb_state* M, mrb_value context );
+	static mrb_value		_getLifespan		( mrb_state* M, mrb_value context );
+	static mrb_value		_getMaxParticles	( mrb_state* M, mrb_value context );
+	static mrb_value		_getRect			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTextureName		( mrb_state* M, mrb_value context );
+	static mrb_value		_load				( mrb_state* M, mrb_value context );
 
 	
 	static void		Parse				( cc8* filename, MOAIParticlePexPlugin& plugin, TiXmlNode* node );
@@ -131,15 +131,15 @@ public:
 	
 	friend class MOAIParticleState;
 	
-	DECL_LUA_FACTORY ( MOAIParticlePexPlugin )
+	DECL_RUBY_FACTORY ( MOAIParticlePexPlugin, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIParticlePexPlugin		();
 					~MOAIParticlePexPlugin		();
 	void			OnInit						( float* particle, float* registers );
 	void			OnRender					( float* particle, float* registers, AKUParticleSprite* sprite, float t0, float t1, float term );
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

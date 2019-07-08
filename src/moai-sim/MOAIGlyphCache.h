@@ -26,7 +26,7 @@ class MOAIFont;
 			the same font.</p>
 */
 class MOAIGlyphCache :
-	virtual public MOAILuaObject {
+	virtual public MOAIRubyObject {
 protected:
 
 	friend class MOAIFont;
@@ -48,8 +48,8 @@ public:
 								~MOAIGlyphCache			();
 	virtual int					PlaceGlyph				( MOAIFont& font, MOAIGlyph& glyph );
 	virtual void				PostRender				( MOAIGlyph& glyph );
-	void						RegisterLuaClass		( MOAILuaState& state );
-	void						RegisterLuaFuncs		( MOAILuaState& state );
+	void						RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void						RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	virtual int					RemoveGlyph				( MOAIGlyph& glyph );
 	virtual int					SetImage				( MOAIFont& font, MOAIImage& image );
 };

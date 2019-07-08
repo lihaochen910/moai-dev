@@ -18,11 +18,11 @@
 	@in		number value
 	@out	nil
 */
-int MOAIFancyGrid::_fillColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "U" )
+mrb_value MOAIFancyGrid::_fillColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "U" )
 
-	self->FillColor ( state.GetTop () >= 4 ? state.GetColor32 ( 2, 0.0f, 0.0f, 0.0f, 0.0f ) : state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->FillColor ( state.GetParamsCount () >= 4 ? state.GetColor32 ( 1, 0.0f, 0.0f, 0.0f, 0.0f ) : state.GetParamValue < u32 >( 1, 0 ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -34,48 +34,46 @@ int MOAIFancyGrid::_fillColor ( lua_State* L ) {
 	@in		number yTile
 	@out	number color	index into palette
 */
-int MOAIFancyGrid::_getColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "UNN" )
+mrb_value MOAIFancyGrid::_getColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "UNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
 	
 	u32 tile = self->GetColor ( xTile, yTile );
-	state.Push ( tile );
-	return 1;
+	return state.ToRValue ( tile );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFancyGrid::_getPaletteColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "UN" )
+mrb_value MOAIFancyGrid::_getPaletteColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "UN" )
 
-	u32 idx	= state.GetValue < u32 >( 2, 1 );
+	u32 idx	= state.GetParamValue < u32 >( 1, 1 );
 	
-	state.Push ( self->GetPaletteColor ( idx ));
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( self->GetPaletteColor ( idx ) );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFancyGrid::_getTileColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "UN" )
+mrb_value MOAIFancyGrid::_getTileColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "UN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
 
 	ZLColorVec color = self->GetTileColor ( xTile, yTile );
-	return state.Push ( color );
+	return state.Get ( color );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFancyGrid::_reservePalette ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "UN" )
+mrb_value MOAIFancyGrid::_reservePalette ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "UN" )
 
-	u32 size = state.GetValue < u32 >( 2, 0 );
+	u32 size = state.GetParamValue < u32 >( 1, 0 );
 	self->ReservePalette ( size );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -88,44 +86,44 @@ int MOAIFancyGrid::_reservePalette ( lua_State* L ) {
 	@in		number value
 	@out	nil
 */
-int MOAIFancyGrid::_setColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "U" )
+mrb_value MOAIFancyGrid::_setColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "U" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
-	u32 value	= state.GetTop () >= 6 ? state.GetColor32 ( 4, 0.0f, 0.0f, 0.0f, 0.0f ) : state.GetValue < u32 >( 4, 0 );
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 value	= state.GetParamsCount () >= 6 ? state.GetColor32 ( 3, 0.0f, 0.0f, 0.0f, 0.0f ) : state.GetParamValue < u32 >( 3, 0 );
 	
 	self->SetColor ( xTile, yTile, value );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFancyGrid::_setColorRow ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "UN" )
+mrb_value MOAIFancyGrid::_setColorRow ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "UN" )
 
-	u32 row = state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 total = lua_gettop ( state ) - 2;
+	u32 row = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 total = state.GetParamsCount () - 1;
 	
 	for ( u32 i = 0; i < total; ++i ) {
 	
-		u32 color = state.GetValue < u32 >( 3 + i, 0 );
+		u32 color = state.GetParamValue < u32 >( 2 + i, 0 );
 		self->SetColor ( i, row, color );
 	}
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFancyGrid::_setPaletteColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFancyGrid, "U" )
+mrb_value MOAIFancyGrid::_setPaletteColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFancyGrid, "U" )
 
-	u32 idx				= state.GetValue < u32 >( 2, 1 );
-	MOAIColor* color	= state.GetLuaObject < MOAIColor >( 3, true );
+	u32 idx				= state.GetParamValue < u32 >( 1, 1 );
+	MOAIColor* color	= state.GetRubyObject < MOAIColor >( 2, true );
 	
 	self->SetPaletteColor ( idx, color );
-	return 0;
+	return context;
 }
 
 
@@ -155,7 +153,7 @@ void MOAIFancyGrid::DiscardColorSet () {
 void MOAIFancyGrid::DiscardPalette () {
 
 	for ( size_t i = 0; i < this->mPalette.Size (); ++i ) {
-		this->LuaRelease ( this->mPalette [ i ]);
+		this->RubyRelease ( this->mPalette [ i ]);
 	}
 	this->mPalette.Clear ();
 }
@@ -288,28 +286,24 @@ void MOAIFancyGrid::OnResize () {
 }
 
 //----------------------------------------------------------------//
-void MOAIFancyGrid::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFancyGrid::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGrid::RegisterLuaClass ( state );
+	MOAIGrid::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIFancyGrid::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIFancyGrid::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGrid::RegisterLuaFuncs ( state );
+	MOAIGrid::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "fillColor",			_fillColor },
-		{ "getColor",			_getColor },
-		{ "getPaletteColor",	_getPaletteColor },
-		{ "reservePalette",		_reservePalette },
-		{ "setColor",			_setColor },
-		{ "setColorRow",		_setColorRow },
-		{ "setPaletteColor",	_setPaletteColor },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "fillColor", _fillColor, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getColor", _getColor, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getPaletteColor", _getPaletteColor, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reservePalette", _reservePalette, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setColor", _setColor, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setColorRow", _setColorRow, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setPaletteColor", _setPaletteColor, MRB_ARGS_REQ ( 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -345,13 +339,13 @@ void MOAIFancyGrid::ReservePalette ( u32 size ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFancyGrid::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIFancyGrid::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIGrid::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIFancyGrid::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIFancyGrid::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIGrid::SerializeOut ( state, serializer );
 }
@@ -396,9 +390,9 @@ void MOAIFancyGrid::SetPaletteColor ( u32 idx, MOAIColor* color ) {
 		MOAIColor* prevColor = this->mPalette [ idx ];
 	
 		if ( prevColor != color ) {
-			this->LuaRelease ( prevColor );
+			this->RubyRelease ( prevColor );
 		}
-		this->LuaRetain ( color );
+		this->RubyRetain ( color );
 		this->mPalette [ idx ] = color;
 	}
 }

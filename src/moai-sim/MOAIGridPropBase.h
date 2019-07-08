@@ -10,7 +10,7 @@
 #include <moai-sim/MOAIDrawable.h>
 #include <moai-sim/MOAIPartitionHull.h>
 #include <moai-sim/MOAITransform.h>
-#include <moai-core/MOAILuaSharedPtr.h>
+#include <moai-core/MOAIRubySharedPtr.h>
 
 class MOAICellCoord;
 class MOAICollisionProp;
@@ -40,13 +40,13 @@ class MOAIGridPropBase :
 private:
 	
 	//----------------------------------------------------------------//
-	static int			_getGrid					( lua_State* L );
-	static int			_setGrid					( lua_State* L );
-	static int			_setGridScale				( lua_State* L );
+	static mrb_value			_getGrid					( mrb_state* M, mrb_value context );
+	static mrb_value			_setGrid					( mrb_state* M, mrb_value context );
+	static mrb_value			_setGridScale				( mrb_state* M, mrb_value context );
 
 protected:
 	
-	MOAILuaSharedPtr < MOAIGrid >			mGrid;
+	MOAIRubySharedPtr < MOAIGrid >			mGrid;
 	ZLVec2D									mGridScale;
 
 public:
@@ -55,10 +55,10 @@ public:
 	void				GetGridBoundsInView		( const ZLAffine3D& worldToLocalMtx, MOAICellCoord& c0, MOAICellCoord& c1 ); // TODO: this shoudln't be here
 						MOAIGridPropBase		();
 	virtual				~MOAIGridPropBase		();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

@@ -25,7 +25,7 @@ public:
 
 	//----------------------------------------------------------------//
 	void		Clear					();
-	void		Init					( MOAILuaState& state, int idx );
+	void		Init					( MOAIRubyState& state, int idx );
 				MOAIImageBlendMode		();
 };
 
@@ -58,7 +58,7 @@ public:
 	@flag	COLOR_FMT_RGBA_8888		RGBA, 32 bits per pixel
 */
 class MOAIImage :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 public:
 
 	enum PixelFormat {
@@ -88,46 +88,46 @@ private:
 	SET ( u32, Height, mHeight )
 
 	//----------------------------------------------------------------//
-	static int		_average					( lua_State* L );
-	static int		_bleedRect					( lua_State* L );
-	static int		_calculateGaussianKernel	( lua_State* L );
-	static int		_compare					( lua_State* L );
-	static int		_convert					( lua_State* L );
-	static int		_convolve					( lua_State* L );
-	static int		_convolve1D					( lua_State* L );
-	static int		_copy						( lua_State* L );
-	static int		_copyBits					( lua_State* L );
-	static int		_copyRect					( lua_State* L );
-	static int		_desaturate					( lua_State* L );
-	static int		_fillCircle					( lua_State* L );
-	static int		_fillEllipse				( lua_State* L );
-	static int		_fillRect					( lua_State* L );
-	static int		_gammaCorrection			( lua_State* L );
-	static int		_generateOutlineFromSDF		( lua_State* L );
-	static int		_generateSDF				( lua_State* L );
-	static int		_generateSDFAA				( lua_State* L );
-	static int		_generateSDFDeadReckoning	( lua_State* L );
-	static int		_getColor32					( lua_State* L );
-	static int		_getContentRect				( lua_State* L );
-	static int		_getData					( lua_State* L );
-	static int		_getFormat					( lua_State* L );
-	static int		_getRGBA					( lua_State* L );
-	static int		_getSize					( lua_State* L );
-	static int		_init						( lua_State* L );
-	static int		_isOpaque					( lua_State* L );
-	static int		_load						( lua_State* L );
-	static int		_loadAsync					( lua_State* L );
-	static int		_loadFromBuffer				( lua_State* L );
-	static int		_mix						( lua_State* L );
-	static int		_padToPow2					( lua_State* L );
-	static int		_print						( lua_State* L );
-	static int		_resize						( lua_State* L );
-	static int		_resizeCanvas				( lua_State* L );
-	static int		_setColor32					( lua_State* L );
-	static int		_setRGBA					( lua_State* L );
-	static int		_simpleThreshold			( lua_State* L );
-	static int		_subdivideRect				( lua_State* L );
-	static int		_write						( lua_State* L );
+	static mrb_value		_average					( mrb_state* M, mrb_value context );
+	static mrb_value		_bleedRect					( mrb_state* M, mrb_value context );
+	static mrb_value		_calculateGaussianKernel	( mrb_state* M, mrb_value context );
+	static mrb_value		_compare					( mrb_state* M, mrb_value context );
+	static mrb_value		_convert					( mrb_state* M, mrb_value context );
+	static mrb_value		_convolve					( mrb_state* M, mrb_value context );
+	static mrb_value		_convolve1D					( mrb_state* M, mrb_value context );
+	static mrb_value		_copy						( mrb_state* M, mrb_value context );
+	static mrb_value		_copyBits					( mrb_state* M, mrb_value context );
+	static mrb_value		_copyRect					( mrb_state* M, mrb_value context );
+	static mrb_value		_desaturate					( mrb_state* M, mrb_value context );
+	static mrb_value		_fillCircle					( mrb_state* M, mrb_value context );
+	static mrb_value		_fillEllipse				( mrb_state* M, mrb_value context );
+	static mrb_value		_fillRect					( mrb_state* M, mrb_value context );
+	static mrb_value		_gammaCorrection			( mrb_state* M, mrb_value context );
+	static mrb_value		_generateOutlineFromSDF		( mrb_state* M, mrb_value context );
+	static mrb_value		_generateSDF				( mrb_state* M, mrb_value context );
+	static mrb_value		_generateSDFAA				( mrb_state* M, mrb_value context );
+	static mrb_value		_generateSDFDeadReckoning	( mrb_state* M, mrb_value context );
+	static mrb_value		_getColor32					( mrb_state* M, mrb_value context );
+	static mrb_value		_getContentRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_getData					( mrb_state* M, mrb_value context );
+	static mrb_value		_getFormat					( mrb_state* M, mrb_value context );
+	static mrb_value		_getRGBA					( mrb_state* M, mrb_value context );
+	static mrb_value		_getSize					( mrb_state* M, mrb_value context );
+	static mrb_value		_init						( mrb_state* M, mrb_value context );
+	static mrb_value		_isOpaque					( mrb_state* M, mrb_value context );
+	static mrb_value		_load						( mrb_state* M, mrb_value context );
+	static mrb_value		_loadAsync					( mrb_state* M, mrb_value context );
+	static mrb_value		_loadFromBuffer				( mrb_state* M, mrb_value context );
+	static mrb_value		_mix						( mrb_state* M, mrb_value context );
+	static mrb_value		_padToPow2					( mrb_state* M, mrb_value context );
+	static mrb_value		_print						( mrb_state* M, mrb_value context );
+	static mrb_value		_resize						( mrb_state* M, mrb_value context );
+	static mrb_value		_resizeCanvas				( mrb_state* M, mrb_value context );
+	static mrb_value		_setColor32					( mrb_state* M, mrb_value context );
+	static mrb_value		_setRGBA					( mrb_state* M, mrb_value context );
+	static mrb_value		_simpleThreshold			( mrb_state* M, mrb_value context );
+	static mrb_value		_subdivideRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_write						( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			Alloc					();
@@ -139,7 +139,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIImage )
+	DECL_RUBY_FACTORY ( MOAIImage, MOAIRubyObject )
 	
 	GET_CONST ( PixelFormat, PixelFormat, mPixelFormat )
 	GET_CONST ( ZLColor::ColorFormat, ColorFormat, mColorFormat )
@@ -162,7 +162,7 @@ public:
 	};
 	
 	//----------------------------------------------------------------//
-	static MOAIImage*		AffirmImage						( MOAILuaState& state, int idx );
+	static MOAIImage*		AffirmImage						( MOAIRubyState& state, int idx );
 	ZLColorVec				Average							() const;
 	void					BleedRect						( ZLIntRect rect );
 	void					Blit							( const MOAIImage& image, int srcX, int srcY, int destX, int destY, int width, int height );
@@ -221,12 +221,12 @@ public:
 	void					PadToPow2						( const MOAIImage& image );
 	void					PremultiplyAlpha				( const MOAIImage& image );
 	void					Print							();
-	void					RegisterLuaClass				( MOAILuaState& state );
-	void					RegisterLuaFuncs				( MOAILuaState& state );
+	void					RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 	void					ResizeCanvas					( const MOAIImage& image, ZLIntRect rect );
 	u32						SampleColor						( float x, float y, u32 filter, bool wrapX = false, bool wrapY = false ) const;
-	void					SerializeIn						( MOAILuaState& state, MOAIDeserializer& serializer );
-	void					SerializeOut					( MOAILuaState& state, MOAISerializer& serializer );
+	void					SerializeIn						( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void					SerializeOut					( MOAIRubyState& state, MOAISerializer& serializer );
 	void					SetColor						( u32 x, u32 y, u32 color );
 	void					SetColor						( u32 x, u32 y, u32 color, const MOAIImageBlendMode& blendMode );
 	void					SetPaletteColor					( u32 idx, u32 rgba );

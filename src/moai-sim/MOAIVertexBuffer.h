@@ -22,22 +22,22 @@ private:
 	friend class MOAIVertexBufferWithFormat;
 
 	//----------------------------------------------------------------//
-	static int		_computeBounds			( lua_State* L );
-	static int		_countElements			( lua_State* L );
-	static int		_printVertices			( lua_State* L );
+	static mrb_value		_computeBounds			( mrb_state* M, mrb_value context );
+	static mrb_value		_countElements			( mrb_state* M, mrb_value context );
+	static mrb_value		_printVertices			( mrb_state* M, mrb_value context );
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAIVertexBuffer )
+	DECL_RUBY_FACTORY ( MOAIVertexBuffer, MOAIGfxBuffer )
 	
 	//----------------------------------------------------------------//
 					MOAIVertexBuffer		();
 					~MOAIVertexBuffer		();
 	void			PrintVertices			( MOAIVertexFormat& vertexFormat );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

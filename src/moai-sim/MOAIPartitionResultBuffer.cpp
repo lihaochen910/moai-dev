@@ -228,19 +228,22 @@ void MOAIPartitionResultBuffer::Project ( const ZLMatrix4x4& mtx ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionResultBuffer::PushHulls ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIPartitionResultBuffer::PushHulls ( mrb_state* M ) {
+	MOAIRubyState state ( M );
 
 	u32 total = this->mTotalResults;
 
 	// make sure there is enough stack space to push all props
 	// the +1 is needed because pushing a hull requires an
 	// additional value to be pushed onto the stack temporarily
-	lua_checkstack ( L, total + 1 );
+	//lua_checkstack ( L, total + 1 );
+
+	mrb_value ary = mrb_ary_new ( M );
 
 	for ( u32 i = 0; i < total; ++i ) {
-		this->mResults [ i ].mHull->PushLuaUserdata ( state );
+		mrb_ary_push ( M, ary, this->mResults [ i ].mHull->PushRubyUserdata ( state ) );
    }
+   return ary;
 }
 
 //----------------------------------------------------------------//

@@ -48,16 +48,18 @@ MOAICellCoord::~MOAICellCoord () {
 	@out	number xTile
 	@out	number yTile
 */
-int MOAIGridSpace::_cellAddrToCoord	( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UN" )
+mrb_value MOAIGridSpace::_cellAddrToCoord	( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UN" )
 
-	u32 addr = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 addr = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
 	MOAICellCoord coord = self->GetCellCoord ( addr );
 	
-	state.Push ( coord.mX + 1 );
-	state.Push ( coord.mY + 1 );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( coord.mX + 1 );
+	ret [ 1 ] = state.ToRValue ( coord.mY + 1 );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -69,14 +71,13 @@ int MOAIGridSpace::_cellAddrToCoord	( lua_State* L ) {
 	@in		number yTile
 	@out	number cellAddr
 */
-int MOAIGridSpace::_getCellAddr ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_getCellAddr ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	int xTile		= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile		= state.GetValue < int >( 3, 1 ) - 1;
+	int xTile		= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile		= state.GetParamValue < int >( 2, 1 ) - 1;
 	
-	lua_pushnumber ( state, self->GetCellAddr ( xTile, yTile ) + 1 );
-	return 1;
+	return state.ToRValue ( self->GetCellAddr ( xTile, yTile ) + 1 );
 }
 
 //----------------------------------------------------------------//
@@ -87,13 +88,14 @@ int MOAIGridSpace::_getCellAddr ( lua_State* L ) {
 	@out	number width
 	@out	number height
 */
-int MOAIGridSpace::_getCellSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "U" )
+mrb_value MOAIGridSpace::_getCellSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "U" )
 
-	state.Push ( self->mCellWidth );
-	state.Push ( self->mCellHeight );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mCellWidth );
+	ret [ 1 ] = state.ToRValue ( self->mCellHeight );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -104,13 +106,14 @@ int MOAIGridSpace::_getCellSize ( lua_State* L ) {
 	@out	number xOff
 	@out	number yOff
 */
-int MOAIGridSpace::_getOffset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "U" )
+mrb_value MOAIGridSpace::_getOffset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "U" )
 
-	state.Push ( self->mXOff );
-	state.Push ( self->mYOff );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mXOff );
+	ret [ 1 ] = state.ToRValue ( self->mYOff );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -121,13 +124,14 @@ int MOAIGridSpace::_getOffset ( lua_State* L ) {
 	@out	number width
 	@out	number height
 */
-int MOAIGridSpace::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "U" )
+mrb_value MOAIGridSpace::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "U" )
 
-	state.Push ( self->mWidth );
-	state.Push ( self->mHeight );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mWidth );
+	ret [ 1 ] = state.ToRValue ( self->mHeight );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -142,19 +146,22 @@ int MOAIGridSpace::_getSize ( lua_State* L ) {
 	@out	number x
 	@out	number y
 */
-int MOAIGridSpace::_getTileLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_getTileLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 	
 	MOAICellCoord coord;
 	
-	coord.mX		= state.GetValue < int >( 2, 1 ) - 1;
-	coord.mY		= state.GetValue < int >( 3, 1 ) - 1;
-	u32 position	= state.GetValue < u32 >( 4, MOAIGridSpace::TILE_CENTER );
+	coord.mX		= state.GetParamValue < int >( 1, 1 ) - 1;
+	coord.mY		= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 position	= state.GetParamValue < u32 >( 3, MOAIGridSpace::TILE_CENTER );
 	
 	ZLVec2D loc = self->GetTilePoint ( coord, position );
-	state.Push ( loc.mX );
-	state.Push ( loc.mY );
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( loc.mX );
+	ret [ 1 ] = state.ToRValue ( loc.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -165,13 +172,14 @@ int MOAIGridSpace::_getTileLoc ( lua_State* L ) {
 	@out	number width
 	@out	number height
 */
-int MOAIGridSpace::_getTileSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "U" )
+mrb_value MOAIGridSpace::_getTileSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "U" )
 
-	state.Push ( self->mTileWidth );
-	state.Push ( self->mTileHeight );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mTileWidth );
+	ret [ 1 ] = state.ToRValue ( self->mTileHeight );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -187,17 +195,17 @@ int MOAIGridSpace::_getTileSize ( lua_State* L ) {
 	@opt	number yGutter			Default value is 0.
 	@out	nil
 */
-int MOAIGridSpace::_initAxialHexGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_initAxialHexGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float tileWidth		= state.GetValue < float >( 4, 1.0f );
-	float tileHeight	= state.GetValue < float >( 5, 1.0f );
+	float tileWidth		= state.GetParamValue < float >( 3, 1.0f );
+	float tileHeight	= state.GetParamValue < float >( 4, 1.0f );
 
-	float xGutter		= state.GetValue < float >( 6, 0.0f );
-	float yGutter		= state.GetValue < float >( 7, 0.0f );
+	float xGutter		= state.GetParamValue < float >( 5, 0.0f );
+	float yGutter		= state.GetParamValue < float >( 6, 0.0f );
 
 	self->mShape = AXIAL_HEX_SHAPE;
 
@@ -215,7 +223,7 @@ int MOAIGridSpace::_initAxialHexGrid ( lua_State* L ) {
 	
 	self->OnResize ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -231,17 +239,17 @@ int MOAIGridSpace::_initAxialHexGrid ( lua_State* L ) {
 	@opt	number yGutter			Default value is 0.
 	@out	nil
 */
-int MOAIGridSpace::_initDiamondGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_initDiamondGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float tileWidth		= state.GetValue < float >( 4, 1.0f );
-	float tileHeight	= state.GetValue < float >( 5, 1.0f );
+	float tileWidth		= state.GetParamValue < float >( 3, 1.0f );
+	float tileHeight	= state.GetParamValue < float >( 4, 1.0f );
 
-	float xGutter		= state.GetValue < float >( 6, 0.0f );
-	float yGutter		= state.GetValue < float >( 7, 0.0f );
+	float xGutter		= state.GetParamValue < float >( 5, 0.0f );
+	float yGutter		= state.GetParamValue < float >( 6, 0.0f );
 
 	self->mShape = DIAMOND_SHAPE;
 
@@ -259,7 +267,7 @@ int MOAIGridSpace::_initDiamondGrid ( lua_State* L ) {
 	
 	self->OnResize ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -274,16 +282,16 @@ int MOAIGridSpace::_initDiamondGrid ( lua_State* L ) {
 	@opt	number yGutter			Default value is 0.
 	@out	nil
 */
-int MOAIGridSpace::_initHexGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_initHexGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float hRad			= state.GetValue < float >( 4, 1.0f ) * 0.5f;
+	float hRad			= state.GetParamValue < float >( 3, 1.0f ) * 0.5f;
 
-	float xGutter		= state.GetValue < float >( 5, 0.0f );
-	float yGutter		= state.GetValue < float >( 6, 0.0f );
+	float xGutter		= state.GetParamValue < float >( 4, 0.0f );
+	float yGutter		= state.GetParamValue < float >( 5, 0.0f );
 
 	float tileWidth = hRad * 6.0f;
 	float tileHeight = hRad * ( float )( M_SQRT3 * 2.0 );
@@ -304,7 +312,7 @@ int MOAIGridSpace::_initHexGrid ( lua_State* L ) {
 	
 	self->OnResize ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -320,17 +328,17 @@ int MOAIGridSpace::_initHexGrid ( lua_State* L ) {
 	@opt	number yGutter			Default value is 0.
 	@out	nil
 */
-int MOAIGridSpace::_initObliqueGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_initObliqueGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float tileWidth		= state.GetValue < float >( 4, 1.0f );
-	float tileHeight	= state.GetValue < float >( 5, 1.0f );
+	float tileWidth		= state.GetParamValue < float >( 3, 1.0f );
+	float tileHeight	= state.GetParamValue < float >( 4, 1.0f );
 
-	float xGutter		= state.GetValue < float >( 6, 0.0f );
-	float yGutter		= state.GetValue < float >( 7, 0.0f );
+	float xGutter		= state.GetParamValue < float >( 5, 0.0f );
+	float yGutter		= state.GetParamValue < float >( 6, 0.0f );
 	
 	self->mShape = OBLIQUE_SHAPE;
 
@@ -348,7 +356,7 @@ int MOAIGridSpace::_initObliqueGrid ( lua_State* L ) {
 	
 	self->OnResize ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -364,17 +372,17 @@ int MOAIGridSpace::_initObliqueGrid ( lua_State* L ) {
 	@opt	number yGutter			Default value is 0.
 	@out	nil
 */
-int MOAIGridSpace::_initRectGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_initRectGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float tileWidth		= state.GetValue < float >( 4, 1.0f );
-	float tileHeight	= state.GetValue < float >( 5, 1.0f );
+	float tileWidth		= state.GetParamValue < float >( 3, 1.0f );
+	float tileHeight	= state.GetParamValue < float >( 4, 1.0f );
 
-	float xGutter		= state.GetValue < float >( 6, 0.0f );
-	float yGutter		= state.GetValue < float >( 7, 0.0f );
+	float xGutter		= state.GetParamValue < float >( 5, 0.0f );
+	float yGutter		= state.GetParamValue < float >( 6, 0.0f );
 	
 	self->mShape = RECT_SHAPE;
 
@@ -392,7 +400,7 @@ int MOAIGridSpace::_initRectGrid ( lua_State* L ) {
 	
 	self->OnResize ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -404,18 +412,17 @@ int MOAIGridSpace::_initRectGrid ( lua_State* L ) {
 	@in		number y
 	@out	number cellAddr
 */
-int MOAIGridSpace::_locToCellAddr ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_locToCellAddr ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
 	ZLVec2D loc;
-	loc.mX = state.GetValue < float >( 2, 0 );
-	loc.mY = state.GetValue < float >( 3, 0 );
+	loc.mX = state.GetParamValue < float >( 1, 0 );
+	loc.mY = state.GetParamValue < float >( 2, 0 );
 	
 	MOAICellCoord coord;
 	coord = self->GetCellCoord ( loc );
 
-	state.Push ( self->GetCellAddr ( coord ) + 1 );
-	return 1;
+	return state.ToRValue ( self->GetCellAddr ( coord ) + 1 );
 }
 
 //----------------------------------------------------------------//
@@ -428,19 +435,21 @@ int MOAIGridSpace::_locToCellAddr ( lua_State* L ) {
 	@out	number xTile
 	@out	number yTile
 */
-int MOAIGridSpace::_locToCoord ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_locToCoord ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
 	ZLVec2D loc;
-	loc.mX = state.GetValue < float >( 2, 0 );
-	loc.mY = state.GetValue < float >( 3, 0 );
+	loc.mX = state.GetParamValue < float >( 1, 0 );
+	loc.mY = state.GetParamValue < float >( 2, 0 );
 	
 	MOAICellCoord coord;
 	coord = self->GetCellCoord ( loc );
 
-	state.Push ( coord.mX + 1 );
-	state.Push ( coord.mY + 1 );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( coord.mX + 1 );
+	ret [ 1 ] = state.ToRValue ( coord.mY + 1 );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -453,17 +462,17 @@ int MOAIGridSpace::_locToCoord ( lua_State* L ) {
 	@opt	boolean repeatY		Default value is repeatX.
 	@out	nil
 */
-int MOAIGridSpace::_setRepeat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "U" )
+mrb_value MOAIGridSpace::_setRepeat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "U" )
 
-	bool repeatX = state.GetValue < bool >( 2, true );
-	bool repeatY = state.GetValue < bool >( 3, repeatX );
+	bool repeatX = state.GetParamValue < bool >( 1, true );
+	bool repeatY = state.GetParamValue < bool >( 2, repeatX );
 
 	self->mRepeat = 0;
 	self->mRepeat |= repeatX ? REPEAT_X : 0;
 	self->mRepeat |= repeatY ? REPEAT_Y : 0;
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -476,12 +485,12 @@ int MOAIGridSpace::_setRepeat ( lua_State* L ) {
 								Default value is MOAIGridSpace.RECT_SHAPE.
 	@out	nil
 */
-int MOAIGridSpace::_setShape ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "U" )
+mrb_value MOAIGridSpace::_setShape ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "U" )
 
-	self->mShape = state.GetValue < u32 >( 2, RECT_SHAPE );
+	self->mShape = state.GetParamValue < u32 >( 1, RECT_SHAPE );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -499,20 +508,20 @@ int MOAIGridSpace::_setShape ( lua_State* L ) {
 	@opt	number tileHeight	Default value is cellHeight.
 	@out	nil
 */
-int MOAIGridSpace::_setSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_setSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 
-	u32 width			= state.GetValue < u32 >( 2, 0 );
-	u32 height			= state.GetValue < u32 >( 3, 0 );
+	u32 width			= state.GetParamValue < u32 >( 1, 0 );
+	u32 height			= state.GetParamValue < u32 >( 2, 0 );
 	
-	float cellWidth		= state.GetValue < float >( 4, 1.0f );
-	float cellHeight	= state.GetValue < float >( 5, 1.0f );
+	float cellWidth		= state.GetParamValue < float >( 3, 1.0f );
+	float cellHeight	= state.GetParamValue < float >( 4, 1.0f );
 
-	float xOff			= state.GetValue < float >( 6, 0.0f );
-	float yOff			= state.GetValue < float >( 7, 0.0f );
+	float xOff			= state.GetParamValue < float >( 5, 0.0f );
+	float yOff			= state.GetParamValue < float >( 6, 0.0f );
 	
-	float tileWidth		= state.GetValue < float >( 8, cellWidth );
-	float tileHeight	= state.GetValue < float >( 9, cellHeight );
+	float tileWidth		= state.GetParamValue < float >( 7, cellWidth );
+	float tileHeight	= state.GetParamValue < float >( 8, cellHeight );
 	
 	self->SetWidth ( width );
 	self->SetHeight ( height );
@@ -528,7 +537,7 @@ int MOAIGridSpace::_setSize ( lua_State* L ) {
 	
 	self->OnResize ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -541,18 +550,20 @@ int MOAIGridSpace::_setSize ( lua_State* L ) {
 	@out	number xTile
 	@out	number yTile
 */
-int MOAIGridSpace::_wrapCoord ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridSpace, "UNN" )
+mrb_value MOAIGridSpace::_wrapCoord ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridSpace, "UNN" )
 	
 	MOAICellCoord coord;
-	coord.mX = state.GetValue < int >( 2, 1 ) - 1;
-	coord.mY = state.GetValue < int >( 3, 1 ) - 1;
+	coord.mX = state.GetParamValue < int >( 1, 1 ) - 1;
+	coord.mY = state.GetParamValue < int >( 2, 1 ) - 1;
 
 	coord = self->WrapCellCoord ( coord.mX, coord.mY );
 	
-	state.Push ( coord.mX + 1 );
-	state.Push ( coord.mY + 1 );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( coord.mX + 1 );
+	ret [ 1 ] = state.ToRValue ( coord.mY + 1 );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //================================================================//
@@ -1106,7 +1117,7 @@ MOAIGridSpace::MOAIGridSpace () :
 	mShape ( RECT_SHAPE ),
 	mRepeat ( 0 ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -1118,98 +1129,94 @@ void MOAIGridSpace::OnResize () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGridSpace::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIGridSpace::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( serializer );
 	
-	this->mXOff			= state.GetFieldValue ( -1, "mXOff", this->mXOff );
-	this->mYOff			= state.GetFieldValue ( -1, "mYOff", this->mYOff );
+	// this->mXOff			= state.GetFieldValue ( -1, "mXOff", this->mXOff );
+	// this->mYOff			= state.GetFieldValue ( -1, "mYOff", this->mYOff );
 	
-	this->mCellWidth	= state.GetFieldValue ( -1, "mCellWidth", this->mCellWidth );
-	this->mCellHeight	= state.GetFieldValue ( -1, "mCellHeight", this->mCellHeight );
+	// this->mCellWidth	= state.GetFieldValue ( -1, "mCellWidth", this->mCellWidth );
+	// this->mCellHeight	= state.GetFieldValue ( -1, "mCellHeight", this->mCellHeight );
 	
-	this->mTileWidth	= state.GetFieldValue ( -1, "mTileWidth", this->mTileWidth );
-	this->mTileHeight	= state.GetFieldValue ( -1, "mTileHeight", this->mTileHeight );
+	// this->mTileWidth	= state.GetFieldValue ( -1, "mTileWidth", this->mTileWidth );
+	// this->mTileHeight	= state.GetFieldValue ( -1, "mTileHeight", this->mTileHeight );
 	
-	this->mWidth		= state.GetFieldValue ( -1, "mWidth", this->mWidth );
-	this->mHeight		= state.GetFieldValue ( -1, "mHeight", this->mHeight );
+	// this->mWidth		= state.GetFieldValue ( -1, "mWidth", this->mWidth );
+	// this->mHeight		= state.GetFieldValue ( -1, "mHeight", this->mHeight );
 	
-	this->mShape		= state.GetFieldValue ( -1, "mShape", this->mShape );
-	this->mRepeat		= state.GetFieldValue ( -1, "mRepeat", this->mRepeat );
+	// this->mShape		= state.GetFieldValue ( -1, "mShape", this->mShape );
+	// this->mRepeat		= state.GetFieldValue ( -1, "mRepeat", this->mRepeat );
 }
 
 //----------------------------------------------------------------//
-void MOAIGridSpace::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIGridSpace::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( serializer );
 	
-	state.SetField ( -1, "mXOff", this->mXOff );
-	state.SetField ( -1, "mYOff", this->mYOff );
+	// state.DefineClassConst ( klass, "mXOff", this->mXOff );
+	// state.DefineClassConst ( klass, "mYOff", this->mYOff );
 	
-	state.SetField ( -1, "mCellWidth", this->mCellWidth );
-	state.SetField ( -1, "mCellHeight", this->mCellHeight );
+	// state.DefineClassConst ( klass, "mCellWidth", this->mCellWidth );
+	// state.DefineClassConst ( klass, "mCellHeight", this->mCellHeight );
 	
-	state.SetField ( -1, "mTileWidth", this->mTileWidth );
-	state.SetField ( -1, "mTileHeight", this->mTileHeight );
+	// state.DefineClassConst ( klass, "mTileWidth", this->mTileWidth );
+	// state.DefineClassConst ( klass, "mTileHeight", this->mTileHeight );
 	
-	state.SetField ( -1, "mWidth", this->mWidth );
-	state.SetField ( -1, "mHeight", this->mHeight );
+	// state.DefineClassConst ( klass, "mWidth", this->mWidth );
+	// state.DefineClassConst ( klass, "mHeight", this->mHeight );
 	
-	state.SetField ( -1, "mShape", this->mShape );
-	state.SetField ( -1, "mRepeat", this->mRepeat );
+	// state.DefineClassConst ( klass, "mShape", this->mShape );
+	// state.DefineClassConst ( klass, "mRepeat", this->mRepeat );
 }
 
 //----------------------------------------------------------------//
-void MOAIGridSpace::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGridSpace::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "TILE_X_FLIP", ( u32 )MOAITileFlags::XFLIP );
-	state.SetField ( -1, "TILE_Y_FLIP", ( u32 )MOAITileFlags::YFLIP );
-	state.SetField ( -1, "TILE_XY_FLIP", ( u32 )MOAITileFlags::FLIP_MASK );
-	state.SetField ( -1, "TILE_HIDE", ( u32 )MOAITileFlags::HIDDEN );
+	state.DefineClassConst ( klass, "TILE_X_FLIP", ( u32 )MOAITileFlags::XFLIP );
+	state.DefineClassConst ( klass, "TILE_Y_FLIP", ( u32 )MOAITileFlags::YFLIP );
+	state.DefineClassConst ( klass, "TILE_XY_FLIP", ( u32 )MOAITileFlags::FLIP_MASK );
+	state.DefineClassConst ( klass, "TILE_HIDE", ( u32 )MOAITileFlags::HIDDEN );
 	
-	state.SetField ( -1, "TILE_LEFT_TOP", ( u32 )MOAIGridSpace::TILE_LEFT_TOP );
-	state.SetField ( -1, "TILE_RIGHT_TOP", ( u32 )MOAIGridSpace::TILE_RIGHT_TOP );
-	state.SetField ( -1, "TILE_LEFT_BOTTOM", ( u32 )MOAIGridSpace::TILE_LEFT_BOTTOM );
-	state.SetField ( -1, "TILE_RIGHT_BOTTOM", ( u32 )MOAIGridSpace::TILE_RIGHT_BOTTOM );
+	state.DefineClassConst ( klass, "TILE_LEFT_TOP", ( u32 )MOAIGridSpace::TILE_LEFT_TOP );
+	state.DefineClassConst ( klass, "TILE_RIGHT_TOP", ( u32 )MOAIGridSpace::TILE_RIGHT_TOP );
+	state.DefineClassConst ( klass, "TILE_LEFT_BOTTOM", ( u32 )MOAIGridSpace::TILE_LEFT_BOTTOM );
+	state.DefineClassConst ( klass, "TILE_RIGHT_BOTTOM", ( u32 )MOAIGridSpace::TILE_RIGHT_BOTTOM );
 	
-	state.SetField ( -1, "TILE_LEFT_CENTER", ( u32 )MOAIGridSpace::TILE_LEFT_CENTER );
-	state.SetField ( -1, "TILE_RIGHT_CENTER", ( u32 )MOAIGridSpace::TILE_RIGHT_CENTER );
-	state.SetField ( -1, "TILE_TOP_CENTER", ( u32 )MOAIGridSpace::TILE_TOP_CENTER );
-	state.SetField ( -1, "TILE_BOTTOM_CENTER", ( u32 )MOAIGridSpace::TILE_BOTTOM_CENTER );
+	state.DefineClassConst ( klass, "TILE_LEFT_CENTER", ( u32 )MOAIGridSpace::TILE_LEFT_CENTER );
+	state.DefineClassConst ( klass, "TILE_RIGHT_CENTER", ( u32 )MOAIGridSpace::TILE_RIGHT_CENTER );
+	state.DefineClassConst ( klass, "TILE_TOP_CENTER", ( u32 )MOAIGridSpace::TILE_TOP_CENTER );
+	state.DefineClassConst ( klass, "TILE_BOTTOM_CENTER", ( u32 )MOAIGridSpace::TILE_BOTTOM_CENTER );
 	
-	state.SetField ( -1, "TILE_CENTER", ( u32 )MOAIGridSpace::TILE_CENTER );
+	state.DefineClassConst ( klass, "TILE_CENTER", ( u32 )MOAIGridSpace::TILE_CENTER );
 	
-	state.SetField ( -1, "RECT_SHAPE", RECT_SHAPE );
-	state.SetField ( -1, "AXIAL_HEX_SHAPE", AXIAL_HEX_SHAPE );
-	state.SetField ( -1, "DIAMOND_SHAPE", DIAMOND_SHAPE );
-	state.SetField ( -1, "OBLIQUE_SHAPE", OBLIQUE_SHAPE );
-	state.SetField ( -1, "HEX_SHAPE", HEX_SHAPE );
+	state.DefineClassConst ( klass, "RECT_SHAPE", RECT_SHAPE );
+	state.DefineClassConst ( klass, "AXIAL_HEX_SHAPE", AXIAL_HEX_SHAPE );
+	state.DefineClassConst ( klass, "DIAMOND_SHAPE", DIAMOND_SHAPE );
+	state.DefineClassConst ( klass, "OBLIQUE_SHAPE", OBLIQUE_SHAPE );
+	state.DefineClassConst ( klass, "HEX_SHAPE", HEX_SHAPE );
 }
 
 //----------------------------------------------------------------//
-void MOAIGridSpace::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGridSpace::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "cellAddrToCoord",	_cellAddrToCoord },
-		{ "getCellAddr",		_getCellAddr },
-		{ "getCellSize",		_getCellSize },
-		{ "getOffset",			_getOffset },
-		{ "getSize",			_getSize },
-		{ "getTileLoc",			_getTileLoc },
-		{ "getTileSize",		_getTileSize },
-		{ "initDiamondGrid",	_initDiamondGrid },
-		{ "initAxialHexGrid",		_initAxialHexGrid },
-		{ "initHexGrid",		_initHexGrid },
-		{ "initObliqueGrid",	_initObliqueGrid },
-		{ "initRectGrid",		_initRectGrid },
-		{ "locToCellAddr",		_locToCellAddr },
-		{ "locToCoord",			_locToCoord },
-		{ "setRepeat",			_setRepeat },
-		{ "setShape",			_setShape },
-		{ "setSize",			_setSize },
-		{ "wrapCoord",			_wrapCoord },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "cellAddrToCoord", _cellAddrToCoord, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getCellAddr", _getCellAddr, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getCellSize", _getCellSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getOffset", _getOffset, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getSize", _getSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTileLoc", _getTileLoc, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "getTileSize", _getTileSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "initDiamondGrid", _initDiamondGrid, MRB_ARGS_ARG ( 2, 4 ) );
+	state.DefineInstanceMethod ( klass, "initAxialHexGrid", _initAxialHexGrid, MRB_ARGS_ARG ( 2, 4 ) );
+	state.DefineInstanceMethod ( klass, "initHexGrid", _initHexGrid, MRB_ARGS_ARG ( 2, 3 ) );
+	state.DefineInstanceMethod ( klass, "initObliqueGrid", _initObliqueGrid, MRB_ARGS_ARG ( 2, 4 ) );
+	state.DefineInstanceMethod ( klass, "initRectGrid", _initRectGrid, MRB_ARGS_ARG ( 2, 4 ) );
+	state.DefineInstanceMethod ( klass, "locToCellAddr", _locToCellAddr, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "locToCoord", _locToCoord, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setRepeat", _setRepeat, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setShape", _setShape, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setSize", _setSize, MRB_ARGS_ARG ( 2, 6 ) );
+	state.DefineInstanceMethod ( klass, "wrapCoord", _wrapCoord, MRB_ARGS_REQ ( 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

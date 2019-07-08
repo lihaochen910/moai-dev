@@ -147,7 +147,7 @@
 #include <moai-sim/MOAISpanList.h>
 #include <moai-sim/MOAISpriteDeck2D.h>
 #include <moai-sim/MOAIStretchPatch2D.h>
-#include <moai-sim/MOAISurfaceDeck2D.h>
+//#include <moai-sim/MOAISurfaceDeck2D.h>
 #include <moai-sim/MOAITableLayer.h>
 #include <moai-sim/MOAITableViewLayer.h>
 #include <moai-sim/MOAITexture.h>
@@ -160,7 +160,6 @@
 #include <moai-sim/MOAIVecPathGraph.h>
 #include <moai-sim/MOAIVectorCombo.h>
 #include <moai-sim/MOAIVectorEllipse.h>
-#include <moai-sim/MOAIVectorPoly.h>
 #include <moai-sim/MOAIVectorPoly.h>
 #include <moai-sim/MOAIVectorRect.h>
 #include <moai-sim/MOAIVectorSensor.h>

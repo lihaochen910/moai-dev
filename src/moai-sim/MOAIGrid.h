@@ -23,16 +23,16 @@ private:
 	ZLLeanArray < u32 >			mTiles; // TODO: fix size
 
 	//----------------------------------------------------------------//
-	static int		_clearTileFlags		( lua_State* L );
-	static int		_fill				( lua_State* L );
-	static int		_getTile			( lua_State* L );
-	static int		_getTileFlags		( lua_State* L );
-	static int		_setRow				( lua_State* L );
-	static int		_setTile			( lua_State* L );
-	static int		_setTileFlags		( lua_State* L );
-	static int		_streamTilesIn		( lua_State* L );
-	static int		_streamTilesOut		( lua_State* L );
-	static int		_toggleTileFlags	( lua_State* L );
+	static mrb_value		_clearTileFlags		( mrb_state* M, mrb_value context );
+	static mrb_value		_fill				( mrb_state* M, mrb_value context );
+	static mrb_value		_getTile			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTileFlags		( mrb_state* M, mrb_value context );
+	static mrb_value		_setRow				( mrb_state* M, mrb_value context );
+	static mrb_value		_setTile			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTileFlags		( mrb_state* M, mrb_value context );
+	static mrb_value		_streamTilesIn		( mrb_state* M, mrb_value context );
+	static mrb_value		_streamTilesOut		( mrb_state* M, mrb_value context );
+	static mrb_value		_toggleTileFlags	( mrb_state* M, mrb_value context );
 
 protected:
 
@@ -41,7 +41,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIGrid )
+	DECL_RUBY_FACTORY ( MOAIGrid, MOAIGridSpace )
 	
 	//----------------------------------------------------------------//
 	void			Fill				( u32 value );
@@ -49,12 +49,12 @@ public:
 	u32				GetTile				( int xTile, int yTile ) const;
 					MOAIGrid			();
 					~MOAIGrid			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	void			RowFromString		( u32 rowID, cc8* str );
 	STLString		RowToString			( u32 rowID );
-	void			SerializeIn			( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut		( MOAILuaState& state, MOAISerializer& serializer );
+	void			SerializeIn			( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut		( MOAIRubyState& state, MOAISerializer& serializer );
 	void			SetTile				( int addr, u32 tile );
 	void			SetTile				( int xTile, int yTile, u32 tile );
 	size_t			StreamTilesIn		( ZLStream* stream );

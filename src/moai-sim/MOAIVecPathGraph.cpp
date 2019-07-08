@@ -18,22 +18,21 @@
 	@in		number nodeID2
 	@out	boolean
 */
-int MOAIVecPathGraph::_areNeighbors ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVecPathGraph, "UNN" )
+mrb_value MOAIVecPathGraph::_areNeighbors ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVecPathGraph, "UNN" )
 
-	u32 id1 = state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 id2 = state.GetValue < u32 >( 3, 1 ) - 1;
+	u32 id1 = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 id2 = state.GetParamValue < u32 >( 2, 1 ) - 1;
 
-	if ( MOAILogMgr::CheckIndexPlusOne ( id1, self->mNodes.Size (), L ) &&
-		MOAILogMgr::CheckIndexPlusOne ( id2, self->mNodes.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( id1, self->mNodes.Size (), M ) &&
+		MOAILogMgr::CheckIndexPlusOne ( id2, self->mNodes.Size (), M )) {
 
 		bool result = self->AreNeighbors ( id1, id2 );
-		state.Push ( result );
 
-		return 1;
+		return state.ToRValue ( result );
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -46,22 +45,23 @@ int MOAIVecPathGraph::_areNeighbors ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int MOAIVecPathGraph::_getNode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVecPathGraph, "UN" )
+mrb_value MOAIVecPathGraph::_getNode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVecPathGraph, "UN" )
 
-	u32 id = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 id = state.GetParamValue < u32 >( 1, 1 ) - 1;
 
-	if ( MOAILogMgr::CheckIndexPlusOne ( id, self->mNodes.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( id, self->mNodes.Size (), M )) {
 		ZLVec3D vec = self->GetNode( id );
 
-		state.Push ( vec.mX );
-		state.Push ( vec.mY );
-		state.Push ( vec.mZ );
+		mrb_value ret [ 3 ];
+		ret [ 0 ] = state.ToRValue ( vec.mX );
+		ret [ 1 ] = state.ToRValue ( vec.mY );
+		ret [ 2 ] = state.ToRValue ( vec.mZ );
 
-		return 3;
+		return mrb_ary_new_from_values ( state, 3, ret );
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -71,13 +71,12 @@ int MOAIVecPathGraph::_getNode ( lua_State* L ) {
 	@in		MOAIVecPathGraph self
 	@out	number count
 */
-int MOAIVecPathGraph::_getNodeCount ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVecPathGraph, "U" )
+mrb_value MOAIVecPathGraph::_getNodeCount ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVecPathGraph, "U" )
 
 	u32 count = self->GetNodeCount ();
-	state.Push ( count );
 
-	return 1;
+	return state.ToRValue ( count );
 }
 
 //----------------------------------------------------------------//
@@ -88,13 +87,13 @@ int MOAIVecPathGraph::_getNodeCount ( lua_State* L ) {
 	@in		number nNodes
 	@out	nil
 */
-int MOAIVecPathGraph::_reserveNodes ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVecPathGraph, "UN" )
+mrb_value MOAIVecPathGraph::_reserveNodes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVecPathGraph, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveNodes ( total );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -107,20 +106,20 @@ int MOAIVecPathGraph::_reserveNodes ( lua_State* L ) {
 	@opt	boolean value			Whether the nodes are neighbors (true) or not (false). Defaults to true.
 	@out	nil
 */
-int MOAIVecPathGraph::_setNeighbors ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVecPathGraph, "UNN" )
+mrb_value MOAIVecPathGraph::_setNeighbors ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVecPathGraph, "UNN" )
 
-	u32 id1 = state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 id2 = state.GetValue < u32 >( 3, 1 ) - 1;
-	bool neighbors = state.GetValue < bool >( 4, true );
+	u32 id1 = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 id2 = state.GetParamValue < u32 >( 2, 1 ) - 1;
+	bool neighbors = state.GetParamValue < bool >( 3, true );
 
-	if ( MOAILogMgr::CheckIndexPlusOne ( id1, self->mNodes.Size (), L ) &&
-		MOAILogMgr::CheckIndexPlusOne ( id2, self->mNodes.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( id1, self->mNodes.Size (), M ) &&
+		MOAILogMgr::CheckIndexPlusOne ( id2, self->mNodes.Size (), M )) {
 
 		self->SetNeighbors ( id1, id2, neighbors );
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -134,19 +133,19 @@ int MOAIVecPathGraph::_setNeighbors ( lua_State* L ) {
 	@opt	number z				Defaults to 0.
 	@out	nil
 */
-int MOAIVecPathGraph::_setNode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVecPathGraph, "UN" )
+mrb_value MOAIVecPathGraph::_setNode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVecPathGraph, "UN" )
 
-	u32 id = state.GetValue < u32 >( 2, 1 ) - 1;
-	float x = state.GetValue < float >( 3, 0.0f );
-	float y = state.GetValue < float >( 4, 0.0f );
-	float z = state.GetValue < float >( 5, 0.0f );
+	u32 id = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float x = state.GetParamValue < float >( 2, 0.0f );
+	float y = state.GetParamValue < float >( 3, 0.0f );
+	float z = state.GetParamValue < float >( 4, 0.0f );
 
-	if ( MOAILogMgr::CheckIndexPlusOne ( id, self->mNodes.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( id, self->mNodes.Size (), M )) {
 		self->SetNode ( id, ZLVec3D ( x, y, z ));
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -202,26 +201,22 @@ void MOAIVecPathGraph::PushNeighbors ( MOAIPathFinder& pathFinder, int nodeID ) 
 }
 
 //----------------------------------------------------------------//
-void MOAIVecPathGraph::RegisterLuaClass ( MOAILuaState& state ) {
-
+void MOAIVecPathGraph::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIVecPathGraph::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIPathGraph::RegisterLuaFuncs ( state );
+void MOAIVecPathGraph::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIPathGraph::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "areNeighbors",			_areNeighbors },
-		{ "getNode",				_getNode },
-		{ "getNodeCount",			_getNodeCount },
-		{ "reserveNodes",			_reserveNodes },
-		{ "setNeighbors",			_setNeighbors },
-		{ "setNode",				_setNode },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "areNeighbors",			_areNeighbors, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getNode",				_getNode, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getNodeCount",			_getNodeCount, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveNodes",			_reserveNodes, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setNeighbors",			_setNeighbors, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "setNode",				_setNode, MRB_ARGS_ARG ( 1, 3 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

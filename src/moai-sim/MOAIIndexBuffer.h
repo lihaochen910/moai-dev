@@ -21,16 +21,16 @@ private:
 	u32				mIndexSize;
 
 	//----------------------------------------------------------------//
-	static int		_copyFromStream			( lua_State* L );
-	static int		_countElements			( lua_State* L );
-	static int		_printIndices			( lua_State* L );
-	static int		_setIndexSize			( lua_State* L );
+	static mrb_value		_copyFromStream			( mrb_state* M, mrb_value context );
+	static mrb_value		_countElements			( mrb_state* M, mrb_value context );
+	static mrb_value		_printIndices			( mrb_state* M, mrb_value context );
+	static mrb_value		_setIndexSize			( mrb_state* M, mrb_value context );
 	
 public:
 	
 	GET ( u32, IndexSize, mIndexSize )
 	
-	DECL_LUA_FACTORY ( MOAIIndexBuffer )
+	DECL_RUBY_FACTORY ( MOAIIndexBuffer, MOAIGfxBuffer )
 	
 	//----------------------------------------------------------------//
 	u32				CountIndices			();
@@ -39,10 +39,10 @@ public:
 					MOAIIndexBuffer			();
 					~MOAIIndexBuffer		();
 	void			PrintIndices			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void			SetIndexSize			( u32 idxSize );
 	void			WriteIndex				( u32 index );
 };

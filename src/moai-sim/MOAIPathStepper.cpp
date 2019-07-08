@@ -11,42 +11,39 @@
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPathStepper::_getLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathStepper, "U" );
+mrb_value MOAIPathStepper::_getLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathStepper, "U" );
 	
-	state.Push ( self->GetLength ());
-	return 1;
+	return state.ToRValue ( self->GetLength () );
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPathStepper::_more ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathStepper, "U" );
+mrb_value MOAIPathStepper::_more ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathStepper, "U" );
 	
-	state.Push ( self->More ());
-	return 1;
+	return state.ToRValue ( self->More () );
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPathStepper::_next ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathStepper, "U" );
+mrb_value MOAIPathStepper::_next ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathStepper, "U" );
 	
-	state.Push ( self->Next ());
-	return 2;
+	return state.Get ( self->Next () );
 }
 
 //----------------------------------------------------------------//
 // TODO: path
-int MOAIPathStepper::_start ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathStepper, "U" );
+mrb_value MOAIPathStepper::_start ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathStepper, "U" );
 	
-	MOAIPath* path		= state.GetLuaObject < MOAIPath >( 2, true );
-	float stepSize		= state.GetValue < float >( 3, 1.0f );
+	MOAIPath* path		= state.GetRubyObject < MOAIPath >( 1, true );
+	float stepSize		= state.GetParamValue < float >( 2, 1.0f );
 	
 	self->Start ( *path, stepSize );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -64,7 +61,7 @@ MOAIPathStepper::MOAIPathStepper () :
 	mTotalSegments ( 0 ),
 	mLength ( 0.0f ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -143,22 +140,18 @@ ZLVec2D MOAIPathStepper::NextVertex () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPathStepper::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPathStepper::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 
 //----------------------------------------------------------------//
-void MOAIPathStepper::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPathStepper::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getLength",			_getLength },
-		{ "more",				_more },
-		{ "next",				_next },
-		{ "start",				_start },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getLength",		_getLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "more",				_more, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "next",				_next, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "start",			_start, MRB_ARGS_ARG ( 0, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

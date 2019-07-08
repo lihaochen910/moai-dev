@@ -22,8 +22,8 @@ private:
 	ZLAffine3D mValue;
 
 	//----------------------------------------------------------------//
-	static int		_getValueAtTime		( lua_State* L );
-	static int		_setKey				( lua_State* L );
+	static mrb_value		_getValueAtTime		( mrb_state* M, mrb_value context );
+	static mrb_value		_setKey				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	static ZLAffine3D		Compose				( const ZLVec3D& pos, const ZLQuaternion& rot, const ZLVec3D& scl );
@@ -37,7 +37,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIAnimCurveBone )
+	DECL_RUBY_FACTORY ( MOAIAnimCurveBone, MOAINode )
 	
 	//----------------------------------------------------------------//
 	void			ApplyValueAttrOp		( MOAIAttribute& attr, u32 op );
@@ -47,8 +47,8 @@ public:
 	void			GetZero					( MOAIAttribute& attr ) const;
 					MOAIAnimCurveBone		();
 					~MOAIAnimCurveBone		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			SetSamplePosition		( u32 idx, float x, float y, float z );
 	void			SetSampleRotation		( u32 idx, float x, float y, float z, float w );
 	void			SetSampleScale			( u32 idx, float x, float y, float z );

@@ -19,10 +19,10 @@ private:
 	ZLLeanArray < ZLStrongPtr < MOAICollisionShape > >		mShapes;
 	
 	//----------------------------------------------------------------//
-	static int		_reserveShapes			( lua_State* L );
-	static int		_setBox					( lua_State* L );
-	static int		_setRect				( lua_State* L );
-	static int		_setQuad				( lua_State* L );
+	static mrb_value		_reserveShapes			( mrb_state* M, mrb_value context );
+	static mrb_value		_setBox					( mrb_state* M, mrb_value context );
+	static mrb_value		_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_setQuad				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	MOAICollisionShape&		AffirmShape						( u32 idx );
@@ -37,13 +37,13 @@ private:
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAICollisionDeck )
+	DECL_RUBY_FACTORY ( MOAICollisionDeck, MOAIDeck )
 	
 	//----------------------------------------------------------------//
 					MOAICollisionDeck		();
 					~MOAICollisionDeck		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			ReserveShapes			( u32 totalShapes );
 	void			SetBox					( u32 idx, const ZLBox& box );
 	void			SetRect					( u32 idx, const ZLRect& rect );

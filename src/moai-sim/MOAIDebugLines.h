@@ -57,7 +57,7 @@ public:
 //================================================================//
 // TODO: doxygen
 class MOAIDebugLinesMgr :
-	public ZLContextClass < MOAIDebugLinesMgr, MOAILuaObject > {
+	public ZLContextClass < MOAIDebugLinesMgr, MOAIRubyObject > {
 private:
 
 	static const u32	STYLE_SET_ID_SHIFT	= 16;
@@ -71,8 +71,8 @@ private:
 	bool					mShowDebugLines;
 
 	//----------------------------------------------------------------//
-	static int				_setStyle				( lua_State* L );
-	static int				_showDebugLines			( lua_State* L );
+	static mrb_value		_setStyle				( mrb_state* M, mrb_value context );
+	static mrb_value		_showDebugLines			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	static u32				GetSetID				( u32 packedID );
@@ -85,7 +85,7 @@ private:
 
 public:
 	
-	DECL_LUA_SINGLETON ( MOAIDebugLinesMgr )
+	DECL_RUBY_SINGLETON ( MOAIDebugLinesMgr )
 	
 	//----------------------------------------------------------------//
 	bool			Bind					( u32 styleID );
@@ -94,7 +94,7 @@ public:
 	bool			IsVisible				( u32 styleID );
 					MOAIDebugLinesMgr		();
 					~MOAIDebugLinesMgr		();
-	void			RegisterLuaClass		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
 
 	//----------------------------------------------------------------//
 	template < typename TYPE >

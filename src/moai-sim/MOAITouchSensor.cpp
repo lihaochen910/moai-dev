@@ -27,11 +27,10 @@ const float MOAITouchSensor::DEFAULT_TAPMARGIN = 50.0f;
 	@in		MOAITouchSensor self
 	@out	number count
 */
-int MOAITouchSensor::_countTouches ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_countTouches ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
-	state.Push ( self->mTop );
-	return 1;
+	return state.ToRValue ( self->mTop );
 }
 
 //----------------------------------------------------------------//
@@ -42,16 +41,15 @@ int MOAITouchSensor::_countTouches ( lua_State* L ) {
 	@opt	number idx				Index of touch to check.
 	@out	boolean wasPressed
 */
-int MOAITouchSensor::_down ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_down ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, self->mActiveStack [ 0 ] );
+	u32 idx = state.GetParamValue < u32 >( 1, self->mActiveStack [ 0 ] );
 	
 	if ( idx < MAX_TOUCHES ) {
-		lua_pushboolean ( state, ( self->mTouches [ idx ].mState & DOWN ) == DOWN );
-		return 1;
+		return state.ToRValue ( ( self->mTouches [ idx ].mState & DOWN ) == DOWN );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -63,16 +61,16 @@ int MOAITouchSensor::_down ( lua_State* L ) {
 	@out	...
 	@out	number idxN
 */
-int MOAITouchSensor::_getActiveTouches ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_getActiveTouches ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
 	u32 count = self->mTop;
-	lua_checkstack( L, count );
+	mrb_value ary = mrb_ary_new ( state );
 	
 	for ( u32 i = 0; i < count; ++i ) {
-		lua_pushnumber ( state, self->mActiveStack [ i ]);
+		mrb_ary_push ( M, ary, state.ToRValue ( self->mActiveStack [ i ] ) );
 	}
-	return count;
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -86,11 +84,11 @@ int MOAITouchSensor::_getActiveTouches ( lua_State* L ) {
 	@out	number x
 	@out	number y
 */
-int MOAITouchSensor::_getCenterLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_getCenterLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
 	u32 count = self->mTop;
-	if ( count == 0 ) return 0;
+	if ( count == 0 ) return context;
 	
 	ZLVec2D loc ( 0.0f, 0.0f );
 	
@@ -110,10 +108,11 @@ int MOAITouchSensor::_getCenterLoc ( lua_State* L ) {
 	
 	loc.Scale ( 1.0f / ( float )count );
 	
-	state.Push ( loc.mX );
-	state.Push ( loc.mY );
+	mrb_value argv [ 2 ];
+	argv [ 0 ] = state.ToRValue ( loc.mX );
+	argv [ 1 ] = state.ToRValue ( loc.mY );
 	
-	return 2;
+	return mrb_ary_new_from_values ( M, 2, argv );
 }
 
 //----------------------------------------------------------------//
@@ -126,22 +125,23 @@ int MOAITouchSensor::_getCenterLoc ( lua_State* L ) {
 	@out	number y
 	@out	number tapCount
 */
-int MOAITouchSensor::_getTouch ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_getTouch ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 0 );
+	u32 idx = state.GetParamValue < u32 >( 2, 0 );
 	
 	if ( idx < MAX_TOUCHES ) {
 		
 		MOAITouch& touch = self->mTouches [ idx ];
 		
-		lua_pushnumber ( state, touch.mX );
-		lua_pushnumber ( state, touch.mY );
-		lua_pushnumber ( state, touch.mTapCount );
-			
-		return 3;
+		mrb_value argv [ 3 ];
+		argv [ 0 ] = state.ToRValue ( touch.mX );
+		argv [ 1 ] = state.ToRValue ( touch.mY );
+		argv [ 2 ] = state.ToRValue ( touch.mTapCount );
+
+		return mrb_ary_new_from_values ( M, 3, argv );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -151,11 +151,10 @@ int MOAITouchSensor::_getTouch ( lua_State* L ) {
 	@in		MOAITouchSensor self
 	@out	boolean hasTouches
 */
-int MOAITouchSensor::_hasTouches ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_hasTouches ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 
-	lua_pushboolean ( state, ( self->mTop > 0 ));
-	return 1;
+	return state.ToRValue ( self->mTop > 0 );
 }
 
 //----------------------------------------------------------------//
@@ -166,16 +165,15 @@ int MOAITouchSensor::_hasTouches ( lua_State* L ) {
 	@opt	number idx				Index of touch to check.
 	@out	boolean isDown
 */
-int MOAITouchSensor::_isDown ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_isDown ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, self->mActiveStack [ 0 ] );
+	u32 idx = state.GetParamValue < u32 >( 2, self->mActiveStack [ 0 ] );
 	
 	if ( idx < MAX_TOUCHES ) {
-		lua_pushboolean ( state, ( self->mTouches [ idx ].mState & IS_DOWN ) == IS_DOWN );
-		return 1;
+		return state.ToRValue ( ( self->mTouches [ idx ].mState & IS_DOWN ) == IS_DOWN );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -186,12 +184,11 @@ int MOAITouchSensor::_isDown ( lua_State* L ) {
 	@in		boolean accept	true then touch cancel events will be sent 
 	@out	nil
 */
-int MOAITouchSensor::_setAcceptCancel ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "UB" )
+mrb_value MOAITouchSensor::_setAcceptCancel ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "UB" )
 	
-	self->mAcceptCancel = state.GetValue < bool >( 2, self->mAcceptCancel );
-	
-	return 0;
+	self->mAcceptCancel = state.GetParamValue < bool >( 1, self->mAcceptCancel );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -202,12 +199,11 @@ int MOAITouchSensor::_setAcceptCancel ( lua_State* L ) {
 	@opt	function callback		Default value is nil.
 	@out	nil
 */
-int MOAITouchSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
-	self->mCallback.SetRef ( state, 2 );
-	
-	return 0;
+	self->mCallback.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -218,13 +214,13 @@ int MOAITouchSensor::_setCallback ( lua_State* L ) {
 	@in		number margin			Max difference on x and y between taps
 	@out	nil
  */
-int MOAITouchSensor::_setTapMargin ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "UN" )
+mrb_value MOAITouchSensor::_setTapMargin ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "UN" )
 	
-	float tapMargin = state.GetValue < float >( 2, DEFAULT_TAPMARGIN );
+	float tapMargin = state.GetParamValue < float >( 1, DEFAULT_TAPMARGIN );
 	self->mTapMargin = tapMargin;
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -235,13 +231,13 @@ int MOAITouchSensor::_setTapMargin ( lua_State* L ) {
 	@in		number time				New time between taps
 	@out	nil
 */
-int MOAITouchSensor::_setTapTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "UN" )
+mrb_value MOAITouchSensor::_setTapTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "UN" )
 	
-	float tapTime = state.GetValue < float >( 2, DEFAULT_TAPTIME );
+	float tapTime = state.GetParamValue < float >( 1, DEFAULT_TAPTIME );
 	self->mTapTime = tapTime;
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -252,16 +248,15 @@ int MOAITouchSensor::_setTapTime ( lua_State* L ) {
 	@opt	number idx				Index of touch to check.
 	@out	boolean wasPressed
 */
-int MOAITouchSensor::_up ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITouchSensor, "U" )
+mrb_value MOAITouchSensor::_up ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITouchSensor, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, self->mActiveStack [ 0 ] );
+	u32 idx = state.GetParamValue < u32 >( 1, self->mActiveStack [ 0 ] );
 	
 	if ( idx < MAX_TOUCHES ) {
-		lua_pushboolean ( state, ( self->mTouches [ idx ].mState & UP ) == UP );
-		return 1;
+		return state.ToRValue ( ( self->mTouches [ idx ].mState & UP ) == UP );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -400,9 +395,12 @@ void MOAITouchSensor::ParseEvent ( ZLStream& eventStream ) {
 		this->ClearState ();
 		
 		if ( this->mCallback && this->mAcceptCancel ) {
-			MOAIScopedLuaState state = this->mCallback.GetSelf ();
-			lua_pushnumber ( state, eventType );
-			state.DebugCall ( 1, 0 );
+			MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+			mrb_value argv [ 1 ];
+			argv [ 0 ] = state.ToRValue ( eventType );
+
+			state.FuncCall ( this->mCallback, "call", 1, argv );
 		}
 	}
 	else {
@@ -487,13 +485,16 @@ void MOAITouchSensor::ParseEvent ( ZLStream& eventStream ) {
 			
 			if ( this->mCallback ) {
 				
-				MOAIScopedLuaState state = this->mCallback.GetSelf ();
-				lua_pushnumber ( state, eventType );
-				lua_pushnumber ( state, idx );
-				lua_pushnumber ( state, touch.mX );
-				lua_pushnumber ( state, touch.mY );
-				lua_pushnumber ( state, touch.mTapCount );
-				state.DebugCall ( 5, 0 );
+				MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+				mrb_value argv [ 5 ];
+				argv [ 0 ] = state.ToRValue ( eventType );
+				argv [ 0 ] = state.ToRValue ( idx );
+				argv [ 0 ] = state.ToRValue ( touch.mX );
+				argv [ 0 ] = state.ToRValue ( touch.mY );
+				argv [ 0 ] = state.ToRValue ( touch.mTapCount );
+
+				state.FuncCall ( this->mCallback, "call", 5, argv );
 			}
 		}
 	}
@@ -549,38 +550,34 @@ void MOAITouchSensor::PrintStacks () {
 }
 
 //----------------------------------------------------------------//
-void MOAITouchSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITouchSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "TOUCH_DOWN", ( u32 )TOUCH_DOWN );
-	state.SetField ( -1, "TOUCH_MOVE", ( u32 )TOUCH_MOVE );
-	state.SetField ( -1, "TOUCH_UP", ( u32 )TOUCH_UP );
-	state.SetField ( -1, "TOUCH_CANCEL", ( u32 )TOUCH_CANCEL );
+	state.DefineClassConst ( klass, "TOUCH_DOWN", ( u32 )TOUCH_DOWN );
+	state.DefineClassConst ( klass, "TOUCH_MOVE", ( u32 )TOUCH_MOVE );
+	state.DefineClassConst ( klass, "TOUCH_UP", ( u32 )TOUCH_UP );
+	state.DefineClassConst ( klass, "TOUCH_CANCEL", ( u32 )TOUCH_CANCEL );
 }
 
 //----------------------------------------------------------------//
-void MOAITouchSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITouchSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "countTouches",		_countTouches },
-		{ "down",				_down },
-		{ "getActiveTouches",	_getActiveTouches },
-		{ "getCenterLoc",		_getCenterLoc },
-		{ "getTouch",			_getTouch },
-		{ "hasTouches",			_hasTouches },
-		{ "isDown",				_isDown },
-		{ "setAcceptCancel",	_setAcceptCancel },
-		{ "setCallback",		_setCallback },
-		{ "setTapMargin",		_setTapMargin },
-		{ "setTapTime",			_setTapTime },
-		{ "up",					_up },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "countTouches", _countTouches, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "down", _down, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getActiveTouches", _getActiveTouches, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getCenterLoc", _getCenterLoc, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTouch", _getTouch, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "hasTouches", _hasTouches, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isDown", _isDown, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setAcceptCancel", _setAcceptCancel, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTapMargin", _setTapMargin, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTapTime", _setTapTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "up", _up, MRB_ARGS_ARG ( 0, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

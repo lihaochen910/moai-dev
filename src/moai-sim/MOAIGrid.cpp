@@ -19,12 +19,12 @@
 	@in		number mask
 	@out	nil
 */
-int MOAIGrid::_clearTileFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UNNN" )
+mrb_value MOAIGrid::_clearTileFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UNNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
-	u32 mask	= state.GetValue < u32 >( 4, 0 );
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 mask	= state.GetParamValue < u32 >( 3, 0 );
 	
 	u32 tile = self->GetTile ( xTile, yTile );
 	
@@ -32,7 +32,7 @@ int MOAIGrid::_clearTileFlags ( lua_State* L ) {
 	
 	self->SetTile ( xTile, yTile, tile );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -43,14 +43,14 @@ int MOAIGrid::_clearTileFlags ( lua_State* L ) {
 	@in		number value
 	@out	nil
 */
-int MOAIGrid::_fill ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UN" )
+mrb_value MOAIGrid::_fill ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UN" )
 
-	u32 value	= state.GetValue < u32 >( 2, 1 );
+	u32 value	= state.GetParamValue < u32 >( 1, 1 );
 	
 	self->Fill ( value );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -62,15 +62,14 @@ int MOAIGrid::_fill ( lua_State* L ) {
 	@in		number yTile
 	@out	number tile
 */
-int MOAIGrid::_getTile ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UNN" )
+mrb_value MOAIGrid::_getTile ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
 	
 	u32 tile = self->GetTile ( xTile, yTile );
-	state.Push ( tile );
-	return 1;
+	return state.ToRValue ( tile );
 }
 
 //----------------------------------------------------------------//
@@ -83,20 +82,18 @@ int MOAIGrid::_getTile ( lua_State* L ) {
 	@in		number mask
 	@out	number tile
 */
-int MOAIGrid::_getTileFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UNNN" )
+mrb_value MOAIGrid::_getTileFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UNNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
-	u32 mask	= state.GetValue < u32 >( 4, 0 );
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 mask	= state.GetParamValue < u32 >( 3, 0 );
 	
 	u32 tile = self->GetTile ( xTile, yTile );
 	
 	tile = tile & mask;
 	
-	lua_pushnumber ( state, tile );
-	
-	return 1;
+	return state.ToRValue ( tile );
 }
 
 //----------------------------------------------------------------//
@@ -108,19 +105,19 @@ int MOAIGrid::_getTileFlags ( lua_State* L ) {
 	@in		... values
 	@out	nil
 */
-int MOAIGrid::_setRow ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UN" )
+mrb_value MOAIGrid::_setRow ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UN" )
 
-	u32 row = state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 total = lua_gettop ( state ) - 2;
+	u32 row = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 total = state.GetParamsCount () - 1;
 	
 	for ( u32 i = 0; i < total; ++i ) {
 	
-		u32 tile = state.GetValue < u32 >( 3 + i, 0 );
+		u32 tile = state.GetParamValue < u32 >( 2 + i, 0 );
 		self->SetTile ( i, row, tile );
 	}
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -133,16 +130,16 @@ int MOAIGrid::_setRow ( lua_State* L ) {
 	@in		number value
 	@out	nil
 */
-int MOAIGrid::_setTile ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UNNN" )
+mrb_value MOAIGrid::_setTile ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UNNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
-	u32 tile	= state.GetValue < u32 >( 4, 0 );
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 tile	= state.GetParamValue < u32 >( 3, 0 );
 	
 	self->SetTile ( xTile, yTile, tile );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -155,12 +152,12 @@ int MOAIGrid::_setTile ( lua_State* L ) {
 	@in		number mask
 	@out	nil
 */
-int MOAIGrid::_setTileFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UNNN" )
+mrb_value MOAIGrid::_setTileFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UNNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
-	u32 mask	= state.GetValue < u32 >( 4, 0 );
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 mask	= state.GetParamValue < u32 >( 3, 0 );
 	
 	u32 tile = self->GetTile ( xTile, yTile );
 	
@@ -168,7 +165,7 @@ int MOAIGrid::_setTileFlags ( lua_State* L ) {
 	
 	self->SetTile ( xTile, yTile, tile );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -181,15 +178,14 @@ int MOAIGrid::_setTileFlags ( lua_State* L ) {
 	@in		MOAIStream stream
 	@out	number bytesRead
 */
-int MOAIGrid::_streamTilesIn ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UU" )
+mrb_value MOAIGrid::_streamTilesIn ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UU" )
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	if ( stream ) {
-		state.Push (( u32 )self->StreamTilesIn ( stream )); // TODO: overflow?
-		return 1;
+		return state.ToRValue ( ( u32 )self->StreamTilesIn ( stream ) );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -201,15 +197,14 @@ int MOAIGrid::_streamTilesIn ( lua_State* L ) {
 	@in		MOAIStream stream
 	@out	number bytesWritten
 */
-int MOAIGrid::_streamTilesOut ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UU" )
+mrb_value MOAIGrid::_streamTilesOut ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UU" )
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	if ( stream ) {
-		state.Push (( u32 )self->StreamTilesOut ( stream )); // TODO: overflow?
-		return 1;
+		return state.ToRValue ( ( u32 )self->StreamTilesOut ( stream ) );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -222,12 +217,12 @@ int MOAIGrid::_streamTilesOut ( lua_State* L ) {
 	@in		number mask
 	@out	nil
 */
-int MOAIGrid::_toggleTileFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGrid, "UNNN" )
+mrb_value MOAIGrid::_toggleTileFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGrid, "UNNN" )
 
-	int xTile	= state.GetValue < int >( 2, 1 ) - 1;
-	int yTile	= state.GetValue < int >( 3, 1 ) - 1;
-	u32 mask	= state.GetValue < u32 >( 4, 0 );
+	int xTile	= state.GetParamValue < int >( 1, 1 ) - 1;
+	int yTile	= state.GetParamValue < int >( 2, 1 ) - 1;
+	u32 mask	= state.GetParamValue < u32 >( 3, 0 );
 	
 	u32 tile = self->GetTile ( xTile, yTile );
 	
@@ -235,7 +230,7 @@ int MOAIGrid::_toggleTileFlags ( lua_State* L ) {
 	
 	self->SetTile ( xTile, yTile, tile );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -294,79 +289,75 @@ void MOAIGrid::OnResize () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGrid::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGrid::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGridSpace::RegisterLuaClass ( state );
+	MOAIGridSpace::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIGrid::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGrid::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGridSpace::RegisterLuaFuncs ( state );
+	MOAIGridSpace::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "clearTileFlags",		_clearTileFlags },
-		{ "fill",				_fill },
-		{ "getTile",			_getTile },
-		{ "getTileFlags",		_getTileFlags },
-		{ "setRow",				_setRow },
-		{ "setTile",			_setTile },
-		{ "setTileFlags",		_setTileFlags },
-		{ "streamTilesIn",		_streamTilesIn },
-		{ "streamTilesOut",		_streamTilesOut },
-		{ "toggleTileFlags",	_toggleTileFlags },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "clearTileFlags", _clearTileFlags, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "fill", _fill, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getTile", _getTile, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "getTileFlags", _getTileFlags, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setRow", _setRow, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setTile", _setTile, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setTileFlags", _setTileFlags, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "streamTilesIn", _streamTilesIn, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "streamTilesOut", _streamTilesOut, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "toggleTileFlags", _toggleTileFlags, MRB_ARGS_REQ ( 3 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIGrid::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIGrid::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( serializer );
 
-	this->MOAIGridSpace::SerializeIn ( state, serializer );
-	this->mTiles.Init ( this->MOAIGridSpace::GetTotalCells ());
+	// this->MOAIGridSpace::SerializeIn ( state, serializer );
+	// this->mTiles.Init ( this->MOAIGridSpace::GetTotalCells ());
 
-	state.PushField ( -1, "mData" );
+	// state.PushField ( -1, "mData" );
 
-	if ( state.IsType ( -1, LUA_TSTRING )) {
+	// if ( state.IsType ( -1, LUA_TSTRING )) {
 		
-		// TODO: all this is unsafe; don't assume sizes will be reasonable of that deflated data is guaranteed to be smaller; rewrite this with checking and recover in place
+	// 	// TODO: all this is unsafe; don't assume sizes will be reasonable of that deflated data is guaranteed to be smaller; rewrite this with checking and recover in place
 		
-		void* tiles = this->mTiles;
-		size_t tilesSize = this->mTiles.Size () * sizeof ( u32 );
+	// 	void* tiles = this->mTiles;
+	// 	size_t tilesSize = this->mTiles.Size () * sizeof ( u32 );
 		
-		STLString base64 = lua_tostring ( state, -1 ); 
-		base64.base_64_decode ( tiles, tilesSize );
+	// 	STLString base64 = lua_tostring ( state, -1 ); 
+	// 	base64.base_64_decode ( tiles, tilesSize );
 		
-		ZLLeanArray < u8 > unzip;
-		ZLZip::Inflate ( this->mTiles, this->mTiles.Size () * sizeof ( u32 ), unzip );
+	// 	ZLLeanArray < u8 > unzip;
+	// 	ZLZip::Inflate ( this->mTiles, this->mTiles.Size () * sizeof ( u32 ), unzip );
 		
-		tiles = unzip.Data ();
-		if ( unzip.Size () < tilesSize ) {
-			tilesSize = unzip.Size ();
-		}
-		memcpy ( this->mTiles, tiles, tilesSize );
-	}
+	// 	tiles = unzip.Data ();
+	// 	if ( unzip.Size () < tilesSize ) {
+	// 		tilesSize = unzip.Size ();
+	// 	}
+	// 	memcpy ( this->mTiles, tiles, tilesSize );
+	// }
 	
-	lua_pop ( state, 1 );
+	// lua_pop ( state, 1 );
 }
 
 //----------------------------------------------------------------//
-void MOAIGrid::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIGrid::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( serializer );
 
-	this->MOAIGridSpace::SerializeOut ( state, serializer );
+	// this->MOAIGridSpace::SerializeOut ( state, serializer );
 
-	ZLLeanArray < u8 > zip;
-	ZLZip::Deflate ( this->mTiles, this->mTiles.Size () * sizeof ( u32 ), zip );
+	// ZLLeanArray < u8 > zip;
+	// ZLZip::Deflate ( this->mTiles, this->mTiles.Size () * sizeof ( u32 ), zip );
 
-	STLString base64;
-	base64.base_64_encode ( zip.Data (), zip.Size ());
+	// STLString base64;
+	// base64.base_64_encode ( zip.Data (), zip.Size ());
 	
-	lua_pushstring ( state, base64.str ());
-	lua_setfield ( state, -2, "mData" );
+	// lua_pushstring ( state, base64.str ());
+	// lua_setfield ( state, -2, "mData" );
 }
 
 //----------------------------------------------------------------//

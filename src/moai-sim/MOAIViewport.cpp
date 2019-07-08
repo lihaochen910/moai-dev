@@ -10,26 +10,28 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIViewport::_getFrame ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewport, "U" )
+mrb_value MOAIViewport::_getFrame ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewport, "U" )
 	
-	state.Push ( self->mXMin );
-	state.Push ( self->mYMin );
-	state.Push ( self->mXMax );
-	state.Push ( self->mYMax );
-	
-	return 4;
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( self->mXMin );
+	ret [ 1 ] = state.ToRValue ( self->mYMin );
+	ret [ 2 ] = state.ToRValue ( self->mXMax );
+	ret [ 3 ] = state.ToRValue ( self->mYMax );
+
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIViewport::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewport, "U" )
+mrb_value MOAIViewport::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewport, "U" )
 	
-	state.Push ( self->Width ());
-	state.Push ( self->Height ());
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->Width () );
+	ret [ 1 ] = state.ToRValue ( self->Height () );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -42,15 +44,15 @@ int MOAIViewport::_getSize ( lua_State* L ) {
 	@in		number yOff
 	@out	nil
 */
-int MOAIViewport::_setOffset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewport, "UNN" )
+mrb_value MOAIViewport::_setOffset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewport, "UNN" )
 	
-	float xOffset = state.GetValue < float >( 2, 0.0f );
-	float yOffset = state.GetValue < float >( 3, 0.0f );
+	float xOffset = state.GetParamValue < float >( 1, 0.0f );
+	float yOffset = state.GetParamValue < float >( 2, 0.0f );
 
 	self->SetOffset ( xOffset, yOffset );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -61,13 +63,13 @@ int MOAIViewport::_setOffset ( lua_State* L ) {
 	@in		number rotation
 	@out	nil
 */
-int MOAIViewport::_setRotation ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIViewport, "U" )
+mrb_value MOAIViewport::_setRotation ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewport, "U" )
 	
-	float rotation = state.GetValue < float >( 2, 0.0f );
+	float rotation = state.GetParamValue < float >( 1, 0.0f );
 	self->SetRotation ( rotation );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -88,20 +90,17 @@ int MOAIViewport::_setRotation ( lua_State* L ) {
 	@in		number yScale
 	@out	nil
 */
-int MOAIViewport::_setScale ( lua_State* L ) {
+mrb_value MOAIViewport::_setScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewport, "U" )
 
-	MOAILuaState state ( L );
-	if ( !state.CheckParams ( 1, "UNN" )) return 0;
+	if ( !state.CheckParams ( 1, "NN" )) return context;
 	
-	MOAIViewport* self = state.GetLuaObject < MOAIViewport >( 1, true );
-	if ( !self ) return 0;
-
-	float xScale = state.GetValue < float >( 2, 0.0f );
-	float yScale = state.GetValue < float >( 3, 0.0f );
+	float xScale = state.GetParamValue < float >( 1, 0.0f );
+	float yScale = state.GetParamValue < float >( 2, 0.0f );
 	
 	self->SetScale ( xScale, yScale );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -125,21 +124,18 @@ int MOAIViewport::_setScale ( lua_State* L ) {
 		@in		number bottom
 		@out	nil
 */
-int MOAIViewport::_setSize ( lua_State* L ) {
+mrb_value MOAIViewport::_setSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIViewport, "U" )
 
-	MOAILuaState state ( L );
-	if ( !state.CheckParams ( 1, "UNN" )) return 0;
+	if ( !state.CheckParams ( 1, "NN" )) return context;
 	
-	MOAIViewport* self = state.GetLuaObject < MOAIViewport >( 1, true );
-	if ( !self ) return 0;
+	float x0 = state.GetParamValue < float >( 1, 0.0f );
+	float y0 = state.GetParamValue < float >( 2, 0.0f );
 
-	float x0 = state.GetValue < float >( 2, 0.0f );
-	float y0 = state.GetValue < float >( 3, 0.0f );
-
-	if ( state.CheckParams ( 4, "NN", false )) {
+	if ( state.CheckParams ( 3, "NN", false )) {
 	
-		float x1 = state.GetValue < float >( 4, 0.0f );
-		float y1 = state.GetValue < float >( 5, 0.0f );
+		float x1 = state.GetParamValue < float >( 3, 0.0f );
+		float y1 = state.GetParamValue < float >( 4, 0.0f );
 		
 		self->Init ( x0, y0, x1, y1 );
 	}
@@ -147,7 +143,7 @@ int MOAIViewport::_setSize ( lua_State* L ) {
 		self->Init ( 0.0f, 0.0f, x0, y0 );
 	}
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -380,7 +376,7 @@ MOAIViewport::MOAIViewport () :
 	mOffset ( 0.0f, 0.0f ),
 	mRotation ( 0.0f ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 	
 	this->Init ( 0.0f, 0.0f, 1.0f, 1.0f );
 }
@@ -390,24 +386,21 @@ MOAIViewport::~MOAIViewport () {
 }
 
 //----------------------------------------------------------------//
-void MOAIViewport::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIViewport::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIViewport::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIViewport::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getFrame",		_getFrame },
-		{ "getSize",		_getSize },
-		{ "setOffset",		_setOffset },
-		{ "setRotation",	_setRotation },
-		{ "setScale",		_setScale },
-		{ "setSize",		_setSize },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getFrame", _getFrame, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getSize", _getSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setOffset", _setOffset, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setRotation", _setRotation, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setScale", _setScale, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setSize", _setSize, MRB_ARGS_ANY () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

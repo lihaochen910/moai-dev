@@ -26,8 +26,8 @@ private:
 	float		mEmitDistance;		// distance at which next emission will occur
 
 	//----------------------------------------------------------------//
-	static int		_reset					( lua_State* L );
-	static int		_setDistance			( lua_State* L );
+	static mrb_value		_reset					( mrb_state* M, mrb_value context );
+	static mrb_value		_setDistance			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	float			GetRandomDistance		();
@@ -38,13 +38,13 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIParticleDistanceEmitter )
+	DECL_RUBY_FACTORY ( MOAIParticleDistanceEmitter, MOAIParticleEmitter )
 
 	//----------------------------------------------------------------//
 					MOAIParticleDistanceEmitter		();
 					~MOAIParticleDistanceEmitter	();
-	void			RegisterLuaClass				( MOAILuaState& state );
-	void			RegisterLuaFuncs				( MOAILuaState& state );
+	void			RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 	void			SetDistanceRange				( float min, float max );
 };
 

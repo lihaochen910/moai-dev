@@ -10,7 +10,7 @@
 #include <moai-sim/MOAIDrawable.h>
 #include <moai-sim/MOAIPartitionHull.h>
 #include <moai-sim/MOAITransform.h>
-#include <moai-core/MOAILuaSharedPtr.h>
+#include <moai-core/MOAIRubySharedPtr.h>
 
 //================================================================//
 // MOAIIndexedPropBase
@@ -23,8 +23,8 @@ protected:
 	u32				mIndex;
 	
 	//----------------------------------------------------------------//
-	static int		_getIndex					( lua_State* L );
-	static int		_setIndex					( lua_State* L );
+	static mrb_value		_getIndex					( mrb_state* M, mrb_value context );
+	static mrb_value		_setIndex					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MOAINode_ApplyAttrOp		( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -43,10 +43,10 @@ public:
 	//----------------------------------------------------------------//
 					MOAIIndexedPropBase			();
 					~MOAIIndexedPropBase		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
-	void			SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

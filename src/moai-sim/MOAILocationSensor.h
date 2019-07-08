@@ -25,23 +25,23 @@ private:
 
 	float mSpeed;
 
-	MOAILuaStrongRef mCallback;
+	MOAIRubyStrongRef mCallback;
 
 	//----------------------------------------------------------------//
-	static int	_getLocation	( lua_State* L );
-	static int	_setCallback	( lua_State* L );
+	static mrb_value	_getLocation	( mrb_state* M, mrb_value context );
+	static mrb_value	_setCallback	( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAILocationSensor )
+	DECL_RUBY_FACTORY ( MOAILocationSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	static void			EnqueueLocationEvent	( u8 deviceID, u8 sensorID, double longitude, double latitude, double altitude, float hAccuracy, float vAccuracy, float speed );
 						MOAILocationSensor		();
 						~MOAILocationSensor		();
 	void				ParseEvent				( ZLStream& eventStream );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -13,37 +13,37 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialBatchHolder::_getBlendMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
-	return self->mMaterialBatch ? self->mMaterialBatch->GetBlendMode ( state, 2 ) : 0;
+mrb_value MOAIMaterialBatchHolder::_getBlendMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
+	return self->mMaterialBatch ? self->mMaterialBatch->GetBlendMode ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialBatchHolder::_getCullMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
-	return self->mMaterialBatch ? self->mMaterialBatch->GetCullMode ( state, 2 ) : 0;
+mrb_value MOAIMaterialBatchHolder::_getCullMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
+	return self->mMaterialBatch ? self->mMaterialBatch->GetCullMode ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialBatchHolder::_getDepthMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
-	return self->mMaterialBatch ? self->mMaterialBatch->GetDepthMask ( state, 2 ) : 0;
+mrb_value MOAIMaterialBatchHolder::_getDepthMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
+	return self->mMaterialBatch ? self->mMaterialBatch->GetDepthMask ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialBatchHolder::_getDepthTest ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
-	return self->mMaterialBatch ? self->mMaterialBatch->GetDepthTest ( state, 2 ) : 0;
+mrb_value MOAIMaterialBatchHolder::_getDepthTest ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
+	return self->mMaterialBatch ? self->mMaterialBatch->GetDepthTest ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialBatchHolder::_getLight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
-	return self->mMaterialBatch ? self->mMaterialBatch->GetLight ( state, 2 ) : 0;
+mrb_value MOAIMaterialBatchHolder::_getLight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
+	return self->mMaterialBatch ? self->mMaterialBatch->GetLight ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -53,11 +53,10 @@ int MOAIMaterialBatchHolder::_getLight ( lua_State* L ) {
 	@in		MOAIMaterialBatchHolder self
 	@out	MOAIMaterialBatch materialBatch
 */
-int MOAIMaterialBatchHolder::_getMaterialBatch ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_getMaterialBatch ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	self->mMaterialBatch.PushRef ( state );
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( self->mMaterialBatch );
 }
 
 //----------------------------------------------------------------//
@@ -70,10 +69,10 @@ int MOAIMaterialBatchHolder::_getMaterialBatch ( lua_State* L ) {
 	@opt	number idx				Default value is 1.
 	@out	MOAIShader shader		Or nil if none exists.
 */
-int MOAIMaterialBatchHolder::_getShader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_getShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	return self->mMaterialBatch ? self->mMaterialBatch->GetShader ( state, 2 ) : 0;
+	return self->mMaterialBatch ? self->mMaterialBatch->GetShader ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -86,10 +85,10 @@ int MOAIMaterialBatchHolder::_getShader ( lua_State* L ) {
 	@opt	number idx				Default value is 1.
 	@out	MOAITexture texture		Or nil if none exists.
 */
-int MOAIMaterialBatchHolder::_getTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_getTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	return self->mMaterialBatch ? self->mMaterialBatch->GetTexture ( state, 2 ) : 0;
+	return self->mMaterialBatch ? self->mMaterialBatch->GetTexture ( state, 1 ) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -101,12 +100,12 @@ int MOAIMaterialBatchHolder::_getTexture ( lua_State* L ) {
 	@in		number count
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_reserveMaterials ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_reserveMaterials ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	self->AffirmMaterialBatch ()->Reserve ( state.GetValue < u32 >( 2, 0 ));
+	self->AffirmMaterialBatch ()->Reserve ( state.GetParamValue < u32 >( 1, 0 ));
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -118,11 +117,11 @@ int MOAIMaterialBatchHolder::_reserveMaterials ( lua_State* L ) {
 	@in		number dstFactor
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_setBlendMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setBlendMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 
-	self->AffirmMaterialBatch ()->SetBlendMode ( state, 2 );
-	return 0;
+	self->AffirmMaterialBatch ()->SetBlendMode ( state, 1 );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -133,11 +132,11 @@ int MOAIMaterialBatchHolder::_setBlendMode ( lua_State* L ) {
 	@opt	number cullMode			Default value is MOAIMaterialBatchHolder.CULL_NONE.
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_setCullMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setCullMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	self->AffirmMaterialBatch ()->SetCullMode ( state, 2 );
-	return 0;
+	self->AffirmMaterialBatch ()->SetCullMode ( state, 1 );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -148,11 +147,11 @@ int MOAIMaterialBatchHolder::_setCullMode ( lua_State* L ) {
 	@opt	boolean depthMask		Default value is true.
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_setDepthMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setDepthMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	self->AffirmMaterialBatch ()->SetDepthMask ( state, 2 );
-	return 0;
+	self->AffirmMaterialBatch ()->SetDepthMask ( state, 1 );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -163,11 +162,11 @@ int MOAIMaterialBatchHolder::_setDepthMask ( lua_State* L ) {
 	@opt	number depthFunc		Default value is MOAIMaterialBatchHolder.DEPTH_TEST_DISABLE.
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_setDepthTest ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setDepthTest ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	self->AffirmMaterialBatch ()->SetDepthTest ( state, 2 );
-	return 0;
+	self->AffirmMaterialBatch ()->SetDepthTest ( state, 1 );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -179,22 +178,20 @@ int MOAIMaterialBatchHolder::_setDepthTest ( lua_State* L ) {
 	@opt	number indexBatchSize
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_setIndexBatchSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setIndexBatchSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 
-	self->AffirmMaterialBatch ()->SetIndexBatchSize ( state.GetValue < u32 >( 2, 1 ));
+	self->AffirmMaterialBatch ()->SetIndexBatchSize ( state.GetParamValue < u32 >( 1, 1 ));
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialBatchHolder::_setLight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setLight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	state.Push ( self->AffirmMaterialBatch ()->SetLight ( state, 2 ));
-	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( self->AffirmMaterialBatch ()->SetLight ( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -205,12 +202,12 @@ int MOAIMaterialBatchHolder::_setLight ( lua_State* L ) {
 	@opt	MOAIMaterialBatch materialBatch
 	@out	nil
 */
-int MOAIMaterialBatchHolder::_setMaterialBatch ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setMaterialBatch ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	self->mMaterialBatch.Set ( *self, state.GetLuaObject < MOAIMaterialBatch >( 2, true ));
+	self->mMaterialBatch.Set ( *self, state.GetRubyObject < MOAIMaterialBatch >( 1, true ));
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -234,12 +231,10 @@ int MOAIMaterialBatchHolder::_setMaterialBatch ( lua_State* L ) {
 		@in		variant shader			Overloaded to accept a MOAIShader or a shader preset.
 		@out	MOAIShader shader		The shader that was set or created.
 */
-int MOAIMaterialBatchHolder::_setShader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	state.Push ( self->AffirmMaterialBatch ()->SetShader ( state, 2 ));
-	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( self->AffirmMaterialBatch ()->SetShader ( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -263,12 +258,10 @@ int MOAIMaterialBatchHolder::_setShader ( lua_State* L ) {
 		@in		variant texture			Overloaded to accept a filename, MOAITexture, MOAIImage, MOAIStream or MOAIDataBuffer.
 		@out	MOAITexture texture		The texture that was set or created.
 */
-int MOAIMaterialBatchHolder::_setTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialBatchHolder, "U" )
+mrb_value MOAIMaterialBatchHolder::_setTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialBatchHolder, "U" )
 	
-	state.Push ( self->AffirmMaterialBatch ()->SetTexture ( state, 2 ));
-	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( self->AffirmMaterialBatch ()->SetTexture ( state, 1 ) );
 }
 
 //================================================================//
@@ -279,7 +272,9 @@ int MOAIMaterialBatchHolder::_setTexture ( lua_State* L ) {
 MOAIMaterialBatch* MOAIMaterialBatchHolder::AffirmMaterialBatch () {
 
 	if ( !this->mMaterialBatch ) {
-		this->mMaterialBatch.Set ( *this, new MOAIMaterialBatch );
+		//this->mMaterialBatch.Set ( *this, new MOAIMaterialBatch );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().GetMainState ();
+		this->mMaterialBatch.Set ( *this, state.CreateClassInstance < MOAIMaterialBatch >() );
 	}
 	return this->mMaterialBatch;
 }
@@ -294,7 +289,7 @@ MOAIMaterial* MOAIMaterialBatchHolder::GetMaterial ( u32 idx ) {
 MOAIMaterialBatchHolder::MOAIMaterialBatchHolder () {
 
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -305,46 +300,43 @@ MOAIMaterialBatchHolder::~MOAIMaterialBatchHolder () {
 }
 
 //----------------------------------------------------------------//
-void MOAIMaterialBatchHolder::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIMaterialBatchHolder::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIMaterialBatchHolder::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIMaterialBatchHolder::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getBlendMode",			_getBlendMode },
-		{ "getCullMode",			_getCullMode },
-		{ "getDepthMask",			_getDepthMask },
-		{ "getDepthTest",			_getDepthTest },
-		{ "getLight",				_getLight },
-		{ "getMaterialBatch",		_getMaterialBatch },
-		{ "getShader",				_getShader },
-		{ "getTexture",				_getTexture },
-		{ "reserveMaterials",		_reserveMaterials },
-		{ "setBlendMode",			_setBlendMode },
-		{ "setCullMode",			_setCullMode },
-		{ "setDepthMask",			_setDepthMask },
-		{ "setDepthTest",			_setDepthTest },
-		{ "setIndexBatchSize",		_setIndexBatchSize },
-		{ "setLight",				_setLight },
-		{ "setMaterialBatch",		_setMaterialBatch },
-		{ "setShader",				_setShader },
-		{ "setTexture",				_setTexture },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getBlendMode", _getBlendMode, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getCullMode", _getCullMode, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getDepthMask", _getDepthMask, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getDepthTest", _getDepthTest, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getLight", _getLight, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMaterialBatch", _getMaterialBatch, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getShader", _getShader, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getTexture", _getTexture, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveMaterials", _reserveMaterials, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setBlendMode", _setBlendMode, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setCullMode", _setCullMode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDepthMask", _setDepthMask, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDepthTest", _setDepthTest, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setIndexBatchSize", _setIndexBatchSize, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setLight", _setLight, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setMaterialBatch", _setMaterialBatch, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setShader", _setShader, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTexture", _setTexture, MRB_ARGS_ANY () );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIMaterialBatchHolder::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIMaterialBatchHolder::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIMaterialBatchHolder::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIMaterialBatchHolder::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

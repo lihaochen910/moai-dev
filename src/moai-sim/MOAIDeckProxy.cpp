@@ -22,11 +22,11 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDeckProxy::_setDeck ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeckProxy, "U" )
+mrb_value MOAIDeckProxy::_setDeck ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeckProxy, "U" )
 	
-	self->mDeck.Set ( *self, state.GetLuaObject < MOAIDeck >( 2, true ));
-	return 0;
+	self->mDeck.Set ( *self, state.GetRubyObject < MOAIDeck >( 1, true ));
+	return context;
 }
 
 //================================================================//
@@ -48,32 +48,28 @@ MOAIDeckProxy::~MOAIDeckProxy () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckProxy::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDeckProxy::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaClass ( state );
+	MOAIDeck::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckProxy::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDeckProxy::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setDeck",				_setDeck },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "setDeck", _setDeck, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckProxy::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIDeckProxy::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIDeck::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckProxy::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIDeckProxy::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIDeck::SerializeOut ( state, serializer );
 }

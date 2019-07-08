@@ -48,18 +48,18 @@ MOAIShaderProgramTexture::MOAIShaderProgramTexture () :
 	@opt	number count	Declare an array of uniforms. Default value is 1.
 	@out	nil
 */
-int MOAIShaderProgram::_declareUniform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "UNSN" )
+mrb_value MOAIShaderProgram::_declareUniform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "UNSN" )
 
-	u32 idx				= state.GetValue < u32 >( 2, 1 ) - 1;
-	STLString name		= state.GetValue < cc8* >( 3, "" );
-	u32 type			= state.GetValue < u32 >( 4, MOAIShaderUniform::UNIFORM_TYPE_FLOAT );
-	u32 width			= state.GetValue < u32 >( 5, 1 );
-	u32 count			= state.GetValue < u32 >( 6, 1 );
+	u32 idx				= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	STLString name		= state.GetParamValue < cc8* >( 2, "" );
+	u32 type			= state.GetParamValue < u32 >( 3, MOAIShaderUniform::UNIFORM_TYPE_FLOAT );
+	u32 width			= state.GetParamValue < u32 >( 4, 1 );
+	u32 count			= state.GetParamValue < u32 >( 5, 1 );
 
 	self->DeclareUniform ( idx, name, type, width, count );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -71,32 +71,32 @@ int MOAIShaderProgram::_declareUniform ( lua_State* L ) {
 	@in		string fragmentShaderSource
 	@out	nil
 */
-int MOAIShaderProgram::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "USS" )
+mrb_value MOAIShaderProgram::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "USS" )
 
-	cc8* vtxSource	= state.GetValue < cc8* >( 2, 0 );
-	cc8* frgSource	= state.GetValue < cc8* >( 3, 0 );
+	cc8* vtxSource	= state.GetParamValue < cc8* >( 1, 0 );
+	cc8* frgSource	= state.GetParamValue < cc8* >( 2, 0 );
 
 	self->Load ( vtxSource, frgSource );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShaderProgram::_reserveGlobals ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "U" )
+mrb_value MOAIShaderProgram::_reserveGlobals ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "U" )
 
-	return self->ReserveGlobals ( L, 2 );
+	return self->ReserveGlobals ( M, 1 );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShaderProgram::_reserveTextures ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "U" )
+mrb_value MOAIShaderProgram::_reserveTextures ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "U" )
 
-	self->ReserveTextures ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->ReserveTextures ( state.GetParamValue < u32 >( 2, 0 ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -107,45 +107,45 @@ int MOAIShaderProgram::_reserveTextures ( lua_State* L ) {
 	@opt	number nUniforms	Default value is 0.
 	@out	nil
 */
-int MOAIShaderProgram::_reserveUniforms ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "U" )
+mrb_value MOAIShaderProgram::_reserveUniforms ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "U" )
 
-	u32 nUniforms = state.GetValue < u32 >( 2, 0 );
+	u32 nUniforms = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveUniforms ( nUniforms );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShaderProgram::_setGlobal ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "UNNN" )
+mrb_value MOAIShaderProgram::_setGlobal ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "UNNN" )
 	
-	return self->SetGlobal ( L, 2 );
+	return self->SetGlobal ( M, 1 );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIShaderProgram::_setTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "U" )
+mrb_value MOAIShaderProgram::_setTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 unit = state.GetValue < u32 >( 4, 1 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 unit = state.GetParamValue < u32 >( 3, 1 ) - 1;
 	
-	if ( state.IsType ( 3, LUA_TUSERDATA )) {
+	if ( state.ParamIsType ( 2, MRB_TT_DATA )) {
 	
-		self->SetTexture ( idx, state.GetLuaObject < MOAITextureBase >( 3, true ), unit );
+		self->SetTexture ( idx, state.GetRubyObject < MOAITextureBase >( 2, true ), unit );
 	}
 	else {
 	
 		self->SetTexture (
 			idx,
-			state.GetValue < u32 >( 3, MOAI_UNKNOWN_MATERIAL_GLOBAL + 1 ) - 1,
+			state.GetParamValue < u32 >( 2, MOAI_UNKNOWN_MATERIAL_GLOBAL + 1 ) - 1,
 			unit,
-			state.GetLuaObject < MOAITextureBase >( 5, false )
+			state.GetRubyObject < MOAITextureBase >( 4, false )
 		);
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -157,15 +157,15 @@ int MOAIShaderProgram::_setTexture ( lua_State* L ) {
 	@in		string name		Name of attribute.
 	@out	nil
 */
-int MOAIShaderProgram::_setVertexAttribute ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIShaderProgram, "UNS" )
+mrb_value MOAIShaderProgram::_setVertexAttribute ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIShaderProgram, "UNS" )
 
-	u32 idx					= state.GetValue < u32 >( 2, 1 ) - 1;
-	STLString attribute		= state.GetValue < cc8* >( 3, "" );
+	u32 idx					= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	STLString attribute		= state.GetParamValue < cc8* >( 2, "" );
 
 	self->SetVertexAttribute ( idx, attribute );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -412,107 +412,104 @@ void MOAIShaderProgram::OnUniformLocation ( u32 addr, void* userdata ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIShaderProgram::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIShaderProgram::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaClass ( state );
+	MOAIGfxResource::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "UNIFORM_TYPE_FLOAT",						( u32 )MOAIShaderUniform::UNIFORM_TYPE_FLOAT );
-	state.SetField ( -1, "UNIFORM_TYPE_INT",						( u32 )MOAIShaderUniform::UNIFORM_TYPE_INT );
+	state.DefineClassConst ( klass, "UNIFORM_TYPE_FLOAT",						( u32 )MOAIShaderUniform::UNIFORM_TYPE_FLOAT );
+	state.DefineClassConst ( klass, "UNIFORM_TYPE_INT",						( u32 )MOAIShaderUniform::UNIFORM_TYPE_INT );
 	
-	state.SetField ( -1, "UNIFORM_WIDTH_VEC_2",						( u32 )MOAIShaderUniform::UNIFORM_WIDTH_VEC_2 );
-	state.SetField ( -1, "UNIFORM_WIDTH_VEC_3",						( u32 )MOAIShaderUniform::UNIFORM_WIDTH_VEC_3 );
-	state.SetField ( -1, "UNIFORM_WIDTH_VEC_4",						( u32 )MOAIShaderUniform::UNIFORM_WIDTH_VEC_4 );
-	state.SetField ( -1, "UNIFORM_WIDTH_MATRIX_3X3",				( u32 )MOAIShaderUniform::UNIFORM_WIDTH_MATRIX_3X3 );
-	state.SetField ( -1, "UNIFORM_WIDTH_MATRIX_4X4",				( u32 )MOAIShaderUniform::UNIFORM_WIDTH_MATRIX_4X4 );
+	state.DefineClassConst ( klass, "UNIFORM_WIDTH_VEC_2",						( u32 )MOAIShaderUniform::UNIFORM_WIDTH_VEC_2 );
+	state.DefineClassConst ( klass, "UNIFORM_WIDTH_VEC_3",						( u32 )MOAIShaderUniform::UNIFORM_WIDTH_VEC_3 );
+	state.DefineClassConst ( klass, "UNIFORM_WIDTH_VEC_4",						( u32 )MOAIShaderUniform::UNIFORM_WIDTH_VEC_4 );
+	state.DefineClassConst ( klass, "UNIFORM_WIDTH_MATRIX_3X3",				( u32 )MOAIShaderUniform::UNIFORM_WIDTH_MATRIX_3X3 );
+	state.DefineClassConst ( klass, "UNIFORM_WIDTH_MATRIX_4X4",				( u32 )MOAIShaderUniform::UNIFORM_WIDTH_MATRIX_4X4 );
 	
-	state.SetField ( -1, "GLOBAL_CLIP_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::CLIP_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_CLIP_TO_MODEL_MTX",				( u32 )MOAIGfxState::CLIP_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_CLIP_TO_VIEW_MTX",					( u32 )MOAIGfxState::CLIP_TO_VIEW_MTX );
-	state.SetField ( -1, "GLOBAL_CLIP_TO_WINDOW_MTX",				( u32 )MOAIGfxState::CLIP_TO_WINDOW_MTX );
-	state.SetField ( -1, "GLOBAL_CLIP_TO_WORLD_MTX",				( u32 )MOAIGfxState::CLIP_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_CLIP_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::CLIP_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_CLIP_TO_MODEL_MTX",				( u32 )MOAIGfxState::CLIP_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_CLIP_TO_VIEW_MTX",					( u32 )MOAIGfxState::CLIP_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_CLIP_TO_WINDOW_MTX",				( u32 )MOAIGfxState::CLIP_TO_WINDOW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_CLIP_TO_WORLD_MTX",				( u32 )MOAIGfxState::CLIP_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_DISPLAY_TO_CLIP_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_DISPLAY_TO_MODEL_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_DISPLAY_TO_VIEW_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_VIEW_MTX );
-	state.SetField ( -1, "GLOBAL_DISPLAY_TO_WORLD_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_DISPLAY_TO_CLIP_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_DISPLAY_TO_MODEL_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_DISPLAY_TO_VIEW_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_DISPLAY_TO_WORLD_MTX",				( u32 )MOAIGfxState::DISPLAY_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_MODEL_TO_CLIP_MTX",				( u32 )MOAIGfxState::MODEL_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_MODEL_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::MODEL_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_MODEL_TO_UV_MTX",					( u32 )MOAIGfxState::MODEL_TO_UV_MTX );
-	state.SetField ( -1, "GLOBAL_MODEL_TO_VIEW_MTX",				( u32 )MOAIGfxState::MODEL_TO_VIEW_MTX );
-	state.SetField ( -1, "GLOBAL_MODEL_TO_WORLD_MTX",				( u32 )MOAIGfxState::MODEL_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_MODEL_TO_CLIP_MTX",				( u32 )MOAIGfxState::MODEL_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_MODEL_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::MODEL_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_MODEL_TO_UV_MTX",					( u32 )MOAIGfxState::MODEL_TO_UV_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_MODEL_TO_VIEW_MTX",				( u32 )MOAIGfxState::MODEL_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_MODEL_TO_WORLD_MTX",				( u32 )MOAIGfxState::MODEL_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_CLIP_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_CLIP_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_CLIP_TO_MODEL_MTX",			( u32 )MOAIGfxState::NORMAL_CLIP_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_CLIP_TO_VIEW_MTX",			( u32 )MOAIGfxState::NORMAL_CLIP_TO_VIEW_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_CLIP_TO_WINDOW_MTX",		( u32 )MOAIGfxState::NORMAL_CLIP_TO_WINDOW_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_CLIP_TO_WORLD_MTX",			( u32 )MOAIGfxState::NORMAL_CLIP_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_CLIP_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_CLIP_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_CLIP_TO_MODEL_MTX",			( u32 )MOAIGfxState::NORMAL_CLIP_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_CLIP_TO_VIEW_MTX",			( u32 )MOAIGfxState::NORMAL_CLIP_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_CLIP_TO_WINDOW_MTX",		( u32 )MOAIGfxState::NORMAL_CLIP_TO_WINDOW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_CLIP_TO_WORLD_MTX",			( u32 )MOAIGfxState::NORMAL_CLIP_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_DISPLAY_TO_CLIP_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_DISPLAY_TO_MODEL_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_DISPLAY_TO_VIEW_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_VIEW_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_DISPLAY_TO_WORLD_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_DISPLAY_TO_CLIP_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_DISPLAY_TO_MODEL_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_DISPLAY_TO_VIEW_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_DISPLAY_TO_WORLD_MTX",		( u32 )MOAIGfxState::NORMAL_DISPLAY_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_MODEL_TO_CLIP_MTX",			( u32 )MOAIGfxState::NORMAL_MODEL_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_MODEL_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_MODEL_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_MODEL_TO_UV_MTX",			( u32 )MOAIGfxState::NORMAL_MODEL_TO_UV_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_MODEL_TO_VIEW_MTX",			( u32 )MOAIGfxState::NORMAL_MODEL_TO_VIEW_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_MODEL_TO_WORLD_MTX",		( u32 )MOAIGfxState::NORMAL_MODEL_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_MODEL_TO_CLIP_MTX",			( u32 )MOAIGfxState::NORMAL_MODEL_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_MODEL_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_MODEL_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_MODEL_TO_UV_MTX",			( u32 )MOAIGfxState::NORMAL_MODEL_TO_UV_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_MODEL_TO_VIEW_MTX",			( u32 )MOAIGfxState::NORMAL_MODEL_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_MODEL_TO_WORLD_MTX",		( u32 )MOAIGfxState::NORMAL_MODEL_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_WORLD_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_WORLD_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_WORLD_TO_VIEW_MTX",			( u32 )MOAIGfxState::NORMAL_WORLD_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_WORLD_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_WORLD_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_WORLD_TO_VIEW_MTX",			( u32 )MOAIGfxState::NORMAL_WORLD_TO_VIEW_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_UV_TO_MODEL_MTX",			( u32 )MOAIGfxState::NORMAL_UV_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_UV_TO_MODEL_MTX",			( u32 )MOAIGfxState::NORMAL_UV_TO_MODEL_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_VIEW_TO_CLIP_MTX",			( u32 )MOAIGfxState::NORMAL_VIEW_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_VIEW_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_VIEW_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_VIEW_TO_MODEL_MTX",			( u32 )MOAIGfxState::NORMAL_VIEW_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_VIEW_TO_WORLD_MTX",			( u32 )MOAIGfxState::NORMAL_VIEW_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_VIEW_TO_CLIP_MTX",			( u32 )MOAIGfxState::NORMAL_VIEW_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_VIEW_TO_DISPLAY_MTX",		( u32 )MOAIGfxState::NORMAL_VIEW_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_VIEW_TO_MODEL_MTX",			( u32 )MOAIGfxState::NORMAL_VIEW_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_VIEW_TO_WORLD_MTX",			( u32 )MOAIGfxState::NORMAL_VIEW_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_NORMAL_WINDOW_TO_CLIP_MTX",		( u32 )MOAIGfxState::NORMAL_WINDOW_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_WORLD_TO_CLIP_MTX",			( u32 )MOAIGfxState::NORMAL_WORLD_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_NORMAL_WORLD_TO_MODEL_MTX",		( u32 )MOAIGfxState::NORMAL_WORLD_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_WINDOW_TO_CLIP_MTX",		( u32 )MOAIGfxState::NORMAL_WINDOW_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_WORLD_TO_CLIP_MTX",			( u32 )MOAIGfxState::NORMAL_WORLD_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_NORMAL_WORLD_TO_MODEL_MTX",		( u32 )MOAIGfxState::NORMAL_WORLD_TO_MODEL_MTX );
 
-	state.SetField ( -1, "GLOBAL_PEN_COLOR",						( u32 )MOAIGfxState::PEN_COLOR );
+	state.DefineClassConst ( klass, "GLOBAL_PEN_COLOR",						( u32 )MOAIGfxState::PEN_COLOR );
 
-	state.SetField ( -1, "GLOBAL_UV_TO_MODEL_MTX",					( u32 )MOAIGfxState::UV_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_UV_TO_MODEL_MTX",					( u32 )MOAIGfxState::UV_TO_MODEL_MTX );
 
-	state.SetField ( -1, "GLOBAL_VIEW_TO_CLIP_MTX",					( u32 )MOAIGfxState::VIEW_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_VIEW_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::VIEW_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_VIEW_TO_MODEL_MTX",				( u32 )MOAIGfxState::VIEW_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_VIEW_TO_WORLD_MTX",				( u32 )MOAIGfxState::VIEW_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_TO_CLIP_MTX",					( u32 )MOAIGfxState::VIEW_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::VIEW_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_TO_MODEL_MTX",				( u32 )MOAIGfxState::VIEW_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_TO_WORLD_MTX",				( u32 )MOAIGfxState::VIEW_TO_WORLD_MTX );
 
-	state.SetField ( -1, "GLOBAL_WINDOW_TO_CLIP_MTX",				( u32 )MOAIGfxState::WINDOW_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_WINDOW_TO_CLIP_MTX",				( u32 )MOAIGfxState::WINDOW_TO_CLIP_MTX );
 
-	state.SetField ( -1, "GLOBAL_WORLD_TO_CLIP_MTX",				( u32 )MOAIGfxState::WORLD_TO_CLIP_MTX );
-	state.SetField ( -1, "GLOBAL_WORLD_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::WORLD_TO_DISPLAY_MTX );
-	state.SetField ( -1, "GLOBAL_WORLD_TO_MODEL_MTX",				( u32 )MOAIGfxState::WORLD_TO_MODEL_MTX );
-	state.SetField ( -1, "GLOBAL_WORLD_TO_VIEW_MTX",				( u32 )MOAIGfxState::WORLD_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_WORLD_TO_CLIP_MTX",				( u32 )MOAIGfxState::WORLD_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_WORLD_TO_DISPLAY_MTX",				( u32 )MOAIGfxState::WORLD_TO_DISPLAY_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_WORLD_TO_MODEL_MTX",				( u32 )MOAIGfxState::WORLD_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "GLOBAL_WORLD_TO_VIEW_MTX",				( u32 )MOAIGfxState::WORLD_TO_VIEW_MTX );
 
-	state.SetField ( -1, "GLOBAL_VIEW_HEIGHT",						( u32 )MOAIGfxState::VIEW_HEIGHT );
-	state.SetField ( -1, "GLOBAL_VIEW_WIDTH",						( u32 )MOAIGfxState::VIEW_WIDTH );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_HEIGHT",						( u32 )MOAIGfxState::VIEW_HEIGHT );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_WIDTH",						( u32 )MOAIGfxState::VIEW_WIDTH );
 	
-	state.SetField ( -1, "GLOBAL_VIEW_HALF_HEIGHT",					( u32 )MOAIGfxState::VIEW_HALF_HEIGHT );
-	state.SetField ( -1, "GLOBAL_VIEW_HALF_WIDTH",					( u32 )MOAIGfxState::VIEW_HALF_WIDTH );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_HALF_HEIGHT",					( u32 )MOAIGfxState::VIEW_HALF_HEIGHT );
+	state.DefineClassConst ( klass, "GLOBAL_VIEW_HALF_WIDTH",					( u32 )MOAIGfxState::VIEW_HALF_WIDTH );
 }
 
 //----------------------------------------------------------------//
-void MOAIShaderProgram::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIShaderProgram::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaFuncs ( state );
+	MOAIGfxResource::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "declareUniform",				_declareUniform },
-		{ "load",						_load },
-		{ "reserveGlobals",				_reserveGlobals },
-		{ "reserveTextures",			_reserveTextures },
-		{ "reserveUniforms",			_reserveUniforms },
-		{ "setGlobal",					_setGlobal },
-		{ "setTexture",					_setTexture },
-		{ "setVertexAttribute",			_setVertexAttribute },
-		{ NULL, NULL }
-	};
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "declareUniform", _declareUniform, MRB_ARGS_REQ ( 5 ) );
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "reserveGlobals", _reserveGlobals, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveTextures", _reserveTextures, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveUniforms", _reserveUniforms, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setGlobal", _setGlobal, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setTexture", _setTexture, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setVertexAttribute", _setVertexAttribute, MRB_ARGS_REQ ( 2 ) );
+
 }
 
 //----------------------------------------------------------------//
@@ -522,14 +519,14 @@ void MOAIShaderProgram::ReserveGlobals ( u32 nGlobals ) {
 }
 
 //----------------------------------------------------------------//
-int MOAIShaderProgram::ReserveGlobals ( lua_State* L, int idx ) {
+mrb_value MOAIShaderProgram::ReserveGlobals ( mrb_state* M, int idx ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
-	u32 nGlobals = state.GetValue < u32 >( idx, 0 );
+	u32 nGlobals = state.GetParamValue < u32 >( idx, 0 );
 	this->ReserveGlobals ( nGlobals );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -577,18 +574,18 @@ void MOAIShaderProgram::SetGlobal ( u32 idx, u32 globalID, u32 uniformID, u32 in
 }
 
 //----------------------------------------------------------------//
-int MOAIShaderProgram::SetGlobal ( lua_State* L, int idx ) {
+mrb_value MOAIShaderProgram::SetGlobal ( mrb_state* M, int idx ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
-	u32 globalIdx	= state.GetValue < u32 >( idx, 1 ) - 1;
-	u32 globalID	= state.GetValue < u32 >( idx + 1, INVALID_INDEX );
-	u32 uniformID	= state.GetValue < u32 >( idx + 2, 1 ) - 1;
-	u32 index		= state.GetValue < u32 >( idx + 3, 1 ) - 1;
+	u32 globalIdx	= state.GetParamValue < u32 >( idx, 1 ) - 1;
+	u32 globalID	= state.GetParamValue < u32 >( idx + 1, INVALID_INDEX );
+	u32 uniformID	= state.GetParamValue < u32 >( idx + 2, 1 ) - 1;
+	u32 index		= state.GetParamValue < u32 >( idx + 3, 1 ) - 1;
 	
 	this->SetGlobal ( globalIdx, globalID, uniformID, index );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//

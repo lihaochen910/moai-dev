@@ -31,24 +31,24 @@ class MOAIVertexFormat;
 			by finding redundant vertices.
 */
 class MOAIGeometryWriter :
-	public ZLContextClass < MOAIGeometryWriter, MOAILuaObject > {
+	public ZLContextClass < MOAIGeometryWriter, MOAIRubyObject > {
 private:
 	
 	//----------------------------------------------------------------//
-	static int			_applyColor				( lua_State* L );
-	static int			_applyLightFromImage	( lua_State* L );
-	static int			_applyLinearGradient	( lua_State* L );
-	static int			_getMesh				( lua_State* L );
-	static int			_offsetIndices			( lua_State* L );
-	static int			_pruneVertices			( lua_State* L );
-	static int			_snapCoords				( lua_State* L );
-	static int			_translateCoords		( lua_State* L );
-	static int			_writeBox				( lua_State* L );
-	static int			_writeCone				( lua_State* L );
-	static int			_writeCube				( lua_State* L );
-	static int			_writeCylinder			( lua_State* L );
-	static int			_writeIcoSphere			( lua_State* L );
-	static int			_writeUVSphere			( lua_State* L );
+	static mrb_value			_applyColor				( mrb_state* M, mrb_value context );
+	static mrb_value			_applyLightFromImage	( mrb_state* M, mrb_value context );
+	static mrb_value			_applyLinearGradient	( mrb_state* M, mrb_value context );
+	static mrb_value			_getMesh				( mrb_state* M, mrb_value context );
+	static mrb_value			_offsetIndices			( mrb_state* M, mrb_value context );
+	static mrb_value			_pruneVertices			( mrb_state* M, mrb_value context );
+	static mrb_value			_snapCoords				( mrb_state* M, mrb_value context );
+	static mrb_value			_translateCoords		( mrb_state* M, mrb_value context );
+	static mrb_value			_writeBox				( mrb_state* M, mrb_value context );
+	static mrb_value			_writeCone				( mrb_state* M, mrb_value context );
+	static mrb_value			_writeCube				( mrb_state* M, mrb_value context );
+	static mrb_value			_writeCylinder			( mrb_state* M, mrb_value context );
+	static mrb_value			_writeIcoSphere			( mrb_state* M, mrb_value context );
+	static mrb_value			_writeUVSphere			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	static void			WriteColor				( const MOAIVertexFormat& format, ZLStream& stream, u32 mode, float r, float g, float b, float a );
@@ -58,7 +58,7 @@ private:
 	
 public:
 	
-	DECL_LUA_SINGLETON ( MOAIGeometryWriter )
+	DECL_RUBY_SINGLETON ( MOAIGeometryWriter )
 	
 	enum {
 		COLOR_ADD,
@@ -78,8 +78,8 @@ public:
 						~MOAIGeometryWriter		();
 	static void			OffsetIndices			( ZLStream& idxStream, size_t length, s32 offset );
 	static void			PruneVertices			( const MOAIVertexFormat& format, MOAIStream& vtxStream, MOAIStream& idxStream );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	static void			SnapCoords				( const MOAIVertexFormat& format, ZLStream& vtxStream, size_t length, float xSnap, float ySnap, float zSnap );
 	static void			TranslateCoords			( const MOAIVertexFormat& format, ZLStream& vtxStream, size_t length, float xOff, float yOff, float zOff );
 	static void			WriteBox				( const MOAIVertexFormat& format, ZLStream& vtxStream, const ZLBox& box );

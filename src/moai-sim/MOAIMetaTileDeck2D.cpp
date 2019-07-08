@@ -31,13 +31,13 @@ MOAIMetaTile::MOAIMetaTile () :
 	@in		number nBrushes
 	@out	nil
 */
-int MOAIMetaTileDeck2D::_reserveMetaTiles ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMetaTileDeck2D, "UN" )
+mrb_value MOAIMetaTileDeck2D::_reserveMetaTiles ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMetaTileDeck2D, "UN" )
 	
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->mBrushes.Init ( total );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -48,14 +48,14 @@ int MOAIMetaTileDeck2D::_reserveMetaTiles ( lua_State* L ) {
 	@opt	MOAIDeck deck		Default value is nil.
 	@out	nil
 */
-int MOAIMetaTileDeck2D::_setDeck ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMetaTileDeck2D, "U" )
+mrb_value MOAIMetaTileDeck2D::_setDeck ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMetaTileDeck2D, "U" )
 	
-	MOAIDeck* deck = state.GetLuaObject < MOAIDeck >( 2, true );
+	MOAIDeck* deck = state.GetRubyObject < MOAIDeck >( 1, true );
 	self->mDeck.Set ( *self, deck );
 	self->SetBoundsDirty ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -66,14 +66,14 @@ int MOAIMetaTileDeck2D::_setDeck ( lua_State* L ) {
 	@opt	MOAIGrid grid		Default value is nil.
 	@out	nil
 */
-int MOAIMetaTileDeck2D::_setGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMetaTileDeck2D, "U" )
+mrb_value MOAIMetaTileDeck2D::_setGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMetaTileDeck2D, "U" )
 	
-	MOAIGrid* grid = state.GetLuaObject < MOAIGrid >( 2, true );
+	MOAIGrid* grid = state.GetRubyObject < MOAIGrid >( 1, true );
 	self->mGrid.Set ( *self, grid );
 	self->SetBoundsDirty ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -90,24 +90,24 @@ int MOAIMetaTileDeck2D::_setGrid ( lua_State* L ) {
 	@opt	number yOff		Default value is 0.
 	@out	nil
 */
-int MOAIMetaTileDeck2D::_setMetaTile ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMetaTileDeck2D, "UNNNNN" )
+mrb_value MOAIMetaTileDeck2D::_setMetaTile ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMetaTileDeck2D, "UNNNNN" )
 	
-	u32 idx = state.GetValue < int >( 2, 1 ) - 1;
+	u32 idx = state.GetParamValue < int >( 1, 1 ) - 1;
 	if ( idx < self->mBrushes.Size ()) {
 	
 		MOAIMetaTile& brush = self->mBrushes [ idx ];
 		
-		brush.mMin.mX		= state.GetValue < int >( 3, 1 ) - 1;
-		brush.mMin.mY		= state.GetValue < int >( 4, 1 ) - 1;
-		brush.mMax.mX		= state.GetValue < u32 >( 5, 0 ) + brush.mMin.mX - 1;
-		brush.mMax.mY		= state.GetValue < u32 >( 6, 0 ) + brush.mMin.mY - 1;
-		brush.mOffset.mX	= state.GetValue < float >( 7, 0.0f );
-		brush.mOffset.mY	= state.GetValue < float >( 8, 0.0f );
+		brush.mMin.mX		= state.GetParamValue < int >( 2, 1 ) - 1;
+		brush.mMin.mY		= state.GetParamValue < int >( 3, 1 ) - 1;
+		brush.mMax.mX		= state.GetParamValue < u32 >( 4, 0 ) + brush.mMin.mX - 1;
+		brush.mMax.mY		= state.GetParamValue < u32 >( 5, 0 ) + brush.mMin.mY - 1;
+		brush.mOffset.mX	= state.GetParamValue < float >( 6, 0.0f );
+		brush.mOffset.mY	= state.GetParamValue < float >( 7, 0.0f );
 		
 		self->SetBoundsDirty ();
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -132,35 +132,31 @@ MOAIMetaTileDeck2D::~MOAIMetaTileDeck2D () {
 }
 
 //----------------------------------------------------------------//
-void MOAIMetaTileDeck2D::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIMetaTileDeck2D::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaClass ( state );
+	MOAIDeck::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIMetaTileDeck2D::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIMetaTileDeck2D::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "reserveMetaTiles",	_reserveMetaTiles },
-		{ "setDeck",			_setDeck },
-		{ "setGrid",			_setGrid },
-		{ "setMetaTile",		_setMetaTile },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "reserveMetaTiles",	_reserveMetaTiles, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setDeck",			_setDeck, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setGrid",			_setGrid, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setMetaTile",		_setMetaTile, MRB_ARGS_ARG ( 5, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIMetaTileDeck2D::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIMetaTileDeck2D::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIDeck::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIMetaTileDeck2D::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIMetaTileDeck2D::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIDeck::SerializeOut ( state, serializer );
 }

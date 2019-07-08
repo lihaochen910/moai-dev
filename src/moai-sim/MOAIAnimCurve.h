@@ -21,9 +21,9 @@ private:
 	float mValue;
 
 	//----------------------------------------------------------------//
-	static int		_getValueAtTime		( lua_State* L );
-	static int		_getValueRange		( lua_State* L );
-	static int		_setKey				( lua_State* L );
+	static mrb_value		_getValueAtTime		( mrb_state* M, mrb_value context );
+	static mrb_value		_getValueRange		( mrb_state* M, mrb_value context );
+	static mrb_value		_setKey				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	float			GetCurveDelta		() const;
@@ -34,7 +34,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIAnimCurve )
+	DECL_RUBY_FACTORY ( MOAIAnimCurve, MOAINode )
 	
 	//----------------------------------------------------------------//
 	void			ApplyValueAttrOp	( MOAIAttribute& attr, u32 op );
@@ -47,8 +47,8 @@ public:
 	void			GetZero				( MOAIAttribute& attr ) const;
 					MOAIAnimCurve		();
 					~MOAIAnimCurve		();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	void			ReserveSamples		( u32 total );
 	void			SetSample			( u32 id, float value );
 };

@@ -17,11 +17,10 @@
 	@in		MOAITimer self
 	@out	number speed
 */
-int MOAITimer::_getSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "U" )
+mrb_value MOAITimer::_getSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "U" )
 
-	state.Push ( self->mSpeed );
-	return 1;
+	return state.ToRValue ( self->mSpeed );
 }
 
 //----------------------------------------------------------------//
@@ -31,11 +30,10 @@ int MOAITimer::_getSpeed ( lua_State* L ) {
 	@in		MOAITimer self
 	@out	number time
 */
-int MOAITimer::_getTime( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "U" )
+mrb_value MOAITimer::_getTime( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "U" )
 
-	lua_pushnumber ( L, self->GetTime ());
-	return 1;
+	return state.ToRValue ( self->GetTime () );
 }
 
 //----------------------------------------------------------------//
@@ -45,11 +43,10 @@ int MOAITimer::_getTime( lua_State* L ) {
 	@in		MOAITimer self
 	@out	number nTimes
 */
-int MOAITimer::_getTimesExecuted ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "U" )
+mrb_value MOAITimer::_getTimesExecuted ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "U" )
 
-	lua_pushnumber ( L, self->mTimesExecuted );
-	return 1;
+	return state.ToRValue ( self->mTimesExecuted );
 }
 
 //----------------------------------------------------------------//
@@ -60,13 +57,13 @@ int MOAITimer::_getTimesExecuted ( lua_State* L ) {
 	@opt	MOAIAnimCurve curve		Default value is nil.
 	@out	nil
 */
-int MOAITimer::_setCurve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "U" );
+mrb_value MOAITimer::_setCurve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "U" );
 
-	self->mCurve.Set ( *self, state.GetLuaObject < MOAIAnimCurve >( 2, true ));
+	self->mCurve.Set ( *self, state.GetRubyObject < MOAIAnimCurve >( 1, true ));
 	self->ScheduleUpdate ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -77,10 +74,10 @@ int MOAITimer::_setCurve ( lua_State* L ) {
 	@in		number mode		One of: MOAITimer.NORMAL, MOAITimer.REVERSE, MOAITimer.LOOP, MOAITimer.LOOP_REVERSE, MOAITimer.PING_PONG
 	@out	nil
 */
-int MOAITimer::_setMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "UN" )
+mrb_value MOAITimer::_setMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "UN" )
 
-	self->mMode = state.GetValue < int >( 2, NORMAL );
+	self->mMode = state.GetParamValue < int >( 1, NORMAL );
 	
 	if( self->mMode == REVERSE || self->mMode == LOOP_REVERSE || self->mMode == CONTINUE_REVERSE ){
 		self->mDirection = -1.0f;
@@ -88,7 +85,7 @@ int MOAITimer::_setMode ( lua_State* L ) {
 	else {
 		self->mDirection = 1.0f;
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -108,22 +105,22 @@ int MOAITimer::_setMode ( lua_State* L ) {
 		@in		number endTime
 		@out	nil
 */
-int MOAITimer::_setSpan ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "UN" )
+mrb_value MOAITimer::_setSpan ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "UN" )
 
-	if ( state.IsType ( 3, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 2, MRB_TT_FLOAT ) ) {
 		
-		float startTime		= state.GetValue < float >( 2, 0.0f );
-		float endTime		= state.GetValue < float >( 3, 1.0f );
+		float startTime		= state.GetParamValue < float >( 1, 0.0f );
+		float endTime		= state.GetParamValue < float >( 2, 1.0f );
 		
 		self->SetSpan ( startTime, endTime );
 	}
 	else {
-		float span			= state.GetValue < float >( 2, 1.0f );
+		float span			= state.GetParamValue < float >( 1, 1.0f );
 		
 		self->SetSpan ( span );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -135,12 +132,12 @@ int MOAITimer::_setSpan ( lua_State* L ) {
 	@in		number speed
 	@out	nil
 */
-int MOAITimer::_setSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "UN" )
+mrb_value MOAITimer::_setSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "UN" )
 
-	self->mSpeed = state.GetValue < float >( 2, 1.0f );
+	self->mSpeed = state.GetParamValue < float >( 1, 1.0f );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -152,13 +149,13 @@ int MOAITimer::_setSpeed ( lua_State* L ) {
 	@opt	number time			Default value is 0.
 	@out	nil
 */
-int MOAITimer::_setTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "U" )
+mrb_value MOAITimer::_setTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "U" )
 	
-	float time = state.GetValue < float >( 2, 0.0f );
+	float time = state.GetParamValue < float >( 1, 0.0f );
 	self->SetTime ( time );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -168,11 +165,11 @@ int MOAITimer::_setTime ( lua_State* L ) {
 	@in		MOAITimer self
 	@out	nil
 */
-int MOAITimer::_toggleDirection ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITimer, "U" )
+mrb_value MOAITimer::_toggleDirection ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITimer, "U" )
 	
 	self->ToggleDirection ();
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -429,21 +426,23 @@ MOAITimer::~MOAITimer () {
 //----------------------------------------------------------------//
 void MOAITimer::OnBeginSpan () {
 	
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	if ( this->PushListenerAndSelf ( EVENT_TIMER_BEGIN_SPAN, state )) {
-		state.Push ( this->mTimesExecuted );
-		state.DebugCall ( 2, 0 );
-	}
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+	mrb_value args [ 1 ];
+	args [ 0 ] = state.ToRValue ( this->mTimesExecuted );
+
+	MOAIInstanceEventSource::InvokeListener ( EVENT_TIMER_BEGIN_SPAN, 1, args );
 }
 
 //----------------------------------------------------------------//
 void MOAITimer::OnEndSpan () {
 	
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	if ( this->PushListenerAndSelf ( EVENT_TIMER_END_SPAN, state )) {
-		state.Push ( this->mTimesExecuted );
-		state.DebugCall ( 2, 0 );
-	}
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+	mrb_value args [ 1 ];
+	args [ 0 ] = state.ToRValue ( this->mTimesExecuted );
+
+	MOAIInstanceEventSource::InvokeListener ( EVENT_TIMER_END_SPAN, 1, args );
 	
 	this->mTimesExecuted += 1.0f;
 }
@@ -451,67 +450,60 @@ void MOAITimer::OnEndSpan () {
 //----------------------------------------------------------------//
 void MOAITimer::OnKeyframe ( u32 idx, float time, float value ) {
 
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	if ( this->PushListenerAndSelf ( EVENT_TIMER_KEYFRAME, state )) {
-		state.Push ( idx + 1 );
-		state.Push ( mTimesExecuted );
-		state.Push ( time );
-		state.Push ( value );
-		state.DebugCall ( 5, 0 );
-	}
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+	mrb_value args [ 4 ];
+	args [ 0 ] = state.ToRValue ( idx + 1 );
+	args [ 1 ] = state.ToRValue ( mTimesExecuted );
+	args [ 2 ] = state.ToRValue ( time );
+	args [ 3 ] = state.ToRValue ( value );
+
+	MOAIInstanceEventSource::InvokeListener ( EVENT_TIMER_LOOP, 4, args );
 }
 
 //----------------------------------------------------------------//
 void MOAITimer::OnLoop () {
 	
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	if ( this->PushListenerAndSelf ( EVENT_TIMER_LOOP, state )) {
-		state.DebugCall ( 1, 0 );
-	}
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+	MOAIInstanceEventSource::InvokeListener ( EVENT_TIMER_LOOP );
 }
 
 //----------------------------------------------------------------//
-void MOAITimer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITimer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaClass ( state );
-	MOAIAction::RegisterLuaClass ( state );
+	state.DefineClassConst ( klass, "ATTR_TIME",				MOAITimerAttr::Pack ( ATTR_TIME ) );
+	
+	state.DefineClassConst ( klass, "EVENT_TIMER_KEYFRAME",		( u32 )EVENT_TIMER_KEYFRAME );
+	state.DefineClassConst ( klass, "EVENT_TIMER_LOOP",			( u32 )EVENT_TIMER_LOOP );
+	state.DefineClassConst ( klass, "EVENT_TIMER_BEGIN_SPAN",	( u32 )EVENT_TIMER_BEGIN_SPAN );
+	state.DefineClassConst ( klass, "EVENT_TIMER_END_SPAN",		( u32 )EVENT_TIMER_END_SPAN );
+	
+	state.DefineClassConst ( klass, "NORMAL",					( u32 )NORMAL );
+	state.DefineClassConst ( klass, "REVERSE",					( u32 )REVERSE );
+	state.DefineClassConst ( klass, "CONTINUE",					( u32 )CONTINUE );
+	state.DefineClassConst ( klass, "CONTINUE_REVERSE",			( u32 )CONTINUE_REVERSE );
+	state.DefineClassConst ( klass, "LOOP",						( u32 )LOOP );
+	state.DefineClassConst ( klass, "LOOP_REVERSE",				( u32 )LOOP_REVERSE );
+	state.DefineClassConst ( klass, "PING_PONG",				( u32 )PING_PONG );
 
-	state.SetField ( -1, "ATTR_TIME", MOAITimerAttr::Pack ( ATTR_TIME ));
-	
-	state.SetField ( -1, "EVENT_TIMER_KEYFRAME",	( u32 )EVENT_TIMER_KEYFRAME );
-	state.SetField ( -1, "EVENT_TIMER_LOOP",		( u32 )EVENT_TIMER_LOOP );
-	state.SetField ( -1, "EVENT_TIMER_BEGIN_SPAN",	( u32 )EVENT_TIMER_BEGIN_SPAN );
-	state.SetField ( -1, "EVENT_TIMER_END_SPAN",	( u32 )EVENT_TIMER_END_SPAN );
-	
-	state.SetField ( -1, "NORMAL",					( u32 )NORMAL );
-	state.SetField ( -1, "REVERSE",					( u32 )REVERSE );
-	state.SetField ( -1, "CONTINUE",				( u32 )CONTINUE );
-	state.SetField ( -1, "CONTINUE_REVERSE",		( u32 )CONTINUE_REVERSE );
-	state.SetField ( -1, "LOOP",					( u32 )LOOP );
-	state.SetField ( -1, "LOOP_REVERSE",			( u32 )LOOP_REVERSE );
-	state.SetField ( -1, "PING_PONG",				( u32 )PING_PONG );
 }
 
 //----------------------------------------------------------------//
-void MOAITimer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITimer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaFuncs ( state );
-	MOAIAction::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getSpeed",			_getSpeed },
-		{ "getTime",			_getTime },
-		{ "getTimesExecuted",	_getTimesExecuted },
-		{ "setCurve",			_setCurve },
-		{ "setMode",			_setMode },
-		{ "setSpan",			_setSpan },
-		{ "setSpeed",			_setSpeed },
-		{ "setTime",			_setTime },
-		{ "toggleDirection",	_toggleDirection },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getSpeed", _getSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTime", _getTime, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTimesExecuted", _getTimesExecuted, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCurve", _setCurve, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMode", _setMode, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setSpan", _setSpan, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setSpeed", _setSpeed, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTime", _setTime, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "toggleDirection", _toggleDirection, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

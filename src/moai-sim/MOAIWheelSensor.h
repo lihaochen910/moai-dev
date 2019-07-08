@@ -19,24 +19,24 @@ private:
 	float mValue;
 	float mDelta;
 
-	MOAILuaStrongRef mCallback;
+	MOAIRubyStrongRef mCallback;
 
 	//----------------------------------------------------------------//
-	static int	_getValue		( lua_State* L );
-	static int	_getDelta		( lua_State* L );
-	static int	_setCallback	( lua_State* L );
+	static mrb_value	_getValue		( mrb_state* M, mrb_value context );
+	static mrb_value	_getDelta		( mrb_state* M, mrb_value context );
+	static mrb_value	_setCallback	( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIWheelSensor )
+	DECL_RUBY_FACTORY ( MOAIWheelSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	static void			EnqueueWheelEvent		( u8 deviceID, u8 sensorID, float value );
 						MOAIWheelSensor			();
 						~MOAIWheelSensor		();
 	void				ParseEvent				( ZLStream& eventStream );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				ResetState				();
 };
 

@@ -16,16 +16,15 @@
 	@in		number idx
 	@out	number mask
 */
-int MOAIPathTerrainDeck::_getMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathTerrainDeck, "UN" )
+mrb_value MOAIPathTerrainDeck::_getMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathTerrainDeck, "UN" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
 	if ( idx < self->mMasks.Size ()) {
-		lua_pushnumber ( state, self->mMasks [ idx ]);
-		return 1;
+		return state.ToRValue( self->mMasks [ idx ] );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -36,19 +35,20 @@ int MOAIPathTerrainDeck::_getMask ( lua_State* L ) {
 	@in		number idx
 	@out	...
 */
-int MOAIPathTerrainDeck::_getTerrainVec ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathTerrainDeck, "UN" )
+mrb_value MOAIPathTerrainDeck::_getTerrainVec ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathTerrainDeck, "UN" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	float* vector = self->GetVector ( idx + 1 );
 
 	u32 size = self->mVectorSize;
-	lua_checkstack( L, size );
+
+	mrb_value ary = mrb_ary_new ( M );
 	
 	for ( u32 i = 0; i < size; ++i ) {
-		lua_pushnumber ( state, vector [ i ]);
+		mrb_ary_push ( M, ary, state.ToRValue ( vector [ i ] ) );
 	}
-	return size;
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -60,16 +60,16 @@ int MOAIPathTerrainDeck::_getTerrainVec ( lua_State* L ) {
 	@in		number mask
 	@out	nil
 */
-int MOAIPathTerrainDeck::_setMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathTerrainDeck, "UNN" )
+mrb_value MOAIPathTerrainDeck::_setMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathTerrainDeck, "UNN" )
 	
-	u32 idx		= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 mask	= state.GetValue < int >( 3, 0 );
+	u32 idx		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 mask	= state.GetParamValue < int >( 2, 0 );
 	
 	if ( idx < self->mMasks.Size ()) {
 		self->mMasks [ idx ] = mask;
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -81,11 +81,11 @@ int MOAIPathTerrainDeck::_setMask ( lua_State* L ) {
 	@in		float... values
 	@out	nil
 */
-int MOAIPathTerrainDeck::_setTerrainVec ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathTerrainDeck, "UN" )
+mrb_value MOAIPathTerrainDeck::_setTerrainVec ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathTerrainDeck, "UN" )
 	
-	u32 idx		= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 total	= lua_gettop ( state ) - 2;
+	u32 idx		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 total	= state.GetParamsCount () - 2;
 	
 	if ( total > self->mVectorSize ) {
 		total = self->mVectorSize;
@@ -94,10 +94,10 @@ int MOAIPathTerrainDeck::_setTerrainVec ( lua_State* L ) {
 	float* vector = self->GetVector ( idx + 1 );
 	
 	for ( u32 i = 0; i < total; ++i ) {
-		vector [ i ] = state.GetValue < float >( 3 + i, 0.0f );
+		vector [ i ] = state.GetParamValue < float >( 2 + i, 0.0f );
 	}
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -109,11 +109,11 @@ int MOAIPathTerrainDeck::_setTerrainVec ( lua_State* L ) {
 	@in		number terrainVecSize
 	@out	nil
 */
-int MOAIPathTerrainDeck::_reserve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPathTerrainDeck, "UN" )
+mrb_value MOAIPathTerrainDeck::_reserve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPathTerrainDeck, "UN" )
 	
-	self->mDeckSize		= state.GetValue < u32 >( 2, 0 );
-	self->mVectorSize	= state.GetValue < u32 >( 3, 0 );
+	self->mDeckSize		= state.GetParamValue < u32 >( 1, 0 );
+	self->mVectorSize	= state.GetParamValue < u32 >( 2, 0 );
 	
 	self->mMasks.Init ( self->mDeckSize );
 	self->mMasks.Fill ( 0xffffffff );
@@ -121,7 +121,7 @@ int MOAIPathTerrainDeck::_reserve ( lua_State* L ) {
 	self->mVectors.Init ( self->mDeckSize * self->mVectorSize );
 	self->mVectors.Fill ( 0.0f );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -145,7 +145,7 @@ MOAIPathTerrainDeck::MOAIPathTerrainDeck () :
 	mDeckSize ( 0 ),
 	mVectorSize ( 0 ) {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -153,21 +153,17 @@ MOAIPathTerrainDeck::~MOAIPathTerrainDeck () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPathTerrainDeck::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPathTerrainDeck::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 
 //----------------------------------------------------------------//
-void MOAIPathTerrainDeck::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPathTerrainDeck::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getMask",				_getMask },
-		{ "getTerrainVec",			_getTerrainVec },
-		{ "setMask",				_setMask },
-		{ "setTerrainVec",			_setTerrainVec },
-		{ "reserve",				_reserve },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getMask",				_getMask, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getTerrainVec",		_getTerrainVec, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setMask",				_setMask, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setTerrainVec",		_setTerrainVec, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "reserve",				_reserve, MRB_ARGS_REQ ( 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }

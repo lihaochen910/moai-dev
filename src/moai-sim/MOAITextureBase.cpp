@@ -23,15 +23,16 @@
 	@out	number width
 	@out	number height
 */
-int MOAITextureBase::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextureBase, "U" )
+mrb_value MOAITextureBase::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextureBase, "U" )
 	
 	self->DoCPUCreate ();
 	
-	lua_pushnumber ( state, self->mWidth );
-	lua_pushnumber ( state, self->mHeight );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mWidth );
+	ret [ 1 ] = state.ToRValue ( self->mHeight );
+
+	return mrb_ary_new_from_values ( M, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -41,12 +42,12 @@ int MOAITextureBase::_getSize ( lua_State* L ) {
 	@in		MOAITextureBase self
 	@out	nil
 */
-int MOAITextureBase::_release ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextureBase, "U" )
+mrb_value MOAITextureBase::_release ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextureBase, "U" )
 	
 	self->Destroy ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -57,11 +58,11 @@ int MOAITextureBase::_release ( lua_State* L ) {
 	@in		string debugName
 	@out	nil
 */
-int MOAITextureBase::_setDebugName ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextureBase, "U" )
+mrb_value MOAITextureBase::_setDebugName ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextureBase, "U" )
 
-	self->mDebugName = state.GetValue < cc8* >( 2, "" );
-	return 0;
+	self->mDebugName = state.GetParamValue < cc8* >( 1, "" );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -74,17 +75,17 @@ int MOAITextureBase::_setDebugName ( lua_State* L ) {
 	@opt	number mag			Defaults to value passed to 'min'.
 	@out	nil
 */
-int MOAITextureBase::_setFilter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextureBase, "UN" )
+mrb_value MOAITextureBase::_setFilter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextureBase, "UN" )
 
-	int min = state.GetValue < int >( 2, ZGL_SAMPLE_LINEAR );
-	int mag = state.GetValue < int >( 3, min );
+	int min = state.GetParamValue < int >( 1, ZGL_SAMPLE_LINEAR );
+	int mag = state.GetParamValue < int >( 2, min );
 
 	MOAITextureBase::CheckFilterModes ( min, mag );
 
 	self->SetFilter ( min, mag );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -95,14 +96,14 @@ int MOAITextureBase::_setFilter ( lua_State* L ) {
 	@in		boolean wrap		Texture will wrap if true, clamp if not.
 	@out	nil
 */
-int MOAITextureBase::_setWrap ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextureBase, "UB" )
+mrb_value MOAITextureBase::_setWrap ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextureBase, "UB" )
 	
-	bool wrap = state.GetValue < bool >( 2, false );
+	bool wrap = state.GetParamValue < bool >( 1, false );
 	
 	self->mWrap = wrap ? ZGL_WRAP_MODE_REPEAT : ZGL_WRAP_MODE_CLAMP;
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -306,7 +307,7 @@ MOAITextureBase::MOAITextureBase () :
 	mTextureSize ( 0 ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 		RTTI_EXTEND ( MOAIGfxResource )
 	RTTI_END
 }
@@ -371,60 +372,56 @@ bool MOAITextureBase::OnGPUUpdate () {
 }
 
 //----------------------------------------------------------------//
-void MOAITextureBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITextureBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIGfxResource::RegisterLuaClass ( state );
+	MOAIGfxResource::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "GL_LINEAR",					( u32 )ZGL_SAMPLE_LINEAR );
-	state.SetField ( -1, "GL_LINEAR_MIPMAP_LINEAR",		( u32 )ZGL_SAMPLE_LINEAR_MIPMAP_LINEAR );
-	state.SetField ( -1, "GL_LINEAR_MIPMAP_NEAREST",	( u32 )ZGL_SAMPLE_LINEAR_MIPMAP_NEAREST );
+	state.DefineClassConst ( klass, "GL_LINEAR",					( u32 )ZGL_SAMPLE_LINEAR );
+	state.DefineClassConst ( klass, "GL_LINEAR_MIPMAP_LINEAR",		( u32 )ZGL_SAMPLE_LINEAR_MIPMAP_LINEAR );
+	state.DefineClassConst ( klass, "GL_LINEAR_MIPMAP_NEAREST",	( u32 )ZGL_SAMPLE_LINEAR_MIPMAP_NEAREST );
 	
-	state.SetField ( -1, "GL_NEAREST",					( u32 )ZGL_SAMPLE_NEAREST );
-	state.SetField ( -1, "GL_NEAREST_MIPMAP_LINEAR",	( u32 )ZGL_SAMPLE_NEAREST_MIPMAP_LINEAR );
-	state.SetField ( -1, "GL_NEAREST_MIPMAP_NEAREST",	( u32 )ZGL_SAMPLE_NEAREST_MIPMAP_NEAREST );
+	state.DefineClassConst ( klass, "GL_NEAREST",					( u32 )ZGL_SAMPLE_NEAREST );
+	state.DefineClassConst ( klass, "GL_NEAREST_MIPMAP_LINEAR",	( u32 )ZGL_SAMPLE_NEAREST_MIPMAP_LINEAR );
+	state.DefineClassConst ( klass, "GL_NEAREST_MIPMAP_NEAREST",	( u32 )ZGL_SAMPLE_NEAREST_MIPMAP_NEAREST );
 	
-	state.SetField ( -1, "GL_RGBA4",					( u32 )ZGL_PIXEL_FORMAT_RGBA4 );
-	state.SetField ( -1, "GL_RGB5_A1",					( u32 )ZGL_PIXEL_FORMAT_RGB5_A1 );
-	state.SetField ( -1, "GL_DEPTH_COMPONENT16",		( u32 )ZGL_PIXEL_FORMAT_DEPTH_COMPONENT16 );
-	//***state.SetField ( -1, "GL_DEPTH_COMPONENT24",	( u32 )GL_DEPTH_COMPONENT24 );
-	//***state.SetField ( -1, "GL_STENCIL_INDEX1",		( u32 )GL_STENCIL_INDEX1 );
-	//***state.SetField ( -1, "GL_STENCIL_INDEX4",		( u32 )GL_STENCIL_INDEX4 );
-	state.SetField ( -1, "GL_STENCIL_INDEX8",			( u32 )ZGL_PIXEL_FORMAT_STENCIL_INDEX8 );
-	//***state.SetField ( -1, "GL_STENCIL_INDEX16",		( u32 )GL_STENCIL_INDEX16 );
+	state.DefineClassConst ( klass, "GL_RGBA4",					( u32 )ZGL_PIXEL_FORMAT_RGBA4 );
+	state.DefineClassConst ( klass, "GL_RGB5_A1",					( u32 )ZGL_PIXEL_FORMAT_RGB5_A1 );
+	state.DefineClassConst ( klass, "GL_DEPTH_COMPONENT16",		( u32 )ZGL_PIXEL_FORMAT_DEPTH_COMPONENT16 );
+	//***state.DefineClassConst ( klass, "GL_DEPTH_COMPONENT24",	( u32 )GL_DEPTH_COMPONENT24 );
+	//***state.DefineClassConst ( klass, "GL_STENCIL_INDEX1",		( u32 )GL_STENCIL_INDEX1 );
+	//***state.DefineClassConst ( klass, "GL_STENCIL_INDEX4",		( u32 )GL_STENCIL_INDEX4 );
+	state.DefineClassConst ( klass, "GL_STENCIL_INDEX8",			( u32 )ZGL_PIXEL_FORMAT_STENCIL_INDEX8 );
+	//***state.DefineClassConst ( klass, "GL_STENCIL_INDEX16",		( u32 )GL_STENCIL_INDEX16 );
 	
 	// TODO:
 	#ifdef MOAI_OS_ANDROID
-		state.SetField ( -1, "GL_RGB565",				( u32 )ZGL_PIXEL_FORMAT_RGB565 );
+		state.DefineClassConst ( klass, "GL_RGB565",				( u32 )ZGL_PIXEL_FORMAT_RGB565 );
 	#else
-		state.SetField ( -1, "GL_RGBA8",				( u32 )ZGL_PIXEL_FORMAT_RGBA8 );
+		state.DefineClassConst ( klass, "GL_RGBA8",				( u32 )ZGL_PIXEL_FORMAT_RGBA8 );
 	#endif
 }
 
 //----------------------------------------------------------------//
-void MOAITextureBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITextureBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaFuncs ( state );
+	MOAIGfxResource::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getSize",				_getSize },
-		{ "release",				_release },
-		{ "setDebugName",			_setDebugName },
-		{ "setFilter",				_setFilter },
-		{ "setWrap",				_setWrap },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getSize", _getSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "release", _release, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDebugName", _setDebugName, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setFilter", _setFilter, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "setWrap", _setWrap, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAITextureBase::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAITextureBase::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAITextureBase::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAITextureBase::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }

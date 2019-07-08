@@ -29,7 +29,7 @@ MOAIVectorTesselatorWriter::MOAIVectorTesselatorWriter () :
 	mFlushStyle ( true ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -179,554 +179,557 @@ public:
 //================================================================//
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_clearShapes ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_clearShapes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	self->ClearShapes ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_clearStyles ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_clearStyles ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	self->mStyle.Default ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_clearTransforms ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_clearTransforms ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	self->ClearTransforms ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_drawingToWorld ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "UNN" )
+mrb_value MOAIVectorTesselator::_drawingToWorld ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "UNN" )
 	
 	ZLVec2D vec;
-	vec.mX = state.GetValue ( 2, 0.0f );
-	vec.mY = state.GetValue ( 3, 0.0f );
+	vec.mX = state.GetParamValue ( 1, 0.0f );
+	vec.mY = state.GetParamValue ( 2, 0.0f );
 
 	self->mStyle.mDrawingToWorld.Transform ( vec );
 	
-	state.Push ( vec.mX );
-	state.Push ( vec.mY );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( vec.mX );
+	ret [ 1 ] = state.ToRValue ( vec.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_drawingToWorldVec ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "UNN" )
+mrb_value MOAIVectorTesselator::_drawingToWorldVec ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "UNN" )
 	
 	ZLVec2D vec;
-	vec.mX = state.GetValue ( 2, 0.0f );
-	vec.mY = state.GetValue ( 3, 0.0f );
+	vec.mX = state.GetParamValue ( 1, 0.0f );
+	vec.mY = state.GetParamValue ( 2, 0.0f );
 
 	self->mStyle.mDrawingToWorld.TransformVec ( vec );
 	
-	state.Push ( vec.mX );
-	state.Push ( vec.mY );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( vec.mX );
+	ret [ 1 ] = state.ToRValue ( vec.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_finish ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_finish ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	int error = self->Finish ();
 	
 	bool hasContent = self->mShapeStack.GetTop () > 0;
 	
-	state.Push ( error );
-	state.Push ( hasContent );
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( error );
+	ret [ 1 ] = state.ToRValue ( hasContent );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_getExtrude ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_getExtrude ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	state.Push ( self->mStyle.mExtrude );
-	state.Push ( self->mStyle.mZOffset );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( self->mStyle.mExtrude );
+	ret [ 1 ] = state.ToRValue ( self->mStyle.mZOffset );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_getTransform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_getTransform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	const ZLAffine2D& drawingToWorld = self->mStyle.mDrawingToWorld;
 	
-	state.Push ( drawingToWorld.m [ ZLAffine2D::C0_R0 ]);
-	state.Push ( drawingToWorld.m [ ZLAffine2D::C0_R1 ]);
-	
-	state.Push ( drawingToWorld.m [ ZLAffine2D::C1_R0 ]);
-	state.Push ( drawingToWorld.m [ ZLAffine2D::C1_R1 ]);
-	
-	state.Push ( drawingToWorld.m [ ZLAffine2D::C2_R0 ]);
-	state.Push ( drawingToWorld.m [ ZLAffine2D::C2_R1 ]);
-	
-	return 6;
+	mrb_value ret [ 6 ];
+	ret [ 0 ] = state.ToRValue ( drawingToWorld.m [ ZLAffine2D::C0_R0 ] );
+	ret [ 1 ] = state.ToRValue ( drawingToWorld.m [ ZLAffine2D::C0_R1 ] );
+	ret [ 2 ] = state.ToRValue ( drawingToWorld.m [ ZLAffine2D::C1_R0 ] );
+	ret [ 3 ] = state.ToRValue ( drawingToWorld.m [ ZLAffine2D::C1_R1 ] );
+	ret [ 4 ] = state.ToRValue ( drawingToWorld.m [ ZLAffine2D::C2_R0 ] );
+	ret [ 5 ] = state.ToRValue ( drawingToWorld.m [ ZLAffine2D::C2_R1 ] );
+
+	return mrb_ary_new_from_values ( state, 6, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_openWriter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_openWriter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	MOAIVectorTesselatorWriter* writer = new MOAIVectorTesselatorWriter ();
-	state.Push ( writer );
+	MOAIVectorTesselatorWriter* writer = state.CreateClassInstance < MOAIVectorTesselatorWriter >();
 		
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( writer );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushBezierVertices ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushBezierVertices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	ZLVec2D p0;
 	ZLVec2D p1;
 	ZLVec2D p2;
 	ZLVec2D p3;
 	
-	p0.mX			= state.GetValue < float >( 2, 0.0f );
-	p0.mY			= state.GetValue < float >( 3, 0.0f );
+	p0.mX			= state.GetParamValue < float >( 1, 0.0f );
+	p0.mY			= state.GetParamValue < float >( 2, 0.0f );
 	
-	p1.mX			= state.GetValue < float >( 4, 0.0f );
-	p1.mY			= state.GetValue < float >( 5, 0.0f );
+	p1.mX			= state.GetParamValue < float >( 3, 0.0f );
+	p1.mY			= state.GetParamValue < float >( 4, 0.0f );
 	
-	p2.mX			= state.GetValue < float >( 6, 0.0f );
-	p2.mY			= state.GetValue < float >( 7, 0.0f );
+	p2.mX			= state.GetParamValue < float >( 5, 0.0f );
+	p2.mY			= state.GetParamValue < float >( 6, 0.0f );
 	
-	p3.mX			= state.GetValue < float >( 8, 0.0f );
-	p3.mY			= state.GetValue < float >( 9, 0.0f );
+	p3.mX			= state.GetParamValue < float >( 7, 0.0f );
+	p3.mY			= state.GetParamValue < float >( 8, 0.0f );
 	
 	self->PushBezierVertices ( p0, p1, p2, p3 );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushCombo ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushCombo ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	self->PushCombo ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushEllipse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushEllipse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float x			= state.GetValue < float >( 2, 0.0f );
-	float y			= state.GetValue < float >( 3, 0.0f );
-	float xRad		= state.GetValue < float >( 4, 0.0f );
-	float yRad		= state.GetValue < float >( 5, xRad );
+	float x			= state.GetParamValue < float >( 1, 0.0f );
+	float y			= state.GetParamValue < float >( 2, 0.0f );
+	float xRad		= state.GetParamValue < float >( 3, 0.0f );
+	float yRad		= state.GetParamValue < float >( 4, xRad );
 	
 	self->PushEllipse ( x, y, xRad, yRad );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushPoly ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushPoly ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	ZLVec2D* vertices = 0;
-	u32 total = ( state.GetTop () - 1 ) >> 1;
-	bool closed = state.GetValue < bool >( -1, true );
+	u32 total = ( state.GetParamsCount () - 1 ) >> 1;
+	bool closed = state.GetParamValue < bool >( -1, true );
 	
 	if ( total ) {
 		vertices = ( ZLVec2D* )alloca ( total * sizeof ( ZLVec2D ));
 		
 		for ( u32 i = 0; i < total; ++i ) {
-			vertices [ i ].mX = state.GetValue < float >(( i << 1 ) + 2, 0 );
-			vertices [ i ].mY = state.GetValue < float >(( i << 1 ) + 3, 0 );
+			vertices [ i ].mX = state.GetParamValue < float >(( i << 1 ) + 2, 0 );
+			vertices [ i ].mY = state.GetParamValue < float >(( i << 1 ) + 3, 0 );
 		}
 	}
 	
 	self->PushPoly ( vertices, total, closed );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	ZLRect rect = state.GetRect < float >( 2 );
+	ZLRect rect = state.GetRect < float >( 1 );
 	self->PushRect ( rect.mXMin, rect.mYMin, rect.mXMax, rect.mYMax );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushRegion ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushRegion ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 2, true );
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 1, true );
 	
 	if ( region ) {
 		self->PushCombo ();
 		self->PushRegion ( *region );
 		self->Finish ();
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushRotate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushRotate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float x		= state.GetValue < float >( 2, 0.0f );
-	float y		= state.GetValue < float >( 3, 0.0f );
-	float r		= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float r		= state.GetParamValue < float >( 3, 0.0f );
 
 	self->PushRotate ( x, y, r * ( float )D2R );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float x			= state.GetValue < float >( 2, 1.0f );
-	float y			= state.GetValue < float >( 3, 1.0f );
+	float x			= state.GetParamValue < float >( 1, 1.0f );
+	float y			= state.GetParamValue < float >( 2, 1.0f );
 	
 	self->PushScale ( x, y );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushSkew ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushSkew ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float yx		= state.GetValue < float >( 2, 0.0f );
-	float xy		= state.GetValue < float >( 3, 0.0f );
+	float yx		= state.GetParamValue < float >( 1, 0.0f );
+	float xy		= state.GetParamValue < float >( 2, 0.0f );
 	
 	self->PushSkew ( yx, xy );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushTransform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushTransform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float a			= state.GetValue < float >( 2, 1.0f );
-	float b			= state.GetValue < float >( 3, 0.0f );
-	float c			= state.GetValue < float >( 4, 0.0f );
-	float d			= state.GetValue < float >( 5, 1.0f );
+	float a			= state.GetParamValue < float >( 1, 1.0f );
+	float b			= state.GetParamValue < float >( 2, 0.0f );
+	float c			= state.GetParamValue < float >( 3, 0.0f );
+	float d			= state.GetParamValue < float >( 4, 1.0f );
 	
-	float tx		= state.GetValue < float >( 6, 0.0f );
-	float ty		= state.GetValue < float >( 7, 0.0f );
+	float tx		= state.GetParamValue < float >( 5, 0.0f );
+	float ty		= state.GetParamValue < float >( 6, 0.0f );
 	
 	self->PushTransform ( a, b, c, d, tx, ty );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushTranslate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushTranslate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float x			= state.GetValue < float >( 2, 1.0f );
-	float y			= state.GetValue < float >( 3, 0.0f );
+	float x			= state.GetParamValue < float >( 1, 1.0f );
+	float y			= state.GetParamValue < float >( 2, 0.0f );
 	
 	self->PushTranslate ( x, y );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_pushVertex ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_pushVertex ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	float x		= state.GetValue < float >( 2, 0.0f );
-	float y		= state.GetValue < float >( 3, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
 	
 	self->PushVertex ( x, y );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_readShapes ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_readShapes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, false );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, false );
 	
 	if ( stream ) {
 		self->ReadShapes ( *stream );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_reserveVertexExtras ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_reserveVertexExtras ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	u32 total		= state.GetValue < u32 >( 2, 0 );
-	size_t size		= state.GetValue < u32 >( 3, 0 );
+	u32 total		= state.GetParamValue < u32 >( 1, 0 );
+	size_t size		= state.GetParamValue < u32 >( 2, 0 );
 	
 	self->ReserveVertexExtras ( total, size );
-	return 0;	
+	return mrb_nil_value ();	
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setCapStyle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setCapStyle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mCapStyle = ( u8 )state.GetValue < u32 >( 2, MOAIVectorStyle::CAP_BUTT );
-	return 0;
+	self->mStyle.mCapStyle = ( u8 )state.GetParamValue < u32 >( 1, MOAIVectorStyle::CAP_BUTT );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setCircleResolution ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setCircleResolution ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mCircleResolution = ( u16 )state.GetValue < u32 >( 2, MOAIVectorStyle::DEFAULT_CIRCLE_RESOLUTION );
-	return 0;
+	self->mStyle.mCircleResolution = ( u16 )state.GetParamValue < u32 >( 1, MOAIVectorStyle::DEFAULT_CIRCLE_RESOLUTION );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setDepthBias ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setDepthBias ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mDepthBias = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mDepthBias = state.GetParamValue < float >( 1, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setExtrude ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setExtrude ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mExtrude = state.GetValue < float >( 2, 0.0f );
-	self->mStyle.mZOffset = state.GetValue < float >( 3, 0.0f );
-	return 0;
+	self->mStyle.mExtrude = state.GetParamValue < float >( 1, 0.0f );
+	self->mStyle.mZOffset = state.GetParamValue < float >( 2, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setFillColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setFillColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mFillColor = state.GetColor ( 2, 1.0f, 1.0f, 1.0f, 1.0f );
-	return 0;
+	self->mStyle.mFillColor = state.GetColor ( 1, 1.0f, 1.0f, 1.0f, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setFillStyle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setFillStyle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mFillStyle = ( u8 )state.GetValue < u32 >( 2, MOAIVectorStyle::FILL_NONE );
-	return 0;
+	self->mStyle.mFillStyle = ( u8 )state.GetParamValue < u32 >( 1, MOAIVectorStyle::FILL_NONE );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setFillExtra ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setFillExtra ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mFillExtraID = state.GetValue < u32 >( 2, 1 ) - 1;
-	return 0;
+	self->mStyle.mFillExtraID = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setJoinStyle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setJoinStyle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mJoinStyle = ( u8 )state.GetValue < u32 >( 2, MOAIVectorStyle::JOIN_MITER );
-	return 0;
+	self->mStyle.mJoinStyle = ( u8 )state.GetParamValue < u32 >( 1, MOAIVectorStyle::JOIN_MITER );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setLightColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setLightColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mLightColor = state.GetColor ( 2, 1.0f, 1.0f, 1.0f, 1.0f );
-	return 0;
+	self->mStyle.mLightColor = state.GetColor ( 1, 1.0f, 1.0f, 1.0f, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setLightCurve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setLightCurve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mLightCurve = ( u8 )state.GetValue < u32 >( 2, ZLInterpolate::kLinear );
-	return 0;
+	self->mStyle.mLightCurve = ( u8 )state.GetParamValue < u32 >( 1, ZLInterpolate::kLinear );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setLightVec ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setLightVec ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mLightVec.mX = state.GetValue < float >( 2, 0.0f );
-	self->mStyle.mLightVec.mY = state.GetValue < float >( 3, 0.0f );
-	self->mStyle.mLightVec.mZ = state.GetValue < float >( 4, 0.0f );
+	self->mStyle.mLightVec.mX = state.GetParamValue < float >( 1, 0.0f );
+	self->mStyle.mLightVec.mY = state.GetParamValue < float >( 2, 0.0f );
+	self->mStyle.mLightVec.mZ = state.GetParamValue < float >( 3, 0.0f );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setLineColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setLineColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mLineColor = state.GetColor ( 2, 1.0f, 1.0f, 1.0f, 1.0f );
-	return 0;
+	self->mStyle.mLineColor = state.GetColor ( 1, 1.0f, 1.0f, 1.0f, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setLineStyle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setLineStyle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mLineStyle = ( u8 )state.GetValue < u32 >( 2, MOAIVectorStyle::LINE_NONE );
-	return 0;
+	self->mStyle.mLineStyle = ( u8 )state.GetParamValue < u32 >( 1, MOAIVectorStyle::LINE_NONE );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setLineWidth ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setLineWidth ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mLineWidth = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mStyle.mLineWidth = state.GetParamValue < float >( 1, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setMergeNormals ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setMergeNormals ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mMergeNormals = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mStyle.mMergeNormals = state.GetParamValue < float >( 1, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setMiterLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setMiterLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mMiterLimit = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mStyle.mMiterLimit = state.GetParamValue < float >( 1, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setPolyClosed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setPolyClosed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mPolyClosed = state.GetValue < bool >( 2, false );
-	return 0;
+	self->mPolyClosed = state.GetParamValue < bool >( 1, false );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setShadowColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setShadowColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mShadowColor = state.GetColor ( 2, 0.0f, 0.0f, 0.0f, 1.0f );
-	return 0;
+	self->mStyle.mShadowColor = state.GetColor ( 1, 0.0f, 0.0f, 0.0f, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setShadowCurve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setShadowCurve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mShadowCurve = ( u8 )state.GetValue < u32 >( 2, ZLInterpolate::kLinear );
-	return 0;
+	self->mStyle.mShadowCurve = ( u8 )state.GetParamValue < u32 >( 1, ZLInterpolate::kLinear );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setStrokeColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setStrokeColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mStyle.mStrokeColor = state.GetColor ( 2, 1.0f, 1.0f, 1.0f, 1.0f );
-	return 0;
+	self->mStyle.mStrokeColor = state.GetColor ( 1, 1.0f, 1.0f, 1.0f, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setStrokeDepthBias ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setStrokeDepthBias ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mStrokeDepthBias = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mStyle.mStrokeDepthBias = state.GetParamValue < float >( 1, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setStrokeExtra ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setStrokeExtra ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mStrokeExtraID =  state.GetValue < u32 >( 2, 1 ) - 1;
-	return 0;
+	self->mStyle.mStrokeExtraID =  state.GetParamValue < u32 >( 1, 1 ) - 1;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setStrokeStyle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setStrokeStyle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mStrokeStyle = ( u8 )state.GetValue < u32 >( 2, MOAIVectorStyle::STROKE_CENTER );
-	return 0;
+	self->mStyle.mStrokeStyle = ( u8 )state.GetParamValue < u32 >( 1, MOAIVectorStyle::STROKE_CENTER );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setStrokeWidth ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setStrokeWidth ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mStrokeWidth = state.GetValue < float >( 2, 0.0f );
-	return 0;
+	self->mStyle.mStrokeWidth = state.GetParamValue < float >( 1, 0.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setVerbose ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setVerbose ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 
-	self->mVerbose = state.GetValue < bool >( 2, false );
-	return 0;
+	self->mVerbose = state.GetParamValue < bool >( 1, false );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setVertexExtra ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setVertexExtra ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 )- 1;
+	/*u32 idx = state.GetParamValue < u32 >( 1, 1 )- 1;
 	
 	size_t len;
 	void* extra = ( void* )lua_tolstring ( state, 3, &len );
 	
-	self->SetVertexExtra ( idx, extra, len );
+	self->SetVertexExtra ( idx, extra, len );*/
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_setWindingRule ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_setWindingRule ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	self->mStyle.mWindingRule = ( u8 )state.GetValue < u32 >( 2, ( u32 )TESS_WINDING_ODD );
-	return 0;
+	self->mStyle.mWindingRule = ( u8 )state.GetParamValue < u32 >( 1, ( u32 )TESS_WINDING_ODD );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_tesselate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_tesselate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
 	u32 base = 0;
 	int totalElements = 0;
 	
-	MOAIVertexBuffer* vtxBuffer		= state.GetLuaObject < MOAIVertexBuffer >( 2, false );
-	MOAIIndexBuffer* idxBuffer		= state.GetLuaObject < MOAIIndexBuffer >( 3, false );
+	MOAIVertexBuffer* vtxBuffer		= state.GetRubyObject < MOAIVertexBuffer >( 1, false );
+	MOAIIndexBuffer* idxBuffer		= state.GetRubyObject < MOAIIndexBuffer >( 2, false );
 
 	if ( vtxBuffer && idxBuffer ) {
 	
-		u32 idxSizeInBytes			= state.GetValue < u32 >( 4, 4 );
-		MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 5, false );
-		u32 flags					= state.GetValue < u32 >( 6, MOAIVectorTesselator::TESSELATE_ALL );
+		u32 idxSizeInBytes			= state.GetParamValue < u32 >( 3, 4 );
+		MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 4, false );
+		u32 flags					= state.GetParamValue < u32 >( 5, MOAIVectorTesselator::TESSELATE_ALL );
 		
 		base = ( u32 )( idxBuffer->GetCursor () / idxSizeInBytes ); // TODO: cast
 		totalElements = self->Tesselate ( *vtxBuffer, *idxBuffer, *format, idxSizeInBytes, flags );
 	}
 	else {
 		
-		MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, false );
-		MOAIStream* idxStream		= state.GetLuaObject < MOAIStream >( 3, false );
-		MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 4, false );
-		u32 flags					= state.GetValue < u32 >( 5, MOAIVectorTesselator::TESSELATE_ALL );
+		MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 1, false );
+		MOAIStream* idxStream		= state.GetRubyObject < MOAIStream >( 2, false );
+		MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 3, false );
+		u32 flags					= state.GetParamValue < u32 >( 4, MOAIVectorTesselator::TESSELATE_ALL );
 		
 		if ( vtxStream && idxStream && format ) {
 			base = ( u32 )( idxStream->GetCursor () / 4 ); // TODO: cast
@@ -734,62 +737,66 @@ int MOAIVectorTesselator::_tesselate ( lua_State* L ) {
 		}
 	}
 	
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 1, false );
 	
 	if ( region ) {
-		u32 flags		= state.GetValue < u32 >( 3, MOAIVectorTesselator::TESSELATE_ALL );
+		u32 flags		= state.GetParamValue < u32 >( 2, MOAIVectorTesselator::TESSELATE_ALL );
 		totalElements	= self->Tesselate ( *region, flags );
 	}
 	
-	state.Push ( totalElements );
-	state.Push ( base );
-	state.Push ( base + totalElements );
-	return 3;
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( totalElements );
+	ret [ 1 ] = state.ToRValue ( base );
+	ret [ 2 ] = state.ToRValue ( base + totalElements );
+
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_worldToDrawing ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "UNN" )
+mrb_value MOAIVectorTesselator::_worldToDrawing ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "UNN" )
 	
 	ZLVec2D vec;
-	vec.mX = state.GetValue ( 2, 0.0f );
-	vec.mY = state.GetValue ( 3, 0.0f );
+	vec.mX = state.GetParamValue ( 1, 0.0f );
+	vec.mY = state.GetParamValue ( 2, 0.0f );
 
 	self->mStyle.mWorldToDrawing.Transform ( vec );
 	
-	state.Push ( vec.mX );
-	state.Push ( vec.mY );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( vec.mX );
+	ret [ 1 ] = state.ToRValue ( vec.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_worldToDrawingVec ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "UNN" )
+mrb_value MOAIVectorTesselator::_worldToDrawingVec ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "UNN" )
 	
 	ZLVec2D vec;
-	vec.mX = state.GetValue ( 2, 0.0f );
-	vec.mY = state.GetValue ( 3, 0.0f );
+	vec.mX = state.GetParamValue ( 1, 0.0f );
+	vec.mY = state.GetParamValue ( 2, 0.0f );
 
 	self->mStyle.mWorldToDrawing.TransformVec ( vec );
 	
-	state.Push ( vec.mX );
-	state.Push ( vec.mY );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( vec.mX );
+	ret [ 1 ] = state.ToRValue ( vec.mY );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
-int MOAIVectorTesselator::_writeShapes ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVectorTesselator, "U" )
+mrb_value MOAIVectorTesselator::_writeShapes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVectorTesselator, "U" )
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, false );
-	MOAIVectorTesselatorWriter* writer = state.GetLuaObject < MOAIVectorTesselatorWriter >( 3, false );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, false );
+	MOAIVectorTesselatorWriter* writer = state.GetRubyObject < MOAIVectorTesselatorWriter >( 2, false );
 	
 	if ( writer ) {
 		self->WriteShapes ( *stream, writer );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -888,7 +895,7 @@ MOAIVectorTesselator::MOAIVectorTesselator () :
 	this->mStyle.Default ();
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -1071,101 +1078,97 @@ void MOAIVectorTesselator::ReadShapes ( ZLStream& stream ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIVectorTesselator::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIVectorTesselator::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	state.SetField ( -1, "FILL_NONE",					( u32 )MOAIVectorStyle::FILL_NONE );
-	state.SetField ( -1, "FILL_SOLID",					( u32 )MOAIVectorStyle::FILL_SOLID );
+	state.DefineClassConst ( klass, "FILL_NONE",					( u32 )MOAIVectorStyle::FILL_NONE );
+	state.DefineClassConst ( klass, "FILL_SOLID",					( u32 )MOAIVectorStyle::FILL_SOLID );
 	
-	state.SetField ( -1, "LINE_NONE",					( u32 )MOAIVectorStyle::LINE_NONE );
-	state.SetField ( -1, "LINE_VECTOR",					( u32 )MOAIVectorStyle::LINE_VECTOR );
+	state.DefineClassConst ( klass, "LINE_NONE",					( u32 )MOAIVectorStyle::LINE_NONE );
+	state.DefineClassConst ( klass, "LINE_VECTOR",					( u32 )MOAIVectorStyle::LINE_VECTOR );
 	
-	state.SetField ( -1, "STROKE_NONE",					( u32 )MOAIVectorStyle::STROKE_NONE );
-	state.SetField ( -1, "STROKE_CENTER",				( u32 )MOAIVectorStyle::STROKE_CENTER );
-	state.SetField ( -1, "STROKE_INTERIOR",				( u32 )MOAIVectorStyle::STROKE_INTERIOR );
-	state.SetField ( -1, "STROKE_EXTERIOR",				( u32 )MOAIVectorStyle::STROKE_EXTERIOR );
+	state.DefineClassConst ( klass, "STROKE_NONE",					( u32 )MOAIVectorStyle::STROKE_NONE );
+	state.DefineClassConst ( klass, "STROKE_CENTER",				( u32 )MOAIVectorStyle::STROKE_CENTER );
+	state.DefineClassConst ( klass, "STROKE_INTERIOR",				( u32 )MOAIVectorStyle::STROKE_INTERIOR );
+	state.DefineClassConst ( klass, "STROKE_EXTERIOR",				( u32 )MOAIVectorStyle::STROKE_EXTERIOR );
 	
-	state.SetField ( -1, "JOIN_BEVEL",					( u32 )MOAIVectorStyle::JOIN_BEVEL );
-	state.SetField ( -1, "JOIN_MITER",					( u32 )MOAIVectorStyle::JOIN_MITER );
-	state.SetField ( -1, "JOIN_ROUND",					( u32 )MOAIVectorStyle::JOIN_ROUND );
+	state.DefineClassConst ( klass, "JOIN_BEVEL",					( u32 )MOAIVectorStyle::JOIN_BEVEL );
+	state.DefineClassConst ( klass, "JOIN_MITER",					( u32 )MOAIVectorStyle::JOIN_MITER );
+	state.DefineClassConst ( klass, "JOIN_ROUND",					( u32 )MOAIVectorStyle::JOIN_ROUND );
 	
-	state.SetField ( -1, "CAP_BUTT",					( u32 )MOAIVectorStyle::CAP_BUTT );
-	state.SetField ( -1, "CAP_ROUND",					( u32 )MOAIVectorStyle::CAP_ROUND );
-	state.SetField ( -1, "CAP_POINTY",					( u32 )MOAIVectorStyle::CAP_POINTY );
-	state.SetField ( -1, "CAP_SQUARE",					( u32 )MOAIVectorStyle::CAP_SQUARE );
+	state.DefineClassConst ( klass, "CAP_BUTT",					( u32 )MOAIVectorStyle::CAP_BUTT );
+	state.DefineClassConst ( klass, "CAP_ROUND",					( u32 )MOAIVectorStyle::CAP_ROUND );
+	state.DefineClassConst ( klass, "CAP_POINTY",					( u32 )MOAIVectorStyle::CAP_POINTY );
+	state.DefineClassConst ( klass, "CAP_SQUARE",					( u32 )MOAIVectorStyle::CAP_SQUARE );
 	
-	state.SetField ( -1, "TESS_WINDING_ODD",			( u32 )TESS_WINDING_ODD );
-	state.SetField ( -1, "TESS_WINDING_NONZERO",		( u32 )TESS_WINDING_NONZERO );
-	state.SetField ( -1, "TESS_WINDING_POSITIVE",		( u32 )TESS_WINDING_POSITIVE );
-	state.SetField ( -1, "TESS_WINDING_NEGATIVE",		( u32 )TESS_WINDING_NEGATIVE );
-	state.SetField ( -1, "TESS_WINDING_ABS_GEQ_TWO",	( u32 )TESS_WINDING_ABS_GEQ_TWO );
+	state.DefineClassConst ( klass, "TESS_WINDING_ODD",			( u32 )TESS_WINDING_ODD );
+	state.DefineClassConst ( klass, "TESS_WINDING_NONZERO",		( u32 )TESS_WINDING_NONZERO );
+	state.DefineClassConst ( klass, "TESS_WINDING_POSITIVE",		( u32 )TESS_WINDING_POSITIVE );
+	state.DefineClassConst ( klass, "TESS_WINDING_NEGATIVE",		( u32 )TESS_WINDING_NEGATIVE );
+	state.DefineClassConst ( klass, "TESS_WINDING_ABS_GEQ_TWO",	( u32 )TESS_WINDING_ABS_GEQ_TWO );
 	
-	state.SetField ( -1, "TESSELATE_FILLS",				( u32 )TESSELATE_FILLS );
-	state.SetField ( -1, "TESSELATE_STROKES",			( u32 )TESSELATE_STROKES );
-	state.SetField ( -1, "TESSELATE_ALL",				( u32 )TESSELATE_ALL );
+	state.DefineClassConst ( klass, "TESSELATE_FILLS",				( u32 )TESSELATE_FILLS );
+	state.DefineClassConst ( klass, "TESSELATE_STROKES",			( u32 )TESSELATE_STROKES );
+	state.DefineClassConst ( klass, "TESSELATE_ALL",				( u32 )TESSELATE_ALL );
 }
 
 //----------------------------------------------------------------//
-void MOAIVectorTesselator::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIVectorTesselator::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "clearShapes",			_clearShapes },
-		{ "clearStyles",			_clearStyles },
-		{ "clearTransforms",		_clearTransforms },
-		{ "drawingToWorld",			_drawingToWorld },
-		{ "drawingToWorldVec",		_drawingToWorldVec },
-		{ "finish",					_finish },
-		{ "getExtrude",				_getExtrude },
-		{ "getTransform",			_getTransform },
-		{ "openWriter",				_openWriter },
-		{ "pushBezierVertices",		_pushBezierVertices },
-		{ "pushCombo",				_pushCombo },
-		{ "pushEllipse",			_pushEllipse },
-		{ "pushPoly",				_pushPoly },
-		{ "pushRect",				_pushRect },
-		{ "pushRegion",				_pushRegion },
-		{ "pushRotate",				_pushRotate },
-		{ "pushScale",				_pushScale },
-		{ "pushSkew",				_pushSkew },
-		{ "pushTransform",			_pushTransform },
-		{ "pushTranslate",			_pushTranslate },
-		{ "pushVertex",				_pushVertex },
-		{ "readShapes",				_readShapes },
-		{ "reserveVertexExtras",	_reserveVertexExtras },
-		{ "setCapStyle",			_setCapStyle },
-		{ "setCircleResolution",	_setCircleResolution },
-		{ "setDepthBias",			_setDepthBias },
-		{ "setExtrude",				_setExtrude },
-		{ "setFillColor",			_setFillColor },
-		{ "setFillStyle",			_setFillStyle },
-		{ "setFillExtra",			_setFillExtra },
-		{ "setJoinStyle",			_setJoinStyle },
-		{ "setLightColor",			_setLightColor },
-		{ "setLightCurve",			_setLightCurve },
-		{ "setLightVec",			_setLightVec },
-		{ "setLineColor",			_setLineColor },
-		{ "setLineStyle",			_setLineStyle },
-		{ "setLineWidth",			_setLineWidth },
-		{ "setMergeNormals",		_setMergeNormals },
-		{ "setMiterLimit",			_setMiterLimit },
-		{ "setPolyClosed",			_setPolyClosed },
-		{ "setShadowColor",			_setShadowColor },
-		{ "setShadowCurve",			_setShadowCurve },
-		{ "setStrokeColor",			_setStrokeColor },
-		{ "setStrokeDepthBias",		_setStrokeDepthBias },
-		{ "setStrokeExtra",			_setStrokeExtra },
-		{ "setStrokeStyle",			_setStrokeStyle },
-		{ "setStrokeWidth",			_setStrokeWidth },
-		{ "setVerbose",				_setVerbose },
-		{ "setVertexExtra",			_setVertexExtra },
-		{ "setWindingRule",			_setWindingRule },
-		{ "tesselate",				_tesselate },
-		{ "worldToDrawing",			_worldToDrawing },
-		{ "worldToDrawingVec",		_worldToDrawingVec },
-		{ "writeShapes",			_writeShapes },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "clearShapes",			_clearShapes, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "clearStyles",			_clearStyles, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "clearTransforms",		_clearTransforms, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "drawingToWorld",		_drawingToWorld, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "drawingToWorldVec",	_drawingToWorldVec, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "finish",				_finish, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getExtrude",			_getExtrude, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTransform",			_getTransform, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "openWriter",			_openWriter, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pushBezierVertices",	_pushBezierVertices, MRB_ARGS_REQ ( 8 ) );
+	state.DefineInstanceMethod ( klass, "pushCombo",			_pushCombo, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pushEllipse",			_pushEllipse, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "pushPoly",				_pushPoly, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "pushRect",				_pushRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "pushRegion",			_pushRegion, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "pushRotate",			_pushRotate, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "pushScale",			_pushScale, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "pushSkew",				_pushSkew, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "pushTransform",		_pushTransform, MRB_ARGS_REQ ( 6 ) );
+	state.DefineInstanceMethod ( klass, "pushTranslate",		_pushTranslate, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "pushVertex",			_pushVertex, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "readShapes",			_readShapes, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveVertexExtras",	_reserveVertexExtras, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setCapStyle",			_setCapStyle, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setCircleResolution",	_setCircleResolution, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setDepthBias",			_setDepthBias, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setExtrude",			_setExtrude, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setFillColor",			_setFillColor, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setFillStyle",			_setFillStyle, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setFillExtra",			_setFillExtra, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setJoinStyle",			_setJoinStyle, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setLightColor",		_setLightColor, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setLightCurve",		_setLightCurve, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLightVec",			_setLightVec, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setLineColor",			_setLineColor, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setLineStyle",			_setLineStyle, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLineWidth",			_setLineWidth, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setMergeNormals",		_setMergeNormals, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setMiterLimit",		_setMiterLimit, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPolyClosed",		_setPolyClosed, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setShadowColor",		_setShadowColor, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setShadowCurve",		_setShadowCurve, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setStrokeColor",		_setStrokeColor, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setStrokeDepthBias",	_setStrokeDepthBias, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setStrokeExtra",		_setStrokeExtra, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setStrokeStyle",		_setStrokeStyle, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setStrokeWidth",		_setStrokeWidth, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setVerbose",			_setVerbose, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setVertexExtra",		_setVertexExtra, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setWindingRule",		_setWindingRule, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "tesselate",			_tesselate, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "worldToDrawing",		_worldToDrawing, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "worldToDrawingVec",	_worldToDrawingVec, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "writeShapes",			_writeShapes, MRB_ARGS_REQ ( 2 ) );
+	
 }
 
 //----------------------------------------------------------------//

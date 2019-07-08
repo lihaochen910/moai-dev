@@ -21,17 +21,17 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDeck::_draw ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeck, "U" )
+mrb_value MOAIDeck::_draw ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeck, "U" )
 
-	u32 index						= state.GetValue < u32 >( 2, 1 );
-	//MOAIMaterialBatch* materials	= state.GetLuaObject < MOAIMaterialBatch >( 3, false );
-	//ZLVec3D offset					= state.GetValue < ZLVec3D >( 4, ZLVec3D::ORIGIN );
-	//ZLVec3D scale					= state.GetValue < ZLVec3D >( 7, ZLVec3D::AXIS );
+	u32 index						= state.GetParamValue < u32 >( 1, 1 );
+	//MOAIMaterialBatch* materials	= state.GetRubyObject < MOAIMaterialBatch >( 2, false );
+	//ZLVec3D offset					= state.GetParamValue < ZLVec3D >( 3, ZLVec3D::ORIGIN );
+	//ZLVec3D scale					= state.GetParamValue < ZLVec3D >( 6, ZLVec3D::AXIS );
 
 	self->Draw ( index );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -57,14 +57,14 @@ int MOAIDeck::_draw ( lua_State* L ) {
 		@out	yMax
 		@out	zMax
 */
-int MOAIDeck::_getBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeck, "U" )
+mrb_value MOAIDeck::_getBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeck, "U" )
 	
 	ZLBox box;
 	
-	if ( state.IsType ( 2, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
 	
-		u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
+		u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
 		box = self->GetBounds ( idx );
 	}
 	else {
@@ -72,8 +72,7 @@ int MOAIDeck::_getBounds ( lua_State* L ) {
 		box = self->GetBounds ();
 	}
 	
-	state.Push ( box );
-	return 6;
+	return state.Get ( box );
 }
 
 //================================================================//
@@ -123,7 +122,7 @@ MOAIDeck::MOAIDeck () :
 	mBoundsDirty ( true ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -139,20 +138,17 @@ bool MOAIDeck::Overlap ( u32 idx, const ZLVec2D& vec, u32 granularity, ZLBounds*
 
 
 //----------------------------------------------------------------//
-void MOAIDeck::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDeck::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDeck::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDeck::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "draw",					_draw },
-		{ "getBounds",				_getBounds },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "draw", _draw, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getBounds", _getBounds, MRB_ARGS_ARG ( 0, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

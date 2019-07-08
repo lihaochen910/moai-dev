@@ -26,22 +26,21 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGraphicsPropBase::_draw ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_draw ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 	
-	u32 subPrimID		= state.GetValue < u32 >( 2, (u32) MOAIPartitionHull::NO_SUBPRIM_ID );
+	u32 subPrimID = state.GetParamValue < u32 >( 1, (u32) MOAIPartitionHull::NO_SUBPRIM_ID );
 	
 	self->Draw ( (int) subPrimID );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGraphicsPropBase::_getBillboard ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_getBillboard ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 	
-	state.Push ( self->mBillboard );
-	return 1;
+	return state.ToRValue ( self->mBillboard );
 }
 
 //----------------------------------------------------------------//
@@ -51,14 +50,13 @@ int MOAIGraphicsPropBase::_getBillboard ( lua_State* L ) {
 	@in		MOAIGraphicsPropBase self
 	@out	MOAIScissorRect scissorRect 	Or nil if none exists.
 */
-int MOAIGraphicsPropBase::_getScissorRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_getScissorRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 	
 	if ( self->mScissorRect ) {
-		self->mScissorRect->PushLuaUserdata ( state );
-		return 1;
+		return self->mScissorRect->PushRubyUserdata ( state );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -70,16 +68,16 @@ int MOAIGraphicsPropBase::_getScissorRect ( lua_State* L ) {
 	@in		MOAIGraphicsPropBase self
 	@out	boolean isVisible		Indicates whether the prop is visible.
 */
-int	MOAIGraphicsPropBase::_isVisible ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value	MOAIGraphicsPropBase::_isVisible ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 
-	if ( state.IsType ( 2, LUA_TNUMBER )) {
-		lua_pushboolean ( state, self->IsVisible ());
-	}
-	else {
-		lua_pushboolean ( state, self->IsVisible ());
-	}
-	return 1;
+	// if ( state.ParamIsType ( 2, LUA_TNUMBER )) {
+	// 	lua_pushboolean ( state, self->IsVisible ());
+	// }
+	// else {
+	// 	lua_pushboolean ( state, self->IsVisible ());
+	// }
+	return state.ToRValue ( self->IsVisible () );
 }
 
 //----------------------------------------------------------------//
@@ -100,17 +98,17 @@ int	MOAIGraphicsPropBase::_isVisible ( lua_State* L ) {
 		@in		number mode
 		@out	nil
 */
-int MOAIGraphicsPropBase::_setBillboard ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_setBillboard ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 
-	if ( state.IsType ( 2, LUA_TBOOLEAN )) {
-		bool billboard = state.GetValue < bool >( 2, false );
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
+		bool billboard = state.GetParamValue < bool >( 1, false );
 		self->mBillboard = billboard ? BILLBOARD_NORMAL : BILLBOARD_NONE;
 	}
 	else {
-		self->mBillboard = state.GetValue < u32 >( 2, BILLBOARD_NONE );
+		self->mBillboard = state.GetParamValue < u32 >( 1, BILLBOARD_NONE );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -121,10 +119,10 @@ int MOAIGraphicsPropBase::_setBillboard ( lua_State* L ) {
 	@opt	MOAINode parent		Default value is nil.
 	@out	nil
 */
-int MOAIGraphicsPropBase::_setParent ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_setParent ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 
-	MOAINode* parent = state.GetLuaObject < MOAINode >( 2, true );
+	MOAINode* parent = state.GetRubyObject < MOAINode >( 1, true );
 	
 	self->SetAttrLink ( PACK_ATTR ( MOAIColor, INHERIT_COLOR ), parent, PACK_ATTR ( MOAIColor, COLOR_TRAIT ));
 	self->SetAttrLink ( PACK_ATTR ( MOAITransformBase, INHERIT_TRANSFORM ), parent, PACK_ATTR ( MOAITransformBase, TRANSFORM_TRAIT ));
@@ -132,7 +130,7 @@ int MOAIGraphicsPropBase::_setParent ( lua_State* L ) {
 	
 	//MOAILogF ( state, MOAISTRING_FunctionDeprecated_S, "setParent" );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -143,13 +141,13 @@ int MOAIGraphicsPropBase::_setParent ( lua_State* L ) {
 	@opt	MOAIScissorRect scissorRect		Default value is nil.
 	@out	nil
 */
-int MOAIGraphicsPropBase::_setScissorRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_setScissorRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 	
-	MOAIScissorRect* scissorRect = state.GetLuaObject < MOAIScissorRect >( 2, true );
+	MOAIScissorRect* scissorRect = state.GetRubyObject < MOAIScissorRect >( 1, true );
 	self->mScissorRect.Set ( *self, scissorRect );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -160,13 +158,13 @@ int MOAIGraphicsPropBase::_setScissorRect ( lua_State* L ) {
 	@opt	MOAITransformBase transform	Default value is nil.
 	@out	nil
 */
-int MOAIGraphicsPropBase::_setUVTransform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_setUVTransform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 
-	MOAITransformBase* transform = state.GetLuaObject < MOAITransformBase >( 2, true );
+	MOAITransformBase* transform = state.GetRubyObject < MOAITransformBase >( 1, true );
 	self->SetDependentMember < MOAITransformBase >( self->mUVTransform, transform );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -177,18 +175,24 @@ int MOAIGraphicsPropBase::_setUVTransform ( lua_State* L ) {
 	@opt	boolean visible		Default value is true.
 	@out	nil
 */
-int MOAIGraphicsPropBase::_setVisible ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGraphicsPropBase, "U" )
+mrb_value MOAIGraphicsPropBase::_setVisible ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGraphicsPropBase, "U" )
 
-	bool visible = state.GetValue < bool >( 2, true );
+	bool visible = state.GetParamValue < bool >( 1, true );
 	self->SetVisible ( visible );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
 // MOAIGraphicsPropBase
 //================================================================//
+
+//----------------------------------------------------------------//
+MOAIRubyClass* MOAIGraphicsPropBase::GetSuperRubyClass () {
+
+	return MOAIRubyObject::GetRubyClass ();
+}
 
 //----------------------------------------------------------------//
 bool MOAIGraphicsPropBase::IsVisible () {
@@ -263,91 +267,87 @@ void MOAIGraphicsPropBase::PushGfxState () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsPropBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGraphicsPropBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIPartitionHull::RegisterLuaClass ( state );
-	MOAIColor::RegisterLuaClass ( state );
-	MOAIMaterialBatchHolder::RegisterLuaClass ( state );
+	MOAIPartitionHull::RegisterRubyClass ( state, klass );
+	MOAIColor::RegisterRubyClass ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyClass ( state, klass );
 	
 	MOAIDebugLinesMgr::Get ().ReserveStyleSet < MOAIGraphicsPropBase >( TOTAL_DEBUG_LINE_STYLES );
 	
-	state.SetField ( -1, "DEBUG_DRAW_GFX_PROP_MASTER",			MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( (u32) -1 ));
-	state.SetField ( -1, "DEBUG_DRAW_PARTITION_CELLS",			MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_PARTITION_CELLS ));
-	state.SetField ( -1, "DEBUG_DRAW_PARTITION_PADDED_CELLS",	MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_PARTITION_PADDED_CELLS ));
-	state.SetField ( -1, "DEBUG_DRAW_AXIS",						MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_AXIS ));
-	state.SetField ( -1, "DEBUG_DRAW_DIAGONALS",				MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_DIAGONALS ));
-	state.SetField ( -1, "DEBUG_DRAW_MODEL_BOUNDS",				MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_MODEL_BOUNDS ));
-	state.SetField ( -1, "DEBUG_DRAW_WORLD_BOUNDS",				MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_WORLD_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_GFX_PROP_MASTER",			MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( (u32) -1 ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_PARTITION_CELLS",			MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_PARTITION_CELLS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_PARTITION_PADDED_CELLS",	MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_PARTITION_PADDED_CELLS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_AXIS",						MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_AXIS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_DIAGONALS",					MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_DIAGONALS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_MODEL_BOUNDS",				MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_MODEL_BOUNDS ));
+	state.DefineClassConst ( klass, "DEBUG_DRAW_WORLD_BOUNDS",				MOAIDebugLinesMgr::Pack < MOAIGraphicsPropBase >( DEBUG_DRAW_WORLD_BOUNDS ));
 	
-	state.SetField ( -1, "ATTR_SCISSOR_RECT",			MOAIGraphicsPropBaseAttr::Pack ( ATTR_SCISSOR_RECT ));
+	state.DefineClassConst ( klass, "ATTR_SCISSOR_RECT",			MOAIGraphicsPropBaseAttr::Pack ( ATTR_SCISSOR_RECT ));
 
-	state.SetField ( -1, "ATTR_LOCAL_VISIBLE",			MOAIGraphicsPropBaseAttr::Pack ( ATTR_LOCAL_VISIBLE ));
-	state.SetField ( -1, "ATTR_VISIBLE",				MOAIGraphicsPropBaseAttr::Pack ( ATTR_VISIBLE ));
-	state.SetField ( -1, "INHERIT_VISIBLE",				MOAIGraphicsPropBaseAttr::Pack ( INHERIT_VISIBLE ));
+	state.DefineClassConst ( klass, "ATTR_LOCAL_VISIBLE",			MOAIGraphicsPropBaseAttr::Pack ( ATTR_LOCAL_VISIBLE ));
+	state.DefineClassConst ( klass, "ATTR_VISIBLE",					MOAIGraphicsPropBaseAttr::Pack ( ATTR_VISIBLE ));
+	state.DefineClassConst ( klass, "INHERIT_VISIBLE",				MOAIGraphicsPropBaseAttr::Pack ( INHERIT_VISIBLE ));
 
-	state.SetField ( -1, "INHERIT_FRAME",				MOAIGraphicsPropBaseAttr::Pack ( INHERIT_FRAME ));
-	state.SetField ( -1, "FRAME_TRAIT",					MOAIGraphicsPropBaseAttr::Pack ( FRAME_TRAIT ));
+	state.DefineClassConst ( klass, "INHERIT_FRAME",				MOAIGraphicsPropBaseAttr::Pack ( INHERIT_FRAME ));
+	state.DefineClassConst ( klass, "FRAME_TRAIT",					MOAIGraphicsPropBaseAttr::Pack ( FRAME_TRAIT ));
 	
-	state.SetField ( -1, "GL_FUNC_ADD",					( u32 )ZGL_BLEND_MODE_ADD );
-	state.SetField ( -1, "GL_FUNC_SUBTRACT",			( u32 )ZGL_BLEND_MODE_SUBTRACT );
-	state.SetField ( -1, "GL_FUNC_REVERSE_SUBTRACT",	( u32 )ZGL_BLEND_MODE_REVERSE_SUBTRACT );
+	state.DefineClassConst ( klass, "GL_FUNC_ADD",					( u32 )ZGL_BLEND_MODE_ADD );
+	state.DefineClassConst ( klass, "GL_FUNC_SUBTRACT",				( u32 )ZGL_BLEND_MODE_SUBTRACT );
+	state.DefineClassConst ( klass, "GL_FUNC_REVERSE_SUBTRACT",		( u32 )ZGL_BLEND_MODE_REVERSE_SUBTRACT );
 	
-	state.SetField ( -1, "GL_ONE",						( u32 )ZGL_BLEND_FACTOR_ONE );
-	state.SetField ( -1, "GL_ZERO",						( u32 )ZGL_BLEND_FACTOR_ZERO );
-	state.SetField ( -1, "GL_DST_ALPHA",				( u32 )ZGL_BLEND_FACTOR_DST_ALPHA );
-	state.SetField ( -1, "GL_DST_COLOR",				( u32 )ZGL_BLEND_FACTOR_DST_COLOR );
-	state.SetField ( -1, "GL_SRC_COLOR",				( u32 )ZGL_BLEND_FACTOR_SRC_COLOR );
-	state.SetField ( -1, "GL_ONE_MINUS_DST_ALPHA",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_DST_ALPHA );
-	state.SetField ( -1, "GL_ONE_MINUS_DST_COLOR",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_DST_COLOR );
-	state.SetField ( -1, "GL_ONE_MINUS_SRC_ALPHA",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA );
-	state.SetField ( -1, "GL_ONE_MINUS_SRC_COLOR",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_SRC_COLOR );
-	state.SetField ( -1, "GL_SRC_ALPHA",				( u32 )ZGL_BLEND_FACTOR_SRC_ALPHA );
-	state.SetField ( -1, "GL_SRC_ALPHA_SATURATE",		( u32 )ZGL_BLEND_FACTOR_SRC_ALPHA_SATURATE );
+	state.DefineClassConst ( klass, "GL_ONE",						( u32 )ZGL_BLEND_FACTOR_ONE );
+	state.DefineClassConst ( klass, "GL_ZERO",						( u32 )ZGL_BLEND_FACTOR_ZERO );
+	state.DefineClassConst ( klass, "GL_DST_ALPHA",					( u32 )ZGL_BLEND_FACTOR_DST_ALPHA );
+	state.DefineClassConst ( klass, "GL_DST_COLOR",					( u32 )ZGL_BLEND_FACTOR_DST_COLOR );
+	state.DefineClassConst ( klass, "GL_SRC_COLOR",					( u32 )ZGL_BLEND_FACTOR_SRC_COLOR );
+	state.DefineClassConst ( klass, "GL_ONE_MINUS_DST_ALPHA",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_DST_ALPHA );
+	state.DefineClassConst ( klass, "GL_ONE_MINUS_DST_COLOR",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_DST_COLOR );
+	state.DefineClassConst ( klass, "GL_ONE_MINUS_SRC_ALPHA",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA );
+	state.DefineClassConst ( klass, "GL_ONE_MINUS_SRC_COLOR",		( u32 )ZGL_BLEND_FACTOR_ONE_MINUS_SRC_COLOR );
+	state.DefineClassConst ( klass, "GL_SRC_ALPHA",					( u32 )ZGL_BLEND_FACTOR_SRC_ALPHA );
+	state.DefineClassConst ( klass, "GL_SRC_ALPHA_SATURATE",		( u32 )ZGL_BLEND_FACTOR_SRC_ALPHA_SATURATE );
 	
-	state.SetField ( -1, "DEPTH_TEST_DISABLE",			( u32 )0 );
-	state.SetField ( -1, "DEPTH_TEST_NEVER",			( u32 )ZGL_DEPTH_NEVER );
-	state.SetField ( -1, "DEPTH_TEST_LESS",				( u32 )ZGL_DEPTH_LESS );
-	state.SetField ( -1, "DEPTH_TEST_EQUAL",			( u32 )ZGL_DEPTH_EQUAL );
-	state.SetField ( -1, "DEPTH_TEST_LESS_EQUAL",		( u32 )ZGL_DEPTH_LEQUAL );
-	state.SetField ( -1, "DEPTH_TEST_GREATER",			( u32 )ZGL_DEPTH_GREATER );
-	state.SetField ( -1, "DEPTH_TEST_NOTEQUAL",			( u32 )ZGL_DEPTH_NOTEQUAL );
-	state.SetField ( -1, "DEPTH_TEST_GREATER_EQUAL",	( u32 )ZGL_DEPTH_GEQUAL );
-	state.SetField ( -1, "DEPTH_TEST_ALWAYS",			( u32 )ZGL_DEPTH_ALWAYS );
+	state.DefineClassConst ( klass, "DEPTH_TEST_DISABLE",			( u32 )0 );
+	state.DefineClassConst ( klass, "DEPTH_TEST_NEVER",				( u32 )ZGL_DEPTH_NEVER );
+	state.DefineClassConst ( klass, "DEPTH_TEST_LESS",				( u32 )ZGL_DEPTH_LESS );
+	state.DefineClassConst ( klass, "DEPTH_TEST_EQUAL",				( u32 )ZGL_DEPTH_EQUAL );
+	state.DefineClassConst ( klass, "DEPTH_TEST_LESS_EQUAL",		( u32 )ZGL_DEPTH_LEQUAL );
+	state.DefineClassConst ( klass, "DEPTH_TEST_GREATER",			( u32 )ZGL_DEPTH_GREATER );
+	state.DefineClassConst ( klass, "DEPTH_TEST_NOTEQUAL",			( u32 )ZGL_DEPTH_NOTEQUAL );
+	state.DefineClassConst ( klass, "DEPTH_TEST_GREATER_EQUAL",		( u32 )ZGL_DEPTH_GEQUAL );
+	state.DefineClassConst ( klass, "DEPTH_TEST_ALWAYS",			( u32 )ZGL_DEPTH_ALWAYS );
 	
-	state.SetField ( -1, "CULL_NONE",					( u32 )0 );
-	state.SetField ( -1, "CULL_ALL",					( u32 )ZGL_CULL_ALL );
-	state.SetField ( -1, "CULL_BACK",					( u32 )ZGL_CULL_BACK );
-	state.SetField ( -1, "CULL_FRONT",					( u32 )ZGL_CULL_FRONT );
+	state.DefineClassConst ( klass, "CULL_NONE",					( u32 )0 );
+	state.DefineClassConst ( klass, "CULL_ALL",						( u32 )ZGL_CULL_ALL );
+	state.DefineClassConst ( klass, "CULL_BACK",					( u32 )ZGL_CULL_BACK );
+	state.DefineClassConst ( klass, "CULL_FRONT",					( u32 )ZGL_CULL_FRONT );
 	
-	state.SetField ( -1, "BILLBOARD_NONE",				( u32 )BILLBOARD_NONE );
-	state.SetField ( -1, "BILLBOARD_NORMAL",			( u32 )BILLBOARD_NORMAL );
-	state.SetField ( -1, "BILLBOARD_ORTHO",				( u32 )BILLBOARD_ORTHO );
-	state.SetField ( -1, "BILLBOARD_COMPASS",			( u32 )BILLBOARD_COMPASS );
-	state.SetField ( -1, "BILLBOARD_COMPASS_SCALE",		( u32 )BILLBOARD_COMPASS_SCALE );
-	state.SetField ( -1, "BILLBOARD_SCREEN",			( u32 )BILLBOARD_SCREEN );
+	state.DefineClassConst ( klass, "BILLBOARD_NONE",				( u32 )BILLBOARD_NONE );
+	state.DefineClassConst ( klass, "BILLBOARD_NORMAL",				( u32 )BILLBOARD_NORMAL );
+	state.DefineClassConst ( klass, "BILLBOARD_ORTHO",				( u32 )BILLBOARD_ORTHO );
+	state.DefineClassConst ( klass, "BILLBOARD_COMPASS",			( u32 )BILLBOARD_COMPASS );
+	state.DefineClassConst ( klass, "BILLBOARD_COMPASS_SCALE",		( u32 )BILLBOARD_COMPASS_SCALE );
+	state.DefineClassConst ( klass, "BILLBOARD_SCREEN",				( u32 )BILLBOARD_SCREEN );
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsPropBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGraphicsPropBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIPartitionHull::RegisterLuaFuncs ( state );
-	MOAIColor::RegisterLuaFuncs ( state );
-	MOAIMaterialBatchHolder::RegisterLuaFuncs ( state );
+	MOAIPartitionHull::RegisterRubyFuncs ( state, klass );
+	MOAIColor::RegisterRubyFuncs ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "draw",					_draw },
-		{ "getBillboard",			_getBillboard },
-		{ "getScissorRect",			_getScissorRect },
-		{ "isVisible",				_isVisible },
-		{ "setBillboard",			_setBillboard },
-		{ "setParent",				_setParent },
-		{ "setScissorRect",			_setScissorRect },
-		{ "setUVTransform",			_setUVTransform },
-		{ "setVisible",				_setVisible },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "draw", _draw, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getBillboard", _getBillboard, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getScissorRect", _getScissorRect, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isVisible", _isVisible, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setBillboard", _setBillboard, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setParent", _setParent, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setScissorRect", _setScissorRect, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setUVTransform", _setUVTransform, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setVisible", _setVisible, MRB_ARGS_ARG ( 0, 1 ) );
+
 }
 
 //----------------------------------------------------------------//
@@ -357,7 +357,7 @@ void MOAIGraphicsPropBase::Render () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsPropBase::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIGraphicsPropBase::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
 	MOAIColor::SerializeIn ( state, serializer );
 	MOAIPartitionHull::SerializeIn ( state, serializer );
@@ -365,7 +365,7 @@ void MOAIGraphicsPropBase::SerializeIn ( MOAILuaState& state, MOAIDeserializer& 
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsPropBase::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIGraphicsPropBase::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	
 	MOAIColor::SerializeOut ( state, serializer );
 	MOAIPartitionHull::SerializeOut ( state, serializer );

@@ -18,12 +18,12 @@ private:
 	ZLLeanArray < bool >	mNeighbors;
 	
 	//----------------------------------------------------------------//
-	static int		_areNeighbors				( lua_State* L );
-	static int		_getNode					( lua_State* L );
-	static int		_getNodeCount				( lua_State* L );
-	static int		_reserveNodes				( lua_State* L );
-	static int		_setNeighbors				( lua_State* L );
-	static int		_setNode					( lua_State* L );
+	static mrb_value		_areNeighbors		( mrb_state* M, mrb_value context );
+	static mrb_value		_getNode			( mrb_state* M, mrb_value context );
+	static mrb_value		_getNodeCount		( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveNodes		( mrb_state* M, mrb_value context );
+	static mrb_value		_setNeighbors		( mrb_state* M, mrb_value context );
+	static mrb_value		_setNode			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			AreNeighbors				( u32 id1, u32 id2 );
@@ -36,13 +36,13 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIVecPathGraph )
+	DECL_RUBY_FACTORY ( MOAIVecPathGraph, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIVecPathGraph			();
 					~MOAIVecPathGraph			();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

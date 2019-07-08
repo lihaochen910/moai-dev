@@ -44,11 +44,11 @@
 		@opt	string debugname		Name used when reporting texture debug information
 		@out	nil
 */
-int MOAITexture::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITexture, "U" )
+mrb_value MOAITexture::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITexture, "U" )
 
-	self->Init ( state, 2 );
-	return 0;
+	self->Init ( state, 1 );
+	return context;
 }
 
 //================================================================//
@@ -56,14 +56,14 @@ int MOAITexture::_load ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAITextureBase* MOAITexture::AffirmTexture ( MOAILuaState& state, int idx ) {
+MOAITextureBase* MOAITexture::AffirmTexture ( MOAIRubyState& state, int idx ) {
 
 	MOAITextureBase* textureBase = 0;
 	
-	textureBase = state.GetLuaObject < MOAITextureBase >( idx, false );
+	textureBase = state.GetRubyObject < MOAITextureBase >( idx, false );
 	if ( textureBase ) return textureBase;
 	
-	MOAITexture* texture = new MOAITexture ();
+	MOAITexture* texture = state.CreateClassInstance < MOAITexture >();
 	if ( !texture->Init ( state, idx )) {
 		// TODO: report error
 		delete texture;
@@ -96,40 +96,40 @@ void MOAITexture::Clear () {
 }
 
 //----------------------------------------------------------------//
-bool MOAITexture::Init ( MOAILuaState& state, int idx ) {
+bool MOAITexture::Init ( MOAIRubyState& state, int idx ) {
 
 	u32 transform = MOAITexture::DEFAULT_TRANSFORM;
 	cc8* debugName = 0;
 	int debugNameIdx = 1;
 	
-	if ( state.IsType ( idx + 1, LUA_TNUMBER )) {
-		transform = state.GetValue < u32 >( idx + 1, MOAITexture::DEFAULT_TRANSFORM );
+	if ( state.ParamIsType ( idx + 1, MRB_TT_FIXNUM )) {
+		transform = state.GetParamValue < u32 >( idx + 1, MOAITexture::DEFAULT_TRANSFORM );
 		debugNameIdx++;
 	}
-	debugName = state.GetValue < cc8* >( debugNameIdx, 0 );
+	debugName = state.GetParamValue < cc8* >( debugNameIdx, 0 );
 	
 	bool done = false;
 
-	if ( state.IsType ( idx, LUA_TSTRING )) {
-		cc8* filename = lua_tostring ( state, idx );
-		transform = state.GetValue < u32 >( idx + 1, MOAITexture::DEFAULT_TRANSFORM );
+	if ( state.ParamIsType ( idx, MRB_TT_STRING )) {
+		cc8* filename = state.GetParamValue < cc8* > ( idx, "" );
+		transform = state.GetParamValue < u32 >( idx + 1, MOAITexture::DEFAULT_TRANSFORM );
 		this->Init ( filename, transform, debugName ? debugName : filename );
 		done = true;
 	}
 	
-	if ( state.IsType ( idx, LUA_TUSERDATA )) {
+	if ( state.ParamIsType ( idx, MRB_TT_DATA )) {
 	
 		if ( !done ) {
-			MOAIImage* image = state.GetLuaObject < MOAIImage >( idx, false );
+			MOAIImage* image = state.GetRubyObject < MOAIImage >( idx, false );
 			if ( image ) {
-				bool autoClear	= state.GetValue < bool >( debugNameIdx + 1, false );
+				bool autoClear	= state.GetParamValue < bool >( debugNameIdx + 1, false );
 				this->Init ( *image, debugName ? debugName : "(texture from MOAIImage)", autoClear );
 				done = true;
 			}
 		}
 		
 		if ( !done ) {
-			MOAIDataBuffer* data = state.GetLuaObject < MOAIDataBuffer >( idx, false );
+			MOAIDataBuffer* data = state.GetRubyObject < MOAIDataBuffer >( idx, false );
 			if ( data ) {
 				this->Init ( *data, transform, debugName ? debugName : "(texture from MOAIDataBuffer)" );
 				done = true;
@@ -137,7 +137,7 @@ bool MOAITexture::Init ( MOAILuaState& state, int idx ) {
 		}
 		
 		if ( !done ) {
-			MOAIStream* stream = state.GetLuaObject < MOAIStream >( idx, false );
+			MOAIStream* stream = state.GetRubyObject < MOAIStream >( idx, false );
 			if ( stream ) {
 				this->Init ( *stream, transform, debugName ? debugName : "(texture from MOAIStream)" );
 				done = true;
@@ -168,7 +168,7 @@ void MOAITexture::Init ( MOAIImage& image, int srcX, int srcY, int width, int he
 	
 	if ( image.IsOK ()) {
 	
-		this->mImage.Set ( *this, new MOAIImage ());
+		this->mImage.Set ( *this, MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < MOAIImage >());
 		this->mAutoClearImage = true;
 		
 		this->mImage->Init ( width, height, image.GetColorFormat (), image.GetPixelFormat ());
@@ -265,7 +265,7 @@ bool MOAITexture::LoadFromStream ( ZLStream& stream, u32 transform ) {
 		}
 		else {
 		
-			MOAIImage* image = new MOAIImage ();
+			MOAIImage* image = MOAIRubyRuntime::Get ().State ().CreateClassInstance < MOAIImage >();
 			format->ReadImage ( *image, stream, this->mTransform );
 			
 			if ( image->IsOK ()) {
@@ -362,37 +362,33 @@ bool MOAITexture::OnGPUCreate () {
 }
 
 //----------------------------------------------------------------//
-void MOAITexture::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITexture::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITextureBase::RegisterLuaClass ( state );
+	MOAITextureBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITexture::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITexture::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITextureBase::RegisterLuaFuncs ( state );
+	MOAITextureBase::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_ANY () );
 	
-	luaL_Reg regTable [] = {
-		{ "load",					_load },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAITexture::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAITexture::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAITextureBase::SerializeIn ( state, serializer );
 	
-	STLString path = state.GetFieldValue ( -1, "mPath", "" );
-	
-	if ( path.size ()) {
-		this->Init ( path, DEFAULT_TRANSFORM ); // TODO: serialization
-	}
+	//STLString path = state.GetFieldValue ( -1, "mPath", "" );
+	//
+	//if ( path.size ()) {
+	//	this->Init ( path, DEFAULT_TRANSFORM ); // TODO: serialization
+	//}
 }
 
 //----------------------------------------------------------------//
-void MOAITexture::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAITexture::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAITextureBase::SerializeOut ( state, serializer );
 	
 	STLString path = ZLFileSys::GetRelativePath ( this->mFilename );

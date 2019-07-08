@@ -9,26 +9,26 @@
 //================================================================//
 // TODO: doxygen
 class MOAIRenderMgr :
-	public ZLContextClass < MOAIRenderMgr, MOAILuaObject > {
+	public ZLContextClass < MOAIRenderMgr, MOAIRubyObject > {
 private:
 
 	u32				mRenderCounter;	// increments every render
 	double			mRenderDuration;
 	double			mRenderTime;
 	
-	MOAILuaStrongRef	mRenderRoot;
+	MOAIRubyStrongRef	mRenderRoot;
 	
 	//----------------------------------------------------------------//
-	static int		_getRenderCount				( lua_State* L );
-	static int		_getRender					( lua_State* L );
-	static int		_setRender					( lua_State* L );
+	static mrb_value		_getRenderCount				( mrb_state* M, mrb_value context );
+	static mrb_value		_getRender					( mrb_state* M, mrb_value context );
+	static mrb_value		_setRender					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
-	void			RenderTable					( MOAILuaState& state, int idx );
+	void			RenderTable					( MOAIRubyState& state, int idx );
 
 public:
 
-	DECL_LUA_SINGLETON ( MOAIRenderMgr )
+	DECL_RUBY_SINGLETON ( MOAIRenderMgr )
 	
 	GET ( u32, RenderCounter, mRenderCounter )
 	GET ( double, RenderDuration, mRenderDuration )
@@ -37,9 +37,9 @@ public:
 	//----------------------------------------------------------------//
 					MOAIRenderMgr				();
 					~MOAIRenderMgr				();
-	void			PushDrawable				( MOAILuaObject* drawable );
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			PushDrawable				( MOAIRubyObject* drawable );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void			Render						();
 };
 

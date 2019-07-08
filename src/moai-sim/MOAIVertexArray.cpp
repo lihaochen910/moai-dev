@@ -20,40 +20,40 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexArray::_reserveVAOs ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexArray, "U" )
+mrb_value MOAIVertexArray::_reserveVAOs ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexArray, "U" )
 	
-	self->ReserveVAOs ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->ReserveVAOs ( state.GetParamValue < u32 >( 1, 0 ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexArray::_reserveVertexBuffers ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexArray, "U" )
+mrb_value MOAIVertexArray::_reserveVertexBuffers ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexArray, "U" )
 	
-	self->ReserveVertexBuffers ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->ReserveVertexBuffers ( state.GetParamValue < u32 >( 1, 0 ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexArray::_setVertexBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexArray, "U" )
+mrb_value MOAIVertexArray::_setVertexBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexArray, "U" )
 	
-	u32 baseParam = 2;
+	u32 baseParam = 1;
 	u32 idx = 0;
 	
-	if ( state.IsType ( baseParam, LUA_TNUMBER )) {
-		idx = state.GetValue < u32 >( baseParam++, 1 ) - 1;
+	if ( state.ParamIsType ( baseParam, MRB_TT_FIXNUM )) {
+		idx = state.GetParamValue < u32 >( baseParam++, 1 ) - 1;
 	}
 	
-	MOAIVertexBuffer* buffer	= state.GetLuaObject < MOAIVertexBuffer >( baseParam++, false );
-	MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( baseParam++, false );
+	MOAIVertexBuffer* buffer	= state.GetRubyObject < MOAIVertexBuffer >( baseParam++, false );
+	MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( baseParam++, false );
 	
 	self->SetVertexBuffer ( idx, buffer, format );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -194,24 +194,20 @@ bool MOAIVertexArray::OnGPUUpdate () {
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexArray::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIVertexArray::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaClass ( state );
+	MOAIGfxResource::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexArray::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIVertexArray::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaFuncs ( state );
+	MOAIGfxResource::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "reserveVAOs",				_reserveVAOs },
-		{ "reserveVertexBuffers",		_reserveVertexBuffers },
-		{ "setVertexBuffer",			_setVertexBuffer },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "reserveVAOs", _reserveVAOs, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveVertexBuffers", _reserveVertexBuffers, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setVertexBuffer", _setVertexBuffer, MRB_ARGS_ANY () );
+
 }
 
 //----------------------------------------------------------------//
@@ -239,9 +235,9 @@ void MOAIVertexArray::ReserveVertexBuffers ( u32 total ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexArray::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIVertexArray::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
-	u32 totalVAOs = state.GetFieldValue < u32 >( -1, "mTotalVAOs", 0 );
+	/*u32 totalVAOs = state.GetFieldValue < u32 >( -1, "mTotalVAOs", 0 );
 	this->ReserveVAOs ( totalVAOs );
 	
 	u32 totalVertexBuffers = state.GetFieldValue < u32 >( -1, "mTotalVertexBuffers", 0 );
@@ -250,7 +246,7 @@ void MOAIVertexArray::SerializeIn ( MOAILuaState& state, MOAIDeserializer& seria
 	if ( state.PushFieldWithType ( -1, "mVertexBuffers", LUA_TTABLE )) {
 		int itr = state.PushTableItr ( -1 );
 		for ( u32 i = 0; state.TableItrNext ( itr ); ++i ) {
-			if ( state.IsType ( -1, LUA_TTABLE )) {
+			if ( state.ParamIsType ( -1, LUA_TTABLE )) {
 				MOAIVertexBuffer* buffer = serializer.MemberIDToObject < MOAIVertexBuffer >( state.GetFieldValue < MOAISerializer::ObjID >( -1, "mBuffer", 0 ));
 				MOAIVertexFormat* format = serializer.MemberIDToObject < MOAIVertexFormat >( state.GetFieldValue < MOAISerializer::ObjID >( -1, "mFormat", 0 ));
 				this->SetVertexBuffer ( i, buffer, format );
@@ -258,13 +254,13 @@ void MOAIVertexArray::SerializeIn ( MOAILuaState& state, MOAIDeserializer& seria
 		}
 		state.Pop ();
 	}
-	this->FinishInit ();
+	this->FinishInit ();*/
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexArray::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIVertexArray::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
-	state.SetField < u32 >( -1, "mTotalVAOs", ( u32 )this->mVAOs.Size ());
+	/*state.SetField < u32 >( -1, "mTotalVAOs", ( u32 )this->mVAOs.Size ());
 	state.SetField < u32 >( -1, "mTotalVertexBuffers", ( u32 )this->mVertexBuffers.Size ());
 	
 	lua_newtable ( state );
@@ -275,7 +271,7 @@ void MOAIVertexArray::SerializeOut ( MOAILuaState& state, MOAISerializer& serial
 		state.SetField < MOAISerializer::ObjID >( -1, "mFormat", serializer.AffirmMemberID ( this->mVertexBuffers [ i ].mFormat ));
 		lua_settable ( state, -3 );
 	}
-	lua_setfield ( state, -2, "mVertexBuffers" );
+	lua_setfield ( state, -2, "mVertexBuffers" );*/
 }
 
 //----------------------------------------------------------------//

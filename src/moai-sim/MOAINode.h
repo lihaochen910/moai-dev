@@ -48,36 +48,36 @@ private:
 	MOAINode*			mNext;
 
 	//----------------------------------------------------------------//
-	static int		_clearAttrLink		( lua_State* L );
-	static int		_clearNodeLink		( lua_State* L );
-	static int		_forceUpdate		( lua_State* L );
-	static int		_getAttr			( lua_State* L );
-	static int		_getAttrLink		( lua_State* L );
-	static int		_getNodeState		( lua_State* L );
-	static int		_moveAttr			( lua_State* L );
-	static int		_scheduleUpdate		( lua_State* L );
-	static int		_seekAttr			( lua_State* L );
-	static int		_setAttrLink		( lua_State* L );
-	static int		_setAttr			( lua_State* L );
-	static int		_setNodeLink		( lua_State* L );
+	static mrb_value		_clearAttrLink		( mrb_state* M, mrb_value context );
+	static mrb_value		_clearNodeLink		( mrb_state* M, mrb_value context );
+	static mrb_value		_forceUpdate		( mrb_state* M, mrb_value context );
+	static mrb_value		_getAttr			( mrb_state* M, mrb_value context );
+	static mrb_value		_getAttrLink		( mrb_state* M, mrb_value context );
+	static mrb_value		_getNodeState		( mrb_state* M, mrb_value context );
+	static mrb_value		_moveAttr			( mrb_state* M, mrb_value context );
+	static mrb_value		_scheduleUpdate		( mrb_state* M, mrb_value context );
+	static mrb_value		_seekAttr			( mrb_state* M, mrb_value context );
+	static mrb_value		_setAttrLink		( mrb_state* M, mrb_value context );
+	static mrb_value		_setAttr			( mrb_state* M, mrb_value context );
+	static mrb_value		_setNodeLink		( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
-	void			ActivateOnLink		( MOAINode& srcNode );
-	void			ExtendUpdate		();
-	MOAIDepLink*	FindAttrLink		( int attrID );
-	MOAIDepLink*	FindNodeLink		( MOAINode& srcNode );
-	bool			IsNodeUpstream		( MOAINode* node );
-	void			PullAttributes		();
-	void			RemoveDepLink		( MOAIDepLink& link );
+	void					ActivateOnLink		( MOAINode& srcNode );
+	void					ExtendUpdate		();
+	MOAIDepLink*			FindAttrLink		( int attrID );
+	MOAIDepLink*			FindNodeLink		( MOAINode& srcNode );
+	bool					IsNodeUpstream		( MOAINode* node );
+	void					PullAttributes		();
+	void					RemoveDepLink		( MOAIDepLink& link );
 
 	//----------------------------------------------------------------//
-	virtual bool	MOAINode_ApplyAttrOp				( u32 attrID, MOAIAttribute& attr, u32 op );
-	virtual void	MOAINode_Update						();
+	virtual bool			MOAINode_ApplyAttrOp				( u32 attrID, MOAIAttribute& attr, u32 op );
+	virtual void			MOAINode_Update						();
 
 protected:
 
 	//----------------------------------------------------------------//
-	bool			PullLinkedAttr		( u32 attrID, MOAIAttribute& attr );
+	bool					PullLinkedAttr		( u32 attrID, MOAIAttribute& attr );
 
 	//----------------------------------------------------------------//
 	template < typename TYPE >
@@ -92,7 +92,7 @@ protected:
 
 	//----------------------------------------------------------------//
 	template < typename TYPE >
-	void SetDependentMember ( MOAILuaSharedPtr < TYPE >& member, TYPE* ref ) {
+	void SetDependentMember ( MOAIRubySharedPtr < TYPE >& member, TYPE* ref ) {
 		
 		if ( member == ref ) return;
 	
@@ -113,7 +113,7 @@ public:
 	
 	friend class MOAINodeMgr;
 	
-	DECL_LUA_FACTORY ( MOAINode )
+	DECL_RUBY_FACTORY ( MOAINode, MOAIInstanceEventSource )
 
 	enum {
 		EVENT_NODE_PRE_UPDATE,
@@ -122,21 +122,21 @@ public:
 	};
 
 	//----------------------------------------------------------------//
-	void			Activate				( MOAINode& activator );
-	bool			ApplyAttrOp				( u32 attrID, MOAIAttribute& attr, u32 op );
-	bool			CheckAttrExists			( u32 attrID );
-	void			ClearAttrLink			( int attrID );
-	void			ClearNodeLink			( MOAINode& srcNode );
-	void			DepNodeUpdate			();
-	void			ForceUpdate				();
-	u32				GetAttrFlags			( u32 attrID );
-					MOAINode				();
-					~MOAINode				();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			ScheduleUpdate			();
-	void			SetAttrLink				( int attrID, MOAINode* srcNode, int srcAttrID );
-	void			SetNodeLink				( MOAINode& srcNode );
+	void					Activate				( MOAINode& activator );
+	bool					ApplyAttrOp				( u32 attrID, MOAIAttribute& attr, u32 op );
+	bool					CheckAttrExists			( u32 attrID );
+	void					ClearAttrLink			( int attrID );
+	void					ClearNodeLink			( MOAINode& srcNode );
+	void					DepNodeUpdate			();
+	void					ForceUpdate				();
+	u32						GetAttrFlags			( u32 attrID );
+							MOAINode				();
+							~MOAINode				();
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void					ScheduleUpdate			();
+	void					SetAttrLink				( int attrID, MOAINode* srcNode, int srcAttrID );
+	void					SetNodeLink				( MOAINode& srcNode );
 	
 	//----------------------------------------------------------------//
 	template < typename TYPE >

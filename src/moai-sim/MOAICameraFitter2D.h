@@ -31,13 +31,13 @@ class MOAICameraFitter2D :
 	public virtual MOAINode {
 private:
 
-	MOAILuaSharedPtr < MOAITransform >	mCamera;
-	MOAILuaSharedPtr < MOAIViewport >	mViewport;
+	MOAIRubySharedPtr < MOAITransform >	mCamera;
+	MOAIRubySharedPtr < MOAIViewport >	mViewport;
 
 	typedef STLSet < MOAICameraAnchor2D* >::iterator AnchorIt;
 	STLSet < MOAICameraAnchor2D* > mAnchors;
 
-	MOAILuaSharedPtr < MOAITransform > mTrackingNode;
+	MOAIRubySharedPtr < MOAITransform > mTrackingNode;
 
 	ZLVec3D		mFitLoc;
 	float		mFitScale;
@@ -52,27 +52,27 @@ private:
 	u32			mFittingMode;
 
 	//----------------------------------------------------------------//
-	static int		_clearAnchors			( lua_State* L );
-	static int		_clearFitMode			( lua_State* L );
-	static int		_getFitDistance			( lua_State* L );
-	static int		_getFitLoc				( lua_State* L );
-	static int		_getFitMode				( lua_State* L );
-	static int		_getFitScale			( lua_State* L );
-	static int		_getTargetLoc			( lua_State* L );
-	static int		_getTargetScale			( lua_State* L );
-	static int		_insertAnchor			( lua_State* L );
-	static int		_removeAnchor			( lua_State* L );
-	static int		_setBounds				( lua_State* L );
-	static int		_setCamera				( lua_State* L );
-	static int		_setDamper				( lua_State* L );
-	static int		_setFitLoc				( lua_State* L );
-	static int		_setFitMode				( lua_State* L );
-	static int		_setFitScale			( lua_State* L );
-	static int		_setMin					( lua_State* L );
-	static int		_setViewport			( lua_State* L );
-	static int		_snapToTarget			( lua_State* L );
-	static int		_startTrackingNode		( lua_State* L );
-	static int		_stopTrackingNode		( lua_State* L );
+	static mrb_value		_clearAnchors			( mrb_state* M, mrb_value context );
+	static mrb_value		_clearFitMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFitDistance			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFitLoc				( mrb_state* M, mrb_value context );
+	static mrb_value		_getFitMode				( mrb_state* M, mrb_value context );
+	static mrb_value		_getFitScale			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTargetLoc			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTargetScale			( mrb_state* M, mrb_value context );
+	static mrb_value		_insertAnchor			( mrb_state* M, mrb_value context );
+	static mrb_value		_removeAnchor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setBounds				( mrb_state* M, mrb_value context );
+	static mrb_value		_setCamera				( mrb_state* M, mrb_value context );
+	static mrb_value		_setDamper				( mrb_state* M, mrb_value context );
+	static mrb_value		_setFitLoc				( mrb_state* M, mrb_value context );
+	static mrb_value		_setFitMode				( mrb_state* M, mrb_value context );
+	static mrb_value		_setFitScale			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMin					( mrb_state* M, mrb_value context );
+	static mrb_value		_setViewport			( mrb_state* M, mrb_value context );
+	static mrb_value		_snapToTarget			( mrb_state* M, mrb_value context );
+	static mrb_value		_startTrackingNode		( mrb_state* M, mrb_value context );
+	static mrb_value		_stopTrackingNode		( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	ZLRect			GetAnchorRect			();
@@ -91,7 +91,7 @@ private:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAICameraFitter2D )
+	DECL_RUBY_FACTORY ( MOAICameraFitter2D, MOAIAction )
 
 	enum {
 		FITTING_MODE_SEEK_LOC		= 0x00000001,
@@ -111,8 +111,8 @@ public:
 	float			GetFitDistance			();
 					MOAICameraFitter2D		();
 					~MOAICameraFitter2D		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			RemoveAnchor			( MOAICameraAnchor2D& anchor );
 	void			StartTrackingNode		( MOAITransform& node );
 	void			StopTrackingNode		();

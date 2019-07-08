@@ -15,12 +15,12 @@ public:
 	int				mDestFactor;
 
 	//----------------------------------------------------------------//
-	void			Init				( MOAILuaState& state, int idx );
+	void			Init				( MOAIRubyState& state, int idx );
 	void			SetBlend			( int equation, int srcFactor, int dstFactor );
 					MOAIBlendMode		();
 					MOAIBlendMode		( int equation, int srcFactor, int dstFactor );
 					~MOAIBlendMode		();
-	int				Push				( MOAILuaState& state ) const;
+	mrb_value		Push				( MOAIRubyState& state ) const;
 	
 	//----------------------------------------------------------------//
 	inline bool IsSame ( const MOAIBlendMode& blendMode ) {

@@ -60,8 +60,8 @@ public:
 					MOAIGlyph				();
 					~MOAIGlyph				();
 	void			ReserveKernTable		( u32 total );
-	void			SerializeIn				( MOAILuaState& state );
-	void			SerializeOut			( MOAILuaState& state );
+	void			SerializeIn				( MOAIRubyState& state );
+	void			SerializeOut			( MOAIRubyState& state );
 	void			SetKernVec				( u32 id, const MOAIKernVec& kernVec );
 	//void			SetScreenRect			( float width, float height, float yOff );
 	void			SetSourceLoc			( u32 srcX, u32 srcY );

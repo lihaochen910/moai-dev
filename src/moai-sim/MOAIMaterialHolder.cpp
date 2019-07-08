@@ -13,156 +13,148 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getBlendMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_getBlendMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	return self->mMaterial.GetBlendMode ().Push ( state );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getCullMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
-	state.Push ( self->mMaterial.GetCullMode ());
-	return 1;
+mrb_value MOAIMaterialHolder::_getCullMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
+	return state.ToRValue ( self->mMaterial.GetCullMode () );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getDepthMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
-	state.Push ( self->mMaterial.GetDepthMask ());
-	return 1;
+mrb_value MOAIMaterialHolder::_getDepthMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
+	return state.ToRValue ( self->mMaterial.GetDepthMask () );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getDepthTest ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
-	state.Push ( self->mMaterial.GetDepthTest ());
-	return 1;
+mrb_value MOAIMaterialHolder::_getDepthTest ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
+	return state.ToRValue ( self->mMaterial.GetDepthTest () );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getLight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "UN" )
+mrb_value MOAIMaterialHolder::_getLight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "UN" )
 	
-	u32 name = state.GetValue < u32 >( 2,  MOAI_UNKNOWN_MATERIAL_GLOBAL );
-	state.Push ( self->mMaterial.GetLight ( name ));
-	return 1;
+	u32 name = state.GetParamValue < u32 >( 1,  MOAI_UNKNOWN_MATERIAL_GLOBAL );
+	return state.ToRValue < MOAIRubyObject* >( self->mMaterial.GetLight ( name ) );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getShader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
-	state.Push ( self->mMaterial.GetShader ());
-	return 1;
+mrb_value MOAIMaterialHolder::_getShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
+	return state.ToRValue < MOAIRubyObject* >( self->mMaterial.GetShader () );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_getTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_getTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	u32 name = state.GetValue < u32 >( 2,  MOAI_UNKNOWN_MATERIAL_GLOBAL );
-	state.Push ( self->mMaterial.GetTexture ( name ));
-	return 1;
+	u32 name = state.GetParamValue < u32 >( 1,  MOAI_UNKNOWN_MATERIAL_GLOBAL );
+	return state.ToRValue < MOAIRubyObject* >( self->mMaterial.GetTexture ( name ) );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setBlendMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setBlendMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 
-	if ( state.IsNil ( 2 )) {
+	if ( state.IsNil ( state.GetParamValue ( 1 ) )) {
 		self->mMaterial.SetBlendMode ();
 	}
 	else {
 		MOAIBlendMode blendMode;
-		blendMode.Init ( state, 2 );
+		blendMode.Init ( state, 1 );
 		self->mMaterial.SetBlendMode ( blendMode );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setCullMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setCullMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	if ( state.IsNil ( 2 )) {
+	if ( state.IsNil ( state.GetParamValue ( 1 ) )) {
 		self->mMaterial.SetCullMode ();
 	}
 	else {
-		self->mMaterial.SetCullMode ( state.GetValue < int >( 2, 0 ));
+		self->mMaterial.SetCullMode ( state.GetParamValue < int >( 1, 0 ));
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setDepthMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setDepthMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	if ( state.IsNil ( 2 )) {
+	if ( state.IsNil ( state.GetParamValue ( 1 ) )) {
 		self->mMaterial.SetDepthMask ();
 	}
 	else {
-		self->mMaterial.SetDepthMask ( state.GetValue < bool >( 2, false ));
+		self->mMaterial.SetDepthMask ( state.GetParamValue < bool >( 1, false ));
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setDepthTest ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setDepthTest ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	if ( state.IsNil ( 2 )) {
+	if ( state.IsNil ( state.GetParamValue ( 1 ) )) {
 		self->mMaterial.SetDepthTest ();
 	}
 	else {
-		self->mMaterial.SetDepthTest ( state.GetValue < int >( 2, 0 ));
+		self->mMaterial.SetDepthTest ( state.GetParamValue < int >( 1, 0 ));
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setLight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setLight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	u32 name = state.GetValue < u32 >( 2, MOAI_UNKNOWN_MATERIAL_GLOBAL );
-	MOAILight* light = state.GetLuaObject < MOAILight >( 3, true );
+	u32 name = state.GetParamValue < u32 >( 1, MOAI_UNKNOWN_MATERIAL_GLOBAL );
+	MOAILight* light = state.GetRubyObject < MOAILight >( 2, true );
 	self->mMaterial.SetLight ( name, light );
-	state.Push ( light );
 	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( light );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setShader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	MOAIShader* shader = MOAIShader::AffirmShader ( state, 2 );
+	MOAIShader* shader = MOAIShader::AffirmShader ( state, 1 );
 	self->mMaterial.SetShader ( shader );
-	state.Push ( shader );
 	
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( shader );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMaterialHolder::_setTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMaterialHolder, "U" )
+mrb_value MOAIMaterialHolder::_setTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMaterialHolder, "U" )
 	
-	u32 idx = 2;
+	u32 idx = 1;
 	u32 name = MOAI_UNKNOWN_MATERIAL_GLOBAL;
 	
-	if ( state.IsType ( 2, LUA_TNUMBER )) {
-		name = state.GetValue < u32 >( idx++, name );
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
+		name = state.GetParamValue < u32 >( idx++, name );
 	}
 	
 	MOAITextureBase* texture = MOAITexture::AffirmTexture ( state, idx );
@@ -172,8 +164,7 @@ int MOAIMaterialHolder::_setTexture ( lua_State* L ) {
 	else {
 		self->mMaterial.SetTexture ( texture );
 	}
-	state.Push ( texture );
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( texture );
 }
 
 //================================================================//
@@ -193,25 +184,21 @@ MOAIMaterialHolder::~MOAIMaterialHolder () {
 }
 
 //----------------------------------------------------------------//
-void MOAIMaterialHolder::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIMaterialHolder::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getBlendMode",			_getBlendMode },
-		{ "getCullMode",			_getCullMode },
-		{ "getDepthMask",			_getDepthMask },
-		{ "getDepthTest",			_getDepthTest },
-		{ "getLight",				_getLight },
-		{ "getShader",				_getShader },
-		{ "getTexture",				_getTexture },
-		{ "setBlendMode",			_setBlendMode },
-		{ "setCullMode",			_setCullMode },
-		{ "setDepthMask",			_setDepthMask },
-		{ "setDepthTest",			_setDepthTest },
-		{ "setLight",				_setLight },
-		{ "setShader",				_setShader },
-		{ "setTexture",				_setTexture },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getBlendMode", _getBlendMode, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getCullMode", _getCullMode, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDepthMask", _getDepthMask, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDepthTest", _getDepthTest, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLight", _getLight, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getShader", _getShader, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTexture", _getTexture, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setBlendMode", _setBlendMode, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setCullMode", _setCullMode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDepthMask", _setDepthMask, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDepthTest", _setDepthTest, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLight", _setLight, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setShader", _setShader, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTexture", _setTexture, MRB_ARGS_ANY () );
+
 }

@@ -17,11 +17,11 @@
 	@in		MOAIParticleDistanceEmitter self
 	@out	nil
 */
-int MOAIParticleDistanceEmitter::_reset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleDistanceEmitter, "U" )
+mrb_value MOAIParticleDistanceEmitter::_reset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleDistanceEmitter, "U" )
 
 	self->mReset = true;
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -33,14 +33,14 @@ int MOAIParticleDistanceEmitter::_reset ( lua_State* L ) {
 	@opt	number max	Maximum distance. Default value is min.
 	@out	nil
 */
-int MOAIParticleDistanceEmitter::_setDistance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleDistanceEmitter, "UN" )
+mrb_value MOAIParticleDistanceEmitter::_setDistance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleDistanceEmitter, "UN" )
 
-	float min = state.GetValue < float >( 2, 0.0f );
-	float max = state.GetValue < float >( 3, min );
+	float min = state.GetParamValue < float >( 1, 0.0f );
+	float max = state.GetParamValue < float >( 2, min );
 
 	self->SetDistanceRange ( min, max );
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -72,23 +72,19 @@ MOAIParticleDistanceEmitter::~MOAIParticleDistanceEmitter () {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleDistanceEmitter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleDistanceEmitter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	this->MOAIParticleEmitter::RegisterLuaClass ( state );
+	MOAIParticleEmitter::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleDistanceEmitter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleDistanceEmitter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	this->MOAIParticleEmitter::RegisterLuaFuncs ( state );
+	MOAIParticleEmitter::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "reset",					_reset },
-		{ "setDistance",			_setDistance },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "reset",			_reset, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDistance",	_setDistance, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//

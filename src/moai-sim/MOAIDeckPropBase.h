@@ -9,7 +9,7 @@
 #include <moai-sim/MOAIDrawable.h>
 #include <moai-sim/MOAIPartitionHull.h>
 #include <moai-sim/MOAITransform.h>
-#include <moai-core/MOAILuaSharedPtr.h>
+#include <moai-core/MOAIRubySharedPtr.h>
 
 class MOAIDeck;
 
@@ -27,12 +27,12 @@ class MOAIDeckPropBase :
 private:
 	
 	//----------------------------------------------------------------//
-	static int			_getDeck					( lua_State* L );
-	static int			_setDeck					( lua_State* L );
+	static mrb_value			_getDeck					( mrb_state* M, mrb_value context );
+	static mrb_value			_setDeck					( mrb_state* M, mrb_value context );
 
 protected:
 
-	MOAILuaSharedPtr < MOAIDeck >			mDeck;
+	MOAIRubySharedPtr < MOAIDeck >			mDeck;
 
 public:
 	
@@ -41,10 +41,10 @@ public:
 	//----------------------------------------------------------------//
 						MOAIDeckPropBase		();
 						~MOAIDeckPropBase		();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

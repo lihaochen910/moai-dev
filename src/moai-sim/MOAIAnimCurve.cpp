@@ -3,7 +3,7 @@
 
 #include "pch.h"
 #include <moai-sim/MOAIAnimCurve.h>
-#include <moai-sim/MOAIGfxMgr.h>
+//#include <moai-sim/MOAIGfxMgr.h>
 
 //================================================================//
 // local
@@ -18,18 +18,19 @@
 	@in		number time
 	@out	number value	The interpolated value
 */
-int MOAIAnimCurve::_getValueAtTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurve, "UN" );
+mrb_value MOAIAnimCurve::_getValueAtTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurve, "UN" );
 
-	float time = state.GetValue < float >( 2, 0 );
+	float time = state.GetParamValue < float >( 1, 0 );
 	
 	MOAIAnimKeySpan span = self->GetSpan ( time );
 	float value = self->GetValue ( span );
 	
-	state.Push ( value );
-	state.Push ( span.mKeyID + 1 );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( value );
+	ret [ 1 ] = state.ToRValue ( span.mKeyID + 1 );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -42,11 +43,11 @@ int MOAIAnimCurve::_getValueAtTime ( lua_State* L ) {
 	@out	number 	min value
 	@out	number 	max value
 */
-int MOAIAnimCurve::_getValueRange ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurve, "UNN" );
+mrb_value MOAIAnimCurve::_getValueRange ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurve, "UNN" );
 	
-	float t0 = state.GetValue < float >( 2, 0.0f );
-	float t1 = state.GetValue < float >( 3, 0.0f );
+	float t0 = state.GetParamValue < float >( 1, 0.0f );
+	float t1 = state.GetParamValue < float >( 2, 0.0f );
 	
 	float min = 0.0f;
 	float max = 0.0f;
@@ -56,9 +57,12 @@ int MOAIAnimCurve::_getValueRange ( lua_State* L ) {
 	}
 	
 	self->GetValueRange ( t0, t1, min, max );
-	state.Push ( min );
-	state.Push ( max );
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( min );
+	ret [ 1 ] = state.ToRValue ( max );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -75,21 +79,21 @@ int MOAIAnimCurve::_getValueRange ( lua_State* L ) {
 	@opt	number weight			Blends between chosen ease type (of any) and a linear transition. Defaults to 1.
 	@out	nil
 */
-int MOAIAnimCurve::_setKey ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurve, "UNN" );
+mrb_value MOAIAnimCurve::_setKey ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurve, "UNN" );
 
-	u32 index		= state.GetValue < u32 >( 2, 1 ) - 1;
-	float time		= state.GetValue < float >( 3, 0.0f );
-	float value		= state.GetValue < float >( 4, 0.0f );
-	u32 mode		= state.GetValue < u32 >( 5, ZLInterpolate::kSmooth );
-	float weight	= state.GetValue < float >( 6, 1.0f );
+	u32 index		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	float time		= state.GetParamValue < float >( 2, 0.0f );
+	float value		= state.GetParamValue < float >( 3, 0.0f );
+	u32 mode		= state.GetParamValue < u32 >( 4, ZLInterpolate::kSmooth );
+	float weight	= state.GetParamValue < float >( 5, 1.0f );
 	
-	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), L )) {
+	if ( MOAILogMgr::CheckIndexPlusOne ( index, self->mKeys.Size (), M )) {
 	
 		self->SetKey ( index, time, mode, weight );
 		self->SetSample ( index, value );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -110,27 +114,27 @@ void MOAIAnimCurve::Draw ( u32 resolution ) const {
 	// the resolution.
 	
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
-	
+
 	float length = this->GetLength ();
 	float step = length / ( float )resolution;
-	
+
 	gfxState.BeginPrim ( ZGL_PRIM_LINE_STRIP, resolution );
-	
+
 	for ( u32 i = 0; i < resolution; ++i ) {
-		
+
 		float t = step * ( float )i;
 		float v = this->GetValue ( t );
-		
+
 		gfxState.WriteVtx ( t, v, 0.0f );
 		gfxState.WritePenColor4b ();
 	}
-	
+
 	float t = length;
 	float v = this->GetValue ( t );
-	
+
 	gfxState.WriteVtx ( t, v, 0.0f );
 	gfxState.WritePenColor4b ();
-	
+
 	gfxState.EndPrim ();
 }
 
@@ -256,24 +260,20 @@ MOAIAnimCurve::~MOAIAnimCurve () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurve::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIAnimCurve::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaClass ( state );
+	MOAIAnimCurveBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurve::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAnimCurve::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAnimCurveBase::RegisterLuaFuncs ( state );
+	MOAIAnimCurveBase::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getValueAtTime",		_getValueAtTime },
-		{ "getValueRange",		_getValueRange },
-		{ "setKey",				_setKey },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getValueAtTime", _getValueAtTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getValueRange", _getValueRange, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setKey", _setKey, MRB_ARGS_ARG ( 3, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

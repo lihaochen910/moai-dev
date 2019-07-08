@@ -13,13 +13,13 @@
 	@text	Allows custom particle processing.
 */
 class MOAIParticlePlugin :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 
 	int				mSize;
 
 	//----------------------------------------------------------------//
-	static int		_getSize			( lua_State* L );
+	static mrb_value		_getSize			( mrb_state* M, mrb_value context );
 
 public:
 	
@@ -28,8 +28,8 @@ public:
 					~MOAIParticlePlugin			();	
 	virtual void	OnInit						( float* particle, float* registers ) = 0;
 	virtual void	OnRender					( float* particle, float* registers, AKUParticleSprite* sprite, float t0, float t1, float term ) = 0;
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

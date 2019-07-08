@@ -29,14 +29,14 @@ private:
 	ZLLeanLink < MOAIGfxResource* > mPendingLink;
 
 	// for custom loading function
-	MOAILuaMemberRef	mReloader;
+	MOAIRubyMemberRef	mReloader;
 
 	//----------------------------------------------------------------//
-	static int		_getAge						( lua_State* L );
-	static int		_getResourceState			( lua_State* L );
-	static int		_purge						( lua_State* L );
-	static int		_scheduleForGPUCreate		( lua_State* L );
-	static int		_setReloader				( lua_State* L );
+	static mrb_value		_getAge						( mrb_state* M, mrb_value context );
+	static mrb_value		_getResourceState			( mrb_state* M, mrb_value context );
+	static mrb_value		_purge						( mrb_state* M, mrb_value context );
+	static mrb_value		_scheduleForGPUCreate		( mrb_state* M, mrb_value context );
+	static mrb_value		_setReloader				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	u32				Bind						(); // bind OR create
@@ -88,8 +88,8 @@ public:
 	bool			DoCPUCreate					(); // preload CPU portion
 					MOAIGfxResource				();
 	virtual			~MOAIGfxResource			();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	bool			ScheduleForGPUCreate		( u32 pipelineID );
 	bool			ScheduleForGPUUpdate		();
 	bool			Purge						( u32 age );

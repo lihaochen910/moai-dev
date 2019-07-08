@@ -43,29 +43,30 @@ MOAIGraphicsProp::~MOAIGraphicsProp () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsProp::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGraphicsProp::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIIndexedPropBase::RegisterLuaClass ( state );
-	MOAIGraphicsPropBase::RegisterLuaClass ( state );
+	MOAIIndexedPropBase::RegisterRubyClass ( state, klass );
+	MOAIGraphicsPropBase::RegisterRubyClass ( state, klass );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsProp::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGraphicsProp::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	
-	MOAIIndexedPropBase::RegisterLuaFuncs ( state );
-	MOAIGraphicsPropBase::RegisterLuaFuncs ( state );
+	MOAIIndexedPropBase::RegisterRubyFuncs ( state, klass );
+	MOAIGraphicsPropBase::RegisterRubyFuncs ( state, klass );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsProp::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIGraphicsProp::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
 	MOAIIndexedPropBase::SerializeIn ( state, serializer );
 	MOAIGraphicsPropBase::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIGraphicsProp::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIGraphicsProp::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	
 	MOAIIndexedPropBase::SerializeOut ( state, serializer );
 	MOAIGraphicsPropBase::SerializeOut ( state, serializer );

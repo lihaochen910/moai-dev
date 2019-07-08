@@ -10,12 +10,10 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISensor::_getTimestamp ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISensor, "U" )
+mrb_value MOAISensor::_getTimestamp ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISensor, "U" )
 	
-	lua_pushnumber ( state, self->mTimestamp );
-	
-	return 1;
+	return state.ToRValue ( self->mTimestamp );
 }
 
 //================================================================//
@@ -27,7 +25,7 @@ MOAISensor::MOAISensor () :
 	mType ( 0 ),
 	mTimestamp ( 0 ) {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -35,23 +33,14 @@ MOAISensor::~MOAISensor () {
 }
 
 //----------------------------------------------------------------//
-void MOAISensor::RegisterLuaClass ( MOAILuaState& state ) {
-
-	luaL_Reg regTable [] = {
-		{ "new",					MOAILuaObject::_alertNewIsUnsupported },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+void MOAISensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAISensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAISensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getTimestamp",			_getTimestamp },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getTimestamp", _getTimestamp, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }

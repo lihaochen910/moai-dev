@@ -73,19 +73,19 @@ MOAIShaderUniformSchema::~MOAIShaderUniformSchema () {
 }
 
 //----------------------------------------------------------------//
-void MOAIShaderUniformSchema::SetUniform ( lua_State* L, int idx, void* buffer, u32 uniformID, u32 index ) const {
+void MOAIShaderUniformSchema::SetUniform ( mrb_state* M, int idx, void* buffer, u32 uniformID, u32 index ) const {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
 	MOAIShaderUniformHandle uniform = this->GetUniformHandle ( buffer, uniformID, index );
 	
 	if ( uniform.IsValid ()) {
 		
-		int size = state.GetStackSize ( idx );
+		int size = state.GetParamsCount ();
 		
 		if ( size <= 4 ) {
 		
-			ZLVec4D vec = state.GetValue < ZLVec4D >( idx, ZLVec4D::ZERO );
+			ZLVec4D vec = state.GetParamValue < ZLVec4D >( idx, ZLVec4D::ZERO );
 			
 			uniform.SetValue ( vec );
 		}
@@ -96,23 +96,23 @@ void MOAIShaderUniformSchema::SetUniform ( lua_State* L, int idx, void* buffer, 
 			switch ( size ) {
 			
 				case 6:
-					uniform.SetValue ( state.GetValue < ZLAffine2D >( idx, ZLAffine2D::IDENT ));
+					uniform.SetValue ( state.GetParamValue < ZLAffine2D >( idx, ZLAffine2D::IDENT ));
 					break;
 				
 				case 9:
-					uniform.SetValue ( state.GetValue < ZLMatrix3x3 >( idx, ZLMatrix3x3::IDENT ));
+					uniform.SetValue ( state.GetParamValue < ZLMatrix3x3 >( idx, ZLMatrix3x3::IDENT ));
 					break;
 				
 				case 12:
-					uniform.SetValue ( state.GetValue < ZLAffine3D >( idx, ZLAffine3D::IDENT ));
+					uniform.SetValue ( state.GetParamValue < ZLAffine3D >( idx, ZLAffine3D::IDENT ));
 					break;
 				
 				case 16:
-					uniform.SetValue ( state.GetValue < ZLMatrix4x4 >( idx, ZLMatrix4x4::IDENT ));
+					uniform.SetValue ( state.GetParamValue < ZLMatrix4x4 >( idx, ZLMatrix4x4::IDENT ));
 					break;
 				
 				default:
-					MOAILogF ( L, ZLLog::LOG_ERROR, "Error setting matrix. Did not recognize number of paramaters (6, 9, 12 or 16)." );
+					MOAILogF ( M, ZLLog::LOG_ERROR, "Error setting matrix. Did not recognize number of paramaters (6, 9, 12 or 16)." );
 			}
 		}
 	}

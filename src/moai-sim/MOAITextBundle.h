@@ -18,12 +18,12 @@ class MOAIDataBuffer;
  */
 
 class MOAITextBundle :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
 	//----------------------------------------------------------------//
-	static int		_load			( lua_State* L );
-	static int		_lookup			( lua_State* L );
+	static mrb_value		_load			( mrb_state* M, mrb_value context );
+	static mrb_value		_lookup			( mrb_state* M, mrb_value context );
 		
 	void * mData;
 	bool mReversed;
@@ -55,18 +55,18 @@ private:
 		
 public:
 	
-	DECL_LUA_FACTORY ( MOAITextBundle )
+	DECL_RUBY_FACTORY ( MOAITextBundle, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
-	MOAITextBundle			();
-	~MOAITextBundle			();
-	void					Clear();
-	bool					Load(const char *filename);
-	bool					Load(MOAIDataBuffer *buffer);
-	const char *			Lookup(const char *key);
+							MOAITextBundle			();
+							~MOAITextBundle			();
+	void					Clear					();
+	bool					Load					( const char *filename );
+	bool					Load					( MOAIDataBuffer *buffer );
+	const char *			Lookup					( const char *key );
 		
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 

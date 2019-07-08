@@ -72,27 +72,27 @@ private:
 	u32 mActionFlags;
 	
 	//----------------------------------------------------------------//
-	static int			_addChild				( lua_State* L );
-	static int			_attach					( lua_State* L );
-	static int			_clear					( lua_State* L );
-	static int			_defer					( lua_State* L );
-	static int			_detach					( lua_State* L );
-	static int 			_getChildren			( lua_State* L );
-	static int 			_hasChildren			( lua_State* L );
-	static int			_isActive				( lua_State* L );
-	static int			_isBusy					( lua_State* L );
-	static int			_isDone					( lua_State* L );
-	static int			_isPaused				( lua_State* L );
-	static int			_pause					( lua_State* L );
-	static int			_setAutoStop			( lua_State* L );
-	static int			_start					( lua_State* L );
-	static int			_stop					( lua_State* L );
-	static int			_throttle				( lua_State* L );
-	static int			_update					( lua_State* L );
+	static mrb_value		_addChild				( mrb_state* M, mrb_value context );
+	static mrb_value		_attach					( mrb_state* M, mrb_value context );
+	static mrb_value		_clear					( mrb_state* M, mrb_value context );
+	static mrb_value		_defer					( mrb_state* M, mrb_value context );
+	static mrb_value		_detach					( mrb_state* M, mrb_value context );
+	static mrb_value 		_getChildren			( mrb_state* M, mrb_value context );
+	static mrb_value 		_hasChildren			( mrb_state* M, mrb_value context );
+	static mrb_value		_isActive				( mrb_state* M, mrb_value context );
+	static mrb_value		_isBusy					( mrb_state* M, mrb_value context );
+	static mrb_value		_isDone					( mrb_state* M, mrb_value context );
+	static mrb_value		_isPaused				( mrb_state* M, mrb_value context );
+	static mrb_value		_pause					( mrb_state* M, mrb_value context );
+	static mrb_value		_setAutoStop			( mrb_state* M, mrb_value context );
+	static mrb_value		_start					( mrb_state* M, mrb_value context );
+	static mrb_value		_stop					( mrb_state* M, mrb_value context );
+	static mrb_value		_throttle				( mrb_state* M, mrb_value context );
+	static mrb_value		_update					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
-	void				ResetPass				( u32 pass = 0 );
-	void				Update					( MOAIActionTree& tree, double step );
+	void					ResetPass				( u32 pass = 0 );
+	void					Update					( MOAIActionTree& tree, double step );
 
 protected:
 
@@ -111,7 +111,7 @@ public:
 	friend class MOAIActionTree;
 	friend class MOAIActionStackMgr;
 	
-	DECL_LUA_FACTORY ( MOAIAction )
+	DECL_RUBY_FACTORY ( MOAIAction, MOAIInstanceEventSource )
 	
 	enum {
 		EVENT_ACTION_PRE_UPDATE,
@@ -133,8 +133,8 @@ public:
 	bool					IsPaused				();
 							MOAIAction				();
 							~MOAIAction				();
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void					Start					( MOAIAction* parent, bool defer );
 	void					Stop					();
 };

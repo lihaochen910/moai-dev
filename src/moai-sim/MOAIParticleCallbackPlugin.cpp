@@ -45,12 +45,12 @@ void MOAIParticleCallbackPlugin::OnRender ( float* particle, float* registers, A
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleCallbackPlugin::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIParticlePlugin::RegisterLuaClass ( state );
+void MOAIParticleCallbackPlugin::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIParticlePlugin::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleCallbackPlugin::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIParticlePlugin::RegisterLuaFuncs ( state );
+void MOAIParticleCallbackPlugin::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIParticlePlugin::RegisterRubyFuncs ( state, klass );
 }
 

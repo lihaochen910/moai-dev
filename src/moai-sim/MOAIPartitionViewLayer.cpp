@@ -35,25 +35,25 @@
 	@opt	number pSortScale				Priority sort scale. Default is layer's current value.
 	@out	...								Gathered props.
 */
-int	MOAIPartitionViewLayer::_getPropViewList ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value	MOAIPartitionViewLayer::_getPropViewList ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 	
 	MOAIPartition* partition = self->MOAIPartitionHolder::mPartition;
 	
 	if ( partition && self->mViewport ) {
 		
 		u32 interfaceMask = partition->GetInterfaceMask < MOAIDrawable >();
-		if ( !interfaceMask ) return 0;
+		if ( !interfaceMask ) return mrb_nil_value ();
 		
 		float sortScale [ 4 ];
 		
-		u32 sortMode			= state.GetValue < u32 >( 2, self->mSortMode );
-		bool sortInViewSpace	= state.GetValue < bool >( 3, self->mSortInViewSpace );
+		u32 sortMode			= state.GetParamValue < u32 >( 1, self->mSortMode );
+		bool sortInViewSpace	= state.GetParamValue < bool >( 2, self->mSortInViewSpace );
 		
-		sortScale [ 0 ]			= state.GetValue < float >( 4, self->mSortScale [ 0 ]);
-		sortScale [ 1 ]			= state.GetValue < float >( 5, self->mSortScale [ 1 ]);
-		sortScale [ 2 ]			= state.GetValue < float >( 6, self->mSortScale [ 2 ]);
-		sortScale [ 3 ]			= state.GetValue < float >( 7, self->mSortScale [ 3 ]);
+		sortScale [ 0 ]			= state.GetParamValue < float >( 3, self->mSortScale [ 0 ]);
+		sortScale [ 1 ]			= state.GetParamValue < float >( 4, self->mSortScale [ 1 ]);
+		sortScale [ 2 ]			= state.GetParamValue < float >( 5, self->mSortScale [ 2 ]);
+		sortScale [ 3 ]			= state.GetParamValue < float >( 6, self->mSortScale [ 3 ]);
 		
 		ZLMatrix4x4 viewMtx = MOAIViewProj::GetViewMtx ( self->mCamera, self->mParallax );
 		ZLMatrix4x4 invViewProjMtx = viewMtx;
@@ -75,7 +75,7 @@ int	MOAIPartitionViewLayer::_getPropViewList ( lua_State* L ) {
 			totalResults = partition->GatherHulls ( buffer, 0, viewVolume, interfaceMask );
 		}
 		
-		if ( !totalResults ) return 0;
+		if ( !totalResults ) return mrb_nil_value ();
 		
 		if ( sortInViewSpace ) {
 			buffer.Transform ( viewMtx, false );
@@ -91,10 +91,9 @@ int	MOAIPartitionViewLayer::_getPropViewList ( lua_State* L ) {
 		
 		buffer.Sort ( self->mSortMode );
 	
-		buffer.PushHulls ( L );
-		return totalResults;
+		return buffer.PushHulls ( M );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -104,11 +103,10 @@ int	MOAIPartitionViewLayer::_getPropViewList ( lua_State* L ) {
 	@in		MOAIPartitionViewLayer self
 	@out	number sortMode
 */
-int MOAIPartitionViewLayer::_getSortMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value MOAIPartitionViewLayer::_getSortMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 	
-	lua_pushnumber ( state, self->mSortMode );
-	return 1;
+	return state.ToRValue ( self->mSortMode );
 }
 
 //----------------------------------------------------------------//
@@ -120,14 +118,15 @@ int MOAIPartitionViewLayer::_getSortMode ( lua_State* L ) {
 	@out	number y
 	@out	number priority
 */
-int	MOAIPartitionViewLayer::_getSortScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value	MOAIPartitionViewLayer::_getSortScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 
-	lua_pushnumber ( state, self->mSortScale [ 0 ]);
-	lua_pushnumber ( state, self->mSortScale [ 1 ]);
-	lua_pushnumber ( state, self->mSortScale [ 3 ]);
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( self->mSortScale [ 0 ] );
+	ret [ 1 ] = state.ToRValue ( self->mSortScale [ 1 ] );
+	ret [ 2 ] = state.ToRValue ( self->mSortScale [ 3 ] );
 
-	return 3;
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
@@ -139,12 +138,12 @@ int	MOAIPartitionViewLayer::_getSortScale ( lua_State* L ) {
 	@in		boolean partitionCull2D		Default value is false.
 	@out	nil
 */
-int	MOAIPartitionViewLayer::_setPartitionCull2D ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value	MOAIPartitionViewLayer::_setPartitionCull2D ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 
-	self->mPartitionCull2D = state.GetValue < bool >( 2, false );
+	self->mPartitionCull2D = state.GetParamValue < bool >( 1, false );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -160,13 +159,13 @@ int	MOAIPartitionViewLayer::_setPartitionCull2D ( lua_State* L ) {
 	@in		boolean sortInViewSpace		Default value is 'false'.
 	@out	nil
 */
-int MOAIPartitionViewLayer::_setSortMode ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value MOAIPartitionViewLayer::_setSortMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 	
-	self->mSortMode			= state.GetValue < u32 >( 2, MOAIPartitionResultBuffer::SORT_PRIORITY_ASCENDING );
-	self->mSortInViewSpace	= state.GetValue < bool >( 3, false );
+	self->mSortMode			= state.GetParamValue < u32 >( 1, MOAIPartitionResultBuffer::SORT_PRIORITY_ASCENDING );
+	self->mSortInViewSpace	= state.GetParamValue < bool >( 2, false );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -180,15 +179,15 @@ int MOAIPartitionViewLayer::_setSortMode ( lua_State* L ) {
 	@opt	number priority		Default value is 1.
 	@out	nil
 */
-int	MOAIPartitionViewLayer::_setSortScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionViewLayer, "U" )
+mrb_value	MOAIPartitionViewLayer::_setSortScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionViewLayer, "U" )
 
-	self->mSortScale [ 0 ] = state.GetValue < float >( 2, 0.0f );
-	self->mSortScale [ 1 ] = state.GetValue < float >( 3, 0.0f );
-	self->mSortScale [ 2 ] = state.GetValue < float >( 4, 0.0f );
-	self->mSortScale [ 3 ] = state.GetValue < float >( 5, 1.0f );
+	self->mSortScale [ 0 ] = state.GetParamValue < float >( 1, 0.0f );
+	self->mSortScale [ 1 ] = state.GetParamValue < float >( 2, 0.0f );
+	self->mSortScale [ 2 ] = state.GetParamValue < float >( 3, 0.0f );
+	self->mSortScale [ 3 ] = state.GetParamValue < float >( 4, 1.0f );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -294,57 +293,54 @@ MOAIPartitionViewLayer::~MOAIPartitionViewLayer () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionViewLayer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPartitionViewLayer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIPartitionHolder::RegisterLuaClass ( state );
-	MOAIViewLayer::RegisterLuaClass ( state );
+	MOAIPartitionHolder::RegisterRubyClass ( state, klass );
+	MOAIViewLayer::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "SORT_NONE",						( u32 )MOAIPartitionResultBuffer::SORT_NONE );
-	state.SetField ( -1, "SORT_ISO",						( u32 )MOAIPartitionResultBuffer::SORT_ISO );
-	state.SetField ( -1, "SORT_PRIORITY_ASCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_PRIORITY_ASCENDING );
-	state.SetField ( -1, "SORT_PRIORITY_DESCENDING",		( u32 )MOAIPartitionResultBuffer::SORT_PRIORITY_DESCENDING );
-	state.SetField ( -1, "SORT_X_ASCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_X_ASCENDING );
-	state.SetField ( -1, "SORT_X_DESCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_X_DESCENDING );
-	state.SetField ( -1, "SORT_Y_ASCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_Y_ASCENDING );
-	state.SetField ( -1, "SORT_Y_DESCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_Y_DESCENDING );
-	state.SetField ( -1, "SORT_Z_ASCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_Z_ASCENDING );
-	state.SetField ( -1, "SORT_Z_DESCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_Z_DESCENDING );
-	state.SetField ( -1, "SORT_VECTOR_ASCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_VECTOR_ASCENDING );
-	state.SetField ( -1, "SORT_VECTOR_DESCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_VECTOR_DESCENDING );
-	state.SetField ( -1, "SORT_DIST_SQUARED_ASCENDING",		( u32 )MOAIPartitionResultBuffer::SORT_DIST_SQUARED_ASCENDING );
-	state.SetField ( -1, "SORT_DIST_SQUARED_DESCENDING",	( u32 )MOAIPartitionResultBuffer::SORT_DIST_SQUARED_DESCENDING );
+	state.DefineClassConst ( klass, "SORT_NONE",						( u32 )MOAIPartitionResultBuffer::SORT_NONE );
+	state.DefineClassConst ( klass, "SORT_ISO",							( u32 )MOAIPartitionResultBuffer::SORT_ISO );
+	state.DefineClassConst ( klass, "SORT_PRIORITY_ASCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_PRIORITY_ASCENDING );
+	state.DefineClassConst ( klass, "SORT_PRIORITY_DESCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_PRIORITY_DESCENDING );
+	state.DefineClassConst ( klass, "SORT_X_ASCENDING",					( u32 )MOAIPartitionResultBuffer::SORT_X_ASCENDING );
+	state.DefineClassConst ( klass, "SORT_X_DESCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_X_DESCENDING );
+	state.DefineClassConst ( klass, "SORT_Y_ASCENDING",					( u32 )MOAIPartitionResultBuffer::SORT_Y_ASCENDING );
+	state.DefineClassConst ( klass, "SORT_Y_DESCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_Y_DESCENDING );
+	state.DefineClassConst ( klass, "SORT_Z_ASCENDING",					( u32 )MOAIPartitionResultBuffer::SORT_Z_ASCENDING );
+	state.DefineClassConst ( klass, "SORT_Z_DESCENDING",				( u32 )MOAIPartitionResultBuffer::SORT_Z_DESCENDING );
+	state.DefineClassConst ( klass, "SORT_VECTOR_ASCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_VECTOR_ASCENDING );
+	state.DefineClassConst ( klass, "SORT_VECTOR_DESCENDING",			( u32 )MOAIPartitionResultBuffer::SORT_VECTOR_DESCENDING );
+	state.DefineClassConst ( klass, "SORT_DIST_SQUARED_ASCENDING",		( u32 )MOAIPartitionResultBuffer::SORT_DIST_SQUARED_ASCENDING );
+	state.DefineClassConst ( klass, "SORT_DIST_SQUARED_DESCENDING",		( u32 )MOAIPartitionResultBuffer::SORT_DIST_SQUARED_DESCENDING );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionViewLayer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPartitionViewLayer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIPartitionHolder::RegisterLuaFuncs ( state );
-	MOAIViewLayer::RegisterLuaFuncs ( state );
+	MOAIPartitionHolder::RegisterRubyFuncs ( state, klass );
+	MOAIViewLayer::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getLayerPartition", MOAIPartitionHolder::_getPartition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPartition", MOAIViewLayer::_getPartition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPropViewList", _getPropViewList, MRB_ARGS_ARG ( 0, 6 ) );
+	state.DefineInstanceMethod ( klass, "getSortMode", _getSortMode, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getSortScale", _getSortScale, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setLayerPartition", MOAIPartitionHolder::_setPartition, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPartition", MOAIViewLayer::_setPartition, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPartitionCull2D", _setPartitionCull2D, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setSortMode", _setSortMode, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setSortScale", _setSortScale, MRB_ARGS_ARG ( 0, 4 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getLayerPartition",		MOAIPartitionHolder::_getPartition },
-		{ "getPartition",			MOAIViewLayer::_getPartition },
-		{ "getPropViewList",		_getPropViewList },
-		{ "getSortMode",			_getSortMode },
-		{ "getSortScale",			_getSortScale },
-		{ "setLayerPartition",		MOAIPartitionHolder::_setPartition },
-		{ "setPartition",			MOAIViewLayer::_setPartition },
-		{ "setPartitionCull2D",		_setPartitionCull2D },
-		{ "setSortMode",			_setSortMode },
-		{ "setSortScale",			_setSortScale },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionViewLayer::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIPartitionViewLayer::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAIGraphicsProp::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionViewLayer::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIPartitionViewLayer::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAIGraphicsProp::SerializeOut ( state, serializer );
 }
 

@@ -20,13 +20,13 @@ class MOAIPinTransform :
 	public MOAITransform {
 private:
 
-	MOAILuaSharedPtr < MOAIViewLayer > mSourceLayer;
-	MOAILuaSharedPtr < MOAIViewLayer > mDestLayer;
+	MOAIRubySharedPtr < MOAIViewLayer > mSourceLayer;
+	MOAIRubySharedPtr < MOAIViewLayer > mDestLayer;
 		
 	float			mFront;
 	
 	//----------------------------------------------------------------//
-	static int		_init						( lua_State* L );
+	static mrb_value		_init						( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MOAINode_ApplyAttrOp		( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -34,7 +34,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIPinTransform )
+	DECL_RUBY_FACTORY ( MOAIPinTransform, MOAITransform )
 	DECL_ATTR_HELPER ( MOAIPinTransform )
 		
 	enum {
@@ -44,8 +44,8 @@ public:
 	//----------------------------------------------------------------//
 					MOAIPinTransform			();
 					~MOAIPinTransform			();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

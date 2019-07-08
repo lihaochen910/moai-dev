@@ -20,23 +20,23 @@ private:
 	float	mY;
 	float	mZ;
 
-	MOAILuaStrongRef mCallback;
+	MOAIRubyStrongRef mCallback;
 
 	//----------------------------------------------------------------//
-	static int		_getVector				( lua_State* L );
-	static int		_setCallback			( lua_State* L );
+	static mrb_value		_getVector				( mrb_state* M, mrb_value context );
+	static mrb_value		_setCallback			( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIVectorSensor )
+	DECL_RUBY_FACTORY ( MOAIVectorSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	static void			EnqueueVectorEvent		( u8 deviceID, u8 sensorID, float x, float y, float z );
 						MOAIVectorSensor		();
 						~MOAIVectorSensor		();
 	void				ParseEvent				( ZLStream& eventStream );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

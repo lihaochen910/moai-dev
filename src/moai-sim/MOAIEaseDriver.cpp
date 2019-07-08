@@ -17,13 +17,13 @@
 	@in		number nLinks
 	@out	nil
 */
-int MOAIEaseDriver::_reserveLinks ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIEaseDriver, "UN" );
+mrb_value MOAIEaseDriver::_reserveLinks ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIEaseDriver, "UN" );
 	
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveLinks ( total );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -55,32 +55,32 @@ int MOAIEaseDriver::_reserveLinks ( lua_State* L ) {
 
 	
 */
-int MOAIEaseDriver::_setLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIEaseDriver, "UNUN" );
+mrb_value MOAIEaseDriver::_setLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIEaseDriver, "UNUN" );
 	
-	MOAINode* dest = state.GetLuaObject < MOAINode >( 3, true );
-	if ( !dest ) return 0;
+	MOAINode* dest = state.GetRubyObject < MOAINode >( 2, true );
+	if ( !dest ) return context;
 	
-	u32 idx				= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 destAttrID		= state.GetValue < u32 >( 4, 0 );
+	u32 idx				= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 destAttrID		= state.GetParamValue < u32 >( 3, 0 );
 	
-	MOAINode* source = state.GetLuaObject < MOAINode >( 5, true );
+	MOAINode* source = state.GetRubyObject < MOAINode >( 4, true );
 	
 	if ( source ) {
 	
-		u32 sourceAttrID	= state.GetValue < u32 >( 6, MOAIAttribute::NULL_ATTR );
-		u32 mode			= state.GetValue < u32 >( 7, ZLInterpolate::kSmooth );
+		u32 sourceAttrID	= state.GetParamValue < u32 >( 5, MOAIAttribute::NULL_ATTR );
+		u32 mode			= state.GetParamValue < u32 >( 6, ZLInterpolate::kSmooth );
 		
 		self->SetLink ( idx, dest, destAttrID, source, sourceAttrID, mode );
 	}
 	else {
 	
-		float v1			= state.GetValue < float >( 5, 0.0f );
-		u32 mode			= state.GetValue < u32 >( 6, ZLInterpolate::kSmooth );
+		float v1			= state.GetParamValue < float >( 5, 0.0f );
+		u32 mode			= state.GetParamValue < u32 >( 6, ZLInterpolate::kSmooth );
 		
 		self->SetLink ( idx, dest, destAttrID, v1, mode );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -105,7 +105,7 @@ MOAIEaseDriver::~MOAIEaseDriver () {
 }
 
 //----------------------------------------------------------------//
-u32 MOAIEaseDriver::ParseForMove ( MOAILuaState& state, int idx, MOAINode* dest, u32 total, int mode, ... ) {
+u32 MOAIEaseDriver::ParseForMove ( MOAIRubyState& state, int idx, MOAINode* dest, u32 total, int mode, ... ) {
 
 	float* params = ( float* )alloca ( total * sizeof ( float ));
 	u32* destAttrIDs = ( u32* )alloca ( total * sizeof ( u32 ));
@@ -119,7 +119,7 @@ u32 MOAIEaseDriver::ParseForMove ( MOAILuaState& state, int idx, MOAINode* dest,
 		destAttrIDs [ i ] = ( u32 )va_arg ( args, int );
 		float defaultValue = ( float )va_arg ( args, double );
 	
-		params [ i ] = state.GetValue < float >( idx + i, defaultValue );
+		params [ i ] = state.GetParamValue < float >( idx + i, defaultValue );
 		if ( params [ i ] != 0.0f ) {
 			count++;
 		}
@@ -145,7 +145,7 @@ u32 MOAIEaseDriver::ParseForMove ( MOAILuaState& state, int idx, MOAINode* dest,
 }
 
 //----------------------------------------------------------------//
-u32 MOAIEaseDriver::ParseForSeek ( MOAILuaState& state, int idx, MOAINode* dest, u32 total, int mode, ... ) {
+u32 MOAIEaseDriver::ParseForSeek ( MOAIRubyState& state, int idx, MOAINode* dest, u32 total, int mode, ... ) {
 
 	float* params = ( float* )alloca ( total * sizeof ( float ));
 	u32* destAttrIDs = ( u32* )alloca ( total * sizeof ( u32 ));
@@ -160,7 +160,7 @@ u32 MOAIEaseDriver::ParseForSeek ( MOAILuaState& state, int idx, MOAINode* dest,
 		float attrValue =  ( float )va_arg ( args, double );
 		float defaultValue =  ( float )va_arg ( args, double );
 		
-		params [ i ] = state.GetValue < float >( idx + i, defaultValue ) - attrValue;
+		params [ i ] = state.GetParamValue < float >( idx + i, defaultValue ) - attrValue;
 		if ( params [ i ] != 0.0f ) {
 			count++;
 		}
@@ -186,23 +186,17 @@ u32 MOAIEaseDriver::ParseForSeek ( MOAILuaState& state, int idx, MOAINode* dest,
 }
 
 //----------------------------------------------------------------//
-void MOAIEaseDriver::RegisterLuaClass ( MOAILuaState& state ) {
-
-	MOAITimer::RegisterLuaClass ( state );
+void MOAIEaseDriver::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIEaseDriver::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIEaseDriver::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITimer::RegisterLuaFuncs ( state );
-	
-	luaL_Reg regTable [] = {
-		{ "reserveLinks",			_reserveLinks },
-		{ "setLink",				_setLink },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "reserveLinks", _reserveLinks, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setLink", _setLink, MRB_ARGS_ARG ( 5, 1 ) );
+
 }
 
 //----------------------------------------------------------------//

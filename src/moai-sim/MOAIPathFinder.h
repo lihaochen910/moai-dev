@@ -41,13 +41,13 @@ private:
 	@text	Object for maintaining pathfinding state.
 */
 class MOAIPathFinder :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	friend class MOAIPathGraph;
 
-	MOAILuaSharedPtr < MOAIPathTerrainDeck > mTerrainDeck;
-	MOAILuaSharedPtr < MOAIPathGraph > mGraph;
+	MOAIRubySharedPtr < MOAIPathTerrainDeck > mTerrainDeck;
+	MOAIRubySharedPtr < MOAIPathGraph > mGraph;
 
 	ZLLeanArray < MOAIPathWeight > mWeights;
 	ZLLeanArray < int >	mPath;
@@ -72,19 +72,19 @@ private:
 	float				mHWeight;
 
 	//----------------------------------------------------------------//
-	static int			_findPath					( lua_State* L );
-	static int			_getGraph					( lua_State* L );
-	static int			_getPathEntry				( lua_State* L );
-	static int			_getPathSize				( lua_State* L );
-	static int			_init						( lua_State* L );
-	static int			_reserveTerrainWeights		( lua_State* L );
-	static int			_setFlags					( lua_State* L );
-	static int			_setGraph					( lua_State* L );
-	static int			_setHeuristic				( lua_State* L );
-	static int			_setTerrainMask				( lua_State* L );
-	static int			_setTerrainDeck				( lua_State* L );
-	static int			_setTerrainWeight			( lua_State* L );
-	static int			_setWeight					( lua_State* L );
+	static mrb_value			_findPath					( mrb_state* M, mrb_value context );
+	static mrb_value			_getGraph					( mrb_state* M, mrb_value context );
+	static mrb_value			_getPathEntry				( mrb_state* M, mrb_value context );
+	static mrb_value			_getPathSize				( mrb_state* M, mrb_value context );
+	static mrb_value			_init						( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveTerrainWeights		( mrb_state* M, mrb_value context );
+	static mrb_value			_setFlags					( mrb_state* M, mrb_value context );
+	static mrb_value			_setGraph					( mrb_state* M, mrb_value context );
+	static mrb_value			_setHeuristic				( mrb_state* M, mrb_value context );
+	static mrb_value			_setTerrainMask				( mrb_state* M, mrb_value context );
+	static mrb_value			_setTerrainDeck				( mrb_state* M, mrb_value context );
+	static mrb_value			_setTerrainWeight			( mrb_state* M, mrb_value context );
+	static mrb_value			_setWeight					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				BuildPath			( MOAIPathState* state );
@@ -95,7 +95,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIPathFinder )
+	DECL_RUBY_FACTORY ( MOAIPathFinder, MOAIRubyObject )
 	
 	GET ( const ZLLeanArray < MOAIPathWeight >&, Weights, mWeights );
 	GET ( int, TargetNodeID, mTargetNodeID );
@@ -113,8 +113,8 @@ public:
 				MOAIPathFinder			();
 				~MOAIPathFinder			();
 	void		PushState				( int nodeID, float cost, float estimate );
-	void		RegisterLuaClass		( MOAILuaState& state );
-	void		RegisterLuaFuncs		( MOAILuaState& state );
+	void		RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void		RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

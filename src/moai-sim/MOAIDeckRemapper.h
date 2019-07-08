@@ -24,9 +24,9 @@ protected:
 	ZLLeanArray < u32 >		mRemap;
 	
 	//----------------------------------------------------------------//
-	static int			_reserve				( lua_State* L );
-	static int			_setBase				( lua_State* L );
-	static int			_setRemap				( lua_State* L );
+	static mrb_value			_reserve				( mrb_state* M, mrb_value context );
+	static mrb_value			_setBase				( mrb_state* M, mrb_value context );
+	static mrb_value			_setRemap				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	u32					MOAIDeckProxy_Remap				( u32 idx );
@@ -34,13 +34,13 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIDeckRemapper )
+	DECL_RUBY_FACTORY ( MOAIDeckRemapper, MOAIDeck )
 	
 	//----------------------------------------------------------------//
 						MOAIDeckRemapper				();
 						~MOAIDeckRemapper				();
-	void				RegisterLuaClass				( MOAILuaState& state );
-	void				RegisterLuaFuncs				( MOAILuaState& state );
+	void				RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

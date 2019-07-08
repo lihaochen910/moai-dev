@@ -16,12 +16,10 @@
 	@in		MOAIWheelSensor self
 	@out	number value
 */
-int MOAIWheelSensor::_getValue ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIWheelSensor, "U" )
+mrb_value MOAIWheelSensor::_getValue ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIWheelSensor, "U" )
 	
-	lua_pushnumber ( state, self->mValue );
-	
-	return 1;
+	return state.ToRValue ( self->mValue );
 }
 
 //----------------------------------------------------------------//
@@ -31,12 +29,10 @@ int MOAIWheelSensor::_getValue ( lua_State* L ) {
 	@in		MOAIWheelSensor self
 	@out	number delta
 */
-int MOAIWheelSensor::_getDelta ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIWheelSensor, "U" )
+mrb_value MOAIWheelSensor::_getDelta ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIWheelSensor, "U" )
 	
-	lua_pushnumber ( state, self->mDelta );
-	
-	return 1;
+	return state.ToRValue ( self->mDelta );
 }
 
 //----------------------------------------------------------------//
@@ -47,12 +43,12 @@ int MOAIWheelSensor::_getDelta ( lua_State* L ) {
 	@opt	function callback		Default value is nil.
 	@out	nil
 */
-int MOAIWheelSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIWheelSensor, "U" )
+mrb_value MOAIWheelSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIWheelSensor, "U" )
 	
-	self->mCallback.SetRef ( state, 2 );
+	self->mCallback.SetRef ( state.GetParamValue ( 1 ) );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -88,31 +84,30 @@ void MOAIWheelSensor::ParseEvent ( ZLStream& eventStream ) {
 	this->mValue += this->mDelta;
 	
 	if ( this->mCallback ) {
-		MOAIScopedLuaState state = this->mCallback.GetSelf ();
-		lua_pushnumber ( state, this->mDelta );
-		state.DebugCall ( 1, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 1 ];
+		argv [ 0 ] = state.ToRValue ( this->mDelta );
+
+		state.FuncCall ( this->mCallback, "call", 1, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIWheelSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIWheelSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIWheelSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIWheelSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getValue",				_getValue },
-		{ "getDelta",				_getDelta },
-		{ "setCallback",			_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getValue", _getValue, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDelta", _getDelta, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

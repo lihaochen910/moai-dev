@@ -18,14 +18,14 @@
 	@opt	number max		Default value is min.
 	@out	nil
 */
-int MOAIParticleTimedEmitter::_setFrequency ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleTimedEmitter, "UN" )
+mrb_value MOAIParticleTimedEmitter::_setFrequency ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleTimedEmitter, "UN" )
 
-	float min = state.GetValue < float >( 2, 1.0f );
-	float max = state.GetValue < float >( 3, min );
+	float min = state.GetParamValue < float >( 1, 1.0f );
+	float max = state.GetParamValue < float >( 2, min );
 
 	self->SetFrequencyRange ( min, max );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -55,22 +55,18 @@ MOAIParticleTimedEmitter::~MOAIParticleTimedEmitter () {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleTimedEmitter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleTimedEmitter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	this->MOAIParticleEmitter::RegisterLuaClass ( state );
+	MOAIParticleEmitter::RegisterRubyClass ( state, klass );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleTimedEmitter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleTimedEmitter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	this->MOAIParticleEmitter::RegisterLuaFuncs ( state );
+	MOAIParticleEmitter::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "setFrequency",		_setFrequency },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "setFrequency",		_setFrequency, MRB_ARGS_ARG ( 1, 1 ) );
 }
 
 //----------------------------------------------------------------//

@@ -21,20 +21,19 @@
 	@in		MOAIViewLayer destLayer
 	@out	nil
 */
-int MOAIPinTransform::_init ( lua_State* L ) {
+mrb_value MOAIPinTransform::_init ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPinTransform, "UUU" );
 	
-	MOAI_LUA_SETUP ( MOAIPinTransform, "UUU" );
+	MOAIViewLayer* sourceLayer = state.GetRubyObject < MOAIViewLayer >( 1, true );
+	if ( !sourceLayer ) return mrb_nil_value ();
 	
-	MOAIViewLayer* sourceLayer = state.GetLuaObject < MOAIViewLayer >( 2, true );
-	if ( !sourceLayer ) return 0;
-	
-	MOAIViewLayer* destLayer = state.GetLuaObject < MOAIViewLayer >( 3, true );
-	if ( !destLayer ) return 0;
+	MOAIViewLayer* destLayer = state.GetRubyObject < MOAIViewLayer >( 2, true );
+	if ( !destLayer ) return mrb_nil_value ();
 	
 	self->SetDependentMember ( self->mSourceLayer, sourceLayer );
 	self->SetDependentMember ( self->mDestLayer, destLayer );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -56,23 +55,19 @@ MOAIPinTransform::~MOAIPinTransform () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPinTransform::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAITransform::RegisterLuaClass ( state );
+void MOAIPinTransform::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAITransform::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "ATTR_FRONT", MOAIPinTransformAttr::Pack ( ATTR_FRONT ) );
+	state.DefineClassConst ( klass, "ATTR_FRONT", MOAIPinTransformAttr::Pack ( ATTR_FRONT ) );
 }
 
 //----------------------------------------------------------------//
-void MOAIPinTransform::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPinTransform::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransform::RegisterLuaFuncs ( state );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "init",				_init },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "init", _init, MRB_ARGS_REQ ( 2 ) );
+
 }
 
 //================================================================//

@@ -22,17 +22,17 @@
 	@in		number yMax
 	@out	nil
 */
-int MOAIImageTexture::_updateRegion ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIImageTexture, "U" )
+mrb_value MOAIImageTexture::_updateRegion ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIImageTexture, "U" )
 	
-	if ( state.GetTop () > 1 ) {
-		ZLIntRect rect = state.GetRect < int >( 2 );
+	if ( state.GetParamsCount () > 1 ) {
+		ZLIntRect rect = state.GetRect < int >( 1 );
 		self->UpdateRegion ( rect );
 	}
 	else {
 		self->UpdateRegion ();
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -93,34 +93,30 @@ void MOAIImageTexture::OnImageStatusChanged	( bool isOK ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIImageTexture::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIImageTexture::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITextureBase::RegisterLuaClass ( state );
-	MOAIImage::RegisterLuaClass ( state );
+	MOAITextureBase::RegisterRubyClass ( state, klass );
+	MOAIImage::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIImageTexture::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIImageTexture::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITextureBase::RegisterLuaFuncs ( state );
-	MOAIImage::RegisterLuaFuncs ( state );
+	MOAITextureBase::RegisterRubyFuncs ( state, klass );
+	MOAIImage::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "invalidate", _updateRegion, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "updateRegion", _updateRegion, MRB_ARGS_ARG ( 0, 4 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "invalidate",					_updateRegion }, // TODO: deprecate
-		{ "updateRegion",				_updateRegion },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIImageTexture::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIImageTexture::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAITextureBase::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIImageTexture::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIImageTexture::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAITextureBase::SerializeOut ( state, serializer );
 }
 

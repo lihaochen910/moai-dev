@@ -27,29 +27,28 @@
 	@out	yMax
 	@out	zMax
 */
-int MOAIVertexBuffer::_computeBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexBuffer, "U" )
+mrb_value MOAIVertexBuffer::_computeBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexBuffer, "U" )
 	
 	bool hasBounds = false;
 	ZLBox bounds;
 	bounds.Init ( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 	
 	// vertex format
-	if ( state.CheckParams ( 2, "U", false )) {
+	if ( state.CheckParams ( 1, "U", false )) {
 	
-		MOAIVertexFormat* format = state.GetLuaObject < MOAIVertexFormat >( 2, 0 );
+		MOAIVertexFormat* format = state.GetRubyObject < MOAIVertexFormat >( 1, 0 );
 		if ( format ) {
-			u32 length = state.GetValue < u32 >( 3, ( u32 )self->GetCursor ());
+			u32 length = state.GetParamValue < u32 >( 2, ( u32 )self->GetCursor ());
 			self->Seek ( 0, SEEK_SET );
 			hasBounds = format->ComputeBounds ( bounds, *self, length );
 		}
 	}
 	
 	if ( hasBounds ) {
-		state.Push ( bounds );
-		return 6;
+		return state.Get ( bounds );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -69,30 +68,29 @@ int MOAIVertexBuffer::_computeBounds ( lua_State* L ) {
 		@in		MOAIVertexFormat format
 		@out	number vertexCount
 */
-int MOAIVertexBuffer::_countElements ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexBuffer, "U" )
+mrb_value MOAIVertexBuffer::_countElements ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexBuffer, "U" )
 
 	u32 totalElements = 0;
 	
 	// size
-	if ( state.CheckParams ( 2, "N", false )) {
+	if ( state.CheckParams ( 1, "N", false )) {
 		
-		u32  elementSize = state.GetValue < u32 >( 2, 4 );
+		u32  elementSize = state.GetParamValue < u32 >( 1, 4 );
 		totalElements = ( u32 )( self->GetSize () / elementSize ); // TODO: cast
 	}
 	
 	// vertex format
-	else if ( state.CheckParams ( 2, "U", false )) {
+	else if ( state.CheckParams ( 1, "U", false )) {
 	
-		MOAIVertexFormat* format = state.GetLuaObject < MOAIVertexFormat >( 2, 0 );
+		MOAIVertexFormat* format = state.GetRubyObject < MOAIVertexFormat >( 1, 0 );
 		if ( format ) {
-			u32 length = state.GetValue < u32 >( 3, ( u32 )self->GetLength ());
+			u32 length = state.GetParamValue < u32 >( 2, ( u32 )self->GetLength ());
 			totalElements = ( u32 )( length / format->GetVertexSize ());
 		}
 	}
 	
-	state.Push ( totalElements );
-	return 1;
+	return state.ToRValue ( totalElements );
 }
 
 //----------------------------------------------------------------//
@@ -103,14 +101,14 @@ int MOAIVertexBuffer::_countElements ( lua_State* L ) {
 	@in		MOAIVertexFormat format
 	@out	nil
 */
-int MOAIVertexBuffer::_printVertices ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIVertexBuffer, "U" )
+mrb_value MOAIVertexBuffer::_printVertices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIVertexBuffer, "U" )
 	
-	MOAIVertexFormat* format = state.GetLuaObject < MOAIVertexFormat >( 2, true );
+	MOAIVertexFormat* format = state.GetRubyObject < MOAIVertexFormat >( 1, true );
 	if ( format ) {
 		self->PrintVertices ( *format );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -143,30 +141,26 @@ void MOAIVertexBuffer::PrintVertices ( MOAIVertexFormat& vertexFormat ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexBuffer::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIGfxBuffer::RegisterLuaClass ( state );
+void MOAIVertexBuffer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGfxBuffer::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIGfxBuffer::RegisterLuaFuncs ( state );
+void MOAIVertexBuffer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGfxBuffer::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "computeBounds", _computeBounds, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "countElements", _countElements, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "printVertices", _printVertices, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "computeBounds",			_computeBounds },
-		{ "countElements",			_countElements },
-		{ "printVertices",			_printVertices },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexBuffer::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIVertexBuffer::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAIGfxBuffer::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexBuffer::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIVertexBuffer::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAIGfxBuffer::SerializeOut ( state, serializer );
 }

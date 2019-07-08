@@ -15,13 +15,11 @@
 
 	@out	MOAIAction root
 */
-int MOAIActionTree::_getRoot ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIActionTree, "U" )
+mrb_value MOAIActionTree::_getRoot ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIActionTree, "U" )
 	
 	MOAIAction* root = self->AffirmRoot ();
-	root->PushLuaUserdata ( state );
-
-	return 1;
+	return root->GetMRBObject ();
 }
 
 //----------------------------------------------------------------//
@@ -31,13 +29,13 @@ int MOAIActionTree::_getRoot ( lua_State* L ) {
 	@opt	boolean enable		Default value is false.
 	@out	nil
 */
-int MOAIActionTree::_setProfilingEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIActionTree, "U" )
+mrb_value MOAIActionTree::_setProfilingEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIActionTree, "U" )
 	
-	bool enable = state.GetValue < bool >( 2, false );
+	bool enable = state.GetParamValue < bool >( 1, false );
 	self->SetProfilingEnabled ( enable );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -47,13 +45,13 @@ int MOAIActionTree::_setProfilingEnabled ( lua_State* L ) {
 	@opt	MOAIAction root		Default value is nil.
 	@out	nil
 */
-int MOAIActionTree::_setRoot ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIActionTree, "U" )
+mrb_value MOAIActionTree::_setRoot ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIActionTree, "U" )
 	
-	MOAIAction* root = state.GetLuaObject < MOAIAction >( 2, false );
+	MOAIAction* root = state.GetRubyObject < MOAIAction >( 1, false );
 	self->SetRoot ( root );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -63,13 +61,13 @@ int MOAIActionTree::_setRoot ( lua_State* L ) {
 	@opt	boolean enable		Default value is false.
 	@out	nil
 */
-int MOAIActionTree::_setThreadInfoEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIActionTree, "U" )
+mrb_value MOAIActionTree::_setThreadInfoEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIActionTree, "U" )
 
-	bool enable = state.GetValue < bool >( 2, false );
+	bool enable = state.GetParamValue < bool >( 1, false );
 	self->SetThreadInfoEnabled ( enable );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -80,7 +78,10 @@ int MOAIActionTree::_setThreadInfoEnabled ( lua_State* L ) {
 MOAIAction* MOAIActionTree::AffirmRoot () {
 
 	if ( !this->mRoot ) {
-		this->SetRoot ( new MOAIAction ());
+		//this->SetRoot ( new MOAIAction ());
+
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State();
+		this->SetRoot ( state.CreateClassInstance < MOAIAction >() );
 	}
 	return this->mRoot;
 }
@@ -105,22 +106,17 @@ MOAIActionTree::~MOAIActionTree () {
 }
 
 //----------------------------------------------------------------//
-void MOAIActionTree::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIActionTree::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 
 //----------------------------------------------------------------//
-void MOAIActionTree::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIActionTree::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getRoot",				_getRoot },
-		{ "setProfilingEnabled",	_setProfilingEnabled },
-		{ "setRoot",				_setRoot },
-		{ "setThreadInfoEnabled",	_setThreadInfoEnabled },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getRoot", _getRoot, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setProfilingEnabled", _setProfilingEnabled, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setRoot", _setRoot, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setThreadInfoEnabled", _setThreadInfoEnabled, MRB_ARGS_ARG ( 0, 1 ) );
 }
 
 //----------------------------------------------------------------//

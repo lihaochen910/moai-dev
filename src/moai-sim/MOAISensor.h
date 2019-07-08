@@ -13,7 +13,7 @@ class MOAIInputMgr;
 	@text	Base class for sensors.
 */
 class MOAISensor :
-	public MOAILuaObject {
+	public MOAIRubyObject {
 protected:
 
 	u32			mType;
@@ -21,7 +21,7 @@ protected:
 	double		mTimestamp;
 
 	//----------------------------------------------------------------//
-	static int	_getTimestamp			( lua_State* L );
+	static mrb_value	_getTimestamp			( mrb_state* M, mrb_value context );
 
 	SET ( u32, Type, mType );
 
@@ -36,8 +36,8 @@ public:
 	virtual void	ParseEvent			( ZLStream& eventStream ) = 0;
 					MOAISensor			();
 					~MOAISensor			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	virtual void	ResetState			() {}
 };
 

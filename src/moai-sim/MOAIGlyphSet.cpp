@@ -60,10 +60,10 @@ MOAIGlyphSet::~MOAIGlyphSet (){
 }
 
 //----------------------------------------------------------------//
-void MOAIGlyphSet::SerializeIn ( MOAILuaState& state ) {
+void MOAIGlyphSet::SerializeIn ( MOAIRubyState& state ) {
 	UNUSED ( state );
 	
-	this->mSize		= state.GetFieldValue ( -1, "mSize", this->mSize );
+	/*this->mSize		= state.GetFieldValue ( -1, "mSize", this->mSize );
 	this->mHeight	= state.GetFieldValue ( -1, "mHeight", this->mHeight );
 	this->mAscent	= state.GetFieldValue ( -1, "mAscent", this->mAscent );
 
@@ -78,11 +78,11 @@ void MOAIGlyphSet::SerializeIn ( MOAILuaState& state ) {
 		}
 		state.Pop ( 1 );
 	}
-	
+
 	GlyphMapIt glyphMapIt = this->mGlyphMap.begin ();
 	for ( ; glyphMapIt != this->mGlyphMap.end (); ++glyphMapIt ) {
 		MOAIGlyph& glyph = glyphMapIt->second;
-		
+
 		if ( glyph.mPageID == MOAIGlyph::NULL_PAGE_ID ) {
 			glyph.mNext = this->mPending;
 			this->mPending = &glyph;
@@ -91,14 +91,14 @@ void MOAIGlyphSet::SerializeIn ( MOAILuaState& state ) {
 			glyph.mNext = this->mGlyphs;
 			this->mGlyphs = &glyph;
 		}
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//
-void MOAIGlyphSet::SerializeOut ( MOAILuaState& state ) {
+void MOAIGlyphSet::SerializeOut ( MOAIRubyState& state ) {
 	UNUSED ( state );
 	
-	state.SetField ( -1, "mSize", this->mSize );
+	/*state.SetField ( -1, "mSize", this->mSize );
 	state.SetField ( -1, "mHeight", this->mHeight );
 	state.SetField ( -1, "mAscent", this->mAscent );
 
@@ -114,5 +114,5 @@ void MOAIGlyphSet::SerializeOut ( MOAILuaState& state ) {
 		glyph.SerializeOut ( state );
 		lua_settable ( state, -3 );
 	}
-	lua_setfield ( state, -2, "mGlyphMap" );
+	lua_setfield ( state, -2, "mGlyphMap" );*/
 }

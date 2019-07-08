@@ -13,28 +13,28 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRenderMgr::_getRenderCount ( lua_State* L ) {
-
+mrb_value MOAIRenderMgr::_getRenderCount ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	MOAIRenderMgr& gfxMgr = MOAIRenderMgr::Get ();
-	lua_pushnumber ( L, gfxMgr.mRenderCounter );
 
-	return 1;
+	return state.ToRValue ( gfxMgr.mRenderCounter );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRenderMgr::_getRender ( lua_State* L ) {
-	MOAILuaState state ( L );
-	state.Push ( MOAIRenderMgr::Get ().mRenderRoot );
-	return 1;
+mrb_value MOAIRenderMgr::_getRender ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
+	UNUSED ( context );
+
+	return MOAIRenderMgr::Get ().mRenderRoot;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRenderMgr::_setRender ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAIRenderMgr::Get ().mRenderRoot.SetRef ( state, 1 );
-	return 0;
+mrb_value MOAIRenderMgr::_setRender ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAIRenderMgr::Get ().mRenderRoot.SetRef ( state.GetParamValue ( 1 ) );
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -47,7 +47,7 @@ MOAIRenderMgr::MOAIRenderMgr () :
 	mRenderDuration ( 1.0 / 60.0 ),
 	mRenderTime ( 0.0 ) {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -55,38 +55,30 @@ MOAIRenderMgr::~MOAIRenderMgr () {
 }
 
 //----------------------------------------------------------------//
-void MOAIRenderMgr::PushDrawable ( MOAILuaObject* drawable ) {
+void MOAIRenderMgr::PushDrawable ( MOAIRubyObject* drawable ) {
 
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	
-	state.Push ( this->mRenderRoot );
-	
-	if ( !state.IsType ( -1, LUA_TTABLE )) {
-		state.Pop ();
-		lua_newtable ( state );
-		this->mRenderRoot.SetRef ( state, -1 );
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+	if ( this->mRenderRoot.Empty () ) {
+		this->mRenderRoot.SetRef ( mrb_ary_new ( state ) );
 	}
-	
-	int top = ( int )state.GetTableSize ( -1 );
-	state.SetFieldByIndex ( -1, top + 1, drawable );
+
+	mrb_ary_push ( state, this->mRenderRoot, state.ToRValue ( drawable ) );
 }
 
 //----------------------------------------------------------------//
-void MOAIRenderMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIRenderMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getRenderCount",				_getRenderCount },
-		{ "getRender",					_getRender },
-		{ "setRender",					_setRender },
-		{ NULL, NULL }
-	};
+	state.DefineStaticMethod ( klass, "getRenderCount", _getRenderCount, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getRender", _getRender, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setRender", _setRender, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIRenderMgr::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIRenderMgr::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
@@ -111,10 +103,9 @@ void MOAIRenderMgr::Render () {
 
 	if ( this->mRenderRoot ) {
 	
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		state.Push ( this->mRenderRoot );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 		
-		MOAIDrawable::Draw ( state, -1 );
+		MOAIDrawable::Draw ( state, this->mRenderRoot, false );
 	}
 	
 	this->mRenderCounter++;

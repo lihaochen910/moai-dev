@@ -24,18 +24,18 @@ private:
 
 	u32	mState;
 
-	MOAILuaStrongRef	mOnButton;
+	MOAIRubyStrongRef	mOnButton;
 
 	//----------------------------------------------------------------//
-	static int		_down				( lua_State* L );
-	static int		_isDown				( lua_State* L );
-	static int		_isUp				( lua_State* L );
-	static int		_up					( lua_State* L );
-	static int		_setCallback		( lua_State* L );
+	static mrb_value		_down				( mrb_state* M, mrb_value context );
+	static mrb_value		_isDown				( mrb_state* M, mrb_value context );
+	static mrb_value		_isUp				( mrb_state* M, mrb_value context );
+	static mrb_value		_up					( mrb_state* M, mrb_value context );
+	static mrb_value		_setCallback		( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIButtonSensor )
+	DECL_RUBY_FACTORY ( MOAIButtonSensor, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	bool				ButtonDown				();
@@ -47,8 +47,8 @@ public:
 						MOAIButtonSensor		();
 						~MOAIButtonSensor		();
 	void				ParseEvent				( ZLStream& eventStream );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				ResetState				();
 };
 

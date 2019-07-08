@@ -18,12 +18,10 @@
 	@in		MOAIIndexedPropBase self
 	@out	number index
 */
-int MOAIIndexedPropBase::_getIndex ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIIndexedPropBase, "U" )
+mrb_value MOAIIndexedPropBase::_getIndex ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIIndexedPropBase, "U" )
 
-	lua_pushnumber ( state, self->mIndex );
-
-	return 1;
+	return state.ToRValue ( self->mIndex );
 }
 
 //----------------------------------------------------------------//
@@ -34,13 +32,13 @@ int MOAIIndexedPropBase::_getIndex ( lua_State* L ) {
 	@opt	number index		Default value is 1.
 	@out	nil
 */
-int MOAIIndexedPropBase::_setIndex ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIIndexedPropBase, "U" )
+mrb_value MOAIIndexedPropBase::_setIndex ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIIndexedPropBase, "U" )
 
-	self->mIndex = state.GetValue < u32 >( 2, 1 );
+	self->mIndex = state.GetParamValue < u32 >( 1, 1 );
 	self->ScheduleUpdate ();
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -61,35 +59,31 @@ MOAIIndexedPropBase::~MOAIIndexedPropBase () {
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexedPropBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIIndexedPropBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIDeckPropBase::RegisterLuaClass ( state );
+	MOAIDeckPropBase::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "ATTR_INDEX",					MOAIIndexedPropBaseAttr::Pack ( ATTR_INDEX ));
+	state.DefineClassConst ( klass, "ATTR_INDEX", MOAIIndexedPropBaseAttr::Pack ( ATTR_INDEX ));
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexedPropBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIIndexedPropBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIDeckPropBase::RegisterLuaFuncs ( state );
+	MOAIDeckPropBase::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getIndex",				_getIndex },
-		{ "setIndex",				_setIndex },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getIndex", _getIndex, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setIndex", _setIndex, MRB_ARGS_ARG ( 0, 1 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexedPropBase::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIIndexedPropBase::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
 	MOAIDeckPropBase::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIIndexedPropBase::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIIndexedPropBase::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIDeckPropBase::SerializeOut ( state, serializer );
 }

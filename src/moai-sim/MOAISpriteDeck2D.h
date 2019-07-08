@@ -53,22 +53,22 @@ private:
 	ZLLeanArray < MOAISpriteList >		mSpriteLists;
 	
 	//----------------------------------------------------------------//
-	static int	_getQuad				( lua_State* L );
-	static int	_getRect				( lua_State* L );
-	static int	_getUVQuad				( lua_State* L );
-	static int	_getUVRect				( lua_State* L );
-	static int	_reserveQuads			( lua_State* L );
-	static int	_reserveSprites			( lua_State* L );
-	static int	_reserveSpriteLists		( lua_State* L );
-	static int	_reserveUVQuads			( lua_State* L );
-	static int	_setQuad				( lua_State* L );
-	static int	_setRect				( lua_State* L );
-	static int	_setSprite				( lua_State* L );
-	static int	_setSpriteList			( lua_State* L );
-	static int	_setUVQuad				( lua_State* L );
-	static int	_setUVRect				( lua_State* L );
-	static int	_transform				( lua_State* L );
-	static int	_transformUV			( lua_State* L );
+	static mrb_value	_getQuad				( mrb_state* M, mrb_value context );
+	static mrb_value	_getRect				( mrb_state* M, mrb_value context );
+	static mrb_value	_getUVQuad				( mrb_state* M, mrb_value context );
+	static mrb_value	_getUVRect				( mrb_state* M, mrb_value context );
+	static mrb_value	_reserveQuads			( mrb_state* M, mrb_value context );
+	static mrb_value	_reserveSprites			( mrb_state* M, mrb_value context );
+	static mrb_value	_reserveSpriteLists		( mrb_state* M, mrb_value context );
+	static mrb_value	_reserveUVQuads			( mrb_state* M, mrb_value context );
+	static mrb_value	_setQuad				( mrb_state* M, mrb_value context );
+	static mrb_value	_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value	_setSprite				( mrb_state* M, mrb_value context );
+	static mrb_value	_setSpriteList			( mrb_state* M, mrb_value context );
+	static mrb_value	_setUVQuad				( mrb_state* M, mrb_value context );
+	static mrb_value	_setUVRect				( mrb_state* M, mrb_value context );
+	static mrb_value	_transform				( mrb_state* M, mrb_value context );
+	static mrb_value	_transformUV			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	ZLBounds				MOAIDeck_ComputeMaxBounds		();
@@ -80,23 +80,23 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAISpriteDeck2D )
+	DECL_RUBY_FACTORY ( MOAISpriteDeck2D, MOAIDeck )
 	
 	//----------------------------------------------------------------//
-	static MOAIDeck*	AffirmDeck					( MOAILuaState& state, int idx );
+	static MOAIDeck*	AffirmDeck					( MOAIRubyState& state, int idx );
 	bool				Contains					( u32 idx, const ZLVec2D& vec );
 	void				DrawIndex					( u32 idx, MOAIMaterialBatch* materials, ZLVec3D offset, ZLVec3D scale );
 	bool				Inside						( u32 idx, MOAIMaterialBatch* materials, u32 granularity, ZLVec3D vec, float pad );
 						MOAISpriteDeck2D			();
 						~MOAISpriteDeck2D			();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveLists				( u32 total );
 	void				ReservePairs				( u32 total );
 	void				ReserveQuads				( u32 total );
 	void				ReserveUVQuads				( u32 total );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	void				SetList						( u32 idx, u32 basePairID, u32 totalPairs );
 	void				SetPair						( u32 idx, u32 uvRectID, u32 screenRectID, u32 materialID );
 	void				SetQuad						( u32 idx, ZLQuad& quad );

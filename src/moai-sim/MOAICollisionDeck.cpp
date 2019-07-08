@@ -11,61 +11,61 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionDeck::_reserveShapes ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionDeck, "U" )
+mrb_value MOAICollisionDeck::_reserveShapes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionDeck, "U" )
 	
-	self->ReserveShapes ( state.GetValue < u32 >( 2, 0 ));
+	self->ReserveShapes ( state.GetParamValue < u32 >( 1, 0 ));
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionDeck::_setBox ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionDeck, "U" )
+mrb_value MOAICollisionDeck::_setBox ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionDeck, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
-	ZLBox box = state.GetBox ( 3 );
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	ZLBox box = state.GetBox ( 2 );
 	
 	self->SetBox ( idx, box );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionDeck::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionDeck, "U" )
+mrb_value MOAICollisionDeck::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionDeck, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
-	ZLRect rect = state.GetRect < float >( 3 );
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	ZLRect rect = state.GetRect < float >( 2 );
 	
 	self->SetRect ( idx, rect );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionDeck::_setQuad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionDeck, "U" )
+mrb_value MOAICollisionDeck::_setQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionDeck, "U" )
 	
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
 	ZLQuad quad;
 	
-	quad.mV [ 0 ].mX = state.GetValue < float >( 3, 0.0f );
-	quad.mV [ 0 ].mY = state.GetValue < float >( 4, 0.0f );
-	quad.mV [ 1 ].mX = state.GetValue < float >( 5, 0.0f );
-	quad.mV [ 1 ].mY = state.GetValue < float >( 6, 0.0f );
-	quad.mV [ 2 ].mX = state.GetValue < float >( 7, 0.0f );
-	quad.mV [ 2 ].mY = state.GetValue < float >( 8, 0.0f );
-	quad.mV [ 3 ].mX = state.GetValue < float >( 9, 0.0f );
-	quad.mV [ 3 ].mY = state.GetValue < float >( 10, 0.0f );
+	quad.mV [ 0 ].mX = state.GetParamValue < float >( 2, 0.0f );
+	quad.mV [ 0 ].mY = state.GetParamValue < float >( 3, 0.0f );
+	quad.mV [ 1 ].mX = state.GetParamValue < float >( 4, 0.0f );
+	quad.mV [ 1 ].mY = state.GetParamValue < float >( 5, 0.0f );
+	quad.mV [ 2 ].mX = state.GetParamValue < float >( 6, 0.0f );
+	quad.mV [ 2 ].mY = state.GetParamValue < float >( 7, 0.0f );
+	quad.mV [ 3 ].mX = state.GetParamValue < float >( 8, 0.0f );
+	quad.mV [ 3 ].mY = state.GetParamValue < float >( 9, 0.0f );
 	
 	self->SetQuad ( idx, quad );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -102,25 +102,21 @@ MOAICollisionDeck::~MOAICollisionDeck () {
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionDeck::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICollisionDeck::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaClass ( state );
+	MOAIDeck::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionDeck::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICollisionDeck::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "reserveShapes",		_reserveShapes },
-		{ "setBox",				_setBox },
-		{ "setRect",			_setRect },
-		{ "setQuad",			_setQuad },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "reserveShapes",		_reserveShapes, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setBox",				_setBox, MRB_ARGS_REQ ( 7 ) );
+	state.DefineInstanceMethod ( klass, "setRect",			_setRect, MRB_ARGS_REQ ( 5 ) );
+	state.DefineInstanceMethod ( klass, "setQuad",			_setQuad, MRB_ARGS_REQ ( 9 ) );
+
 }
 
 //----------------------------------------------------------------//

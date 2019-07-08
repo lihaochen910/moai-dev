@@ -25,7 +25,7 @@ private:
 	u32					mTransform;
 	
 	// for loading from image
-	MOAILuaSharedPtr < MOAIImage> mImage;
+	MOAIRubySharedPtr < MOAIImage > mImage;
 	bool				mAutoClearImage;
 	
 	// for loading compressed data
@@ -34,7 +34,7 @@ private:
 	MOAIImageFormat*	mTextureDataFormat;
 
 	//----------------------------------------------------------------//
-	static int			_load					( lua_State* L );
+	static mrb_value	_load						( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool				LoadFromStream				( ZLStream& stream, u32 transform );
@@ -44,14 +44,14 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAITexture )
+	DECL_RUBY_FACTORY ( MOAITexture, MOAIInstanceEventSource )
 	
 	static const u32 DEFAULT_TRANSFORM = MOAIImageTransform::TRUECOLOR | MOAIImageTransform::PREMULTIPLY_ALPHA;
 	
 	//----------------------------------------------------------------//
-	static MOAITextureBase*	AffirmTexture			( MOAILuaState& state, int idx );
+	static MOAITextureBase*	AffirmTexture			( MOAIRubyState& state, int idx );
 	void					Clear					();
-	bool					Init					( MOAILuaState& state, int idx );
+	bool					Init					( MOAIRubyState& state, int idx );
 	void					Init					( MOAIImage& image, cc8* debugname, bool autoClear );
 	void					Init					( MOAIImage& image, int srcX, int srcY, int width, int height, cc8* debugname );
 	void					Init					( cc8* filename, u32 transform, cc8* debugname = 0 );
@@ -60,10 +60,10 @@ public:
 	void					Init					( const void* data, size_t size, u32 transform, cc8* debugname );
 							MOAITexture				();
 							~MOAITexture			();
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
-	void					SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void					SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void					SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void					SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

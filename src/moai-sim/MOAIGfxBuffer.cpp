@@ -25,16 +25,16 @@
 	@opt	number length
 	@out	nil
 */
-int MOAIGfxBuffer::_copyFromStream ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxBuffer, "U" )
+mrb_value MOAIGfxBuffer::_copyFromStream ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxBuffer, "U" )
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	if ( stream ) {
 	
-		size_t size = state.GetValue < u32 >( 3, ( u32 )( stream->GetLength () - stream->GetCursor () ));
+		size_t size = state.GetParamValue < u32 >( 2, ( u32 )( stream->GetLength () - stream->GetCursor () ));
 		self->CopyFromStream ( *stream, size );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -44,11 +44,11 @@ int MOAIGfxBuffer::_copyFromStream ( lua_State* L ) {
 	@in		MOAIGfxBuffer self
 	@out	nil
 */
-int	MOAIGfxBuffer::_release ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxBuffer, "U" )
+mrb_value	MOAIGfxBuffer::_release ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxBuffer, "U" )
 	
 	self->Clear ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -59,12 +59,12 @@ int	MOAIGfxBuffer::_release ( lua_State* L ) {
 	@in		number size
 	@out	nil
 */
-int	MOAIGfxBuffer::_reserve ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxBuffer, "UN" )
+mrb_value	MOAIGfxBuffer::_reserve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxBuffer, "UN" )
 	
-	u32 size = state.GetValue < u32 >( 2, 0 );
+	u32 size = state.GetParamValue < u32 >( 1, 0 );
 	self->Reserve ( size );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -76,12 +76,12 @@ int	MOAIGfxBuffer::_reserve ( lua_State* L ) {
 	@in		number count
 	@out	nil
 */
-int	MOAIGfxBuffer::_reserveVBOs ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxBuffer, "UN" )
+mrb_value	MOAIGfxBuffer::_reserveVBOs ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxBuffer, "UN" )
 
-	u32 vbos = state.GetValue < u32 >( 2, 0 );
+	u32 vbos = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveVBOs ( vbos );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -92,11 +92,11 @@ int	MOAIGfxBuffer::_reserveVBOs ( lua_State* L ) {
 	@in		MOAIGfxBuffer self
 	@out	nil
 */
-int MOAIGfxBuffer::_scheduleFlush ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxBuffer, "U" )
+mrb_value MOAIGfxBuffer::_scheduleFlush ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxBuffer, "U" )
 	
 	self->ScheduleForGPUUpdate ();
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -246,7 +246,7 @@ bool MOAIGfxBuffer::OnGPUUpdate () {
 		// on different platforms. The approach here is just to multi-buffer the VBO and replace its
 		// contents via zglBufferSubData when they change. The TODO here is to do performance tests
 		// on multiple devices, evaluate other approaches and possible expose the configuration of
-		// those to the end user via Lua.
+		// those to the end user via Ruby.
 	
 		ZLGfx& gfx = MOAIGfxMgr::GetDrawingAPI ();
 		
@@ -268,31 +268,27 @@ bool MOAIGfxBuffer::OnGPUUpdate () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxBuffer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGfxBuffer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaClass ( state );
-	MOAIStream::RegisterLuaClass ( state );
+	MOAIGfxResource::RegisterRubyClass ( state, klass );
+	MOAIStream::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "INDEX_BUFFER",			( u32 )ZGL_BUFFER_TARGET_ELEMENT_ARRAY );
-	state.SetField ( -1, "VERTEX_BUFFER",			( u32 )ZGL_BUFFER_TARGET_ARRAY );
+	state.DefineClassConst ( klass, "INDEX_BUFFER",			( u32 )ZGL_BUFFER_TARGET_ELEMENT_ARRAY );
+	state.DefineClassConst ( klass, "VERTEX_BUFFER",			( u32 )ZGL_BUFFER_TARGET_ARRAY );
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGfxBuffer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGfxResource::RegisterLuaFuncs ( state );
-	MOAIStream::RegisterLuaFuncs ( state );
+	MOAIGfxResource::RegisterRubyFuncs ( state, klass );
+	MOAIStream::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "copyFromStream",			_copyFromStream },
-		{ "release",				_release },
-		{ "reserve",				_reserve },
-		{ "reserveVBOs",			_reserveVBOs },
-		{ "scheduleFlush",			_scheduleFlush },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "copyFromStream", _copyFromStream, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "release", _release, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserve", _reserve, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveVBOs", _reserveVBOs, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "scheduleFlush", _scheduleFlush, MRB_ARGS_NONE () );
+
 }
 
 //----------------------------------------------------------------//
@@ -322,43 +318,45 @@ void MOAIGfxBuffer::ReserveVBOs ( u32 gpuBuffers ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxBuffer::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIGfxBuffer::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( serializer );
 
-	u32 totalVBOs		= state.GetFieldValue < u32 >( -1, "mTotalVBOs", 0 );
-	u32 size			= state.GetFieldValue < u32 >( -1, "mSize", 0 );
+	// TODO:
+	//u32 totalVBOs		= state.GetFieldValue < u32 >( -1, "mTotalVBOs", 0 );
+	//u32 size			= state.GetFieldValue < u32 >( -1, "mSize", 0 );
 
-	this->Reserve ( size );
-	this->ReserveVBOs ( totalVBOs );
-	
-	state.PushField ( -1, "mData" );
-	if ( state.IsType ( -1, LUA_TSTRING )) {
-		
-		STLString zipString = lua_tostring ( state, -1 );
-		size_t unzipLen = zipString.zip_inflate ( this->ZLCopyOnWrite::Invalidate (), size );
-		assert ( unzipLen == size ); // TODO: fail gracefully
-		UNUSED ( unzipLen ); // TODO: this *should* be handled by the zl assert redefine
-		
-		this->Seek ( size, SEEK_SET );
-	}
-	lua_pop ( state, 1 );
+	//this->Reserve ( size );
+	//this->ReserveVBOs ( totalVBOs );
+	//
+	//state.PushField ( -1, "mData" );
+	//if ( state.IsType ( -1, LUA_TSTRING )) {
+	//	
+	//	STLString zipString = lua_tostring ( state, -1 );
+	//	size_t unzipLen = zipString.zip_inflate ( this->ZLCopyOnWrite::Invalidate (), size );
+	//	assert ( unzipLen == size ); // TODO: fail gracefully
+	//	UNUSED ( unzipLen ); // TODO: this *should* be handled by the zl assert redefine
+	//	
+	//	this->Seek ( size, SEEK_SET );
+	//}
+	//lua_pop ( state, 1 );
 	
 	this->ScheduleForGPUUpdate ();
 	this->FinishInit ();
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxBuffer::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIGfxBuffer::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( serializer );
 
-	size_t size = this->GetLength ();
+	// TODO:
+	/*size_t size = this->GetLength ();
 
 	state.SetField < u32 >( -1, "mTotalVBOs", ( u32 )this->mVBOs.Size ());
 	state.SetField < u32 >( -1, "mSize", ( u32 )size );
-	
+
 	STLString zipString;
 	zipString.zip_deflate ( this->ZLCopyOnWrite::GetBuffer (), size );
-	
+
 	lua_pushstring ( state, zipString.str ());
-	lua_setfield ( state, -2, "mData" );
+	lua_setfield ( state, -2, "mData" );*/
 }

@@ -38,21 +38,22 @@
 	@out	number yMax
 	@out	number zMax
 */
-int MOAIPartitionHull::_getBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_getBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 	
 	ZLBounds bounds = self->GetModelBounds ();
-	if ( bounds.mStatus != ZLBounds::ZL_BOUNDS_OK ) return 0;
+	if ( bounds.mStatus != ZLBounds::ZL_BOUNDS_OK ) return context;
 
-	state.Push ( bounds.mMin.mX );
-	state.Push ( bounds.mMin.mY );
-	state.Push ( bounds.mMin.mZ );
-	
-	state.Push ( bounds.mMax.mX );
-	state.Push ( bounds.mMax.mY );
-	state.Push ( bounds.mMax.mZ );
+	mrb_value ret [ 6 ];
+	ret [ 0 ] = state.ToRValue ( bounds.mMin.mX );
+	ret [ 1 ] = state.ToRValue ( bounds.mMin.mY );
+	ret [ 2 ] = state.ToRValue ( bounds.mMin.mZ );
 
-	return 6;
+	ret [ 3 ] = state.ToRValue ( bounds.mMax.mX );
+	ret [ 4 ] = state.ToRValue ( bounds.mMax.mY );
+	ret [ 5 ] = state.ToRValue ( bounds.mMax.mZ );
+
+	return mrb_ary_new_from_values ( state, 6, ret );
 }
 
 //----------------------------------------------------------------//
@@ -64,17 +65,18 @@ int MOAIPartitionHull::_getBounds ( lua_State* L ) {
 	@out	number height		Y max - Y min
 	@out	number depth		Z max - Z min
 */
-int MOAIPartitionHull::_getDims ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_getDims ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
 	ZLBounds bounds = self->GetModelBounds ();
-	if ( bounds.mStatus != ZLBounds::ZL_BOUNDS_OK ) return 0;
+	if ( bounds.mStatus != ZLBounds::ZL_BOUNDS_OK ) return context;
  
-	state.Push ( bounds.mMax.mX - bounds.mMin.mX );
-	state.Push ( bounds.mMax.mY - bounds.mMin.mY );
-	state.Push ( bounds.mMax.mZ - bounds.mMin.mZ );
- 
-	return 3;
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( bounds.mMax.mX - bounds.mMin.mX );
+	ret [ 1 ] = state.ToRValue ( bounds.mMax.mY - bounds.mMin.mY );
+	ret [ 2 ] = state.ToRValue ( bounds.mMax.mZ - bounds.mMin.mZ );
+
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
@@ -84,14 +86,13 @@ int MOAIPartitionHull::_getDims ( lua_State* L ) {
 	@in		MOAIPartitionHull self
 	@out	MOAIPartition partition
 */
-int	MOAIPartitionHull::_getPartition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value	MOAIPartitionHull::_getPartition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
 	if ( self->mPartition ) {
-		self->mPartition->PushLuaUserdata ( state );
-		return 1;
+		return self->mPartition->PushRubyUserdata ( state );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -102,14 +103,13 @@ int	MOAIPartitionHull::_getPartition ( lua_State* L ) {
 	@in		MOAIPartitionHull self
 	@out	number priority		The node's priority or nil.
 */
-int MOAIPartitionHull::_getPriority ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_getPriority ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 	
 	if ( self->mPriority != UNKNOWN_PRIORITY ) {
-		lua_pushnumber ( state, self->mPriority );
-		return 1;
+		return state.ToRValue ( self->mPriority );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -125,47 +125,49 @@ int MOAIPartitionHull::_getPriority ( lua_State* L ) {
 	@out	number yMax
 	@out	number zMax
 */
-int MOAIPartitionHull::_getWorldBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_getWorldBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 	
 	self->ForceUpdate ();
 	
-	if ( self->mPartition->IsGlobal ( *self )) return 0;
-	if ( self->mPartition->IsEmpty ( *self )) return 0;
+	if ( self->mPartition->IsGlobal ( *self )) return context;
+	if ( self->mPartition->IsEmpty ( *self )) return context;
 	
 	ZLBox bounds = self->mWorldBounds;
 
-	state.Push ( bounds.mMin.mX );
-	state.Push ( bounds.mMin.mY );
-	state.Push ( bounds.mMin.mZ );
-	
-	state.Push ( bounds.mMax.mX );
-	state.Push ( bounds.mMax.mY );
-	state.Push ( bounds.mMax.mZ );
+	mrb_value ret [ 6 ];
+	ret [ 0 ] = state.ToRValue ( bounds.mMin.mX );
+	ret [ 1 ] = state.ToRValue ( bounds.mMin.mY );
+	ret [ 2 ] = state.ToRValue ( bounds.mMin.mZ );
 
-	return 6;
+	ret [ 3 ] = state.ToRValue ( bounds.mMax.mX );
+	ret [ 4 ] = state.ToRValue ( bounds.mMax.mY );
+	ret [ 5 ] = state.ToRValue ( bounds.mMax.mZ );
+
+	return mrb_ary_new_from_values ( state, 6, ret );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIPartitionHull::_getWorldBoundsCenter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_getWorldBoundsCenter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 	
 	self->ForceUpdate ();
 	
-	if ( self->mPartition->IsGlobal ( *self )) return 0;
-	if ( self->mPartition->IsEmpty ( *self )) return 0;
+	if ( self->mPartition->IsGlobal ( *self )) return context;
+	if ( self->mPartition->IsEmpty ( *self )) return context;
 	
 	ZLBox bounds = self->mWorldBounds;
 	
 	ZLVec3D center;
 	bounds.GetCenter ( center );
 
-	state.Push ( center.mX );
-	state.Push ( center.mY );
-	state.Push ( center.mZ );
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( center.mX );
+	ret [ 1 ] = state.ToRValue ( center.mY );
+	ret [ 2 ] = state.ToRValue ( center.mZ );
 
-	return 3;
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
@@ -180,20 +182,19 @@ int MOAIPartitionHull::_getWorldBoundsCenter ( lua_State* L ) {
 	@opt	number pad			Pad the hit bounds (in the prop's local space)
 	@out	boolean isInside
 */
-int	MOAIPartitionHull::_inside ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_inside ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
 	ZLVec3D vec;
-	vec.mX	= state.GetValue < float >( 2, 0.0f );
-	vec.mY	= state.GetValue < float >( 3, 0.0f );
-	vec.mZ	= state.GetValue < float >( 4, 0.0f );
+	vec.mX	= state.GetParamValue < float >( 1, 0.0f );
+	vec.mY	= state.GetParamValue < float >( 2, 0.0f );
+	vec.mZ	= state.GetParamValue < float >( 3, 0.0f );
 
-	float pad = state.GetValue < float >( 5, 0.0f );
+	float pad = state.GetParamValue < float >( 4, 0.0f );
 
 	bool result = self->Inside ( vec, pad );
-	lua_pushboolean ( state, result );
 	
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -216,12 +217,12 @@ int	MOAIPartitionHull::_inside ( lua_State* L ) {
 		@in		number zMax
 		@out	nil
 */
-int MOAIPartitionHull::_setBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
-	if ( state.CheckParams ( 2, "NNNNNN", false )) {
+	if ( state.CheckParams ( 1, "NNNNNN", false )) {
 
-		self->mBoundsOverride = state.GetBox ( 2 );
+		self->mBoundsOverride = state.GetBox ( 1 );
 		self->mFlags |= FLAGS_OVERRIDE_BOUNDS;
 	}
 	else {
@@ -229,24 +230,24 @@ int MOAIPartitionHull::_setBounds ( lua_State* L ) {
 	}
 	
 	self->ScheduleUpdate ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIPartitionHull::_setBoundsPad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setBoundsPad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
-	self->mBoundsPad.mX	= state.GetValue < float >( 2, 0.0f );
-	self->mBoundsPad.mY	= state.GetValue < float >( 3, 0.0f );
-	self->mBoundsPad.mZ	= state.GetValue < float >( 4, 0.0f );
+	self->mBoundsPad.mX	= state.GetParamValue < float >( 1, 0.0f );
+	self->mBoundsPad.mY	= state.GetParamValue < float >( 2, 0.0f );
+	self->mBoundsPad.mZ	= state.GetParamValue < float >( 3, 0.0f );
 
 	bool pad = (( self->mBoundsPad.mX != 0.0f ) || ( self->mBoundsPad.mY != 0.0f ) || ( self->mBoundsPad.mZ != 0.0f ));
 	self->mFlags = pad ? ( self->mFlags | FLAGS_PAD_BOUNDS ) : ( self->mFlags & ~FLAGS_PAD_BOUNDS );
 
 	self->ScheduleUpdate ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -264,10 +265,10 @@ int MOAIPartitionHull::_setBoundsPad ( lua_State* L ) {
 	@in		boolean expandForSort	Default value is false.
 	@out	nil
 */
-int MOAIPartitionHull::_setExpandForSort ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setExpandForSort ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
-	bool expandForSort = state.GetValue < bool >( 2, false );
+	bool expandForSort = state.GetParamValue < bool >( 1, false );
 
 	if ( expandForSort ) {
 		self->mFlags |= FLAGS_EXPAND_FOR_SORT;
@@ -276,20 +277,20 @@ int MOAIPartitionHull::_setExpandForSort ( lua_State* L ) {
 		self->mFlags &= ~FLAGS_EXPAND_FOR_SORT;
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: macro
-int MOAIPartitionHull::_setFlag ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setFlag ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
-	u32 flag		= state.GetValue < u32 >( 2, 0 );
-	bool set		= state.GetValue < bool >( 3, true );
+	u32 flag		= state.GetParamValue < u32 >( 1, 0 );
+	bool set		= state.GetParamValue < bool >( 2, true );
 
 	self->mFlags = set ? self->mFlags |= flag : self->mFlags &= flag;
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -305,25 +306,25 @@ int MOAIPartitionHull::_setFlag ( lua_State* L ) {
 	@opt	int granularity		One of MOAIPartitionHull.HIT_TEST_COARSE, MOAIPartitionHull.HIT_TEST_MEDIUM, MOAIPartitionHull.HIT_TEST_FINE. Default is MOAIPartitionHull.HIT_TEST_COARSE.
 	@out	nil
 */
-int MOAIPartitionHull::_setHitGranularity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setHitGranularity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
-	self->mHitGranularity = state.GetValue < u32 >( 2, HIT_TEST_COARSE );
-	return 0;
+	self->mHitGranularity = state.GetParamValue < u32 >( 1, HIT_TEST_COARSE );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIPartitionHull::_setPartition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setPartition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 	
-	MOAIPartitionHolder* holder = state.GetLuaObject < MOAIPartitionHolder >( 2, false );
-	MOAIPartition* partition = holder ? holder->GetPartition () : state.GetLuaObject < MOAIPartition >( 2, true );
+	MOAIPartitionHolder* holder = state.GetRubyObject < MOAIPartitionHolder >( 1, false );
+	MOAIPartition* partition = holder ? holder->GetPartition () : state.GetRubyObject < MOAIPartition >( 1, true );
 	
 	self->SetPartition ( partition );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -336,11 +337,11 @@ int MOAIPartitionHull::_setPartition ( lua_State* L ) {
 	@opt	number priority		Default value is nil.
 	@out	nil
 */
-int MOAIPartitionHull::_setPriority ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setPriority ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 	
-	if ( state.IsType ( 2, LUA_TNUMBER )) {
-		self->mPriority = ( s32 )state.GetValue < int >( 2, 0 );
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
+		self->mPriority = ( s32 )state.GetParamValue < int >( 1, 0 );
 	}
 	else {
 		self->mPriority = UNKNOWN_PRIORITY;
@@ -348,16 +349,16 @@ int MOAIPartitionHull::_setPriority ( lua_State* L ) {
 			self->mPartition->AffirmPriority ( *self );
 		}
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIPartitionHull::_setQueryMask ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHull, "U" )
+mrb_value MOAIPartitionHull::_setQueryMask ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHull, "U" )
 
-	self->mQueryMask = state.GetValue < u32 >( 2, 0 );
-	return 0;
+	self->mQueryMask = state.GetParamValue < u32 >( 1, 0 );
+	return context;
 }
 
 //================================================================//
@@ -535,55 +536,51 @@ bool MOAIPartitionHull::PrepareForInsertion ( const MOAIPartition& partition ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionHull::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPartitionHull::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransform::RegisterLuaClass ( state );
+	MOAITransform::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "ATTR_PARTITION",				MOAIPartitionHullAttr::Pack ( ATTR_PARTITION ));
+	state.DefineClassConst ( klass, "ATTR_PARTITION",				MOAIPartitionHullAttr::Pack ( ATTR_PARTITION ));
 	
-	state.SetField ( -1, "FLAGS_EXPAND_FOR_SORT",		( u32 )FLAGS_EXPAND_FOR_SORT );
-	state.SetField ( -1, "FLAGS_PARTITION_GLOBAL",		( u32 )FLAGS_PARTITION_GLOBAL );
+	state.DefineClassConst ( klass, "FLAGS_EXPAND_FOR_SORT",		( u32 )FLAGS_EXPAND_FOR_SORT );
+	state.DefineClassConst ( klass, "FLAGS_PARTITION_GLOBAL",		( u32 )FLAGS_PARTITION_GLOBAL );
 	
-	state.SetField ( -1, "HIT_TEST_COARSE",			( u32 )HIT_TEST_COARSE );
-	state.SetField ( -1, "HIT_TEST_MEDIUM",			( u32 )HIT_TEST_MEDIUM );
-	state.SetField ( -1, "HIT_TEST_FINE",			( u32 )HIT_TEST_FINE );
+	state.DefineClassConst ( klass, "HIT_TEST_COARSE",				( u32 )HIT_TEST_COARSE );
+	state.DefineClassConst ( klass, "HIT_TEST_MEDIUM",				( u32 )HIT_TEST_MEDIUM );
+	state.DefineClassConst ( klass, "HIT_TEST_FINE",				( u32 )HIT_TEST_FINE );
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionHull::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPartitionHull::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransform::RegisterLuaFuncs ( state );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getBounds",				_getBounds },
-		{ "getDims",				_getDims },
-		{ "getPartition",			_getPartition },
-		{ "getPriority",			_getPriority },
-		{ "getWorldBounds",			_getWorldBounds },
-		{ "getWorldBoundsCenter",	_getWorldBoundsCenter },
-		{ "inside",					_inside },
-		{ "setBounds",				_setBounds },
-		{ "setBoundsPad",			_setBoundsPad },
-		{ "setExpandForSort",		_setExpandForSort },
-		{ "setFlag",				_setFlag },
-		{ "setHitGranularity",		_setHitGranularity },
-		{ "setPartition",			_setPartition },
-		{ "setPriority",			_setPriority },
-		{ "setQueryMask",			_setQueryMask },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getBounds", _getBounds, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDims", _getDims, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPartition", _getPartition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPriority", _getPriority, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldBounds", _getWorldBounds, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldBoundsCenter", _getWorldBoundsCenter, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "inside", _inside, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineInstanceMethod ( klass, "setBounds", _setBounds, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setBoundsPad", _setBoundsPad, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setExpandForSort", _setExpandForSort, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setFlag", _setFlag, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setHitGranularity", _setHitGranularity, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPartition", _setPartition, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPriority", _setPriority, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setQueryMask", _setQueryMask, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionHull::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIPartitionHull::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
 	MOAITransform::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionHull::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIPartitionHull::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	
 	MOAITransform::SerializeOut ( state, serializer );
 }

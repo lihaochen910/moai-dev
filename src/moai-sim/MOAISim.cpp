@@ -37,10 +37,10 @@
 	@opt	number mask		Default value is 0xffffffff.
 	@out	nil
 */
-int MOAISim::_clearLoopFlags ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mLoopFlags &= ~state.GetValue < u32 >( 1, 0xffffffff );
-	return 0;
+mrb_value MOAISim::_clearLoopFlags ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mLoopFlags &= ~state.GetParamValue < u32 >( 1, 0xffffffff );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -49,20 +49,20 @@ int MOAISim::_clearLoopFlags ( lua_State* L ) {
  
 	@out	nil
 */
-int MOAISim::_crash ( lua_State* L ) {
-	UNUSED(L);
+mrb_value MOAISim::_crash ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
 	
 	int *p = NULL;
 	(*p) = 0;
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAISim::_collectgarbage ( lua_State* L ) {
-	UNUSED ( L );
+mrb_value MOAISim::_collectgarbage ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
 	printf ( "WARNING: 'collectgarbage' replaced by MOAISim. Use MOAISim's 'forceGC', 'setGCStep' and 'setGCActive' instead.\n" );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -71,16 +71,16 @@ int MOAISim::_collectgarbage ( lua_State* L ) {
 
 	@out	nil
 */
-int MOAISim::_enterFullscreenMode ( lua_State* L ) {
+mrb_value MOAISim::_enterFullscreenMode ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
 	EnterFullscreenModeFunc func = MOAISim::Get ().GetEnterFullscreenModeFunc ();
 	if ( func ) {
 		func ();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -89,24 +89,24 @@ int MOAISim::_enterFullscreenMode ( lua_State* L ) {
 
 	@out	nil
 */
-int MOAISim::_exitFullscreenMode ( lua_State* L ) {
+mrb_value MOAISim::_exitFullscreenMode ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
 	ExitFullscreenModeFunc func = MOAISim::Get ().GetExitFullscreenModeFunc ();
 	if ( func ) {
 		func ();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: deprecate
-int MOAISim::_forceGC ( lua_State* L ) {
-	UNUSED ( L );
-	MOAILuaRuntime::Get ().ForceGarbageCollection ();
-	return 0;
+mrb_value MOAISim::_forceGC ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
+	MOAIRubyRuntime::Get ().ForceGarbageCollection ();
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -116,17 +116,16 @@ int MOAISim::_forceGC ( lua_State* L ) {
 	@in		number frames		The number of frames.
 	@out	number time			The equivalent number of seconds for the specified number of frames.
 */
-int MOAISim::_framesToTime ( lua_State* L ) {
+mrb_value MOAISim::_framesToTime ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
-	if ( !state.CheckParams ( 1, "N" )) return 0;
+	MOAIRubyState state ( M );
+	if ( !state.CheckParams ( 1, "N" )) return context;
 	
-	float frames = state.GetValue < float >( 1, 0.0f );
+	float frames = state.GetParamValue < float >( 1, 0.0f );
 	
 	MOAISim& sim = MOAISim::Get ();
-	lua_pushnumber ( state, frames * sim.mStep );
 	
-	return 1;
+	return state.ToRValue ( frames * sim.mStep );
 }
 
 //----------------------------------------------------------------//
@@ -136,23 +135,22 @@ int MOAISim::_framesToTime ( lua_State* L ) {
 
 	@out	MOAIActionTree actionMgr
 */
-int MOAISim::_getActionMgr ( lua_State* L ) {
+mrb_value MOAISim::_getActionMgr ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	MOAILuaState state ( L );
-	MOAISim::Get ().GetActionMgr ().PushLuaUserdata ( state );
-	return 1;
+	return state.ToRValue < MOAIRubyObject& >( MOAISim::Get ().GetActionMgr () );
 }
 
 //----------------------------------------------------------------//
 /**	@lua	getDeviceTime
-	@text	Gets the raw device clock. This is a replacement for Lua's os.time ().
+	@text	Gets the raw device clock. This is a replacement for Ruby's os.time ().
 
 	@out	number time			The device clock time in seconds.
 */
-int MOAISim::_getDeviceTime ( lua_State* L ) {
-	
-	lua_pushnumber ( L, ZLDeviceTime::GetTimeInSeconds ());
-	return 1;
+mrb_value MOAISim::_getDeviceTime ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+
+	return state.ToRValue ( ZLDeviceTime::GetTimeInSeconds () );
 }
 
 //----------------------------------------------------------------//
@@ -161,10 +159,10 @@ int MOAISim::_getDeviceTime ( lua_State* L ) {
 
 	@out	number time			The number of elapsed seconds.
 */
-int MOAISim::_getElapsedTime ( lua_State* L ) {
-	
-	lua_pushnumber ( L, MOAISim::Get ().mSimTime );
-	return 1;
+mrb_value MOAISim::_getElapsedTime ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+
+	return state.ToRValue ( MOAISim::Get ().mSimTime );
 }
 
 //----------------------------------------------------------------//
@@ -173,21 +171,23 @@ int MOAISim::_getElapsedTime ( lua_State* L ) {
 
 	@out	number mask
 */
-int MOAISim::_getLoopFlags ( lua_State* L ) {
-	lua_pushnumber ( L, MOAISim::Get ().mLoopFlags );
-	return 1;
+mrb_value MOAISim::_getLoopFlags ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+
+	return state.ToRValue ( MOAISim::Get ().mLoopFlags );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	getLuaObjectCount
-	@text	Gets the total number of objects in memory that inherit MOAILuaObject. Count includes
-			objects that are not bound to the Lua runtime.
+/**	@lua	getRubyObjectCount
+	@text	Gets the total number of objects in memory that inherit MOAIRubyObject. Count includes
+			objects that are not bound to the Ruby runtime.
 
 	@out	number count
 */
-int MOAISim::_getLuaObjectCount ( lua_State* L ) {
-	lua_pushnumber ( L, ( lua_Number )MOAILuaRuntime::Get ().GetObjectCount ());
-	return 1;
+mrb_value MOAISim::_getRubyObjectCount ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+
+	return state.ToRValue ( MOAIRubyRuntime::Get ().GetObjectCount () );
 }
 
 //----------------------------------------------------------------//
@@ -200,81 +200,81 @@ int MOAISim::_getLuaObjectCount ( lua_State* L ) {
  
 	@out	table	usage		The breakdown of each subsystem's memory usage, in bytes. There is also a "total" field that contains the summed value.
 */
-int MOAISim::_getMemoryUsage ( lua_State* L ) {
+mrb_value MOAISim::_getMemoryUsage ( mrb_state* M, mrb_value context ) {
 	
-	float divisor = 1.0f;
-	
-	if( lua_type(L, 1) == LUA_TSTRING )
-	{
-		cc8* str = lua_tostring(L, 1);
-		if( str[0] == 'k' || str[0] == 'K' )
-			divisor = 1024.0f;
-		else if( str[0] == 'm' || str[0] == 'M' )
-			divisor = 1024.0f * 1024.0f;
-		else if( str[0] == 'b' || str[0] == 'B' )
-			divisor = 1.0f;
-	}
-	
-	size_t total = 0;
-	
-	lua_newtable(L);
-	
-	size_t count;
-	
-	count = MOAILuaRuntime::Get().GetMemoryUsage ();
-	lua_pushnumber(L, count / divisor);
-	lua_setfield(L, -2, "lua");
-	total += count;
+	//float divisor = 1.0f;
+	//
+	//if( lua_type(L, 1) == LUA_TSTRING )
+	//{
+	//	cc8* str = lua_tostring(L, 1);
+	//	if( str[0] == 'k' || str[0] == 'K' )
+	//		divisor = 1024.0f;
+	//	else if( str[0] == 'm' || str[0] == 'M' )
+	//		divisor = 1024.0f * 1024.0f;
+	//	else if( str[0] == 'b' || str[0] == 'B' )
+	//		divisor = 1.0f;
+	//}
+	//
+	//size_t total = 0;
+	//
+	//lua_newtable(L);
+	//
+	//size_t count;
+	//
+	//count = MOAIRubyRuntime::Get().GetMemoryUsage ();
+	//lua_pushnumber(L, count / divisor);
+	//lua_setfield(L, -2, "lua");
+	//total += count;
 
-	// This is informational only (i.e. don't double count with the previous field).
-	// see: http://pgl.yoyo.org/luai/i/lua_gc
-	int luabytes = lua_gc ( L, LUA_GCCOUNT, 0 ) * 1024 + lua_gc ( L, LUA_GCCOUNTB, 0 );
-	lua_pushnumber ( L, luabytes / divisor  );
-	lua_setfield ( L, -2, "_luagc_count" );
-	
-	count = MOAIGfxMgr::Get ().GetTextureMemoryUsage ();
-	lua_pushnumber ( L, count / divisor );
-	lua_setfield ( L, -2, "texture" );
-	total += count;
-	
-	#if defined(_WIN32)
-	
-		PROCESS_MEMORY_COUNTERS pmc;
+	//// This is informational only (i.e. don't double count with the previous field).
+	//// see: http://pgl.yoyo.org/luai/i/lua_gc
+	//int luabytes = lua_gc ( L, LUA_GCCOUNT, 0 ) * 1024 + lua_gc ( L, LUA_GCCOUNTB, 0 );
+	//lua_pushnumber ( L, luabytes / divisor  );
+	//lua_setfield ( L, -2, "_luagc_count" );
+	//
+	//count = MOAIGfxMgr::Get ().GetTextureMemoryUsage ();
+	//lua_pushnumber ( L, count / divisor );
+	//lua_setfield ( L, -2, "texture" );
+	//total += count;
+	//
+	//#if defined(_WIN32)
+	//
+	//	PROCESS_MEMORY_COUNTERS pmc;
 
-		// Print the process identifier.
-		if ( GetProcessMemoryInfo ( GetCurrentProcess (), &pmc, sizeof ( pmc ))) {
-			lua_pushnumber ( L, pmc.PagefileUsage / divisor );
-			lua_setfield ( L, -2, "_sys_vs" );
-			lua_pushnumber ( L, pmc.WorkingSetSize / divisor );
-			lua_setfield ( L, -2, "_sys_rss" );
-		}
-		
-	#elif defined(__APPLE__) //&& defined(TARGET_IPHONE_SIMULATOR)
+	//	// Print the process identifier.
+	//	if ( GetProcessMemoryInfo ( GetCurrentProcess (), &pmc, sizeof ( pmc ))) {
+	//		lua_pushnumber ( L, pmc.PagefileUsage / divisor );
+	//		lua_setfield ( L, -2, "_sys_vs" );
+	//		lua_pushnumber ( L, pmc.WorkingSetSize / divisor );
+	//		lua_setfield ( L, -2, "_sys_rss" );
+	//	}
+	//	
+	//#elif defined(__APPLE__) //&& defined(TARGET_IPHONE_SIMULATOR)
+	//
+	//	// Tricky undocumented mach polling of memory
+	//	struct task_basic_info t_info;
+	//	mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
+	//
+	//	kern_return_t kr = task_info (
+	//		mach_task_self (),
+	//		TASK_BASIC_INFO,
+	//		reinterpret_cast < task_info_t >( &t_info ),
+	//		&t_info_count
+	//	);
+	//
+	//	// Most likely cause for failure: |task| is a zombie.
+	//	if( kr == KERN_SUCCESS ) {
+	//		lua_pushnumber ( L, t_info.virtual_size / divisor );
+	//		lua_setfield ( L, -2, "_sys_vs" );
+	//		lua_pushnumber ( L, t_info.resident_size / divisor );
+	//		lua_setfield ( L, -2, "_sys_rss" );
+	//	}
+	//#endif
+	//
+	//lua_pushnumber ( L, total / divisor );
+	//lua_setfield ( L, -2, "total" );
 	
-		// Tricky undocumented mach polling of memory
-		struct task_basic_info t_info;
-		mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
-	
-		kern_return_t kr = task_info (
-			mach_task_self (),
-			TASK_BASIC_INFO,
-			reinterpret_cast < task_info_t >( &t_info ),
-			&t_info_count
-		);
-	
-		// Most likely cause for failure: |task| is a zombie.
-		if( kr == KERN_SUCCESS ) {
-			lua_pushnumber ( L, t_info.virtual_size / divisor );
-			lua_setfield ( L, -2, "_sys_vs" );
-			lua_pushnumber ( L, t_info.resident_size / divisor );
-			lua_setfield ( L, -2, "_sys_rss" );
-		}
-	#endif
-	
-	lua_pushnumber ( L, total / divisor );
-	lua_setfield ( L, -2, "total" );
-	
-	return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -286,15 +286,17 @@ int MOAISim::_getMemoryUsage ( lua_State* L ) {
 	@out	number lua memory usage in bytes
 	@out	number texture memory usage in bytes
 */
-int MOAISim::_getMemoryUsagePlain ( lua_State *L ) {
+mrb_value MOAISim::_getMemoryUsagePlain ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	size_t lua = MOAILuaRuntime::Get().GetMemoryUsage ();
+	size_t ruby = MOAIRubyRuntime::Get ().GetMemoryUsage ();
 	size_t tex = MOAIGfxMgr::Get ().GetTextureMemoryUsage ();
-	
-	lua_pushnumber ( L, ( lua_Number )lua );
-	lua_pushnumber ( L, ( lua_Number )tex );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( ruby );
+	ret [ 1 ] = state.ToRValue ( tex );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -308,18 +310,20 @@ int MOAISim::_getMemoryUsagePlain ( lua_State *L ) {
 	@out	number seconds  Last sim duration
 	@out	number seconds  Last render duration
 */
-int MOAISim::_getPerformance ( lua_State* L ) {
+mrb_value MOAISim::_getPerformance ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
 	MOAISim& device = MOAISim::Get ();
 	MOAIRenderMgr& renderMgr = MOAIRenderMgr::Get ();
 
-	lua_pushnumber ( L, device.mFrameRate );
-	lua_pushnumber ( L, device.mLastActionTreeTime );
-	lua_pushnumber ( L, device.mLastNodeMgrTime );
-	lua_pushnumber ( L, device.mSimDuration );
-	lua_pushnumber ( L, renderMgr.GetRenderDuration ());
+	mrb_value ret [ 5 ];
+	ret [ 0 ] = state.ToRValue ( device.mFrameRate );
+	ret [ 1 ] = state.ToRValue ( device.mLastActionTreeTime );
+	ret [ 2 ] = state.ToRValue ( device.mLastNodeMgrTime );
+	ret [ 3 ] = state.ToRValue ( device.mSimDuration );
+	ret [ 5 ] = state.ToRValue ( renderMgr.GetRenderDuration () );
 
-	return 5;
+	return mrb_ary_new_from_values ( state, 5, ret );
 }
 
 //----------------------------------------------------------------//
@@ -328,10 +332,10 @@ int MOAISim::_getPerformance ( lua_State* L ) {
 
 	@out	number size			The size of the frame; the time it takes for one frame to pass.
 */
-int MOAISim::_getStep ( lua_State* L ) {
-	
-	lua_pushnumber ( L, MOAISim::Get ().GetStep ());
-	return 1;
+mrb_value MOAISim::_getStep ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+
+	return state.ToRValue ( MOAISim::Get ().GetStep () );
 }
 
 //----------------------------------------------------------------//
@@ -340,10 +344,10 @@ int MOAISim::_getStep ( lua_State* L ) {
 
 	@out	number steps		The number of times the sim was stepped.
 */
-int MOAISim::_getStepCount ( lua_State* L ) {
-	
-	lua_pushnumber ( L, MOAISim::Get ().mStepCount );
-	return 1;
+mrb_value MOAISim::_getStepCount ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+
+	return state.ToRValue( MOAISim::Get ().mStepCount );
 }
 
 //----------------------------------------------------------------//
@@ -352,16 +356,16 @@ int MOAISim::_getStepCount ( lua_State* L ) {
 
 	@out	nil
 */
-int MOAISim::_hideCursor ( lua_State* L ) {
+mrb_value MOAISim::_hideCursor ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
 	HideCursorFunc func = MOAISim::Get ().GetHideCursorFunc ();
 	if ( func ) {
 		func ();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -373,14 +377,14 @@ int MOAISim::_hideCursor ( lua_State* L ) {
 	@in		number height		The height of the window in pixels.
 	@out	nil
 */
-int MOAISim::_openWindow ( lua_State* L ) {
+mrb_value MOAISim::_openWindow ( mrb_state* M, mrb_value context ) {
 	
-	MOAILuaState state ( L );
-	if ( !state.CheckParams ( 1, "SNN" )) return 0;
+	MOAIRubyState state ( M );
+	if ( !state.CheckParams ( 1, "SNN" ) ) return context;
 	
-	cc8* title = lua_tostring ( state, 1 );
-	u32 width = state.GetValue < u32 >( 2, 320 );
-	u32 height = state.GetValue < u32 >( 3, 480 );
+	cc8* title = state.GetParamValue < cc8* > ( 1, "MOAI" );
+	u32 width = state.GetParamValue < u32 >( 2, 640 );
+	u32 height = state.GetParamValue < u32 >( 3, 480 );
 
 	OpenWindowFunc openWindow = MOAISim::Get ().GetOpenWindowFunc ();
 	if ( openWindow ) {
@@ -388,7 +392,7 @@ int MOAISim::_openWindow ( lua_State* L ) {
 		openWindow ( title, width, height );
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -398,10 +402,10 @@ int MOAISim::_openWindow ( lua_State* L ) {
 	@in		boolean pause		Whether the device timer should be paused.
 	@out	nil
 */
-int MOAISim::_pauseTimer ( lua_State* L ) {
+mrb_value MOAISim::_pauseTimer ( mrb_state* M, mrb_value context ) {
 	
-	MOAILuaState state ( L );
-	bool pause = state.GetValue < bool >( 1, true );
+	MOAIRubyState state ( M );
+	bool pause = state.GetParamValue < bool >( 1, true );
 	
 	if ( pause ) {
 		MOAISim::Get ().Pause ();
@@ -409,7 +413,7 @@ int MOAISim::_pauseTimer ( lua_State* L ) {
 	else {
 		MOAISim::Get ().Resume ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -423,10 +427,10 @@ int MOAISim::_pauseTimer ( lua_State* L ) {
 	@opt	number boostThreshold		Default value is DEFAULT_BOOST_THRESHOLD.
 	@out	nil
 */
-int MOAISim::_setBoostThreshold ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mBoostThreshold = state.GetValue < double >( 1, DEFAULT_BOOST_THRESHOLD );
-	return 0;
+mrb_value MOAISim::_setBoostThreshold ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mBoostThreshold = state.GetParamValue < double >( 1, DEFAULT_BOOST_THRESHOLD );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -437,10 +441,10 @@ int MOAISim::_setBoostThreshold ( lua_State* L ) {
 	@in		number budget	Default value is DEFAULT_CPU_BUDGET.
 	@out	nil
 */
-int MOAISim::_setCpuBudget ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mCpuBudget = state.GetValue < u32 >( 1, DEFAULT_CPU_BUDGET );
-	return 0;
+mrb_value MOAISim::_setCpuBudget ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mCpuBudget = state.GetParamValue < u32 >( 1, DEFAULT_CPU_BUDGET );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -450,10 +454,10 @@ int MOAISim::_setCpuBudget ( lua_State* L ) {
 	@in		boolean active			Default value is false.
 	@out	nil
 */
-int MOAISim::_setGCActive ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mGCActive = state.GetValue < bool >( 1, false );
-	return 0;
+mrb_value MOAISim::_setGCActive ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mGCActive = state.GetParamValue < bool >( 1, false );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -463,10 +467,10 @@ int MOAISim::_setGCActive ( lua_State* L ) {
 	@in		number step
 	@out	nil
 */
-int MOAISim::_setGCStep ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mGCStep = state.GetValue < u32 >( 1, 0 );
-	return 0;
+mrb_value MOAISim::_setGCStep ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mGCStep = state.GetParamValue < u32 >( 1, 0 );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -478,10 +482,10 @@ int MOAISim::_setGCStep ( lua_State* L ) {
 	@opt	number longDelayThreshold		Default value is DEFAULT_LONG_DELAY_THRESHOLD.
 	@out	nil
 */
-int MOAISim::_setLongDelayThreshold ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mLongDelayThreshold = state.GetValue < double >( 1, DEFAULT_LONG_DELAY_THRESHOLD );
-	return 0;
+mrb_value MOAISim::_setLongDelayThreshold ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mLongDelayThreshold = state.GetParamValue < double >( 1, DEFAULT_LONG_DELAY_THRESHOLD );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -502,23 +506,23 @@ int MOAISim::_setLongDelayThreshold ( lua_State* L ) {
 								MOAISim.SIM_LOOP_RESET_CLOCK. Default value is 0.
 	@out	nil	
 */
-int MOAISim::_setLoopFlags ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mLoopFlags |= state.GetValue < u32 >( 1, 0 );
-	return 0;
+mrb_value MOAISim::_setLoopFlags ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mLoopFlags |= state.GetParamValue < u32 >( 1, 0 );
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setLuaAllocLogEnabled
-	@text	Toggles log messages from Lua allocator.
+/**	@lua	setRubyAllocLogEnabled
+	@text	Toggles log messages from Ruby allocator.
 
 	@opt	boolean enable			Default value is 'false.'
 	@out	nil
 */
-int MOAISim::_setLuaAllocLogEnabled ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAILuaRuntime::Get ().SetAllocLogEnabled ( state.GetValue < bool >( 1, false ));
-	return 0;
+mrb_value MOAISim::_setRubyAllocLogEnabled ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAIRubyRuntime::Get ().SetAllocLogEnabled ( state.GetParamValue < bool >( 1, false ) );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -528,10 +532,10 @@ int MOAISim::_setLuaAllocLogEnabled ( lua_State* L ) {
 	@in		number step		The step size. Default value is 1 / DEFAULT_STEPS_PER_SECOND.
 	@out	nil
 */
-int MOAISim::_setStep ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().SetStep ( state.GetValue < double >( 1, 1.0 / ( double )DEFAULT_STEPS_PER_SECOND ));
-	return 0;
+mrb_value MOAISim::_setStep ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().SetStep ( state.GetParamValue < double >( 1, 1.0 / ( double )DEFAULT_STEPS_PER_SECOND ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -544,10 +548,10 @@ int MOAISim::_setStep ( lua_State* L ) {
 	@in		number count		Default value is DEFAULT_STEP_MULTIPLIER.
 	@out	nil
 */
-int MOAISim::_setStepMultiplier ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mStepMultiplier = state.GetValue < u32 >( 1, DEFAULT_STEP_MULTIPLIER );
-	return 0;
+mrb_value MOAISim::_setStepMultiplier ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mStepMultiplier = state.GetParamValue < u32 >( 1, DEFAULT_STEP_MULTIPLIER );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -560,10 +564,10 @@ int MOAISim::_setStepMultiplier ( lua_State* L ) {
 	@in		number count		Number of frames. Default is 0 (no smoothing).
 	@out	nil
 */
-int MOAISim::_setStepSmoothing ( lua_State *L ) {
-	MOAILuaState state ( L );
+mrb_value MOAISim::_setStepSmoothing ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u32 size = state.GetValue < u32 >( 1, 0 );
+	u32 size = state.GetParamValue < u32 >( 1, 0 );
 
 	MOAISim& device = MOAISim::Get ();
 	
@@ -571,7 +575,7 @@ int MOAISim::_setStepSmoothing ( lua_State *L ) {
 	device.mSmoothBuffer.Fill ( device.mStep );
 	device.mSmoothIdx = 0;
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -582,25 +586,25 @@ int MOAISim::_setStepSmoothing ( lua_State *L ) {
 	@in		number timerError		Default value is 0.0.
 	@out	nil
 */
-int MOAISim::_setTimerError ( lua_State* L ) {
-	MOAILuaState state ( L );
-	MOAISim::Get ().mTimerError = state.GetValue < double >( 1, 0.0 );
-	return 0;
+mrb_value MOAISim::_setTimerError ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
+	MOAISim::Get ().mTimerError = state.GetParamValue < double >( 1, 0.0 );
+	return context;
 }
 
 //----------------------------------------------------------------//
 /**	@lua	setTraceback
-	@text	Sets the function to call when a traceback occurs in Lua
+	@text	Sets the function to call when a traceback occurs in Ruby
  
 	@in		function callback		Function to execute when the traceback occurs
 	@out	nil
 */
-int MOAISim::_setTraceback ( lua_State* L ) {
-	UNUSED ( L );
+mrb_value MOAISim::_setTraceback ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
 	
-	MOAILuaRuntime::Get ().GetTracebackRef ().SetRef ( MOAILuaRuntime::Get ().GetMainState(), 1 );
+	MOAIRubyRuntime::Get ().GetTracebackRef ().SetRef ( MOAIRubyRuntime::Get ().GetMainState().GetParamValue ( 1 ) );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -609,10 +613,10 @@ int MOAISim::_setTraceback ( lua_State* L ) {
  
 	@out	nil
  */
-int MOAISim::_setTextInputRect ( lua_State* L ) {
+mrb_value MOAISim::_setTextInputRect ( mrb_state* M, mrb_value context ) {
 	
-	MOAILuaState state ( L );
-	ZLIntRect rect = state.GetRect< int >( 1 );
+	MOAIRubyState state ( M );
+	ZLIntRect rect = state.GetRect < int >( 1 );
 	rect.Bless();
 	
 	SetTextInputRectFunc func = MOAISim::Get ().GetSetTextInputRectFunc ();
@@ -620,7 +624,7 @@ int MOAISim::_setTextInputRect ( lua_State* L ) {
 		func ( rect.mXMin, rect.mYMin, rect.mXMax, rect.mYMax );
 	}
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -629,16 +633,16 @@ int MOAISim::_setTextInputRect ( lua_State* L ) {
 
 	@out	nil
 */
-int MOAISim::_showCursor ( lua_State* L ) {
+mrb_value MOAISim::_showCursor ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
 	ShowCursorFunc func = MOAISim::Get ().GetShowCursorFunc ();
 	if ( func ) {
 		func ();
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -648,17 +652,16 @@ int MOAISim::_showCursor ( lua_State* L ) {
 	@in		number time			The number of seconds.
 	@out	number frames		The equivalent number of frames for the specified number of seconds.
 */
-int MOAISim::_timeToFrames ( lua_State* L ) {
+mrb_value MOAISim::_timeToFrames ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
-	if ( !state.CheckParams ( 1, "N" )) return 0;
+	MOAIRubyState state ( M );
+	if ( !state.CheckParams ( 1, "N" ) ) return context;
 	
-	float time = state.GetValue < float >( 1, 0.0f );
+	float time = state.GetParamValue < float >( 1, 0.0f );
 	
 	MOAISim& device = MOAISim::Get ();
-	lua_pushnumber ( state, time / device.mStep );
 	
-	return 1;
+	return state.ToRValue ( time / device.mStep );
 }
 
 //================================================================//
@@ -674,7 +677,7 @@ int MOAISim::_timeToFrames ( lua_State* L ) {
 
 		@out	nil
 	*/
-	int MOAISim::_clearRenderStack ( lua_State* L ) {
+	mrb_value MOAISim::_clearRenderStack ( mrb_state* M, mrb_value context ) {
 	}
 	
 	//----------------------------------------------------------------//
@@ -684,7 +687,7 @@ int MOAISim::_timeToFrames ( lua_State* L ) {
 
 		@out	nil
 	*/
-	int MOAISim::_popRenderPass ( lua_State* L ) {
+	mrb_value MOAISim::_popRenderPass ( mrb_state* M, mrb_value context ) {
 	}
 	
 	//----------------------------------------------------------------//
@@ -695,7 +698,7 @@ int MOAISim::_timeToFrames ( lua_State* L ) {
 		@in		MOAIDrawable renderable
 		@out	nil
 	*/
-	int MOAISim::_pushRenderPass ( lua_State* L ) {
+	mrb_value MOAISim::_pushRenderPass ( mrb_state* M, mrb_value context ) {
 	}
 	
 	//----------------------------------------------------------------//
@@ -706,7 +709,7 @@ int MOAISim::_timeToFrames ( lua_State* L ) {
 		@in		MOAIDrawable renderable
 		@out	nil
 	*/
-	int MOAISim::_removeRenderPass ( lua_State* L ) {
+	mrb_value MOAISim::_removeRenderPass ( mrb_state* M, mrb_value context ) {
 	}
 
 #endif
@@ -748,6 +751,8 @@ MOAISim::MOAISim () :
 	mGCStep ( 0 ) {
 	
 	RTTI_SINGLE ( MOAIGlobalEventSource )
+
+	MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
 	
 	for ( u32 i = 0; i < FPS_BUFFER_SIZE; ++i ) {
 		this->mFrameRateBuffer [ i ] = 0.0f;
@@ -755,8 +760,8 @@ MOAISim::MOAISim () :
 	
 	this->mFrameTime = ZLDeviceTime::GetTimeInSeconds ();
 	
-	this->mActionMgr.Set ( *this, new MOAIActionTree ());
-	this->mActionTree.Set ( *this, new MOAIActionTree ());
+	this->mActionMgr.Set ( *this, state.CreateClassInstance < MOAIActionTree >() );
+	this->mActionTree.Set ( *this, state.CreateClassInstance < MOAIActionTree >() );
 	
 	this->mActionMgr->Start ( this->mActionTree->GetDefaultParent (), false );
 }
@@ -818,79 +823,74 @@ void MOAISim::Pause () {
 }
 
 //----------------------------------------------------------------//
-void MOAISim::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIGlobalEventSource::RegisterLuaClass ( state );
+void MOAISim::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "EVENT_FINALIZE",	( u32 )EVENT_FINALIZE );
-	state.SetField ( -1, "EVENT_PAUSE",		( u32 )EVENT_PAUSE );
-	state.SetField ( -1, "EVENT_RESUME",	( u32 )EVENT_RESUME );
-	state.SetField ( -1, "EVENT_STEP",		( u32 )EVENT_STEP );
+	state.DefineClassConst ( klass, "EVENT_FINALIZE",			( u32 )EVENT_FINALIZE );
+	state.DefineClassConst ( klass, "EVENT_PAUSE",				( u32 )EVENT_PAUSE );
+	state.DefineClassConst ( klass, "EVENT_RESUME",				( u32 )EVENT_RESUME );
+	state.DefineClassConst ( klass, "EVENT_STEP",				( u32 )EVENT_STEP );
 
-	state.SetField ( -1, "SIM_LOOP_FORCE_STEP",		( u32 )SIM_LOOP_FORCE_STEP );
-	state.SetField ( -1, "SIM_LOOP_ALLOW_BOOST",	( u32 )SIM_LOOP_ALLOW_BOOST );
-	state.SetField ( -1, "SIM_LOOP_ALLOW_SPIN",		( u32 )SIM_LOOP_ALLOW_SPIN );
-	state.SetField ( -1, "SIM_LOOP_NO_DEFICIT",		( u32 )SIM_LOOP_NO_DEFICIT );
-	state.SetField ( -1, "SIM_LOOP_NO_SURPLUS",		( u32 )SIM_LOOP_NO_SURPLUS );
-	state.SetField ( -1, "SIM_LOOP_RESET_CLOCK",	( u32 )SIM_LOOP_RESET_CLOCK );
-	state.SetField ( -1, "SIM_LOOP_ALLOW_SOAK",		( u32 )SIM_LOOP_ALLOW_SOAK );
+	state.DefineClassConst ( klass, "SIM_LOOP_FORCE_STEP",		( u32 )SIM_LOOP_FORCE_STEP );
+	state.DefineClassConst ( klass, "SIM_LOOP_ALLOW_BOOST",		( u32 )SIM_LOOP_ALLOW_BOOST );
+	state.DefineClassConst ( klass, "SIM_LOOP_ALLOW_SPIN",		( u32 )SIM_LOOP_ALLOW_SPIN );
+	state.DefineClassConst ( klass, "SIM_LOOP_NO_DEFICIT",		( u32 )SIM_LOOP_NO_DEFICIT );
+	state.DefineClassConst ( klass, "SIM_LOOP_NO_SURPLUS",		( u32 )SIM_LOOP_NO_SURPLUS );
+	state.DefineClassConst ( klass, "SIM_LOOP_RESET_CLOCK",		( u32 )SIM_LOOP_RESET_CLOCK );
+	state.DefineClassConst ( klass, "SIM_LOOP_ALLOW_SOAK",		( u32 )SIM_LOOP_ALLOW_SOAK );
 
-	state.SetField ( -1, "LOOP_FLAGS_DEFAULT",			( u32 )LOOP_FLAGS_DEFAULT );
-	state.SetField ( -1, "LOOP_FLAGS_FIXED",			( u32 )LOOP_FLAGS_FIXED );
-	state.SetField ( -1, "LOOP_FLAGS_MULTISTEP",		( u32 )LOOP_FLAGS_MULTISTEP );
-	state.SetField ( -1, "LOOP_FLAGS_SOAK",				( u32 )LOOP_FLAGS_SOAK );
+	state.DefineClassConst ( klass, "LOOP_FLAGS_DEFAULT",		( u32 )LOOP_FLAGS_DEFAULT );
+	state.DefineClassConst ( klass, "LOOP_FLAGS_FIXED",			( u32 )LOOP_FLAGS_FIXED );
+	state.DefineClassConst ( klass, "LOOP_FLAGS_MULTISTEP",		( u32 )LOOP_FLAGS_MULTISTEP );
+	state.DefineClassConst ( klass, "LOOP_FLAGS_SOAK",			( u32 )LOOP_FLAGS_SOAK );
 
-	state.SetField ( -1, "DEFAULT_STEPS_PER_SECOND",		( u32 )DEFAULT_STEPS_PER_SECOND );
-	state.SetField ( -1, "DEFAULT_BOOST_THRESHOLD",			( u32 )DEFAULT_BOOST_THRESHOLD );
-	state.SetField ( -1, "DEFAULT_LONG_DELAY_THRESHOLD",	( u32 )DEFAULT_LONG_DELAY_THRESHOLD );
-	state.SetField ( -1, "DEFAULT_CPU_BUDGET",				( u32 )DEFAULT_CPU_BUDGET );
-	state.SetField ( -1, "DEFAULT_STEP_MULTIPLIER",			( u32 )DEFAULT_STEP_MULTIPLIER );
+	state.DefineClassConst ( klass, "DEFAULT_STEPS_PER_SECOND",		( u32 )DEFAULT_STEPS_PER_SECOND );
+	state.DefineClassConst ( klass, "DEFAULT_BOOST_THRESHOLD",		( u32 )DEFAULT_BOOST_THRESHOLD );
+	state.DefineClassConst ( klass, "DEFAULT_LONG_DELAY_THRESHOLD",	( u32 )DEFAULT_LONG_DELAY_THRESHOLD );
+	state.DefineClassConst ( klass, "DEFAULT_CPU_BUDGET",			( u32 )DEFAULT_CPU_BUDGET );
+	state.DefineClassConst ( klass, "DEFAULT_STEP_MULTIPLIER",		( u32 )DEFAULT_STEP_MULTIPLIER );
 
-	luaL_Reg regTable [] = {
-		{ "clearLoopFlags",				_clearLoopFlags },
-		{ "crash",						_crash },
-		{ "enterFullscreenMode",		_enterFullscreenMode },
-		{ "exitFullscreenMode",			_exitFullscreenMode },
-		{ "forceGC",					_forceGC },
-		{ "framesToTime",				_framesToTime },
-		{ "getActionMgr",				_getActionMgr },
-		{ "getDeviceTime",				_getDeviceTime },
-		{ "getElapsedTime",				_getElapsedTime },
-		{ "getListener",				&MOAIGlobalEventSource::_getListener < MOAISim > },
-		{ "getLoopFlags",				_getLoopFlags },
-		{ "getLuaObjectCount",			_getLuaObjectCount },
-		{ "getMemoryUsage",				_getMemoryUsage },
-		{ "getMemoryUsagePlain",		_getMemoryUsagePlain },
-		{ "getPerformance",				_getPerformance },
-		{ "getStep",					_getStep },
-		{ "getStepCount",				_getStepCount },
-		{ "hideCursor",					_hideCursor },
-		{ "openWindow",					_openWindow },
-		{ "pauseTimer",					_pauseTimer },
-		{ "setBoostThreshold",			_setBoostThreshold },
-		{ "setCpuBudget",				_setCpuBudget},
-		{ "setGCActive",				_setGCActive },
-		{ "setGCStep",					_setGCStep },
-		{ "setListener",				&MOAIGlobalEventSource::_setListener < MOAISim > },
-		{ "setLongDelayThreshold",		_setLongDelayThreshold },
-		{ "setLoopFlags",				_setLoopFlags },
-		{ "setLuaAllocLogEnabled",		_setLuaAllocLogEnabled },
-		{ "setStep",					_setStep },
-		{ "setStepMultiplier",			_setStepMultiplier },
-		{ "setStepSmoothing",			_setStepSmoothing },
-		{ "setTimerError",				_setTimerError },
-		{ "setTraceback",				_setTraceback },
-		{ "setTextInputRect",			_setTextInputRect },
-		{ "showCursor",					_showCursor },
-		{ "timeToFrames",				_timeToFrames },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "clearLoopFlags", _clearLoopFlags, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "crash", _crash, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "enterFullscreenMode", _enterFullscreenMode, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "exitFullscreenMode", _exitFullscreenMode, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "forceGC", _forceGC, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "framesToTime", _framesToTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "getActionMgr", _getActionMgr, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getDeviceTime", _getDeviceTime, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getElapsedTime", _getElapsedTime, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getListener", &MOAIGlobalEventSource::_getListener < MOAISim >, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getLoopFlags", _getLoopFlags, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getRubyObjectCount", _getRubyObjectCount, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getMemoryUsage", _getMemoryUsage, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getMemoryUsagePlain", _getMemoryUsagePlain, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getPerformance", _getPerformance, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getStep", _getStep, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getStepCount", _getStepCount, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "hideCursor", _hideCursor, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "openWindow", _openWindow, MRB_ARGS_REQ ( 3 ) );
+	state.DefineStaticMethod ( klass, "pauseTimer", _pauseTimer, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setBoostThreshold", _setBoostThreshold, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setCpuBudget", _setCpuBudget, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setGCActive", _setGCActive, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setGCStep", _setGCStep, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setListener", &MOAIGlobalEventSource::_setListener < MOAISim >, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setLongDelayThreshold", _setLongDelayThreshold, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setLoopFlags", _setLoopFlags, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setRubyAllocLogEnabled", _setRubyAllocLogEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setStep", _setStep, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setStepMultiplier", _setStepMultiplier, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setStepSmoothing", _setStepSmoothing, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setTimerError", _setTimerError, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setTraceback", _setTraceback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setTextInputRect", _setTextInputRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineStaticMethod ( klass, "showCursor", _showCursor, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "timeToFrames", _timeToFrames, MRB_ARGS_REQ ( 1 ) );
 }
 
 //----------------------------------------------------------------//
-void MOAISim::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAISim::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
@@ -949,13 +949,13 @@ double MOAISim::StepSim ( double step, u32 multiplier ) {
 
 	double time = ZLDeviceTime::GetTimeInSeconds ();
 
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 
 	for ( u32 s = 0; s < multiplier; ++s ) {
 		
-		lua_gc ( state, LUA_GCSTOP, 0 );
+		//lua_gc ( state, LUA_GCSTOP, 0 );
 		
-		MOAITestMgr::Get ().Step ();
+		//MOAITestMgr::Get ().Step ();
 		
 		this->InvokeListener ( EVENT_STEP );
 		
@@ -974,10 +974,10 @@ double MOAISim::StepSim ( double step, u32 multiplier ) {
 		if ( this->mGCActive ) {
 		
 			// empty the userdata cache
-			MOAILuaRuntime::Get ().PurgeUserdataCache ();
+			MOAIRubyRuntime::Get ().PurgeUserdataCache ();
 		
 			// crank the garbage collector
-			lua_gc ( state, LUA_GCSTEP, this->mGCStep );
+			//lua_gc ( state, LUA_GCSTEP, this->mGCStep );
 		}
 	}
 	return ZLDeviceTime::GetTimeInSeconds () - time;
@@ -986,16 +986,16 @@ double MOAISim::StepSim ( double step, u32 multiplier ) {
 //----------------------------------------------------------------//
 void MOAISim::Update () {
 
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 
-	if ( !this->mLuaGCFunc ) {
-	
-		lua_getglobal ( state, LUA_GC_FUNC_NAME );
-		this->mLuaGCFunc.SetRef ( *this, state, -1 );
+	if ( !this->mRubyGCFunc ) {
+
+		/*lua_getglobal ( state, LUA_GC_FUNC_NAME );
+		this->mRubyGCFunc.SetRef ( *this, state, -1 );
 		lua_pop ( state, 1 );
-		
+
 		lua_pushcfunction ( state, _collectgarbage );
-		lua_setglobal ( state, LUA_GC_FUNC_NAME );
+		lua_setglobal ( state, LUA_GC_FUNC_NAME );*/
 	}
 
 	// Measure performance

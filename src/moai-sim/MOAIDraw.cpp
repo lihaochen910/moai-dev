@@ -295,129 +295,130 @@ void MOAIDraw::EndDrawString () {
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bind ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bind ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
 	self->Bind ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindFrameBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindFrameBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIGfxMgr::Get ().mGfxState.SetFrameBuffer ( state.GetLuaObject < MOAIFrameBuffer >( 1, false ));
-	return 0;
+	MOAIGfxMgr::Get ().mGfxState.SetFrameBuffer ( state.GetRubyObject < MOAIFrameBuffer >( 1, false ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindIndexBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindIndexBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIGfxMgr::Get ().mGfxState.SetIndexBuffer ( state.GetLuaObject < MOAIIndexBuffer >( 1, false ));
-	return 0;
+	MOAIGfxMgr::Get ().mGfxState.SetIndexBuffer ( state.GetRubyObject < MOAIIndexBuffer >( 1, false ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindShader ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindShader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	switch ( lua_type ( state, 1 )) {
+	switch ( state.GetParamType ( 1 ) ) {
 	
-		case LUA_TUSERDATA:
-			MOAIGfxMgr::Get ().mGfxState.SetShader ( state.GetLuaObject < MOAIShader >( 1, true ));
+		case MRB_TT_DATA:
+			MOAIGfxMgr::Get ().mGfxState.SetShader ( state.GetRubyObject < MOAIShader >( 1, true ));
 			break;
 		
-		case LUA_TNUMBER:
-			MOAIGfxMgr::Get ().mGfxState.SetShader (( MOAIShaderMgr::Preset )state.GetValue < u32 >( 1, MOAIShaderMgr::LINE_SHADER ));
+		case MRB_TT_FIXNUM:
+			MOAIGfxMgr::Get ().mGfxState.SetShader (( MOAIShaderMgr::Preset )state.GetParamValue < u32 >( 1, MOAIShaderMgr::LINE_SHADER ));
 			break;
 		
 		default:
 			MOAIGfxMgr::Get ().mGfxState.SetShader ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIGfxMgr::Get ().mGfxState.SetTexture ( state.GetLuaObject < MOAITexture >( 1, false ));
-	return 0;
+	MOAIGfxMgr::Get ().mGfxState.SetTexture ( state.GetRubyObject < MOAITexture >( 1, false ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindVertexArray ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindVertexArray ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIGfxMgr::Get ().mGfxState.SetVertexArray ( state.GetLuaObject < MOAIVertexArray >( 1, false ));
-	return 0;
+	MOAIGfxMgr::Get ().mGfxState.SetVertexArray ( state.GetRubyObject < MOAIVertexArray >( 1, false ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindVertexBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindVertexBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIGfxMgr::Get ().mGfxState.SetVertexBuffer ( state.GetLuaObject < MOAIVertexBuffer >( 1, false ));
-	return 0;
+	MOAIGfxMgr::Get ().mGfxState.SetVertexBuffer ( state.GetRubyObject < MOAIVertexBuffer >( 1, false ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_bindVertexFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_bindVertexFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	switch ( lua_type ( state, 1 )) {
+	switch ( state.GetParamType ( 1 ) ) {
 	
-		case LUA_TUSERDATA:
-			MOAIGfxMgr::Get ().mGfxState.SetVertexFormat ( state.GetLuaObject < MOAIVertexFormat >( 1, true ));
+		case MRB_TT_DATA:
+			MOAIGfxMgr::Get ().mGfxState.SetVertexFormat ( state.GetRubyObject < MOAIVertexFormat >( 1, true ));
 			break;
 		
-		case LUA_TNUMBER:
-			MOAIGfxMgr::Get ().mGfxState.SetVertexFormat (( MOAIVertexFormatMgr::Preset )state.GetValue < u32 >( 1, MOAIVertexFormatMgr::XYZWC ));
+		case MRB_TT_FIXNUM:
+			MOAIGfxMgr::Get ().mGfxState.SetVertexFormat (( MOAIVertexFormatMgr::Preset )state.GetParamValue < u32 >( 1, MOAIVertexFormatMgr::XYZWC ));
 			break;
 		
 		default:
 			MOAIGfxMgr::Get ().mGfxState.SetVertexFormat ();
 			break;
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	MOAIGfxMgr::Get ().mGfxState.ClearSurface ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_drawAnimCurve ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawAnimCurve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
-	MOAIAnimCurve* curve	= state.GetLuaObject < MOAIAnimCurve >( 1, true );
-	u32 resolution			= state.GetValue < u32 >( 2, 1 );
+	MOAIAnimCurve* curve	= state.GetRubyObject < MOAIAnimCurve >( 1, true );
+	u32 resolution			= state.GetParamValue < u32 >( 2, 1 );
 
 	if ( curve ) {
 		self->DrawAnimCurve ( *curve, resolution );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: implement
-int MOAIDraw::_drawAxisGrid ( lua_State* L ) {
-	UNUSED ( L );
-	return 0;
+mrb_value MOAIDraw::_drawAxisGrid ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
+	UNUSED ( context );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -434,25 +435,25 @@ int MOAIDraw::_drawAxisGrid ( lua_State* L ) {
 	@in		number y3
 	@out	nil
 */
-int MOAIDraw::_drawBezierCurve ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawBezierCurve ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
 	ZLCubicBezier2D bezier;
 	
-	bezier.mP0.mX = state.GetValue < float >( 1, 0.0f );
-	bezier.mP0.mY = state.GetValue < float >( 2, 0.0f );
+	bezier.mP0.mX = state.GetParamValue < float >( 1, 0.0f );
+	bezier.mP0.mY = state.GetParamValue < float >( 2, 0.0f );
 	
-	bezier.mP1.mX = state.GetValue < float >( 3, 0.0f );
-	bezier.mP1.mY = state.GetValue < float >( 4, 0.0f );
+	bezier.mP1.mX = state.GetParamValue < float >( 3, 0.0f );
+	bezier.mP1.mY = state.GetParamValue < float >( 4, 0.0f );
 	
-	bezier.mP2.mX = state.GetValue < float >( 5, 0.0f );
-	bezier.mP2.mY = state.GetValue < float >( 6, 0.0f );
+	bezier.mP2.mX = state.GetParamValue < float >( 5, 0.0f );
+	bezier.mP2.mY = state.GetParamValue < float >( 6, 0.0f );
 	
-	bezier.mP3.mX = state.GetValue < float >( 7, 0.0f );
-	bezier.mP3.mY = state.GetValue < float >( 8, 0.0f );
+	bezier.mP3.mX = state.GetParamValue < float >( 7, 0.0f );
+	bezier.mP3.mY = state.GetParamValue < float >( 8, 0.0f );
 	
 	self->DrawBezierCurve ( bezier );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -467,19 +468,19 @@ int MOAIDraw::_drawBezierCurve ( lua_State* L ) {
 	@in		number z1
 	@out	nil
 */
-int MOAIDraw::_drawBoxOutline ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawBoxOutline ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	ZLBox box;
-	box.mMin.mX = state.GetValue < float >( 1, 0.0f );
-	box.mMin.mY = state.GetValue < float >( 2, 0.0f );
-	box.mMin.mZ = state.GetValue < float >( 3, 0.0f );
-	box.mMax.mX = state.GetValue < float >( 4, box.mMin.mX );
-	box.mMax.mY = state.GetValue < float >( 5, box.mMin.mY );
-	box.mMax.mZ = state.GetValue < float >( 6, box.mMin.mZ );
+	box.mMin.mX = state.GetParamValue < float >( 1, 0.0f );
+	box.mMin.mY = state.GetParamValue < float >( 2, 0.0f );
+	box.mMin.mZ = state.GetParamValue < float >( 3, 0.0f );
+	box.mMax.mX = state.GetParamValue < float >( 4, box.mMin.mX );
+	box.mMax.mY = state.GetParamValue < float >( 5, box.mMin.mY );
+	box.mMax.mZ = state.GetParamValue < float >( 6, box.mMin.mZ );
 	
 	self->Get ().DrawBoxOutline ( box );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -492,16 +493,16 @@ int MOAIDraw::_drawBoxOutline ( lua_State* L ) {
 	@in		number steps
 	@out	nil
 */
-int MOAIDraw::_drawCircle ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawCircle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0	= state.GetValue < float >( 1, 0.0f );
-	float y0	= state.GetValue < float >( 2, 0.0f );
-	float r		= state.GetValue < float >( 3, 0.0f );
-	u32 steps	= state.GetValue < u32 >( 4, DEFAULT_ELLIPSE_STEPS );
+	float x0	= state.GetParamValue < float >( 1, 0.0f );
+	float y0	= state.GetParamValue < float >( 2, 0.0f );
+	float r		= state.GetParamValue < float >( 3, 0.0f );
+	u32 steps	= state.GetParamValue < u32 >( 4, DEFAULT_ELLIPSE_STEPS );
 
 	self->Get ().DrawEllipseOutline ( x0, y0, r, r, steps );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -514,16 +515,16 @@ int MOAIDraw::_drawCircle ( lua_State* L ) {
 	@in		number steps
 	@out	nil
 */
-int MOAIDraw::_drawCircleSpokes ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawCircleSpokes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0	= state.GetValue < float >( 1, 0.0f );
-	float y0	= state.GetValue < float >( 2, 0.0f );
-	float r		= state.GetValue < float >( 3, 0.0f );
-	u32 steps	= state.GetValue < u32 >( 4, DEFAULT_ELLIPSE_STEPS );
+	float x0	= state.GetParamValue < float >( 1, 0.0f );
+	float y0	= state.GetParamValue < float >( 2, 0.0f );
+	float r		= state.GetParamValue < float >( 3, 0.0f );
+	u32 steps	= state.GetParamValue < u32 >( 4, DEFAULT_ELLIPSE_STEPS );
 
 	self->Get ().DrawEllipseSpokes ( x0, y0, r, r, steps );
-	return 0;
+	return context;
 }
 
 
@@ -536,15 +537,15 @@ int MOAIDraw::_drawCircleSpokes ( lua_State* L ) {
 	@in		number  count       Number of indices to be rendered
 	@out	nil
  */
-int MOAIDraw::_drawElements ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawElements ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIGfxBuffer* vtxBuffer = state.GetLuaObject < MOAIGfxBuffer >( 1, false );
-	MOAIVertexFormat* format = state.GetLuaObject < MOAIVertexFormat >( 2, false );
-	u32 count = state.GetValue < u32 >( 3, 0 );
+	MOAIGfxBuffer* vtxBuffer = state.GetRubyObject < MOAIGfxBuffer >( 1, false );
+	MOAIVertexFormat* format = state.GetRubyObject < MOAIVertexFormat >( 2, false );
+	u32 count = state.GetParamValue < u32 >( 3, 0 );
 	
 	self->DrawElements ( vtxBuffer, format, count );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -558,18 +559,18 @@ int MOAIDraw::_drawElements ( lua_State* L ) {
 	@in		number steps
 	@out	nil
 */
-int MOAIDraw::_drawEllipse ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawEllipse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x		= state.GetValue < float >( 1, 0.0f );
-	float y		= state.GetValue < float >( 2, 0.0f );
-	float xRad	= state.GetValue < float >( 3, 0.0f );
-	float yRad	= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float xRad	= state.GetParamValue < float >( 3, 0.0f );
+	float yRad	= state.GetParamValue < float >( 4, 0.0f );
 	
-	u32 steps = state.GetValue < u32 >( 5, DEFAULT_ELLIPSE_STEPS );
+	u32 steps = state.GetParamValue < u32 >( 5, DEFAULT_ELLIPSE_STEPS );
 
 	self->Get ().DrawEllipseOutline ( x, y, xRad, yRad, steps );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -583,25 +584,26 @@ int MOAIDraw::_drawEllipse ( lua_State* L ) {
 	@in		number steps
 	@out	nil
 */
-int MOAIDraw::_drawEllipseSpokes ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawEllipseSpokes ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x		= state.GetValue < float >( 1, 0.0f );
-	float y		= state.GetValue < float >( 2, 0.0f );
-	float xRad	= state.GetValue < float >( 3, 0.0f );
-	float yRad	= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float xRad	= state.GetParamValue < float >( 3, 0.0f );
+	float yRad	= state.GetParamValue < float >( 4, 0.0f );
 
-	u32 steps = state.GetValue < u32 >( 5, DEFAULT_ELLIPSE_STEPS );
+	u32 steps = state.GetParamValue < u32 >( 5, DEFAULT_ELLIPSE_STEPS );
 
 	self->Get ().DrawEllipseSpokes ( x, y, xRad, yRad, steps );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: implement
-int MOAIDraw::_drawGrid ( lua_State* L ) {
-	UNUSED ( L );
-	return 0;
+mrb_value MOAIDraw::_drawGrid ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
+	UNUSED ( context );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -612,16 +614,16 @@ int MOAIDraw::_drawGrid ( lua_State* L ) {
 								{ x0, y0, x1, y1, ... , xn, yn }
 	@out	nil
 */
-int MOAIDraw::_drawLine ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawLine ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
-	if ( lua_istable ( L, -1 ) ) {
-		self->DrawLuaArray ( L, ZGL_PRIM_LINE_STRIP );
+	if ( state.ParamIsType ( 1, MRB_TT_ARRAY ) ) {
+		self->DrawRubyArray ( M, context, ZGL_PRIM_LINE_STRIP );
 	}
 	else {
-		self->DrawLuaParams ( L, ZGL_PRIM_LINE_STRIP );
+		self->DrawRubyParams ( M, context, ZGL_PRIM_LINE_STRIP );
 	}	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -632,16 +634,16 @@ int MOAIDraw::_drawLine ( lua_State* L ) {
 								{ x0, y0, x1, y1, ... , xn, yn }
 	@out	nil
 */
-int MOAIDraw::_drawPoints ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawPoints ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	if ( lua_istable ( L, -1 ) ) {
-		self->DrawLuaArray ( L, ZGL_PRIM_POINTS );
+	if ( state.ParamIsType ( 1, MRB_TT_ARRAY ) ) {
+		self->DrawRubyArray ( M, context, ZGL_PRIM_POINTS );
 	}
 	else {
-		self->DrawLuaParams ( L, ZGL_PRIM_POINTS );
+		self->DrawRubyParams ( M, context, ZGL_PRIM_POINTS );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -654,16 +656,16 @@ int MOAIDraw::_drawPoints ( lua_State* L ) {
 	@in		number dy
 	@out	nil
 */
-int MOAIDraw::_drawRay ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawRay ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x		= state.GetValue < float >( 1, 0.0f );
-	float y		= state.GetValue < float >( 2, 0.0f );
-	float dx	= state.GetValue < float >( 3, 0.0f );
-	float dy	= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float dx	= state.GetParamValue < float >( 3, 0.0f );
+	float dy	= state.GetParamValue < float >( 4, 0.0f );
 
 	self->DrawRay ( x, y, dx, dy );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -676,16 +678,16 @@ int MOAIDraw::_drawRay ( lua_State* L ) {
 	@in		number y1
 	@out	nil
 */
-int MOAIDraw::_drawRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0 = state.GetValue < float >( 1, 0.0f );
-	float y0 = state.GetValue < float >( 2, 0.0f );
-	float x1 = state.GetValue < float >( 3, 0.0f );
-	float y1 = state.GetValue < float >( 4, 0.0f );
+	float x0 = state.GetParamValue < float >( 1, 0.0f );
+	float y0 = state.GetParamValue < float >( 2, 0.0f );
+	float x1 = state.GetParamValue < float >( 3, 0.0f );
+	float y1 = state.GetParamValue < float >( 4, 0.0f );
 
 	self->Get ().DrawRectOutline ( x0, y0, x1, y1 );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -699,17 +701,17 @@ int MOAIDraw::_drawRect ( lua_State* L ) {
 	@in		MOAITexture texture
 	@out	nil
 */
-int MOAIDraw::_drawTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0 = state.GetValue < float >( 1, 0.0f );
-	float y0 = state.GetValue < float >( 2, 0.0f );
-	float x1 = state.GetValue < float >( 3, 0.0f );
-	float y1 = state.GetValue < float >( 4, 0.0f );
+	float x0 = state.GetParamValue < float >( 1, 0.0f );
+	float y0 = state.GetParamValue < float >( 2, 0.0f );
+	float x1 = state.GetParamValue < float >( 3, 0.0f );
+	float y1 = state.GetParamValue < float >( 4, 0.0f );
 	MOAITexture* texture = (MOAITexture*)MOAITexture::AffirmTexture ( state, 5 );
 
 	self->DrawTexture ( x0, y0, x1, y1, texture );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -726,29 +728,29 @@ int MOAIDraw::_drawTexture ( lua_State* L ) {
 	@in		number shadowOffsetY
 	@out	nil
 */
-int MOAIDraw::_drawText ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_drawText ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	// TODO	
 	//cc8* text = lua_tostring ( state, 3 );
 	//if ( text ) {
 
-	//	float x = state.GetValue < float >( 4, 0.0f );
-	//	float y = state.GetValue < float >( 5, 0.0f );
-	//	float scale = state.GetValue < float >( 6, 1.0f );
+	//	float x = state.GetParamValue < float >( 4, 0.0f );
+	//	float y = state.GetParamValue < float >( 5, 0.0f );
+	//	float scale = state.GetParamValue < float >( 6, 1.0f );
 
-	//	float shadowOffsetX = state.GetValue < float >( 7, 0.0f );
-	//	float shadowOffsetY = state.GetValue < float >( 8, 0.0f );
+	//	float shadowOffsetX = state.GetParamValue < float >( 7, 0.0f );
+	//	float shadowOffsetY = state.GetParamValue < float >( 8, 0.0f );
 
-	//	MOAIFont* font = state.GetLuaObject < MOAIFont >( 1, true );
+	//	MOAIFont* font = state.GetRubyObject < MOAIFont >( 1, true );
 	//	if ( font ) {
 
-	//		float fontSize = state.GetValue < float >( 2, font->GetDefaultSize () );
+	//		float fontSize = state.GetParamValue < float >( 2, font->GetDefaultSize () );
 
 	//		MOAIDraw::DrawText ( text, x, y, scale, *font, fontSize, shadowOffsetX, shadowOffsetY, 0, 0 );
 	//	}
 	//}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -761,16 +763,16 @@ int MOAIDraw::_drawText ( lua_State* L ) {
 	@in		number steps
 	@out	nil
 */
-int MOAIDraw::_fillCircle ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_fillCircle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0	= state.GetValue < float >( 1, 0.0f );
-	float y0	= state.GetValue < float >( 2, 0.0f );
-	float r		= state.GetValue < float >( 3, 0.0f );
-	u32 steps	= state.GetValue < u32 >( 4, DEFAULT_ELLIPSE_STEPS );
+	float x0	= state.GetParamValue < float >( 1, 0.0f );
+	float y0	= state.GetParamValue < float >( 2, 0.0f );
+	float r		= state.GetParamValue < float >( 3, 0.0f );
+	u32 steps	= state.GetParamValue < u32 >( 4, DEFAULT_ELLIPSE_STEPS );
 
-	self->Get ().DrawEllipseFill ( x0, y0, r, r, steps );
-	return 0;
+	MOAIDraw::Get ().DrawEllipseFill ( x0, y0, r, r, steps );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -784,18 +786,18 @@ int MOAIDraw::_fillCircle ( lua_State* L ) {
 	@in		number steps
 	@out	nil
 */
-int MOAIDraw::_fillEllipse ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_fillEllipse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x		= state.GetValue < float >( 1, 0.0f );
-	float y		= state.GetValue < float >( 2, 0.0f );
-	float xRad	= state.GetValue < float >( 3, 0.0f );
-	float yRad	= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float xRad	= state.GetParamValue < float >( 3, 0.0f );
+	float yRad	= state.GetParamValue < float >( 4, 0.0f );
 	
-	u32 steps = state.GetValue < u32 >( 5, DEFAULT_ELLIPSE_STEPS );
+	u32 steps = state.GetParamValue < u32 >( 5, DEFAULT_ELLIPSE_STEPS );
 
-	self->Get ().DrawEllipseFill ( x, y, xRad, yRad, steps );
-	return 0;
+	MOAIDraw::Get ().DrawEllipseFill ( x, y, xRad, yRad, steps );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -806,16 +808,16 @@ int MOAIDraw::_fillEllipse ( lua_State* L ) {
 								{ x0, y0, x1, y1, ... , xn, yn }
 	@out	nil
 */
-int MOAIDraw::_fillFan ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_fillFan ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
-	if ( lua_istable ( L, -1 ) ) {
-		self->DrawLuaArray( L, ZGL_PRIM_TRIANGLE_FAN );
+	if ( state.ParamIsType ( 1, MRB_TT_ARRAY ) ) {
+		self->DrawRubyArray( M, context, ZGL_PRIM_TRIANGLE_FAN );
 	}
 	else {
-		self->DrawLuaParams( L, ZGL_PRIM_TRIANGLE_FAN );
+		self->DrawRubyParams( M, context, ZGL_PRIM_TRIANGLE_FAN );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -828,65 +830,66 @@ int MOAIDraw::_fillFan ( lua_State* L ) {
 	@in		number y1
 	@out	nil
 */
-int MOAIDraw::_fillRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_fillRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0 = state.GetValue < float >( 1, 0.0f );
-	float y0 = state.GetValue < float >( 2, 0.0f );
-	float x1 = state.GetValue < float >( 3, 0.0f );
-	float y1 = state.GetValue < float >( 4, 0.0f );
+	float x0 = state.GetParamValue < float >( 1, 0.0f );
+	float y0 = state.GetParamValue < float >( 2, 0.0f );
+	float x1 = state.GetParamValue < float >( 3, 0.0f );
+	float y1 = state.GetParamValue < float >( 4, 0.0f );
 
 	self->Get ().DrawRectFill ( x0, y0, x1, y1 );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_fillRoundedRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_fillRoundedRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0 = state.GetValue < float >( 1, 0.0f );
-	float y0 = state.GetValue < float >( 2, 0.0f );
-	float x1 = state.GetValue < float >( 3, 0.0f );
-	float y1 = state.GetValue < float >( 4, 0.0f );
+	float x0 = state.GetParamValue < float >( 1, 0.0f );
+	float y0 = state.GetParamValue < float >( 2, 0.0f );
+	float x1 = state.GetParamValue < float >( 3, 0.0f );
+	float y1 = state.GetParamValue < float >( 4, 0.0f );
 	
-	float xRad		= state.GetValue < float >( 5, 0.0f );
-	float yRad		= state.GetValue < float >( 6, xRad );
-	u32 steps		= state.GetValue < u32 >( 7, DEFAULT_ELLIPSE_STEPS );
+	float xRad		= state.GetParamValue < float >( 5, 0.0f );
+	float yRad		= state.GetParamValue < float >( 6, xRad );
+	u32 steps		= state.GetParamValue < u32 >( 7, DEFAULT_ELLIPSE_STEPS );
 
 	self->Get ().DrawRoundedRectFill ( x0, y0, x1, y1, xRad, yRad, steps );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_getPenColor ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_getPenColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	ZLColorVec color = MOAIGfxMgr::Get ().mGfxState.GetPenColor ();
 	
-	state.Push ( color.mR );
-	state.Push ( color.mG );
-	state.Push ( color.mB );
-	state.Push ( color.mA );
-	
-	return 4;
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( color.mR );
+	ret [ 1 ] = state.ToRValue ( color.mG );
+	ret [ 2 ] = state.ToRValue ( color.mB );
+	ret [ 3 ] = state.ToRValue ( color.mA );
+
+	return mrb_ary_new_from_values ( M, 4, ret );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_popGfxState ( lua_State* L ) {
+mrb_value MOAIDraw::_popGfxState ( mrb_state* M, mrb_value context ) {
 
 	MOAIGfxMgr::Get ().mGfxState.PopState ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_pushGfxState ( lua_State* L ) {
+mrb_value MOAIDraw::_pushGfxState ( mrb_state* M, mrb_value context ) {
 
 	MOAIGfxMgr::Get ().mGfxState.PushState ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -899,48 +902,48 @@ int MOAIDraw::_pushGfxState ( lua_State* L ) {
 	@in		number equation
 	@out	nil
 */
-int MOAIDraw::_setBlendMode ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setBlendMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 
-	if ( state.IsType ( 1, LUA_TNUMBER )) {
-		if ( state.IsType ( 2, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
+		if ( state.ParamIsType ( 2, MRB_TT_FIXNUM )) {
 
-			u32 srcFactor = state.GetValue < u32 >( 1, 0 );
-			u32 dstFactor = state.GetValue < u32 >( 2, 0 );
-			u32 equation = state.GetValue < u32 >( 3, 0 );
+			u32 srcFactor = state.GetParamValue < u32 >( 1, 0 );
+			u32 dstFactor = state.GetParamValue < u32 >( 2, 0 );
+			u32 equation = state.GetParamValue < u32 >( 3, 0 );
 			gfxState.SetBlendMode ( srcFactor, dstFactor, equation );
 		}
 	}
 	else {
 		gfxState.SetBlendMode ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_setClearColor ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setClearColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 
 	u32 clearFlags = gfxState.GetClearFlags () & ~ZGL_CLEAR_COLOR_BUFFER_BIT;
 	ZLColorVec clearColor ( 0.0f, 0.0f, 0.0f, 1.0f );
 
-	MOAIColor* color = state.GetLuaObject < MOAIColor >( 1, true );
+	MOAIColor* color = state.GetRubyObject < MOAIColor >( 1, true );
 	if ( color ) {
 		clearColor = *color;
 		clearFlags |= ZGL_CLEAR_COLOR_BUFFER_BIT;
 	}
 
-	if ( state.GetTop () > 1 ) {
+	if ( state.GetParamsCount () > 1 ) {
 	
-		float r = state.GetValue < float >( 1, 0.0f );
-		float g = state.GetValue < float >( 2, 0.0f );
-		float b = state.GetValue < float >( 3, 0.0f );
-		float a = state.GetValue < float >( 4, 1.0f );
+		float r = state.GetParamValue < float >( 1, 0.0f );
+		float g = state.GetParamValue < float >( 2, 0.0f );
+		float b = state.GetParamValue < float >( 3, 0.0f );
+		float a = state.GetParamValue < float >( 4, 1.0f );
 		
 		clearColor.Set ( r, g, b, a );
 		clearFlags |= ZGL_CLEAR_COLOR_BUFFER_BIT;
@@ -949,29 +952,29 @@ int MOAIDraw::_setClearColor ( lua_State* L ) {
 	gfxState.SetClearColor ( clearColor );
 	gfxState.SetClearFlags ( clearFlags );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_setClearDepth ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setClearDepth ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 
 	u32 clearFlags = gfxState.GetClearFlags () & ~ZGL_CLEAR_DEPTH_BUFFER_BIT;
 	double clearDepth = 0.0f;
 	
-	if ( state.IsType ( 1, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
 	
-		clearDepth = state.GetValue < double >( 1, 0.0 );
+		clearDepth = state.GetParamValue < double >( 1, 0.0 );
 		clearFlags |= ZGL_CLEAR_DEPTH_BUFFER_BIT;
 	}
 	
 	gfxState.SetClearDepth ( clearDepth );
 	gfxState.SetClearFlags ( clearFlags );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -982,20 +985,20 @@ int MOAIDraw::_setClearDepth ( lua_State* L ) {
  @in	number
  @out	nil
  */
-int MOAIDraw::_setCullMode ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setCullMode ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 	
-	if ( state.IsType ( 1, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
 			
-		u32 cullMode = state.GetValue < u32 >( 1, 0 );
+		u32 cullMode = state.GetParamValue < u32 >( 1, 0 );
 		gfxState.SetCullFunc ( cullMode );
 	}
 	else {
 		gfxState.SetCullFunc ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1006,15 +1009,15 @@ int MOAIDraw::_setCullMode ( lua_State* L ) {
 	@in		MOAITexture texture
 	@out	MOAITexture texture		Texture that was passed in or created.
 */
-int MOAIDraw::_setDefaultTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setDefaultTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 
-	MOAITexture* texture = state.GetLuaObject < MOAITexture >( 1, false );
+	MOAITexture* texture = state.GetRubyObject < MOAITexture >( 1, false );
 	
 	if ( !texture ) {
-		texture = new MOAITexture ();
+		texture = state.CreateClassInstance < MOAITexture >();
 		if ( !texture->Init ( state, 1 )) {
 			// TODO: report error
 			delete texture;
@@ -1025,10 +1028,9 @@ int MOAIDraw::_setDefaultTexture ( lua_State* L ) {
 	gfxState.SetDefaultTexture ( texture );
 
 	if ( texture ) {
-		texture->PushLuaUserdata ( state );
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( texture );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1038,47 +1040,47 @@ int MOAIDraw::_setDefaultTexture ( lua_State* L ) {
  @in	number
  @out	nil
  */
-int MOAIDraw::_setDepthFunc ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setDepthFunc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 	
-	if ( state.IsType ( 1, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
 		
-		u32 depthFunc = state.GetValue < u32 >( 1, 0 );
+		u32 depthFunc = state.GetParamValue < u32 >( 1, 0 );
 		gfxState.SetDepthFunc ( depthFunc );
 	}
 	else {
 		gfxState.SetDepthFunc ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_setMatrix ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setMatrix ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 	
-	u32 matrixID = state.GetValue < u32 >( 1, MOAIGfxState::MODEL_TO_WORLD_MTX );
+	u32 matrixID = state.GetParamValue < u32 >( 1, MOAIGfxState::MODEL_TO_WORLD_MTX );
 
 	if ( gfxState.IsInputMtx( matrixID )) {
 	
-		if ( state.IsType ( 2, LUA_TUSERDATA )) {
+		if ( state.ParamIsType ( 2, MRB_TT_DATA )) {
 		
-			MOAITransformBase* transform = state.GetLuaObject < MOAITransformBase >( 2, true );
+			MOAITransformBase* transform = state.GetRubyObject < MOAITransformBase >( 2, true );
 			if ( transform ) {
 				gfxState.SetMtx ( matrixID, transform->GetLocalToWorldMtx ());
 			}
 		}
 		else {
-			int size = state.GetTop () - 2;
-			ZLMatrix4x4 mtx = state.GetMatrix ( 2, size );
+			int size = state.GetParamsCount () - 2;
+			ZLMatrix4x4 mtx = state.GetParamMatrix ( 2, size );
 			gfxState.SetMtx ( matrixID, mtx );
 		}
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1090,16 +1092,16 @@ int MOAIDraw::_setMatrix ( lua_State* L ) {
 	@opt	number a	Default value is 1.
 	@out	nil
 */
-int MOAIDraw::_setPenColor ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setPenColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
-	float r = state.GetValue < float >( 1, 1.0f );
-	float g = state.GetValue < float >( 2, 1.0f );
-	float b = state.GetValue < float >( 3, 1.0f );
-	float a = state.GetValue < float >( 4, 1.0f );
+	float r = state.GetParamValue < float >( 1, 1.0f );
+	float g = state.GetParamValue < float >( 2, 1.0f );
+	float b = state.GetParamValue < float >( 3, 1.0f );
+	float a = state.GetParamValue < float >( 4, 1.0f );
 
 	MOAIGfxMgr::Get ().mGfxState.SetPenColor ( r, g, b, a );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1108,24 +1110,24 @@ int MOAIDraw::_setPenColor ( lua_State* L ) {
 	@in		number width
 	@out	nil
 */
-int MOAIDraw::_setPenWidth ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setPenWidth ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
-	float width = state.GetValue < float >( 1, 1.0f );
+	float width = state.GetParamValue < float >( 1, 1.0f );
 	MOAIGfxMgr::Get ().mGfxState.SetPenWidth ( width );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_setScissorRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setScissorRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	// TODO: fix this code duplication from _setViewRect
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 	
-	if ( state.IsType ( 1, LUA_TUSERDATA )) {
-		MOAIViewport* viewport = state.GetLuaObject < MOAIViewport >( 1, true );
+	if ( state.ParamIsType ( 1, MRB_TT_DATA )) {
+		MOAIViewport* viewport = state.GetRubyObject < MOAIViewport >( 1, true );
 		if ( viewport ) {
 			gfxState.SetScissorRect ( *viewport );
 		}
@@ -1133,34 +1135,34 @@ int MOAIDraw::_setScissorRect ( lua_State* L ) {
 	else {
 		ZLRect rect;
 		rect.Init ( 0.0, 0.0, (float) gfxState.GetBufferWidth (), (float) gfxState.GetBufferHeight ());
-		rect = state.GetValue < ZLRect >( 1, rect );
+		rect = state.GetParamValue < ZLRect >( 1, rect );
 		gfxState.SetScissorRect ( rect );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_setViewProj ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setViewProj ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	MOAIViewport* viewport = state.GetLuaObject < MOAIViewport >( 1, false );
-	MOAICamera* camera = state.GetLuaObject < MOAICamera >( 2, false );
+	MOAIViewport* viewport = state.GetRubyObject < MOAIViewport >( 1, false );
+	MOAICamera* camera = state.GetRubyObject < MOAICamera >( 2, false );
 	
 	MOAIGfxMgr::Get ().mGfxState.SetViewProj ( viewport, camera );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_setViewRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_setViewRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 
 	// TODO: fix this code duplication from _setScissorRect
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 	
-	if ( state.IsType ( 1, LUA_TUSERDATA )) {
-		MOAIViewport* viewport = state.GetLuaObject < MOAIViewport >( 1, true );
+	if ( state.ParamIsType ( 1, MRB_TT_DATA )) {
+		MOAIViewport* viewport = state.GetRubyObject < MOAIViewport >( 1, true );
 		if ( viewport ) {
 			gfxState.SetViewRect ( *viewport );
 		}
@@ -1168,31 +1170,31 @@ int MOAIDraw::_setViewRect ( lua_State* L ) {
 	else {
 		ZLRect rect;
 		rect.Init ( 0.0, 0.0, (float) gfxState.GetBufferWidth (), (float) gfxState.GetBufferHeight ());
-		rect = state.GetValue < ZLRect >( 1, rect );
+		rect = state.GetParamValue < ZLRect >( 1, rect );
 		gfxState.SetViewRect ( rect );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDraw::_strokeRoundedRect ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDraw, "" )
+mrb_value MOAIDraw::_strokeRoundedRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDraw, "" )
 	
-	float x0 = state.GetValue < float >( 1, 0.0f );
-	float y0 = state.GetValue < float >( 2, 0.0f );
-	float x1 = state.GetValue < float >( 3, 0.0f );
-	float y1 = state.GetValue < float >( 4, 0.0f );
+	float x0 = state.GetParamValue < float >( 1, 0.0f );
+	float y0 = state.GetParamValue < float >( 2, 0.0f );
+	float x1 = state.GetParamValue < float >( 3, 0.0f );
+	float y1 = state.GetParamValue < float >( 4, 0.0f );
 	
-	float stroke	= state.GetValue < float >( 5, 0.0f );
-	float offset	= state.GetValue < float >( 6, 0.0f );
+	float stroke	= state.GetParamValue < float >( 5, 0.0f );
+	float offset	= state.GetParamValue < float >( 6, 0.0f );
 	
-	float xRad		= state.GetValue < float >( 7, 0.0f );
-	float yRad		= state.GetValue < float >( 8, xRad );
-	u32 steps		= state.GetValue < u32 >( 9, DEFAULT_ELLIPSE_STEPS );
+	float xRad		= state.GetParamValue < float >( 7, 0.0f );
+	float yRad		= state.GetParamValue < float >( 8, xRad );
+	u32 steps		= state.GetParamValue < u32 >( 9, DEFAULT_ELLIPSE_STEPS );
 
 	self->Get ().DrawRoundedRectStroke ( x0, y0, x1, y1, xRad, yRad, steps, stroke, offset );
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -1378,12 +1380,12 @@ void MOAIDraw::DrawGrid ( const ZLRect& rect, u32 xCells, u32 yCells ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIDraw::DrawLuaParams ( lua_State* L, u32 primType ) {
+void MOAIDraw::DrawRubyParams ( mrb_state* M, mrb_value context, u32 primType ) {
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
-	u32 total = state.GetTop () >> 1;
+	u32 total = state.GetParamsCount () >> 1;
 	
 	gfxState.BeginPrim ( primType, total );
 	
@@ -1391,8 +1393,8 @@ void MOAIDraw::DrawLuaParams ( lua_State* L, u32 primType ) {
 		
 		u32 idx = ( i << 1 ) + 1;
 		
-		float x = state.GetValue < float >( idx, 0.0f );
-		float y = state.GetValue < float >( idx + 1, 0.0f );
+		float x = state.GetParamValue < float >( idx, 0.0f );
+		float y = state.GetParamValue < float >( idx + 1, 0.0f );
 		
 		gfxState.WriteVtx ( x, y, 0.0f );
 		gfxState.WritePenColor4b ();
@@ -1403,32 +1405,32 @@ void MOAIDraw::DrawLuaParams ( lua_State* L, u32 primType ) {
 
 
 //----------------------------------------------------------------//
-void MOAIDraw::DrawLuaArray ( lua_State* L, u32 primType ) {
+void MOAIDraw::DrawRubyArray ( mrb_state* M, mrb_value context, u32 primType ) {
 
 	MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
 	float x = 0.0f;
 	float y = 0.0f;
 	
-	size_t size = state.GetTableSize ( -1 ) >> 2;
+	mrb_value ary = state.GetParamValue ( 1 );
+	size_t size = state.GetArraySize ( ary ) >> 2;
 	
 	gfxState.BeginPrim ( primType, size );
 
 	u32 counter = 0;
-	lua_pushnil ( L );
-    while ( lua_next ( L, 1 ) != 0 ) {
+    while ( !state.IsNil ( mrb_ary_ref ( M, ary, counter ))) {
 		// Assuming odd-numbered array entries to be x-coordinate (abscissa),
 		// even-numbered array entries to be y-coordinate (oordinate).
 		if ( counter % 2 == 0 ) {
-			x = state.GetValue < float >( -1, 0.0f );
+			//x = state.GetParamValue < float >( -1, 0.0f );
+			x = state.ToCValue < float >( mrb_ary_ref ( M, ary, counter ) );
 		} else {
-			y = state.GetValue < float >( -1, 0.0f );
+			y = state.ToCValue < float >( mrb_ary_ref ( M, ary, counter ) );
 			gfxState.WriteVtx ( x, y );
 			gfxState.WritePenColor4b ();
 		}
 		++counter;
-		lua_pop ( L, 1 );
 	}
 
 	gfxState.EndPrim ();
@@ -1538,7 +1540,7 @@ void MOAIDraw::DrawVertexArray2D ( const float* verts, u32 count, u32 color, u32
 //----------------------------------------------------------------//
 MOAIDraw::MOAIDraw () {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -1546,64 +1548,58 @@ MOAIDraw::~MOAIDraw () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDraw::RegisterLuaClass ( MOAILuaState& state ) {
-	UNUSED ( state );
+void MOAIDraw::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "PROJ_MATRIX",					( u32 )MOAIGfxState::VIEW_TO_CLIP_MTX );
-	state.SetField ( -1, "UV_MATRIX",					( u32 )MOAIGfxState::UV_TO_MODEL_MTX );
-	state.SetField ( -1, "VIEW_MATRIX",					( u32 )MOAIGfxState::WORLD_TO_VIEW_MTX );
-	state.SetField ( -1, "WORLD_MATRIX",				( u32 )MOAIGfxState::MODEL_TO_WORLD_MTX );
+	state.DefineClassConst ( klass, "PROJ_MATRIX",					( u32 )MOAIGfxState::VIEW_TO_CLIP_MTX );
+	state.DefineClassConst ( klass, "UV_MATRIX",					( u32 )MOAIGfxState::UV_TO_MODEL_MTX );
+	state.DefineClassConst ( klass, "VIEW_MATRIX",					( u32 )MOAIGfxState::WORLD_TO_VIEW_MTX );
+	state.DefineClassConst ( klass, "WORLD_MATRIX",				( u32 )MOAIGfxState::MODEL_TO_WORLD_MTX );
 
-	luaL_Reg regTable [] = {
-		{ "bind",					_bind },
-		{ "bindFrameBuffer",		_bindFrameBuffer },
-		{ "bindIndexBuffer",		_bindIndexBuffer },
-		{ "bindShader",				_bindShader },
-		{ "bindTexture",			_bindTexture },
-		{ "bindVertexArray",		_bindVertexArray },
-		{ "bindVertexBuffer",		_bindVertexBuffer },
-		{ "bindVertexFormat",		_bindVertexFormat },
-		{ "clear",					_clear },
-		{ "drawAnimCurve",			_drawAnimCurve },
-		//{ "drawAxisGrid",			_drawAxisGrid }, // TODO
-		{ "drawBezierCurve",		_drawBezierCurve },
-		{ "drawBoxOutline",			_drawBoxOutline },
-		{ "drawCircle",				_drawCircle },
-		{ "drawCircleSpokes",		_drawCircleSpokes },
-		{ "drawElements",			_drawElements },
-		{ "drawEllipse",			_drawEllipse },
-		{ "drawEllipseSpokes",		_drawEllipseSpokes },
-		//{ "drawGrid",				_drawGrid }, // TODO
-		{ "drawLine",				_drawLine },
-		{ "drawPoints",				_drawPoints },
-		{ "drawRay",				_drawRay },
-		{ "drawRect",				_drawRect },
-		{ "drawText",				_drawText },
-		{ "drawTexture",			_drawTexture },
-		{ "fillCircle",				_fillCircle },
-		{ "fillEllipse",			_fillEllipse },
-		{ "fillFan",				_fillFan },
-		{ "fillRect",				_fillRect },
-		{ "fillRoundedRect",		_fillRoundedRect },
-		{ "getPenColor",			_getPenColor },
-		{ "popGfxState",			_popGfxState },
-		{ "pushGfxState",			_pushGfxState },
-		{ "setBlendMode",			_setBlendMode },
-		{ "setClearColor",			_setClearColor },
-		{ "setClearDepth",			_setClearDepth },
-		{ "setCullMode",			_setCullMode },
-		{ "setDefaultTexture",		_setDefaultTexture },
-		{ "setDepthFunc",			_setDepthFunc },
-		{ "setMatrix",				_setMatrix },
-		{ "setPenColor",			_setPenColor },
-		{ "setPenWidth",			_setPenWidth },
-		{ "setScissorRect",			_setScissorRect },
-		{ "setViewProj",			_setViewProj },
-		{ "setViewRect",			_setViewRect },
-		{ "strokeRoundedRect",		_strokeRoundedRect },
-		
-		{ NULL, NULL }
-	};
+	state.DefineStaticMethod ( klass, "bind", _bind, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "bindFrameBuffer", _bindFrameBuffer, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "bindIndexBuffer", _bindIndexBuffer, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "bindShader", _bindShader, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "bindTexture", _bindTexture, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "bindVertexArray", _bindVertexArray, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "bindVertexBuffer", _bindVertexBuffer, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "bindVertexFormat", _bindVertexFormat, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "clear", _clear, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "drawAnimCurve", _drawAnimCurve, MRB_ARGS_ARG ( 0, 2 ) );
+	// state.DefineStaticMethod ( klass, "drawAxisGrid", _drawAxisGrid, MRB_ARGS_NONE () ); // TODO
+	state.DefineStaticMethod ( klass, "drawBezierCurve", _drawBezierCurve, MRB_ARGS_ARG ( 0, 8 ) );
+	state.DefineStaticMethod ( klass, "drawBoxOutline", _drawBoxOutline, MRB_ARGS_REQ ( 6 ) );
+	state.DefineStaticMethod ( klass, "drawCircle", _drawCircle, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineStaticMethod ( klass, "drawCircleSpokes", _drawCircleSpokes, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineStaticMethod ( klass, "drawElements", _drawElements, MRB_ARGS_REQ ( 3 ) );
+	state.DefineStaticMethod ( klass, "drawEllipse", _drawEllipse, MRB_ARGS_ARG ( 4, 1 ) );
+	state.DefineStaticMethod ( klass, "drawEllipseSpokes", _drawEllipseSpokes, MRB_ARGS_ARG ( 4, 1 ) );
+	// state.DefineStaticMethod ( klass, "drawGrid", _drawGrid, MRB_ARGS_NONE () ); // TODO
+	state.DefineStaticMethod ( klass, "drawLine", _drawLine, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "drawPoints", _drawPoints, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "drawRay", _drawRay, MRB_ARGS_REQ ( 4 ) );
+	state.DefineStaticMethod ( klass, "drawRect", _drawRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineStaticMethod ( klass, "drawText", _drawText, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "drawTexture", _drawTexture, MRB_ARGS_REQ ( 5 ) );
+	state.DefineStaticMethod ( klass, "fillCircle", _fillCircle, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineStaticMethod ( klass, "fillEllipse", _fillEllipse, MRB_ARGS_ARG ( 4, 1 ) );
+	state.DefineStaticMethod ( klass, "fillFan", _fillFan, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "fillRect", _fillRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineStaticMethod ( klass, "fillRoundedRect", _fillRoundedRect, MRB_ARGS_ARG ( 6, 1 ) );
+	state.DefineStaticMethod ( klass, "getPenColor", _getPenColor, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "popGfxState", _popGfxState, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "pushGfxState", _pushGfxState, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setBlendMode", _setBlendMode, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "setClearColor", _setClearColor, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "setClearDepth", _setClearDepth, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "setCullMode", _setCullMode, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "setDefaultTexture", _setDefaultTexture, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setDepthFunc", _setDepthFunc, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setMatrix", _setMatrix, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "setPenColor", _setPenColor, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineStaticMethod ( klass, "setPenWidth", _setPenWidth, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "setScissorRect", _setScissorRect, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "setViewProj", _setViewProj, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineStaticMethod ( klass, "setViewRect", _setViewRect, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "strokeRoundedRect", _strokeRoundedRect, MRB_ARGS_ARG ( 8, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

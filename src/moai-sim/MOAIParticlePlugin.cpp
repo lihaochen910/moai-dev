@@ -15,12 +15,10 @@
 	@in		MOAIParticlePlugin self
 	@out	number size
 */
-int MOAIParticlePlugin::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticlePlugin, "U" )
+mrb_value MOAIParticlePlugin::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticlePlugin, "U" )
 	
-	lua_pushnumber ( state, self->mSize );
-	
-	return 1;
+	return state.ToRValue ( self->mSize );
 }
 
 //================================================================//
@@ -31,7 +29,7 @@ int MOAIParticlePlugin::_getSize ( lua_State* L ) {
 MOAIParticlePlugin::MOAIParticlePlugin () :
 	mSize ( 0 ) {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -39,18 +37,14 @@ MOAIParticlePlugin::~MOAIParticlePlugin () {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticlePlugin::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticlePlugin::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticlePlugin::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticlePlugin::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable[] = {
-		{ "getSize",			_getSize },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getSize", _getSize, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
-

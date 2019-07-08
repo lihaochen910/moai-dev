@@ -98,7 +98,7 @@ protected:
 
 	friend class MOAIMeshPrimReader;
 
-	MOAILuaSharedPtr < MOAIIndexBuffer > mIndexBuffer;
+	MOAIRubySharedPtr < MOAIIndexBuffer > mIndexBuffer;
 
 	u32			mTotalElements;
 	ZLBounds	mBounds;
@@ -110,18 +110,18 @@ protected:
 	MOAIMeshPartition*	mPartition;
 
 	//----------------------------------------------------------------//
-	static int			_buildQuadTree				( lua_State* L );
-	static int			_buildTernaryTree			( lua_State* L );
-	static int			_getPrimsForPoint			( lua_State* L );
-	static int			_getRegionForPrim			( lua_State* L );
-	static int			_intersectRay				( lua_State* L );
-	static int			_printPartition				( lua_State* L );
-	static int			_readPrimCoords				( lua_State* L );
-	static int			_setBounds					( lua_State* L );
-	static int			_setIndexBuffer				( lua_State* L );
-	static int			_setPenWidth				( lua_State* L );
-	static int			_setPrimType				( lua_State* L );
-	static int			_setTotalElements			( lua_State* L );
+	static mrb_value			_buildQuadTree				( mrb_state* M, mrb_value context );
+	static mrb_value			_buildTernaryTree			( mrb_state* M, mrb_value context );
+	static mrb_value			_getPrimsForPoint			( mrb_state* M, mrb_value context );
+	static mrb_value			_getRegionForPrim			( mrb_state* M, mrb_value context );
+	static mrb_value			_intersectRay				( mrb_state* M, mrb_value context );
+	static mrb_value			_printPartition				( mrb_state* M, mrb_value context );
+	static mrb_value			_readPrimCoords				( mrb_state* M, mrb_value context );
+	static mrb_value			_setBounds					( mrb_state* M, mrb_value context );
+	static mrb_value			_setIndexBuffer				( mrb_state* M, mrb_value context );
+	static mrb_value			_setPenWidth				( mrb_state* M, mrb_value context );
+	static mrb_value			_setPrimType				( mrb_state* M, mrb_value context );
+	static mrb_value			_setTotalElements			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	ZLBounds			MOAIDeck_ComputeMaxBounds		();
@@ -130,7 +130,7 @@ protected:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIMesh )
+	DECL_RUBY_FACTORY ( MOAIMesh, MOAIDeck )
 	
 	GET_SET ( u32, PrimType, mPrimType )
 	GET_SET ( u32, TotalElements, mTotalElements )
@@ -141,12 +141,12 @@ public:
 	void				DrawIndex					( u32 idx, MOAIMeshSpan* span );
 						MOAIMesh					();
 						~MOAIMesh					();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveVAOs					( u32 total );
 	void				ReserveVertexBuffers		( u32 total );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	void				SetBounds					( const ZLBox& bounds );
 	void				SetIndexBuffer				( MOAIIndexBuffer* indexBuffer );
 };

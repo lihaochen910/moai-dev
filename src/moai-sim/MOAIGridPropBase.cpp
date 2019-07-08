@@ -19,14 +19,13 @@
 	@in		MOAIGridPropBase self
 	@out	MOAIGrid grid		Current grid or nil.
 */
-int MOAIGridPropBase::_getGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridPropBase, "U" )
+mrb_value MOAIGridPropBase::_getGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridPropBase, "U" )
 	
 	if ( self->mGrid ) {
-		self->mGrid->PushLuaUserdata ( state );
-		return 1;
+		return self->mGrid->PushRubyUserdata ( state );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -38,16 +37,16 @@ int MOAIGridPropBase::_getGrid ( lua_State* L ) {
 	@opt	MOAIGrid grid		Default value is nil.
 	@out	nil
 */
-int MOAIGridPropBase::_setGrid ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridPropBase, "U" )
+mrb_value MOAIGridPropBase::_setGrid ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridPropBase, "U" )
 	
-	MOAIGrid* grid = state.GetLuaObject < MOAIGrid >( 2, true );
-	if ( !grid ) return 0;
+	MOAIGrid* grid = state.GetRubyObject < MOAIGrid >( 1, true );
+	if ( !grid ) return context;
 	
 	self->mGrid.Set ( *self, grid );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -59,15 +58,15 @@ int MOAIGridPropBase::_setGrid ( lua_State* L ) {
 	@opt	number yScale		Default value is 1.
 	@out	nil
 */
-int MOAIGridPropBase::_setGridScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGridPropBase, "U" )
+mrb_value MOAIGridPropBase::_setGridScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGridPropBase, "U" )
 
-	self->mGridScale.mX = state.GetValue < float >( 2, 1.0f );
-	self->mGridScale.mY = state.GetValue < float >( 3, 1.0f );
+	self->mGridScale.mX = state.GetParamValue < float >( 1, 1.0f );
+	self->mGridScale.mY = state.GetParamValue < float >( 2, 1.0f );
 	
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -133,40 +132,36 @@ MOAIGridPropBase::~MOAIGridPropBase () {
 }
 
 //----------------------------------------------------------------//
-void MOAIGridPropBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGridPropBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIDeckPropBase::RegisterLuaClass ( state );
+	MOAIDeckPropBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIGridPropBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGridPropBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIDeckPropBase::RegisterLuaFuncs ( state );
+	MOAIDeckPropBase::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getGrid",				_getGrid },
-		{ "setGrid",				_setGrid },
-		{ "setGridScale",			_setGridScale },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getGrid", _getGrid, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setGrid", _setGrid, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setGridScale", _setGridScale, MRB_ARGS_ARG ( 0, 2 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIGridPropBase::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIGridPropBase::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
 	MOAIDeckPropBase::SerializeIn ( state, serializer );
 	
-	this->mGrid.Set ( *this, serializer.MemberIDToObject < MOAIGrid >( state.GetFieldValue < MOAISerializerBase::ObjID >( -1, "mGrid", 0 )));
+	// this->mGrid.Set ( *this, serializer.MemberIDToObject < MOAIGrid >( state.GetFieldValue < MOAISerializerBase::ObjID >( -1, "mGrid", 0 )));
 }
 
 //----------------------------------------------------------------//
-void MOAIGridPropBase::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIGridPropBase::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	
 	MOAIDeckPropBase::SerializeOut ( state, serializer );
 	
-	state.SetField ( -1, "mGrid", serializer.AffirmMemberID ( this->mGrid ));
+	// state.SetField ( -1, "mGrid", serializer.AffirmMemberID ( this->mGrid ));
 }
 
 //================================================================//

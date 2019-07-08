@@ -23,7 +23,7 @@ private:
 	float	mMaxFrequency;
 
 	//----------------------------------------------------------------//
-	static int		_setFrequency			( lua_State* L );
+	static mrb_value		_setFrequency			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	float			GetRandomFrequency		();
@@ -33,14 +33,14 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIParticleTimedEmitter )
+	DECL_RUBY_FACTORY ( MOAIParticleTimedEmitter, MOAIParticleEmitter )
 
 
 	//----------------------------------------------------------------//
 					MOAIParticleTimedEmitter	();
 					~MOAIParticleTimedEmitter	();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void			SetFrequencyRange			( float min, float max );
 };
 

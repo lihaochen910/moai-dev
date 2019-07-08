@@ -68,13 +68,13 @@ private:
 	@in		number attrID
 	@out	nil
 */
-int MOAINode::_clearAttrLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UN" );
+mrb_value MOAINode::_clearAttrLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UN" );
 
-	u32 attrID = state.GetValue < u32 >( 2, 0 );
+	u32 attrID = state.GetParamValue < u32 >( 1, 0 );
 	self->ClearAttrLink ( attrID );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -85,15 +85,15 @@ int MOAINode::_clearAttrLink ( lua_State* L ) {
 	@in		MOAINode sourceNode
 	@out	nil
 */
-int MOAINode::_clearNodeLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UU" );
+mrb_value MOAINode::_clearNodeLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UU" );
 
-	MOAINode* srcNode = state.GetLuaObject < MOAINode >( 2, true );
-	if ( !srcNode ) return 0;
+	MOAINode* srcNode = state.GetRubyObject < MOAINode >( 1, true );
+	if ( !srcNode ) return context;
 	
 	self->ClearNodeLink ( *srcNode );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -107,12 +107,12 @@ int MOAINode::_clearNodeLink ( lua_State* L ) {
 	@in		MOAINode self
 	@out	nil
 */
-int MOAINode::_forceUpdate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "U" );
+mrb_value MOAINode::_forceUpdate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "U" );
 
 	self->ForceUpdate ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -123,21 +123,20 @@ int MOAINode::_forceUpdate ( lua_State* L ) {
 	@in		number attrID
 	@out	number value
 */
-int MOAINode::_getAttr ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UN" );
+mrb_value MOAINode::_getAttr ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UN" );
 
-	u32 attrID = state.GetValue < u32 >( 2, 0 );
+	u32 attrID = state.GetParamValue < u32 >( 1, 0 );
 
 	MOAIAttribute getter;
 	self->ApplyAttrOp ( attrID, getter, MOAIAttribute::GET );
 	
-	if ( getter.IsValid ()) {
-		lua_pushnumber ( state, getter.GetValue ( 0.0f ));
-		return 1;
+	if ( getter.IsValid () ) {
+		return state.ToRValue ( getter.GetValue ( 0.0f ) );
 	}
 	
-	MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
-	return 0;
+	MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
+	return state.ToRValue ( 0.0f );
 }
 
 //----------------------------------------------------------------//
@@ -149,21 +148,23 @@ int MOAINode::_getAttr ( lua_State* L ) {
 	@out	MOAINode sourceNode
 	@out	number sourceAttrID
 */
-int MOAINode::_getAttrLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UN" );
+mrb_value MOAINode::_getAttrLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UN" );
 
-	u32 attrID = state.GetValue < u32 >( 2, 0 );
+	u32 attrID = state.GetParamValue < u32 >( 1, 0 );
 
 	MOAIDepLink* link = self->FindAttrLink ( attrID );
 	if ( link && link->mSourceNode ) {
-		state.Push ( link->mSourceNode );
+
 		if ( link->mSourceAttrID != MOAIAttribute::NULL_ATTR ) {
-			state.Push ( link->mSourceAttrID );
-			return 2;
+			mrb_value args [ 2 ];
+			args [ 0 ] = state.ToRValue < MOAIRubyObject* >( link->mSourceNode );
+			args [ 1 ] = state.ToRValue ( link->mSourceAttrID );
+			return mrb_ary_new_from_values ( state, 2, args );
 		}
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( link->mSourceNode );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -173,11 +174,10 @@ int MOAINode::_getAttrLink ( lua_State* L ) {
 	@in		MOAINode self
 	@out	number state			One of MOAINode.STATE_IDLE, MOAINode.STATE_ACTIVE, MOAINode.STATE_SCHEDULED, MOAINode.STATE_UPDATING.
 */
-int MOAINode::_getNodeState ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "U" );
+mrb_value MOAINode::_getNodeState ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "U" );
 
-	state.Push ( self->mState );
-	return 1;
+	return state.ToRValue( self->mState );
 }
 
 //----------------------------------------------------------------//
@@ -194,29 +194,28 @@ int MOAINode::_getNodeState ( lua_State* L ) {
 
 	@out	MOAIEaseDriver easeDriver
 */
-int MOAINode::_moveAttr ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UNNN" )
+mrb_value MOAINode::_moveAttr ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UNNN" )
 
-	MOAIEaseDriver* action = new MOAIEaseDriver ();
+	MOAIEaseDriver* action = MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < MOAIEaseDriver >();
 	action->ReserveLinks ( 1 );
 	
-	u32 attrID		= state.GetValue < u32 >( 2, 0 );
-	float value		= state.GetValue < float >( 3, 0.0f );
-	float length	= state.GetValue < float >( 4, 0.0f );
-	u32 mode		= state.GetValue < u32 >( 5, ZLInterpolate::kSmooth );
+	u32 attrID		= state.GetParamValue < u32 >( 1, 0 );
+	float value		= state.GetParamValue < float >( 2, 0.0f );
+	float length	= state.GetParamValue < float >( 3, 0.0f );
+	u32 mode		= state.GetParamValue < u32 >( 4, ZLInterpolate::kSmooth );
 	
 	if ( self->CheckAttrExists ( attrID )) {
 	
 		action->SetLink ( 0, self, attrID, value, mode );
 		action->SetSpan ( length );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
 
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( action );
 	}
 	
-	MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
-	return 0;
+	MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
+	return state.ToRValue < MOAIRubyObject* >( action );
 }
 
 //----------------------------------------------------------------//
@@ -227,11 +226,11 @@ int MOAINode::_moveAttr ( lua_State* L ) {
 	@in		MOAINode self
 	@out	nil
 */
-int MOAINode::_scheduleUpdate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "U" );
+mrb_value MOAINode::_scheduleUpdate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "U" );
 
 	self->ScheduleUpdate ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -249,34 +248,33 @@ int MOAINode::_scheduleUpdate ( lua_State* L ) {
 
 	@out	MOAIEaseDriver easeDriver
 */
-int MOAINode::_seekAttr ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UNNN" )
+mrb_value MOAINode::_seekAttr ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UNNN" )
 
-	MOAIEaseDriver* action = new MOAIEaseDriver ();
+	MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 	action->ReserveLinks ( 1 );
 	
-	u32 attrID = state.GetValue < u32 >( 2, 0 );
+	u32 attrID = state.GetParamValue < u32 >( 1, 0 );
 	if ( self->CheckAttrExists ( attrID )) {
 	
 		MOAIAttribute getter;
 		self->ApplyAttrOp ( attrID, getter, MOAIAttribute::GET );
-		if ( !getter.IsValid ()) return 0;
+		if ( !getter.IsValid ()) return state.ToRValue < MOAIRubyObject* >( action );
 		
-		float value		= state.GetValue < float >( 3, 0.0f );
-		float delay		= state.GetValue < float >( 4, 0.0f );
-		u32 mode		= state.GetValue < u32 >( 5, ZLInterpolate::kSmooth );
+		float value		= state.GetParamValue < float >( 2, 0.0f );
+		float delay		= state.GetParamValue < float >( 3, 0.0f );
+		u32 mode		= state.GetParamValue < u32 >( 4, ZLInterpolate::kSmooth );
 		
 		action->SetLink ( 0, self, attrID, value - getter.GetValue ( 0.0f ), mode );
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
 
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( action );
 	}
 	
-	MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
-	return 0;
+	MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
+	return state.ToRValue < MOAIRubyObject* >( action );
 }
 
 //----------------------------------------------------------------//
@@ -288,11 +286,11 @@ int MOAINode::_seekAttr ( lua_State* L ) {
 	@in		number value
 	@out	nil
 */
-int MOAINode::_setAttr ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UNN" );
+mrb_value MOAINode::_setAttr ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UNN" );
 	
-	u32 attrID = state.GetValue < u32 >( 2, 0 );
-	float value = state.GetValue < float >( 3, 0.0f );
+	u32 attrID = state.GetParamValue < u32 >( 1, 0 );
+	float value = state.GetParamValue < float >( 2, 0.0f );
 	
 	if ( self->CheckAttrExists ( attrID )) {
 	
@@ -304,10 +302,10 @@ int MOAINode::_setAttr ( lua_State* L ) {
 		self->ScheduleUpdate ();
 	}
 	else {
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
 	}
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -321,24 +319,24 @@ int MOAINode::_setAttr ( lua_State* L ) {
 	@opt	number sourceAttrID			Attribute in foreign node to control value of attribue. Default value is attrID.
 	@out	nil
 */
-int MOAINode::_setAttrLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UNU" );
+mrb_value MOAINode::_setAttrLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UNU" );
 	
-	u32 attrID = state.GetValue < u32 >( 2, 0 );
+	u32 attrID = state.GetParamValue < u32 >( 1, 0 );
 	
-	MOAINode* srcNode = state.GetLuaObject < MOAINode >( 3, true );
-	if ( !srcNode ) return 0;
+	MOAINode* srcNode = state.GetRubyObject < MOAINode >( 2, true );
+	if ( !srcNode ) return context;
 
-	u32 srcAttrID = state.GetValue < u32 >( 4, attrID );
+	u32 srcAttrID = state.GetParamValue < u32 >( 3, attrID );
 	
 	if ( srcNode->CheckAttrExists ( srcAttrID )) {
 		self->SetAttrLink ( attrID, srcNode, srcAttrID );
 		self->ScheduleUpdate ();
-		return 0;
+		return context;
 	}
 	
-	MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
-	return 0;
+	MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_MOAINode_AttributeNotFound );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -351,15 +349,15 @@ int MOAINode::_setAttrLink ( lua_State* L ) {
 	@in		MOAINode sourceNode
 	@out	nil
 */
-int MOAINode::_setNodeLink ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAINode, "UU" );
+mrb_value MOAINode::_setNodeLink ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAINode, "UU" );
 	
-	MOAINode* srcNode = state.GetLuaObject < MOAINode >( 2, true );
-	if ( !srcNode ) return 0;
+	MOAINode* srcNode = state.GetRubyObject < MOAINode >( 1, true );
+	if ( !srcNode ) return context;
 	
 	self->SetNodeLink ( *srcNode );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -471,9 +469,9 @@ void MOAINode::DepNodeUpdate () {
 		this->mState = STATE_UPDATING;
 		this->PullAttributes ();
 
-		InvokeListenerWithSelf ( EVENT_NODE_PRE_UPDATE );
+		InvokeListener ( EVENT_NODE_PRE_UPDATE );
 		this->MOAINode_Update ();
-		InvokeListenerWithSelf ( EVENT_NODE_POST_UPDATE );
+		InvokeListener ( EVENT_NODE_POST_UPDATE );
 		
 		this->mState = STATE_ACTIVE;
 	}
@@ -601,43 +599,35 @@ bool MOAINode::PullLinkedAttr ( u32 attrID, MOAIAttribute& attr ) {
 }
 
 //----------------------------------------------------------------//
-void MOAINode::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAINode::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIInstanceEventSource::RegisterLuaClass ( state );
-
-	state.SetField ( -1, "EVENT_UPDATE",			( u32 )EVENT_NODE_PRE_UPDATE ); // TODO: deprecate
+	state.DefineClassConst ( klass ,"EVENT_UPDATE",				( u32 )EVENT_NODE_PRE_UPDATE ); // TODO: deprecate
 	
-	state.SetField ( -1, "EVENT_NODE_PRE_UPDATE",	( u32 )EVENT_NODE_PRE_UPDATE );
-	state.SetField ( -1, "EVENT_NODE_POST_UPDATE",	( u32 )EVENT_NODE_POST_UPDATE );
+	state.DefineClassConst ( klass, "EVENT_NODE_PRE_UPDATE",	( u32 )EVENT_NODE_PRE_UPDATE );
+	state.DefineClassConst ( klass, "EVENT_NODE_POST_UPDATE",	( u32 )EVENT_NODE_POST_UPDATE );
 	
-	state.SetField ( -1, "STATE_IDLE",				( u32 )STATE_IDLE );
-	state.SetField ( -1, "STATE_ACTIVE",			( u32 )STATE_ACTIVE );
-	state.SetField ( -1, "STATE_SCHEDULED",			( u32 )STATE_SCHEDULED );
-	state.SetField ( -1, "STATE_UPDATING",			( u32 )STATE_UPDATING );
+	state.DefineClassConst ( klass, "STATE_IDLE",				( u32 )STATE_IDLE );
+	state.DefineClassConst ( klass, "STATE_ACTIVE",				( u32 )STATE_ACTIVE );
+	state.DefineClassConst ( klass, "STATE_SCHEDULED",			( u32 )STATE_SCHEDULED );
+	state.DefineClassConst ( klass, "STATE_UPDATING",			( u32 )STATE_UPDATING );
 }
 
 //----------------------------------------------------------------//
-void MOAINode::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAINode::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIInstanceEventSource::RegisterLuaFuncs ( state );
+	state.DefineInstanceMethod ( klass, "clearAttrLink", _clearAttrLink, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "clearNodeLink", _clearNodeLink, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "forceUpdate", _forceUpdate, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAttr", _getAttr, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getAttrLink", _getAttrLink, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getNodeState", _getNodeState, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "moveAttr", _moveAttr, MRB_ARGS_REQ ( 3 ) | MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "scheduleUpdate", _scheduleUpdate, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "seekAttr", _seekAttr, MRB_ARGS_REQ ( 3 ) | MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setAttr", _setAttr, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setAttrLink", _setAttrLink, MRB_ARGS_REQ ( 2 ) | MRB_ARGS_OPT ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setNodeLink", _setNodeLink, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_Reg regTable [] = {
-		{ "clearAttrLink",			_clearAttrLink },
-		{ "clearNodeLink",			_clearNodeLink },
-		{ "forceUpdate",			_forceUpdate },
-		{ "getAttr",				_getAttr },
-		{ "getAttrLink",			_getAttrLink },
-		{ "getNodeState",			_getNodeState },
-		{ "moveAttr",				_moveAttr },
-		{ "scheduleUpdate",			_scheduleUpdate },
-		{ "seekAttr",				_seekAttr },
-		{ "setAttr",				_setAttr },
-		{ "setAttrLink",			_setAttrLink },
-		{ "setNodeLink",			_setNodeLink },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

@@ -13,7 +13,7 @@ class MOAISensor;
 	@text	Manager class for input bindings. Has no public methods.
 */
 class MOAIInputDevice :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	STLString	mName;
@@ -22,8 +22,12 @@ private:
 
 	ZLLeanArray < MOAISensor* > mSensors;
 
+	MOAIRubyStrongRef			mSensorsHash;
+
 	//----------------------------------------------------------------//
-	static int		_getHardwareInfo		( lua_State* L );
+	static mrb_value		_getHardwareInfo		( mrb_state* M, mrb_value context );
+	static mrb_value		_getSensors				( mrb_state* M, mrb_value context );
+	static mrb_value		_methodMissing			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	MOAISensor*		GetSensor				( u8 sensorID );
@@ -34,7 +38,7 @@ public:
 	friend class MOAIInputContext;
 	friend class MOAIInputMgr;
 
-	DECL_LUA_FACTORY ( MOAIInputDevice )
+	DECL_RUBY_FACTORY ( MOAIInputDevice, MOAIRubyObject )
 
 	GET_SET ( STLString, Name, mName );
 	GET_SET ( bool, Active, mIsActive );
@@ -43,8 +47,8 @@ public:
 	void			ClearSensorState		();
 					MOAIInputDevice			();
 					~MOAIInputDevice		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			ReserveSensors			( u8 total );
 	void			ResetSensorState		();
 	void			SetHardwareInfo			( cc8* hardwareInfo );

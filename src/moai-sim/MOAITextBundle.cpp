@@ -40,19 +40,19 @@ inline unsigned long hashpjw(const char *str_param) {
 		@in		string filename			The filename to load.
 		@out	number size				The number of bytes in this data buffer object.
  */
-int MOAITextBundle::_load( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextBundle, "U" );
+mrb_value MOAITextBundle::_load( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextBundle, "U" );
 	
-	MOAIDataBuffer* data = state.GetLuaObject < MOAIDataBuffer >( 2, false );
-	if( data )
-	{
-		lua_pushboolean(state, self->Load(data));
+	MOAIDataBuffer* data = state.GetRubyObject < MOAIDataBuffer >( 1, false );
+
+	if ( data ) {
+		return state.ToRValue ( self->Load ( data ) );
 	}
-	else if ( state.IsType( 2, LUA_TSTRING ) ) {
-		lua_pushboolean(state, self->Load(state.GetValue<cc8*>(2, 0)));
+	else if ( state.ParamIsType ( 1, MRB_TT_STRING ) ) {
+		return state.ToRValue ( self->Load ( state.GetParamValue < cc8* > ( 1, 0 ) ) );
 	}
 	
-	return 1;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -66,20 +66,21 @@ int MOAITextBundle::_load( lua_State* L ) {
 	@out	string value			The value if found, otherwise it returns the original string if not found.
 	@out	boolean found			True if the string was found in the table (regardless of returned value), or false if it couldn't be found.
  */
-int MOAITextBundle::_lookup( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITextBundle, "US" );
+mrb_value MOAITextBundle::_lookup( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITextBundle, "US" );
 	
-	cc8 *key = state.GetValue<cc8*>(2, 0);
-	if( !key ) {
-		lua_pushnil(L);
-		return 1;
+	cc8* key = state.GetParamValue < cc8* >( 1, 0 );
+	if ( !key ) {
+		return mrb_nil_value ();
 	}
-	
-	cc8 *val = self->Lookup(key);
-	lua_pushstring(L, val);
-	lua_pushboolean(L, val != key);
-	
-	return 2;
+
+	cc8* val = self->Lookup ( key );
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( val );
+	ret [ 1 ] = state.ToRValue ( val != key );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //================================================================//
@@ -88,9 +89,8 @@ int MOAITextBundle::_lookup( lua_State* L ) {
 
 //----------------------------------------------------------------//
 MOAITextBundle::MOAITextBundle ()
-: mData(0)
-{
-	RTTI_SINGLE ( MOAILuaObject )
+	: mData ( 0 ) {
+	RTTI_SINGLE ( MOAIRubyObject )
 
 	Clear();
 }
@@ -101,27 +101,24 @@ MOAITextBundle::~MOAITextBundle () {
 }
 
 //----------------------------------------------------------------//
-void MOAITextBundle::RegisterLuaClass ( MOAILuaState& state ) {
-	UNUSED(state);
+void MOAITextBundle::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITextBundle::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITextBundle::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	luaL_Reg regTable [] = {
-		{ "load",			_load },
-		{ "lookup",			_lookup },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "load",		_load, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "lookup",	_lookup, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//
 void MOAITextBundle::Clear ( ) {
-	if( this->mData )
-	{
-		delete [] (char *)this->mData;
+
+	if ( this->mData ) {
+		delete[] ( char* )this->mData;
 		this->mData = 0;
 	}
 	this->mReversed = false;
@@ -133,7 +130,8 @@ void MOAITextBundle::Clear ( ) {
 }
 
 //----------------------------------------------------------------//
-bool MOAITextBundle::Load(const char *filename) {
+bool MOAITextBundle::Load ( const char *filename ) {
+
 	Clear();
 
 	if( filename == 0 ) {
@@ -146,95 +144,96 @@ bool MOAITextBundle::Load(const char *filename) {
 		return false;
 	}
 	
-	return this->Load(&buf);
+	return this->Load ( &buf );
 }
 
 //----------------------------------------------------------------//
 bool MOAITextBundle::Load(MOAIDataBuffer *buffer) {
 	
-	Clear();
-	if( buffer == 0 ) {
+	Clear ();
+
+	if ( buffer == 0 ) {
 		return false;
 	}
-	
-	void *bytes;
+
+	void* bytes;
 	size_t nbytes;
-	
-	buffer->Lock(&bytes, &nbytes);
-	
-	if( nbytes > 0 ) {
-		mData = (void *)( new char[nbytes] );
-		memcpy(mData, bytes, nbytes);
+
+	buffer->Lock ( &bytes, &nbytes );
+
+	if ( nbytes > 0 ) {
+		mData = (void* )( new char [ nbytes ] );
+		memcpy ( mData, bytes, nbytes );
 	}
-	
-	buffer->Unlock();
-	
-	if( mData == 0 )
+
+	buffer->Unlock ();
+
+	if ( mData == 0 )
 		return false;
 
 	const unsigned long MAGIC = 0x950412DE;
 	const unsigned long MAGIC_REVERSED = 0xDE120495;
-	
-	unsigned long magic = ((unsigned long *)mData)[0];
-	if( magic == MAGIC ) {
+
+	unsigned long magic = ( (unsigned long* )mData ) [ 0 ];
+	if ( magic == MAGIC ) {
 		mReversed = false;
 	}
-	else if( magic == MAGIC_REVERSED ) {
+	else if ( magic == MAGIC_REVERSED ) {
 		mReversed = true;
 	}
 	else {
 		// Bad file?
-		Clear();
+		Clear ();
 		return false;
 	}
-	
-	mNumStrings = readInt4(8);
-	mKTableOffset = readInt4(12);
-	mVTableOffset = readInt4(16);
-	mNumHashEntries = readInt4(20);
-	mHashOffset = readInt4(24);
-	
-	if( mNumHashEntries == 0 ) {
+
+	mNumStrings = readInt4 ( 8 );
+	mKTableOffset = readInt4 ( 12 );
+	mVTableOffset = readInt4 ( 16 );
+	mNumHashEntries = readInt4 ( 20 );
+	mHashOffset = readInt4 ( 24 );
+
+	if ( mNumHashEntries == 0 ) {
 		// We require an embedded hash table
-		Clear();
+		Clear ();
 		return false;
 	}
-	
+
 	return true;
 }
 
 //----------------------------------------------------------------//
-int MOAITextBundle::GetIndex(const char *key) {
-	unsigned long V = hashpjw(key);
+int MOAITextBundle::GetIndex ( cc8* key ) {
+	unsigned long V = hashpjw ( key );
 	int S = this->mNumHashEntries;
-	
+
 	int cursor = V % S;
 	int cursor0 = cursor;
-	int inc = 1 + (V % (S - 2));
-	
+	int inc = 1 + ( V % ( S - 2 ) );
+
 	bool more = true;
-	while (more) {
-		int idx = readInt4(this->mHashOffset + 4 * cursor);
-		if( idx == 0 ) {
+	while ( more ) {
+		int idx = readInt4 ( this->mHashOffset + 4 * cursor );
+		if ( idx == 0 ) {
 			break;
 		}
-		
+
 		idx--; // Indexes are stored as +1, so 0 indicates empty
-		
-		const char *s = this->GetKeyString(idx);
-		if( strcmp(key, s) == 0 ) {
+
+		const char* s = this->GetKeyString ( idx );
+		if ( strcmp ( key, s ) == 0 ) {
 			return idx;
 		}
-		
+
 		cursor += inc;
 		cursor %= S;
-		
-		if( cursor == cursor0 ) {
+
+		if ( cursor == cursor0 ) {
 			break;
 		}
-		
+
 	}
-	
+
 	return -1;
 }
 

@@ -29,17 +29,17 @@
 	@out	number x3
 	@out	number y3
 */
-int MOAISpriteDeck2D::_getQuad ( lua_State *L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "U" )
+mrb_value MOAISpriteDeck2D::_getQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "U" )
 	
 	u32 quadID = 0;
 	u32 idx = 2;
 	
-	if ( state.GetTop () == 10 ) {
-		quadID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 10 ) {
+		quadID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
 	
-	return quadID < self->mQuads.Size () ? state.Push ( self->mQuads [ quadID ]) : 0;
+	return quadID < self->mQuads.Size () ? state.Get ( self->mQuads [ quadID ]) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -53,17 +53,17 @@ int MOAISpriteDeck2D::_getQuad ( lua_State *L ) {
 	@out	number xMax
 	@out	number yMax
 */
-int MOAISpriteDeck2D::_getRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UN" )
+mrb_value MOAISpriteDeck2D::_getRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UN" )
 	
 	u32 rectID = 0;
 	u32 idx = 2;
 	
-	if ( state.GetTop () == 10 ) {
-		rectID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 10 ) {
+		rectID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
 	
-	return rectID < self->mQuads.Size () ? state.Push ( self->mQuads [ rectID ].GetBounds ()) : 0;
+	return rectID < self->mQuads.Size () ? state.Get ( self->mQuads [ rectID ].GetBounds ()) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -82,17 +82,17 @@ int MOAISpriteDeck2D::_getRect ( lua_State* L ) {
 	@out	number u3
 	@out	number v3
 */
-int MOAISpriteDeck2D::_getUVQuad ( lua_State *L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UN" )
+mrb_value MOAISpriteDeck2D::_getUVQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UN" )
 	
 	u32 quadID = 0;
 	u32 idx = 2;
 	
-	if ( state.GetTop () == 10 ) {
-		quadID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 10 ) {
+		quadID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
 	
-	return quadID < self->mQuads.Size () ? state.Push ( self->mUVQuads [ quadID ]) : 0;
+	return quadID < self->mQuads.Size () ? state.Get ( self->mUVQuads [ quadID ]) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -106,17 +106,17 @@ int MOAISpriteDeck2D::_getUVQuad ( lua_State *L ) {
 	@out	number xMax
 	@out	number yMax
 */
-int MOAISpriteDeck2D::_getUVRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "U" )
+mrb_value MOAISpriteDeck2D::_getUVRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "U" )
 	
 	u32 rectID = 0;
 	u32 idx = 2;
 	
-	if ( state.GetTop () == 10 ) {
-		rectID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 10 ) {
+		rectID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
 	
-	return rectID < self->mUVQuads.Size () ? state.Push ( self->mUVQuads [ rectID ].GetBounds ()) : 0;
+	return rectID < self->mUVQuads.Size () ? state.Get ( self->mUVQuads [ rectID ].GetBounds ()) : mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -127,13 +127,13 @@ int MOAISpriteDeck2D::_getUVRect ( lua_State* L ) {
 	@in		number nQuads
 	@out	nil
 */
-int MOAISpriteDeck2D::_reserveQuads ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UN" )
+mrb_value MOAISpriteDeck2D::_reserveQuads ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveQuads ( total );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -144,13 +144,13 @@ int MOAISpriteDeck2D::_reserveQuads ( lua_State* L ) {
 	@in		number nPairs
 	@out	nil
 */
-int MOAISpriteDeck2D::_reserveSprites ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UN" )
+mrb_value MOAISpriteDeck2D::_reserveSprites ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReservePairs ( total );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -161,13 +161,13 @@ int MOAISpriteDeck2D::_reserveSprites ( lua_State* L ) {
 	@in		number nLists
 	@out	nil
 */
-int MOAISpriteDeck2D::_reserveSpriteLists ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UN" )
+mrb_value MOAISpriteDeck2D::_reserveSpriteLists ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveLists ( total );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -178,13 +178,13 @@ int MOAISpriteDeck2D::_reserveSpriteLists ( lua_State* L ) {
 	@in		number nUVQuads
 	@out	nil
 */
-int MOAISpriteDeck2D::_reserveUVQuads ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UN" )
+mrb_value MOAISpriteDeck2D::_reserveUVQuads ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UN" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveUVQuads ( total );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -204,21 +204,21 @@ int MOAISpriteDeck2D::_reserveUVQuads ( lua_State* L ) {
 	@in		number y3
 	@out	nil
 */
-int MOAISpriteDeck2D::_setQuad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "U" )
+mrb_value MOAISpriteDeck2D::_setQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "U" )
 
 	u32 quadID = 0;
-	u32 idx = 2;
+	u32 idx = 1;
 	
-	if ( state.GetTop () == 10 ) {
-		quadID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 10 ) {
+		quadID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
-	ZLQuad quad = state.GetQuad ( idx );
+	ZLQuad quad = state.GetParamQuad ( idx );
 
 	self->SetQuad ( quadID, quad );
 	self->SetBoundsDirty ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -233,21 +233,21 @@ int MOAISpriteDeck2D::_setQuad ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAISpriteDeck2D::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "U" )
+mrb_value MOAISpriteDeck2D::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "U" )
 
 	u32 rectID = 0;
-	u32 idx = 2;
+	u32 idx = 1;
 	
-	if ( state.GetTop () == 6 ) {
-		rectID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 6 ) {
+		rectID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
 	ZLRect rect = state.GetRect < float >( idx );
 
 	self->SetRect ( rectID, rect );
 	self->SetBoundsDirty ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -261,17 +261,17 @@ int MOAISpriteDeck2D::_setRect ( lua_State* L ) {
 	@opt	number materialID
 	@out	nil
 */
-int MOAISpriteDeck2D::_setSprite ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UNNN" )
+mrb_value MOAISpriteDeck2D::_setSprite ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UNNN" )
 
-	u32 idx			= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 uvQuadID	= state.GetValue < u32 >( 3, 1 ) - 1;
-	u32 quadID		= state.GetValue < u32 >( 4, 1 ) - 1;
-	u32 materialID	= state.GetValue < u32 >( 5, 1 ) - 1;
+	u32 idx			= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 uvQuadID	= state.GetParamValue < u32 >( 2, 1 ) - 1;
+	u32 quadID		= state.GetParamValue < u32 >( 3, 1 ) - 1;
+	u32 materialID	= state.GetParamValue < u32 >( 4, 1 ) - 1;
 	
 	self->SetPair ( idx, uvQuadID, quadID, materialID );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -287,16 +287,16 @@ int MOAISpriteDeck2D::_setSprite ( lua_State* L ) {
 	@in		number totalPairs	The run of the list - total pairs to display (including base).
 	@out	nil
 */
-int MOAISpriteDeck2D::_setSpriteList ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UNNN" )
+mrb_value MOAISpriteDeck2D::_setSpriteList ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UNNN" )
 
-	u32 idx			= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 basePairID	= state.GetValue < u32 >( 3, 1 ) - 1;
-	u32 totalPairs	= state.GetValue < u32 >( 4, 0 );
+	u32 idx			= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 basePairID	= state.GetParamValue < u32 >( 2, 1 ) - 1;
+	u32 totalPairs	= state.GetParamValue < u32 >( 3, 0 );
 
 	self->SetList ( idx, basePairID, totalPairs );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -316,20 +316,20 @@ int MOAISpriteDeck2D::_setSpriteList ( lua_State* L ) {
 	@in		number y3
 	@out	nil
 */
-int MOAISpriteDeck2D::_setUVQuad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "U" )
+mrb_value MOAISpriteDeck2D::_setUVQuad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "U" )
 
 	u32 quadID = 0;
-	u32 idx = 2;
+	u32 idx = 1;
 	
-	if ( state.GetTop () == 10 ) {
-		quadID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 10 ) {
+		quadID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
-	ZLQuad quad = state.GetQuad ( idx );
+	ZLQuad quad = state.GetParamQuad ( idx );
 
 	self->SetUVQuad ( quadID, quad );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -344,20 +344,20 @@ int MOAISpriteDeck2D::_setUVQuad ( lua_State* L ) {
 	@in		number yMax
 	@out	nil
 */
-int MOAISpriteDeck2D::_setUVRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "U" )
+mrb_value MOAISpriteDeck2D::_setUVRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "U" )
 
 	u32 rectID = 0;
-	u32 idx = 2;
+	u32 idx = 1;
 	
-	if ( state.GetTop () == 6 ) {
-		rectID = state.GetValue < u32 >( idx++, 1 ) - 1;
+	if ( state.GetParamsCount () == 6 ) {
+		rectID = state.GetParamValue < u32 >( idx++, 1 ) - 1;
 	}
 	ZLRect rect = state.GetRect < float >( idx );
 
 	self->SetUVRect ( rectID, rect );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -368,16 +368,16 @@ int MOAISpriteDeck2D::_setUVRect ( lua_State* L ) {
 	@in		MOAITransform transform
 	@out	nil
 */
-int MOAISpriteDeck2D::_transform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UU" )
+mrb_value MOAISpriteDeck2D::_transform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UU" )
 	
-	MOAITransformBase* transform = state.GetLuaObject < MOAITransformBase >( 2, true );
+	MOAITransformBase* transform = state.GetRubyObject < MOAITransformBase >( 1, true );
 	if ( transform ) {
 		transform->ForceUpdate ();
 		self->Transform ( transform->GetLocalToWorldMtx ());
 		self->SetBoundsDirty ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -388,15 +388,15 @@ int MOAISpriteDeck2D::_transform ( lua_State* L ) {
 	@in		MOAITransform transform
 	@out	nil
 */
-int MOAISpriteDeck2D::_transformUV ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISpriteDeck2D, "UU" )
+mrb_value MOAISpriteDeck2D::_transformUV ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISpriteDeck2D, "UU" )
 	
-	MOAITransformBase* transform = state.GetLuaObject < MOAITransformBase >( 2, true );
+	MOAITransformBase* transform = state.GetRubyObject < MOAITransformBase >( 1, true );
 	if ( transform ) {
 		transform->ForceUpdate ();
 		self->TransformUV ( transform->GetLocalToWorldMtx ());
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -404,16 +404,16 @@ int MOAISpriteDeck2D::_transformUV ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAIDeck* MOAISpriteDeck2D::AffirmDeck ( MOAILuaState& state, int idx ) {
+MOAIDeck* MOAISpriteDeck2D::AffirmDeck ( MOAIRubyState& state, int idx ) {
 
-	MOAIDeck* deck = state.GetLuaObject < MOAIDeck >( idx, false );
+	MOAIDeck* deck = state.GetRubyObject < MOAIDeck >( idx, false );
 	if ( deck ) return deck;
 	
 	MOAITextureBase* texture = MOAITexture::AffirmTexture ( state, idx );
 		
 	if ( texture ) {
 		
-		MOAISpriteDeck2D* quadDeck = new MOAISpriteDeck2D ();
+		MOAISpriteDeck2D* quadDeck = state.CreateClassInstance < MOAISpriteDeck2D >();
 		MOAIMaterialBatch* batch = quadDeck->AffirmMaterialBatch ();
 	
 		assert ( quadDeck );
@@ -485,39 +485,35 @@ MOAISpriteDeck2D::~MOAISpriteDeck2D () {
 }
 
 //----------------------------------------------------------------//
-void MOAISpriteDeck2D::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAISpriteDeck2D::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIDeck::RegisterLuaClass ( state );
-	MOAIMaterialBatchHolder::RegisterLuaClass ( state );
+	MOAIDeck::RegisterRubyClass ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAISpriteDeck2D::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAISpriteDeck2D::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
-	MOAIMaterialBatchHolder::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getQuad",				_getQuad },
-		{ "getRect",				_getRect },
-		{ "getUVQuad",				_getUVQuad },
-		{ "getUVRect",				_getUVRect },
-		{ "reserveQuads",			_reserveQuads },
-		{ "reserveSprites",			_reserveSprites },
-		{ "reserveSpriteLists",		_reserveSpriteLists },
-		{ "reserveUVQuads",			_reserveUVQuads },
-		{ "setQuad",				_setQuad },
-		{ "setRect",				_setRect },
-		{ "setSprite",				_setSprite },
-		{ "setSpriteList",			_setSpriteList },
-		{ "setUVQuad",				_setUVQuad },
-		{ "setUVRect",				_setUVRect },
-		{ "transform",				_transform },
-		{ "transformUV",			_transformUV },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getQuad", _getQuad, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getRect", _getRect, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getUVQuad", _getUVQuad, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getUVRect", _getUVRect, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveQuads", _reserveQuads, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveSprites", _reserveSprites, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveSpriteLists", _reserveSpriteLists, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveUVQuads", _reserveUVQuads, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setQuad", _setQuad, MRB_ARGS_REQ ( 9 ) );
+	state.DefineInstanceMethod ( klass, "setRect", _setRect, MRB_ARGS_REQ ( 5 ) );
+	state.DefineInstanceMethod ( klass, "setSprite", _setSprite, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setSpriteList", _setSpriteList, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setUVQuad", _setUVQuad, MRB_ARGS_REQ ( 9 ) );
+	state.DefineInstanceMethod ( klass, "setUVRect", _setUVRect, MRB_ARGS_REQ ( 5 ) );
+	state.DefineInstanceMethod ( klass, "transform", _transform, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "transformUV", _transformUV, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -551,14 +547,14 @@ void MOAISpriteDeck2D::ReserveUVQuads ( u32 total ) {
 }
 
 //----------------------------------------------------------------//
-void MOAISpriteDeck2D::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAISpriteDeck2D::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIDeck::SerializeIn ( state, serializer );
 	MOAIMaterialBatchHolder::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAISpriteDeck2D::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAISpriteDeck2D::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIDeck::SerializeOut ( state, serializer );
 	MOAIMaterialBatchHolder::SerializeOut ( state, serializer );

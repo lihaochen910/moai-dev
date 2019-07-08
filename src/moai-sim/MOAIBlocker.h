@@ -8,7 +8,7 @@
 // MOAIBlocker
 //================================================================//
 class MOAIBlocker :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	MOAIBlocker*		mBlocker;

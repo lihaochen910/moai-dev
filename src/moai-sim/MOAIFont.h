@@ -63,16 +63,16 @@ class MOAITexture;
 	@const	DEFAULT_FLAGS
 */
 class MOAIFont :
-	public virtual MOAILuaObject,
+	public virtual MOAIRubyObject,
 	public MOAIInstanceEventSource {
 protected:
 
 	STLString mFilename;
 	u32 mFlags;
 	
-	MOAILuaSharedPtr < MOAIFontReader > mReader;
-	MOAILuaSharedPtr < MOAIGlyphCache > mCache;
-	MOAILuaSharedPtr < MOAIShader > mShader;
+	MOAIRubySharedPtr < MOAIFontReader > mReader;
+	MOAIRubySharedPtr < MOAIGlyphCache > mCache;
+	MOAIRubySharedPtr < MOAIShader > mShader;
 	
 	// for now
 	typedef STLMap < float, MOAIGlyphSet >::iterator GlyphSetsIt;
@@ -84,27 +84,27 @@ protected:
 	int	mMagFilter;
 
 	//----------------------------------------------------------------//
-	static int			_getCache				( lua_State* L );
-	static int			_getDefaultSize         ( lua_State* L );
-	static int			_getFilename			( lua_State* L );
-	static int			_getFlags				( lua_State* L );
-	static int			_getImage				( lua_State* L );
-	static int			_getReader				( lua_State* L );
-	static int			_load					( lua_State* L );
-	static int			_loadFromBMFont			( lua_State* L );
-	static int			_preloadGlyphs			( lua_State* L );
-	static int			_rebuildKerningTables	( lua_State* L );
-	static int			_setCache				( lua_State* L );
-	static int			_setDefaultSize			( lua_State* L );
-	static int			_setFilter				( lua_State* L );
-	static int			_setFlags				( lua_State* L );
-	static int			_setImage				( lua_State* L );
-	static int			_setReader				( lua_State* L );
-	static int			_setShader				( lua_State* L );
+	static mrb_value			_getCache				( mrb_state* M, mrb_value context );
+	static mrb_value			_getDefaultSize         ( mrb_state* M, mrb_value context );
+	static mrb_value			_getFilename			( mrb_state* M, mrb_value context );
+	static mrb_value			_getFlags				( mrb_state* M, mrb_value context );
+	static mrb_value			_getImage				( mrb_state* M, mrb_value context );
+	static mrb_value			_getReader				( mrb_state* M, mrb_value context );
+	static mrb_value			_load					( mrb_state* M, mrb_value context );
+	static mrb_value			_loadFromBMFont			( mrb_state* M, mrb_value context );
+	static mrb_value			_preloadGlyphs			( mrb_state* M, mrb_value context );
+	static mrb_value			_rebuildKerningTables	( mrb_state* M, mrb_value context );
+	static mrb_value			_setCache				( mrb_state* M, mrb_value context );
+	static mrb_value			_setDefaultSize			( mrb_state* M, mrb_value context );
+	static mrb_value			_setFilter				( mrb_state* M, mrb_value context );
+	static mrb_value			_setFlags				( mrb_state* M, mrb_value context );
+	static mrb_value			_setImage				( mrb_state* M, mrb_value context );
+	static mrb_value			_setReader				( mrb_state* M, mrb_value context );
+	static mrb_value			_setShader				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	#ifdef DOXYGEN
-		static int		_loadFromTTF			( lua_State* L );
+		static mrb_value		_loadFromTTF			( mrb_state* M, mrb_value context );
 	#endif
 
 	//----------------------------------------------------------------//
@@ -114,7 +114,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIFont )
+	DECL_RUBY_FACTORY ( MOAIFont, MOAIInstanceEventSource )
 	
 	GET ( cc8*, Filename, mFilename );
 	GET ( MOAIGlyphCache*, Cache, mCache );
@@ -150,11 +150,11 @@ public:
 	void				ProcessGlyphs			();
 	void				RebuildKerning			();
 	void				RebuildKerning			( float size );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				ResizePageList			( u32 size );
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

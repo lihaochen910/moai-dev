@@ -21,7 +21,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIParticleCallbackPlugin )
+	DECL_RUBY_FACTORY ( MOAIParticleCallbackPlugin, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 	void			Init							( AKUParticleInitFunc initFunc, AKUParticleRenderFunc renderFunc, int size );
@@ -29,8 +29,8 @@ public:
 					~MOAIParticleCallbackPlugin		();
 	void			OnInit							( float* particle, float* registers );
 	void			OnRender						( float* particle, float* registers, AKUParticleSprite* sprite, float t0, float t1, float term );
-	void			RegisterLuaClass				( MOAILuaState& state );
-	void			RegisterLuaFuncs				( MOAILuaState& state );
+	void			RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

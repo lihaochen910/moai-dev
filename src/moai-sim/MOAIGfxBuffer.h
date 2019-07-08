@@ -53,11 +53,11 @@ protected:
 	bool							mCopyOnUpdate;
 
 	//----------------------------------------------------------------//
-	static int				_copyFromStream			( lua_State* L );
-	static int				_release				( lua_State* L );
-	static int				_reserve				( lua_State* L );
-	static int				_reserveVBOs			( lua_State* L );
-	static int				_scheduleFlush			( lua_State* L );
+	static mrb_value				_copyFromStream			( mrb_state* M, mrb_value context );
+	static mrb_value				_release				( mrb_state* M, mrb_value context );
+	static mrb_value				_reserve				( mrb_state* M, mrb_value context );
+	static mrb_value				_reserveVBOs			( mrb_state* M, mrb_value context );
+	static mrb_value				_scheduleFlush			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	ZLSharedConstBuffer*	GetBufferForBind		( ZLGfx& gfx );
@@ -83,12 +83,12 @@ public:
 								MOAIGfxBuffer			();
 								~MOAIGfxBuffer			();
 	bool						OnGPUUpdate				();
-	void						RegisterLuaClass		( MOAILuaState& state );
-	void						RegisterLuaFuncs		( MOAILuaState& state );
+	void						RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void						RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void						Reserve					( u32 size );
 	void						ReserveVBOs				( u32 gpuBuffers );
-	void						SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void						SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void						SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void						SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

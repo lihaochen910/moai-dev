@@ -19,14 +19,14 @@
 	@out	number yDirection
 	@out	number zDirection
 */
-int MOAITransformBase::_getWorldDir ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldDir ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
-	state.Push ( self->mLocalToWorldMtx.GetHeading ());
-	
-	return 3;
+	ZLVec3D worldDir = self->mLocalToWorldMtx.GetHeading ();
+
+	return state.Get ( worldDir );
 }
 
 //----------------------------------------------------------------//
@@ -38,14 +38,14 @@ int MOAITransformBase::_getWorldDir ( lua_State* L ) {
 	@out	number yLoc
 	@out	number zLoc
 */
-int MOAITransformBase::_getWorldLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 	
-	state.Push ( self->mLocalToWorldMtx.GetTranslation ());
+	ZLVec3D worldLoc = self->mLocalToWorldMtx.GetTranslation ();
 
-	return 3;
+	return state.Get ( worldLoc );
 }
 
 //----------------------------------------------------------------//
@@ -55,14 +55,12 @@ int MOAITransformBase::_getWorldLoc ( lua_State* L ) {
 	@in		MOAITransformBase self
 	@out	number degrees
 */
-int MOAITransformBase::_getWorldRot ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldRot ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
-	state.Push ( self->mLocalToWorldMtx.GetRot ());
-
-	return 1;
+	return state.ToRValue ( self->mLocalToWorldMtx.GetRot () );
 }
 
 //----------------------------------------------------------------//
@@ -74,14 +72,14 @@ int MOAITransformBase::_getWorldRot ( lua_State* L ) {
 	@out	number yScale
 	@out	number zScale
 */
-int MOAITransformBase::_getWorldScl ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldScl ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
-	state.Push ( self->mLocalToWorldMtx.GetStretch ());
+	ZLVec3D worldScl = self->mLocalToWorldMtx.GetStretch ();
 
-	return 3;
+	return state.Get ( worldScl );
 }
 
 //----------------------------------------------------------------//
@@ -93,14 +91,14 @@ int MOAITransformBase::_getWorldScl ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int	MOAITransformBase::_getWorldXAxis ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldXAxis ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
-	state.Push ( self->mLocalToWorldMtx.GetXAxis ());
+	ZLVec3D xAxis = self->mLocalToWorldMtx.GetXAxis ();
 
-	return 3;
+	return state.Get ( xAxis );
 }
 
 //----------------------------------------------------------------//
@@ -112,14 +110,14 @@ int	MOAITransformBase::_getWorldXAxis ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int	MOAITransformBase::_getWorldYAxis ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldYAxis ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
-	state.Push ( self->mLocalToWorldMtx.GetYAxis ());
+	ZLVec3D yAxis = self->mLocalToWorldMtx.GetYAxis ();
 
-	return 3;
+	return state.Get ( yAxis );
 }
 
 //----------------------------------------------------------------//
@@ -131,14 +129,14 @@ int	MOAITransformBase::_getWorldYAxis ( lua_State* L ) {
 	@out	number y
 	@out	number z
 */
-int	MOAITransformBase::_getWorldZAxis ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldZAxis ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
-	state.Push ( self->mLocalToWorldMtx.GetZAxis ());
+	ZLVec3D zAxis = self->mLocalToWorldMtx.GetZAxis ();
 
-	return 3;
+	return state.Get ( zAxis );
 }
 
 //----------------------------------------------------------------//
@@ -151,18 +149,21 @@ int	MOAITransformBase::_getWorldZAxis ( lua_State* L ) {
 	@out	number z
 	@opt	number length
 */
-int	MOAITransformBase::_getWorldXNormal ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldXNormal ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
 	ZLVec3D axis = self->mLocalToWorldMtx.GetXAxis ();
 	float length = axis.NormSafe ();
 
-	state.Push ( axis );
-	lua_pushnumber ( state, length );
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( axis.mX );
+	ret [ 1 ] = state.ToRValue ( axis.mY );
+	ret [ 2 ] = state.ToRValue ( axis.mZ );
+	ret [ 3 ] = state.ToRValue ( length );
 
-	return 4;
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -175,18 +176,21 @@ int	MOAITransformBase::_getWorldXNormal ( lua_State* L ) {
 	@out	number z
 	@opt	number length
 */
-int	MOAITransformBase::_getWorldYNormal ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldYNormal ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
 	ZLVec3D axis = self->mLocalToWorldMtx.GetYAxis ();
 	float length = axis.NormSafe ();
 
-	state.Push ( axis );
-	lua_pushnumber ( state, length );
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( axis.mX );
+	ret [ 1 ] = state.ToRValue ( axis.mY );
+	ret [ 2 ] = state.ToRValue ( axis.mZ );
+	ret [ 3 ] = state.ToRValue ( length );
 
-	return 4;
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -199,18 +203,21 @@ int	MOAITransformBase::_getWorldYNormal ( lua_State* L ) {
 	@out	number z
 	@opt	number length
 */
-int	MOAITransformBase::_getWorldZNormal ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_getWorldZNormal ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
 	ZLVec3D axis = self->mLocalToWorldMtx.GetZAxis ();
 	float length = axis.NormSafe ();
 
-	state.Push ( axis );
-	lua_pushnumber ( state, length );
+	mrb_value ret [ 4 ];
+	ret [ 0 ] = state.ToRValue ( axis.mX );
+	ret [ 1 ] = state.ToRValue ( axis.mY );
+	ret [ 2 ] = state.ToRValue ( axis.mZ );
+	ret [ 3 ] = state.ToRValue ( length );
 
-	return 4;
+	return mrb_ary_new_from_values ( state, 4, ret );
 }
 
 //----------------------------------------------------------------//
@@ -227,23 +234,21 @@ int	MOAITransformBase::_getWorldZNormal ( lua_State* L ) {
 	@out	number z
 	@out	number w
 */
-int MOAITransformBase::_modelToWorld ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_modelToWorld ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
 	ZLVec4D loc;
-	loc.mX = state.GetValue < float >( 2, 0.0f );
-	loc.mY = state.GetValue < float >( 3, 0.0f );
-	loc.mZ = state.GetValue < float >( 4, 0.0f );
-	loc.mW = state.GetValue < float >( 5, 1.0f );
+	loc.mX = state.GetParamValue < float >( 1, 0.0f );
+	loc.mY = state.GetParamValue < float >( 2, 0.0f );
+	loc.mZ = state.GetParamValue < float >( 3, 0.0f );
+	loc.mW = state.GetParamValue < float >( 4, 1.0f );
 
 	ZLAffine3D modelToWorld = self->GetLocalToWorldMtx ();
 	modelToWorld.Transform ( loc );
 
-	state.Push ( loc );
-
-	return 4;
+	return state.Get ( loc );
 }
 
 //----------------------------------------------------------------//
@@ -254,16 +259,16 @@ int MOAITransformBase::_modelToWorld ( lua_State* L ) {
 	@opt	MOAINode parent		Default value is nil.
 	@out	nil
 */
-int MOAITransformBase::_setParent ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_setParent ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
-	MOAINode* parent = state.GetLuaObject < MOAINode >( 2, true );
+	MOAINode* parent = state.GetRubyObject < MOAINode >( 1, true );
 	
 	self->SetAttrLink ( PACK_ATTR ( MOAITransformBase, INHERIT_TRANSFORM ), parent, PACK_ATTR ( MOAITransformBase, TRANSFORM_TRAIT ));
 	
 	//MOAILogF ( state, MOAISTRING_FunctionDeprecated_S, "setParent" );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -280,23 +285,21 @@ int MOAITransformBase::_setParent ( lua_State* L ) {
 	@out	number z
 	@out	number w
 */
-int MOAITransformBase::_worldToModel ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAITransformBase, "U" )
+mrb_value MOAITransformBase::_worldToModel ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAITransformBase, "U" )
 
 	self->ForceUpdate ();
 
 	ZLVec4D loc;
-	loc.mX = state.GetValue < float >( 2, 0.0f );
-	loc.mY = state.GetValue < float >( 3, 0.0f );
-	loc.mZ = state.GetValue < float >( 4, 0.0f );
-	loc.mW = state.GetValue < float >( 5, 1.0f );
+	loc.mX = state.GetParamValue < float >( 1, 0.0f );
+	loc.mY = state.GetParamValue < float >( 2, 0.0f );
+	loc.mZ = state.GetParamValue < float >( 3, 0.0f );
+	loc.mW = state.GetParamValue < float >( 4, 1.0f );
 
 	ZLAffine3D worldToModel = self->GetWorldToLocalMtx ();
 	worldToModel.Transform ( loc );
 
-	state.Push ( loc );
-
-	return 4;
+	return state.Get ( loc );
 }
 
 //================================================================//
@@ -341,49 +344,45 @@ MOAITransformBase::~MOAITransformBase () {
 }
 
 //----------------------------------------------------------------//
-void MOAITransformBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITransformBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAINode::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "ATTR_WORLD_X_LOC",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_X_LOC ));
-	state.SetField ( -1, "ATTR_WORLD_Y_LOC",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Y_LOC ));
-	state.SetField ( -1, "ATTR_WORLD_Z_LOC",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Z_LOC ));
-	state.SetField ( -1, "ATTR_WORLD_Z_ROT",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Z_ROT ));
-	state.SetField ( -1, "ATTR_WORLD_X_SCL",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_X_SCL ));
-	state.SetField ( -1, "ATTR_WORLD_Y_SCL",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Y_SCL ));
-	state.SetField ( -1, "ATTR_WORLD_Z_SCL",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Z_SCL ));
-	state.SetField ( -1, "TRANSFORM_TRAIT",		MOAITransformBaseAttr::Pack ( TRANSFORM_TRAIT ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_X_LOC",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_X_LOC ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_Y_LOC",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Y_LOC ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_Z_LOC",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Z_LOC ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_Z_ROT",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Z_ROT ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_X_SCL",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_X_SCL ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_Y_SCL",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Y_SCL ));
+	state.DefineClassConst ( klass, "ATTR_WORLD_Z_SCL",	MOAITransformBaseAttr::Pack ( ATTR_WORLD_Z_SCL ));
+	state.DefineClassConst ( klass, "TRANSFORM_TRAIT",	MOAITransformBaseAttr::Pack ( TRANSFORM_TRAIT ));
 	
-	state.SetField ( -1, "INHERIT_LOC",			MOAITransformBaseAttr::Pack ( INHERIT_LOC ));
-	state.SetField ( -1, "INHERIT_TRANSFORM",	MOAITransformBaseAttr::Pack ( INHERIT_TRANSFORM ));
+	state.DefineClassConst ( klass, "INHERIT_LOC",			MOAITransformBaseAttr::Pack ( INHERIT_LOC ));
+	state.DefineClassConst ( klass, "INHERIT_TRANSFORM",	MOAITransformBaseAttr::Pack ( INHERIT_TRANSFORM ));
 }
 
 //----------------------------------------------------------------//
-void MOAITransformBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITransformBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getWorldDir", _getWorldDir, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldLoc", _getWorldLoc, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldRot", _getWorldRot, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldScl", _getWorldScl, MRB_ARGS_NONE () );
+
+	state.DefineInstanceMethod ( klass, "getWorldXAxis", _getWorldXAxis, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldYAxis", _getWorldYAxis, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldZAxis", _getWorldZAxis, MRB_ARGS_NONE () );
+
+	state.DefineInstanceMethod ( klass, "getWorldXNormal", _getWorldXNormal, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldYNormal", _getWorldYNormal, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldZNormal", _getWorldZNormal, MRB_ARGS_NONE () );
+
+	state.DefineInstanceMethod ( klass, "modelToWorld", _modelToWorld, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "setParent", _setParent, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "worldToModel", _worldToModel, MRB_ARGS_ARG ( 0, 4 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getWorldDir",		_getWorldDir },
-		{ "getWorldLoc",		_getWorldLoc },
-		{ "getWorldRot",		_getWorldRot },
-		{ "getWorldScl",		_getWorldScl },
-		
-		{ "getWorldXAxis",		_getWorldXAxis },
-		{ "getWorldYAxis",		_getWorldYAxis },
-		{ "getWorldZAxis",		_getWorldZAxis },
-		
-		{ "getWorldXNormal",	_getWorldXNormal },
-		{ "getWorldYNormal",	_getWorldYNormal },
-		{ "getWorldZNormal",	_getWorldZNormal },
-		
-		{ "modelToWorld",		_modelToWorld },
-		{ "setParent",			_setParent },
-		{ "worldToModel",		_worldToModel },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

@@ -38,16 +38,16 @@ private:
 protected:
 
 	//----------------------------------------------------------------//
-	static int			_getRoot				( lua_State* L );
-	static int			_setProfilingEnabled	( lua_State* L );
-	static int			_setRoot				( lua_State* L );
-	static int			_setThreadInfoEnabled	( lua_State* L );
+	static mrb_value	_getRoot				( mrb_state* M, mrb_value context );
+	static mrb_value	_setProfilingEnabled	( mrb_state* M, mrb_value context );
+	static mrb_value	_setRoot				( mrb_state* M, mrb_value context );
+	static mrb_value	_setThreadInfoEnabled	( mrb_state* M, mrb_value context );
 
 public:
 
 	friend class MOAIAction;
 
-	DECL_LUA_FACTORY ( MOAIActionTree )
+	DECL_RUBY_FACTORY ( MOAIActionTree, MOAIAction )
 	
 	GET_SET ( bool, ProfilingEnabled, mProfilingEnabled )
 	GET_SET ( bool, ThreadInfoEnabled, mThreadInfoEnabled )
@@ -56,8 +56,8 @@ public:
 	MOAIAction*			GetDefaultParent		();
 						MOAIActionTree			();
 						~MOAIActionTree			();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				SetDefaultParent		();
 	void				SetDefaultParent		( MOAIAction* defaultParent );
 	void				Update					( double step );

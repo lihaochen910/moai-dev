@@ -12,13 +12,12 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIVertexFormatMgr::_getFormat ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIVertexFormatMgr::_getFormat ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u32 formatID = state.GetValue < u32 >( 1, 0xffffffff );
+	u32 formatID = state.GetParamValue < u32 >( 1, 0xffffffff );
 	
-	state.Push ( MOAIVertexFormatMgr::Get ().GetFormat ( formatID ));
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( MOAIVertexFormatMgr::Get ().GetFormat ( formatID ) );
 }
 
 //================================================================//
@@ -27,6 +26,7 @@ int MOAIVertexFormatMgr::_getFormat ( lua_State* L ) {
 
 //----------------------------------------------------------------//
 MOAIVertexFormat* MOAIVertexFormatMgr::GetFormat ( u32 formatID ) {
+	MOAIRubyState& state = MOAIRubyRuntime::Get ().GetMainState ();
 	
 	MOAIVertexFormat* format = 0;
 	
@@ -36,8 +36,8 @@ MOAIVertexFormat* MOAIVertexFormatMgr::GetFormat ( u32 formatID ) {
 		
 		if ( !format ) {
 
-			format = new MOAIVertexFormat ();
-			this->LuaRetain ( format );
+			format = state.CreateClassInstance < MOAIVertexFormat >();
+			this->RubyRetain ( format );
 			
 			switch ( formatID ) {
 				
@@ -87,7 +87,7 @@ u32 MOAIVertexFormatMgr::GetVertexSize ( u32 formatID ) {
 //----------------------------------------------------------------//
 MOAIVertexFormatMgr::MOAIVertexFormatMgr () {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 	
 	for ( u32 i = 0; i < TOTAL_FORMATS; ++i ) {
 		this->mFormats [ i ] = 0;
@@ -99,29 +99,26 @@ MOAIVertexFormatMgr::~MOAIVertexFormatMgr () {
 
 	for ( u32 i = 0; i < TOTAL_FORMATS; ++i ) {
 		if ( this->mFormats [ i ]) {
-			this->LuaRelease ( this->mFormats [ i ]);
+			this->RubyRelease ( this->mFormats [ i ]);
 		}
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexFormatMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIVertexFormatMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "XYZC",			( u32 )XYZC );
-	state.SetField ( -1, "XYZWC",			( u32 )XYZWC );
-	state.SetField ( -1, "XYZWUVC",			( u32 )XYZWUVC );
-	state.SetField ( -1, "XYZWNNNC",		( u32 )XYZWNNNC );
-	state.SetField ( -1, "XYZWNNNUVC",		( u32 )XYZWNNNUVC );
+	state.DefineClassConst ( klass, "XYZC",			( u32 )XYZC );
+	state.DefineClassConst ( klass, "XYZWC",		( u32 )XYZWC );
+	state.DefineClassConst ( klass, "XYZWUVC",		( u32 )XYZWUVC );
+	state.DefineClassConst ( klass, "XYZWNNNC",		( u32 )XYZWNNNC );
+	state.DefineClassConst ( klass, "XYZWNNNUVC",	( u32 )XYZWNNNUVC );
+
+	state.DefineStaticMethod ( klass, "getFormat", _getFormat, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "getFormat",				_getFormat },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIVertexFormatMgr::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIVertexFormatMgr::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }

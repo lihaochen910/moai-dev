@@ -22,65 +22,65 @@ class MOAIVertexFormat;
 			See MOAIDrawDeck.
 */
 class MOAIDraw :
-	public ZLContextClass < MOAIDraw, MOAILuaObject >,
+	public ZLContextClass < MOAIDraw, MOAIRubyObject >,
 	public MOAIDrawShapeImmediate {
 private:
 
 	//----------------------------------------------------------------//
-	static int			_bind					( lua_State* L );
-	static int			_bindFrameBuffer		( lua_State* L );
-	static int			_bindIndexBuffer		( lua_State* L );
-	static int			_bindShader				( lua_State* L );
-	static int			_bindTexture			( lua_State* L );
-	static int			_bindVertexArray		( lua_State* L );
-	static int			_bindVertexBuffer		( lua_State* L );
-	static int			_bindVertexFormat		( lua_State* L );
-	static int			_clear					( lua_State* L );
-	static int			_drawAnimCurve			( lua_State* L );
-	static int			_drawAxisGrid			( lua_State* L );
-	static int			_drawBezierCurve		( lua_State* L );
-	static int			_drawBoxOutline			( lua_State* L );
-	static int			_drawCircle				( lua_State* L );
-	static int			_drawCircleSpokes		( lua_State* L );
-	static int			_drawElements			( lua_State* L );
-	static int			_drawEllipse			( lua_State* L );
-	static int			_drawEllipseSpokes		( lua_State* L );
-	static int			_drawGrid				( lua_State* L );
-	static int			_drawLine				( lua_State* L );
-	static int			_drawPoints				( lua_State* L );
-	static int			_drawRay				( lua_State* L );
-	static int			_drawRect				( lua_State* L );
-	static int			_drawTexture			( lua_State* L );
-	static int			_drawText				( lua_State* L );
-	static int			_fillCircle				( lua_State* L );
-	static int			_fillEllipse			( lua_State* L );
-	static int			_fillFan				( lua_State* L );
-	static int			_fillRect				( lua_State* L );
-	static int			_fillRoundedRect		( lua_State* L );
-	static int			_getPenColor			( lua_State* L );
-	static int			_popGfxState			( lua_State* L );
-	static int			_pushGfxState			( lua_State* L );
-	static int			_setBlendMode			( lua_State* L );
-	static int			_setClearColor			( lua_State* L );
-	static int			_setClearDepth			( lua_State* L );
-	static int			_setCullMode			( lua_State* L );
-	static int			_setDefaultTexture		( lua_State* L );
-	static int			_setDepthFunc			( lua_State* L );
-	static int			_setMatrix				( lua_State* L );
-	static int			_setPenColor			( lua_State* L );
-	static int			_setPenWidth			( lua_State* L );
-	static int			_setScissorRect			( lua_State* L );
-	static int			_setViewProj			( lua_State* L );
-	static int			_setViewRect			( lua_State* L );
-	static int			_strokeRoundedRect		( lua_State* L );
+	static mrb_value			_bind					( mrb_state* M, mrb_value context );
+	static mrb_value			_bindFrameBuffer		( mrb_state* M, mrb_value context );
+	static mrb_value			_bindIndexBuffer		( mrb_state* M, mrb_value context );
+	static mrb_value			_bindShader				( mrb_state* M, mrb_value context );
+	static mrb_value			_bindTexture			( mrb_state* M, mrb_value context );
+	static mrb_value			_bindVertexArray		( mrb_state* M, mrb_value context );
+	static mrb_value			_bindVertexBuffer		( mrb_state* M, mrb_value context );
+	static mrb_value			_bindVertexFormat		( mrb_state* M, mrb_value context );
+	static mrb_value			_clear					( mrb_state* M, mrb_value context );
+	static mrb_value			_drawAnimCurve			( mrb_state* M, mrb_value context );
+	static mrb_value			_drawAxisGrid			( mrb_state* M, mrb_value context );
+	static mrb_value			_drawBezierCurve		( mrb_state* M, mrb_value context );
+	static mrb_value			_drawBoxOutline			( mrb_state* M, mrb_value context );
+	static mrb_value			_drawCircle				( mrb_state* M, mrb_value context );
+	static mrb_value			_drawCircleSpokes		( mrb_state* M, mrb_value context );
+	static mrb_value			_drawElements			( mrb_state* M, mrb_value context );
+	static mrb_value			_drawEllipse			( mrb_state* M, mrb_value context );
+	static mrb_value			_drawEllipseSpokes		( mrb_state* M, mrb_value context );
+	static mrb_value			_drawGrid				( mrb_state* M, mrb_value context );
+	static mrb_value			_drawLine				( mrb_state* M, mrb_value context );
+	static mrb_value			_drawPoints				( mrb_state* M, mrb_value context );
+	static mrb_value			_drawRay				( mrb_state* M, mrb_value context );
+	static mrb_value			_drawRect				( mrb_state* M, mrb_value context );
+	static mrb_value			_drawTexture			( mrb_state* M, mrb_value context );
+	static mrb_value			_drawText				( mrb_state* M, mrb_value context );
+	static mrb_value			_fillCircle				( mrb_state* M, mrb_value context );
+	static mrb_value			_fillEllipse			( mrb_state* M, mrb_value context );
+	static mrb_value			_fillFan				( mrb_state* M, mrb_value context );
+	static mrb_value			_fillRect				( mrb_state* M, mrb_value context );
+	static mrb_value			_fillRoundedRect		( mrb_state* M, mrb_value context );
+	static mrb_value			_getPenColor			( mrb_state* M, mrb_value context );
+	static mrb_value			_popGfxState			( mrb_state* M, mrb_value context );
+	static mrb_value			_pushGfxState			( mrb_state* M, mrb_value context );
+	static mrb_value			_setBlendMode			( mrb_state* M, mrb_value context );
+	static mrb_value			_setClearColor			( mrb_state* M, mrb_value context );
+	static mrb_value			_setClearDepth			( mrb_state* M, mrb_value context );
+	static mrb_value			_setCullMode			( mrb_state* M, mrb_value context );
+	static mrb_value			_setDefaultTexture		( mrb_state* M, mrb_value context );
+	static mrb_value			_setDepthFunc			( mrb_state* M, mrb_value context );
+	static mrb_value			_setMatrix				( mrb_state* M, mrb_value context );
+	static mrb_value			_setPenColor			( mrb_state* M, mrb_value context );
+	static mrb_value			_setPenWidth			( mrb_state* M, mrb_value context );
+	static mrb_value			_setScissorRect			( mrb_state* M, mrb_value context );
+	static mrb_value			_setViewProj			( mrb_state* M, mrb_value context );
+	static mrb_value			_setViewRect			( mrb_state* M, mrb_value context );
+	static mrb_value			_strokeRoundedRect		( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
-	void			DrawLuaParams			( lua_State* L, u32 primType );
-	void			DrawLuaArray			( lua_State* L, u32 primType );
+	void			DrawRubyParams			( mrb_state* M, mrb_value context, u32 primType );
+	void			DrawRubyArray			( mrb_state* M, mrb_value context, u32 primType );
 	
 public:
 
-	DECL_LUA_SINGLETON ( MOAIDraw )
+	DECL_RUBY_SINGLETON ( MOAIDraw )
 
 	//----------------------------------------------------------------//
 	void			BeginDrawString			( float scale, MOAIFont& font, float fontSize, float shadowOffsetX, float shadowOffsetY );
@@ -99,7 +99,7 @@ public:
 	void			EndDrawString			();
 					MOAIDraw				();
 					~MOAIDraw				();
-	void			RegisterLuaClass		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

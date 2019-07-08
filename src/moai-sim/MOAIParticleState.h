@@ -18,7 +18,7 @@ class MOAIParticleSystem;
 	@text	Particle state.
 */
 class MOAIParticleState :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	friend class MOAIParticleScript;
 	friend class MOAIParticleSystem;
@@ -31,21 +31,21 @@ private:
 
 	float mDamping;
 
-	MOAILuaSharedPtr < MOAIParticleScript >		mInit;
-	MOAILuaSharedPtr < MOAIParticleScript >		mRender;
-	MOAILuaSharedPtr < MOAIParticlePlugin >		mPlugin;
-	MOAILuaSharedPtr < MOAIParticleState >		mNext;
+	MOAIRubySharedPtr < MOAIParticleScript >		mInit;
+	MOAIRubySharedPtr < MOAIParticleScript >		mRender;
+	MOAIRubySharedPtr < MOAIParticlePlugin >		mPlugin;
+	MOAIRubySharedPtr < MOAIParticleState >			mNext;
 
 	//----------------------------------------------------------------//
-	static int		_clearForces			( lua_State* L );
-	static int		_pushForce				( lua_State* L );
-	static int		_setDamping				( lua_State* L );
-	static int		_setInitScript			( lua_State* L );
-	static int		_setMass				( lua_State* L );
-	static int		_setNext				( lua_State* L );
-	static int		_setPlugin				( lua_State* L );
-	static int		_setRenderScript		( lua_State* L );
-	static int		_setTerm				( lua_State* L );
+	static mrb_value		_clearForces			( mrb_state* M, mrb_value context );
+	static mrb_value		_pushForce				( mrb_state* M, mrb_value context );
+	static mrb_value		_setDamping				( mrb_state* M, mrb_value context );
+	static mrb_value		_setInitScript			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMass				( mrb_state* M, mrb_value context );
+	static mrb_value		_setNext				( mrb_state* M, mrb_value context );
+	static mrb_value		_setPlugin				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRenderScript		( mrb_state* M, mrb_value context );
+	static mrb_value		_setTerm				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			GatherForces			( ZLVec3D& loc, ZLVec3D& velocity, float mass, float step );
@@ -54,15 +54,15 @@ private:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIParticleState )
+	DECL_RUBY_FACTORY ( MOAIParticleState, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	void			ClearForces				();
 					MOAIParticleState		();
 					~MOAIParticleState		();
 	void			PushForce				( MOAIParticleForce& force );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -63,10 +63,10 @@ protected:
 	u32		mWrapMode;
 
 	//----------------------------------------------------------------//
-	static int			_getLength			( lua_State* L );
-	static int			_reserveKeys		( lua_State* L );
-	static int			_setTime			( lua_State* L );
-	static int			_setWrapMode		( lua_State* L );
+	static mrb_value	_getLength				( mrb_state* M, mrb_value context );
+	static mrb_value	_reserveKeys			( mrb_state* M, mrb_value context );
+	static mrb_value	_setTime				( mrb_state* M, mrb_value context );
+	static mrb_value	_setWrapMode			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	virtual void		ApplyValueAttrOp		( MOAIAttribute& attr, u32 op ) = 0;
@@ -106,8 +106,8 @@ public:
 	void				GetValue				( MOAIAttribute& attr, float time );
 						MOAIAnimCurveBase		();
 						~MOAIAnimCurveBase		();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				ReserveKeys				( u32 total );
 	void				SetKey					( u32 id, float time, u32 mode, float weight = 1.0f );
 	u32					Size					() const;

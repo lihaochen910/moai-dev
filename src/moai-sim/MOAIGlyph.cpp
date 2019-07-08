@@ -93,43 +93,43 @@ void MOAIGlyph::ReserveKernTable ( u32 total ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIGlyph::SerializeIn ( MOAILuaState& state ) {
+void MOAIGlyph::SerializeIn ( MOAIRubyState& state ) {
 
-	this->mCode			= state.GetFieldValue ( -1, "mCode", this->mCode );
-	this->mPageID		= state.GetFieldValue ( -1, "mPageID", this->mPageID );
-	
-	this->mWidth		= state.GetFieldValue ( -1, "mWidth", this->mWidth );
-	this->mHeight		= state.GetFieldValue ( -1, "mHeight", this->mHeight );
-	this->mAdvanceX		= state.GetFieldValue ( -1, "mAdvanceX", this->mAdvanceX );
-	this->mBearingX		= state.GetFieldValue ( -1, "mBearingX", this->mBearingX );
-	this->mBearingY		= state.GetFieldValue ( -1, "mBearingY", this->mBearingY );
+	//this->mCode			= state.GetFieldValue ( -1, "mCode", this->mCode );
+	//this->mPageID		= state.GetFieldValue ( -1, "mPageID", this->mPageID );
+	//
+	//this->mWidth		= state.GetFieldValue ( -1, "mWidth", this->mWidth );
+	//this->mHeight		= state.GetFieldValue ( -1, "mHeight", this->mHeight );
+	//this->mAdvanceX		= state.GetFieldValue ( -1, "mAdvanceX", this->mAdvanceX );
+	//this->mBearingX		= state.GetFieldValue ( -1, "mBearingX", this->mBearingX );
+	//this->mBearingY		= state.GetFieldValue ( -1, "mBearingY", this->mBearingY );
 
-	this->mSrcX			= state.GetFieldValue ( -1, "mSrcX", this->mSrcX );
-	this->mSrcY			= state.GetFieldValue ( -1, "mSrcY", this->mSrcY );
-	
-	if ( state.PushFieldWithType ( -1, "mKernTable", LUA_TTABLE )) {
-		
-		int size = ( int )lua_objlen ( state, -1 ); // TODO: cast
-		this->mKernTable.Init ( size );
-		
-		for ( int i = 0; i < size; ++i ) {
-		
-			if ( state.PushFieldWithType ( -1, i + 1, LUA_TTABLE )) {
-				
-				this->mKernTable [ i ].mName	= state.GetFieldValue ( -1, "mName", 0 );
-				this->mKernTable [ i ].mX		= state.GetFieldValue ( -1, "mX", 0.0f );
-				this->mKernTable [ i ].mY		= state.GetFieldValue ( -1, "mY", 0.0f );
-			}
-			state.Pop ( 1 );
-		}
-		state.Pop ( 1 );
-	}
+	//this->mSrcX			= state.GetFieldValue ( -1, "mSrcX", this->mSrcX );
+	//this->mSrcY			= state.GetFieldValue ( -1, "mSrcY", this->mSrcY );
+	//
+	//if ( state.PushFieldWithType ( -1, "mKernTable", LUA_TTABLE )) {
+	//	
+	//	int size = ( int )lua_objlen ( state, -1 ); // TODO: cast
+	//	this->mKernTable.Init ( size );
+	//	
+	//	for ( int i = 0; i < size; ++i ) {
+	//	
+	//		if ( state.PushFieldWithType ( -1, i + 1, LUA_TTABLE )) {
+	//			
+	//			this->mKernTable [ i ].mName	= state.GetFieldValue ( -1, "mName", 0 );
+	//			this->mKernTable [ i ].mX		= state.GetFieldValue ( -1, "mX", 0.0f );
+	//			this->mKernTable [ i ].mY		= state.GetFieldValue ( -1, "mY", 0.0f );
+	//		}
+	//		state.Pop ( 1 );
+	//	}
+	//	state.Pop ( 1 );
+	//}
 }
 
 //----------------------------------------------------------------//
-void MOAIGlyph::SerializeOut ( MOAILuaState& state ) {
+void MOAIGlyph::SerializeOut ( MOAIRubyState& state ) {
 
-	state.SetField ( -1, "mCode", this->mCode );
+	/*state.SetField ( -1, "mCode", this->mCode );
 	state.SetField ( -1, "mPageID", this->mPageID );
 
 	state.SetField ( -1, "mWidth", this->mWidth );
@@ -155,7 +155,7 @@ void MOAIGlyph::SerializeOut ( MOAILuaState& state ) {
 			lua_settable ( state, -3 );
 		}
 		lua_setfield ( state, -2, "mKernTable" );
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//

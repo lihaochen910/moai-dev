@@ -17,12 +17,12 @@
 	@in		MOAILayoutFrame self
 	@out	nil
 */
-int MOAILayoutFrame::_layout ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayoutFrame, "U" )
+mrb_value MOAILayoutFrame::_layout ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayoutFrame, "U" )
 
 	self->Layout ();
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -34,13 +34,13 @@ int MOAILayoutFrame::_layout ( lua_State* L ) {
 	@in		number yFit				The fitting mode for the Y axis; can be FIT_EXPAND, FIT_CONTENT or FIT_ABSOLUTE.
 	@out	nil
 */
-int	MOAILayoutFrame::_setFit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayoutFrame, "U" )
+mrb_value MOAILayoutFrame::_setFit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayoutFrame, "U" )
 	
-	self->mFit [ X_AXIS ]	= state.GetValue < u32 >( 2, self->mFit [ X_AXIS ]);
-	self->mFit [ Y_AXIS ]	= state.GetValue < u32 >( 3, self->mFit [ Y_AXIS ]);
+	self->mFit [ X_AXIS ]	= state.GetParamValue < u32 >( 1, self->mFit [ X_AXIS ]);
+	self->mFit [ Y_AXIS ]	= state.GetParamValue < u32 >( 2, self->mFit [ Y_AXIS ]);
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -52,13 +52,13 @@ int	MOAILayoutFrame::_setFit ( lua_State* L ) {
 	@in		number ySizeHinting			The size hinting for the Y axis.
 	@out	nil
 */
-int	MOAILayoutFrame::_setIdealSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayoutFrame, "U" )
+mrb_value MOAILayoutFrame::_setIdealSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayoutFrame, "U" )
 
-	self->mIdealSize [ X_AXIS ]		= state.GetValue < float >( 2, self->mIdealSize [ X_AXIS ]);
-	self->mIdealSize [ Y_AXIS ]		= state.GetValue < float >( 3, self->mIdealSize [ Y_AXIS ]);
+	self->mIdealSize [ X_AXIS ]		= state.GetParamValue < float >( 1, self->mIdealSize [ X_AXIS ]);
+	self->mIdealSize [ Y_AXIS ]		= state.GetParamValue < float >( 2, self->mIdealSize [ Y_AXIS ]);
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -70,13 +70,13 @@ int	MOAILayoutFrame::_setIdealSize ( lua_State* L ) {
 	@in		number yLayout			The alignment and justification mode for the Y axis.
 	@out	nil
 */
-int	MOAILayoutFrame::_setLayout ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayoutFrame, "U" )
+mrb_value	MOAILayoutFrame::_setLayout ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayoutFrame, "U" )
 	
-	self->mLayout [ X_AXIS ]	= state.GetValue < u32 >( 2, self->mLayout [ X_AXIS ]);
-	self->mLayout [ Y_AXIS ]	= state.GetValue < u32 >( 3, self->mLayout [ Y_AXIS ]);
+	self->mLayout [ X_AXIS ]	= state.GetParamValue < u32 >( 1, self->mLayout [ X_AXIS ]);
+	self->mLayout [ Y_AXIS ]	= state.GetParamValue < u32 >( 2, self->mLayout [ Y_AXIS ]);
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -90,15 +90,15 @@ int	MOAILayoutFrame::_setLayout ( lua_State* L ) {
 	@in		number bottom			The margin between the bottom edge of the layout and the content.
 	@out	nil
 */
-int MOAILayoutFrame::_setMargin ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayoutFrame, "U" )
+mrb_value MOAILayoutFrame::_setMargin ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayoutFrame, "U" )
 
-	self->mMargin [ X_AXIS ][ MIN ]	= state.GetValue < float >( 2, self->mMargin [ X_AXIS ][ MIN ]);
-	self->mMargin [ Y_AXIS ][ MIN ]	= state.GetValue < float >( 3, self->mMargin [ Y_AXIS ][ MIN ]);
-	self->mMargin [ X_AXIS ][ MAX ]	= state.GetValue < float >( 4, self->mMargin [ X_AXIS ][ MAX ]);
-	self->mMargin [ Y_AXIS ][ MAX ]	= state.GetValue < float >( 5, self->mMargin [ Y_AXIS ][ MAX ]);
+	self->mMargin [ X_AXIS ][ MIN ]	= state.GetParamValue < float >( 1, self->mMargin [ X_AXIS ][ MIN ]);
+	self->mMargin [ Y_AXIS ][ MIN ]	= state.GetParamValue < float >( 2, self->mMargin [ Y_AXIS ][ MIN ]);
+	self->mMargin [ X_AXIS ][ MAX ]	= state.GetParamValue < float >( 3, self->mMargin [ X_AXIS ][ MAX ]);
+	self->mMargin [ Y_AXIS ][ MAX ]	= state.GetParamValue < float >( 4, self->mMargin [ Y_AXIS ][ MAX ]);
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -110,13 +110,13 @@ int MOAILayoutFrame::_setMargin ( lua_State* L ) {
 	@in		number yWeight			The weighting for the Y axis.
 	@out	nil
 */
-int	MOAILayoutFrame::_setWeight ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILayoutFrame, "U" )
+mrb_value	MOAILayoutFrame::_setWeight ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILayoutFrame, "U" )
 	
-	self->mWeight [ X_AXIS ]	= state.GetValue < float >( 2, self->mWeight [ X_AXIS ]);
-	self->mWeight [ Y_AXIS ]	= state.GetValue < float >( 3, self->mWeight [ Y_AXIS ]);
+	self->mWeight [ X_AXIS ]	= state.GetParamValue < float >( 1, self->mWeight [ X_AXIS ]);
+	self->mWeight [ Y_AXIS ]	= state.GetParamValue < float >( 2, self->mWeight [ Y_AXIS ]);
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -452,39 +452,35 @@ MOAILayoutFrame::~MOAILayoutFrame () {
 }
 
 //----------------------------------------------------------------//
-void MOAILayoutFrame::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAILayoutFrame::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransform::RegisterLuaClass ( state );
+	MOAITransform::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "LAYOUT_ALIGN_MIN", ( u32 )LAYOUT_ALIGN_MIN );
-	state.SetField ( -1, "LAYOUT_ALIGN_MAX", ( u32 )LAYOUT_ALIGN_MAX );
-	state.SetField ( -1, "LAYOUT_ALIGN_CENTER", ( u32 )LAYOUT_ALIGN_CENTER );
+	state.DefineClassConst ( klass, "LAYOUT_ALIGN_MIN", ( u32 )LAYOUT_ALIGN_MIN );
+	state.DefineClassConst ( klass, "LAYOUT_ALIGN_MAX", ( u32 )LAYOUT_ALIGN_MAX );
+	state.DefineClassConst ( klass, "LAYOUT_ALIGN_CENTER", ( u32 )LAYOUT_ALIGN_CENTER );
 	
-	state.SetField ( -1, "LAYOUT_JUSTIFY_MIN", ( u32 )LAYOUT_JUSTIFY_MIN );
-	state.SetField ( -1, "LAYOUT_JUSTIFY_MAX", ( u32 )LAYOUT_JUSTIFY_MAX );
-	state.SetField ( -1, "LAYOUT_JUSTIFY_CENTER", ( u32 )LAYOUT_JUSTIFY_CENTER );
+	state.DefineClassConst ( klass, "LAYOUT_JUSTIFY_MIN", ( u32 )LAYOUT_JUSTIFY_MIN );
+	state.DefineClassConst ( klass, "LAYOUT_JUSTIFY_MAX", ( u32 )LAYOUT_JUSTIFY_MAX );
+	state.DefineClassConst ( klass, "LAYOUT_JUSTIFY_CENTER", ( u32 )LAYOUT_JUSTIFY_CENTER );
 	
-	state.SetField ( -1, "FIT_EXPAND", ( u32 )FIT_EXPAND );
-	state.SetField ( -1, "FIT_ABSOLUTE", ( u32 )FIT_ABSOLUTE );
-	state.SetField ( -1, "FIT_CONTENT", ( u32 )FIT_CONTENT );
+	state.DefineClassConst ( klass, "FIT_EXPAND", ( u32 )FIT_EXPAND );
+	state.DefineClassConst ( klass, "FIT_ABSOLUTE", ( u32 )FIT_ABSOLUTE );
+	state.DefineClassConst ( klass, "FIT_CONTENT", ( u32 )FIT_CONTENT );
 }
 
 //----------------------------------------------------------------//
-void MOAILayoutFrame::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAILayoutFrame::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransform::RegisterLuaFuncs ( state );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "layout", _layout, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setFit", _setFit, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setIdealSize", _setIdealSize, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setLayout", _setLayout, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setMargin", _setMargin, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setWeight", _setWeight, MRB_ARGS_REQ ( 2 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "layout",				_layout },
-		{ "setFit",				_setFit },
-		{ "setIdealSize",		_setIdealSize },
-		{ "setLayout",			_setLayout },
-		{ "setMargin",			_setMargin },
-		{ "setWeight",			_setWeight },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

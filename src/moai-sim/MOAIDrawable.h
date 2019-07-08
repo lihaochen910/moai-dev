@@ -20,8 +20,9 @@ private:
 public:
 
 	//----------------------------------------------------------------//
-	static void		Draw				( MOAILuaMemberRef& ref, bool debug = false );
-	static void		Draw				( MOAILuaState& state, int idx, bool debug = false );
+	static void		Draw				( MOAIRubyMemberRef& ref, bool debug = false );
+	static void		Draw				( MOAIRubyState& state, int idx, bool debug = false );
+	static void		Draw				( MOAIRubyState& state, mrb_value val, bool debug = false );
 	void			Draw				( int subPrimID = MOAIPartitionHull::NO_SUBPRIM_ID ) { MOAIDrawable_Draw ( subPrimID ); }
 	void			DrawDebug			( int subPrimID = MOAIPartitionHull::NO_SUBPRIM_ID ) { MOAIDrawable_DrawDebug ( subPrimID ); }
 };

@@ -17,14 +17,13 @@
 	@in		MOAIDeckPropBase self
 	@out	MOAIDeck deck
 */
-int MOAIDeckPropBase::_getDeck ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeckPropBase, "U" )
+mrb_value MOAIDeckPropBase::_getDeck ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeckPropBase, "U" )
 
 	if ( self->mDeck ) {
-		self->mDeck->PushLuaUserdata ( state );
-		return 1;
+		return self->mDeck->PushRubyUserdata ( state );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -35,19 +34,18 @@ int MOAIDeckPropBase::_getDeck ( lua_State* L ) {
 	@opt	MOAIDeck deck		Default value is nil.
 	@out	nil
 */
-int MOAIDeckPropBase::_setDeck ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDeckPropBase, "U" )
+mrb_value MOAIDeckPropBase::_setDeck ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDeckPropBase, "U" )
 
-	MOAIDeck* deck = MOAISpriteDeck2D::AffirmDeck ( state, 2 );
+	MOAIDeck* deck = MOAISpriteDeck2D::AffirmDeck ( state, 1 );
 
 	self->mDeck.Set ( *self, deck );
 	self->ScheduleUpdate ();
 	
 	if ( deck ) {
-		state.Push ( deck );
-		return 1;
+		return state.ToRValue < MOAIRubyObject* >( deck );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -94,30 +92,27 @@ MOAIDeckPropBase::~MOAIDeckPropBase () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckPropBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDeckPropBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckPropBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDeckPropBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	luaL_Reg regTable [] = {
-		{ "getDeck",				_getDeck },
-		{ "setDeck",				_setDeck },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getDeck", _getDeck, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDeck", _setDeck, MRB_ARGS_ARG ( 0, 1 ) );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckPropBase::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIDeckPropBase::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	
-	this->mDeck.Set ( *this, serializer.MemberIDToObject < MOAIDeck >( state.GetFieldValue < MOAISerializerBase::ObjID >( -1, "mDeck", 0 )));
+	//this->mDeck.Set ( *this, serializer.MemberIDToObject < MOAIDeck >( state.GetFieldValue < MOAISerializerBase::ObjID >( -1, "mDeck", 0 )));
 }
 
 //----------------------------------------------------------------//
-void MOAIDeckPropBase::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIDeckPropBase::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	
-	state.SetField ( -1, "mDeck", serializer.AffirmMemberID ( this->mDeck ));
+	//state.SetField ( -1, "mDeck", serializer.AffirmMemberID ( this->mDeck ));
 }

@@ -23,7 +23,7 @@ class MOAIImage;
 			indexed from 1.
 */
 class MOAIFrameBuffer :
-	public virtual MOAILuaObject,
+	public virtual MOAIRubyObject,
 	public virtual ZLGfxListener {
 protected:
 	
@@ -40,25 +40,25 @@ protected:
 	ZLGfxHandle			mGLFrameBuffer;
 
 	bool								mGrabNextFrame;
-	MOAILuaMemberRef					mOnFrameFinish;
-	MOAILuaSharedPtr < MOAIImage >		mFrameImage;
+	MOAIRubyMemberRef					mOnFrameFinish;
+	MOAIRubySharedPtr < MOAIImage >		mFrameImage;
 
 	//----------------------------------------------------------------//
-	static int			_getGrabbedImage			( lua_State* L );
-	static int			_grabNextFrame				( lua_State* L );
-	static int			_isPendingGrab				( lua_State* L );
+	static mrb_value			_getGrabbedImage			( mrb_state* M, mrb_value context );
+	static mrb_value			_grabNextFrame				( mrb_state* M, mrb_value context );
+	static mrb_value			_isPendingGrab				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				AffirmBuffers				();
 	void				OnReadPixels				( const ZLCopyOnWrite& buffer, void* userdata );
-	void				RenderTable					( MOAILuaState& state, int idx );
+	void				RenderTable					( MOAIRubyState& state, int idx );
 
 	//----------------------------------------------------------------//
 	virtual void		MOAIFrameBuffer_AffirmBuffers		();
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIFrameBuffer )
+	DECL_RUBY_FACTORY ( MOAIFrameBuffer, MOAIRubyObject )
 	
 	GET_CONST	( u32, BufferWidth, mBufferWidth )
 	GET_CONST	( u32, BufferHeight, mBufferHeight )
@@ -75,8 +75,8 @@ public:
 	void				NeedsClear					( bool needsClear );
 	void				SetBufferSize				( u32 width, u32 height );
 	void				SetGLFrameBuffer			( const ZLGfxHandle& frameBuffer );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	ZLRect				WndRectToDevice				( ZLRect rect ) const;
 };
 

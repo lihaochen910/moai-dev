@@ -66,7 +66,7 @@ public:
 // this is a class to abstract getting glyph information from font
 // files and rendering glyphs
 class MOAIFontReader :
-	public MOAILuaObject {
+	public MOAIRubyObject {
 protected:
 
 	static const u32 GLYPH_CODE_NULL = 0xffffffff;
@@ -74,16 +74,16 @@ protected:
 	MOAIImageBlendMode	mBlendMode;
 
 	//----------------------------------------------------------------//
-	static int		_close					( lua_State* L );
-	static int		_getFaceMetrics			( lua_State* L );
-	static int		_getGlyphMetrics		( lua_State* L );
-	static int		_getKernVec				( lua_State* L );
-	static int		_hasKerning				( lua_State* L );
-	static int		_open					( lua_State* L );
-	static int		_renderGlyph			( lua_State* L );
-	static int		_selectFace				( lua_State* L );
-	static int		_selectGlyph			( lua_State* L );
-	static int		_setBlendMode			( lua_State* L );
+	static mrb_value		_close					( mrb_state* M, mrb_value context );
+	static mrb_value		_getFaceMetrics			( mrb_state* M, mrb_value context );
+	static mrb_value		_getGlyphMetrics		( mrb_state* M, mrb_value context );
+	static mrb_value		_getKernVec				( mrb_state* M, mrb_value context );
+	static mrb_value		_hasKerning				( mrb_state* M, mrb_value context );
+	static mrb_value		_open					( mrb_state* M, mrb_value context );
+	static mrb_value		_renderGlyph			( mrb_state* M, mrb_value context );
+	static mrb_value		_selectFace				( mrb_state* M, mrb_value context );
+	static mrb_value		_selectGlyph			( mrb_state* M, mrb_value context );
+	static mrb_value		_setBlendMode			( mrb_state* M, mrb_value context );
 
 public:
 
@@ -102,13 +102,13 @@ public:
 						MOAIFontReader			();
 						~MOAIFontReader			();
 	virtual int			OpenFontFile			( cc8* filename );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	virtual int			RenderGlyph				( MOAIImage& image, float x, float y ) = 0;
 	virtual int			SelectFace				( float size ) = 0;
 	virtual int			SelectGlyph				( u32 c ) = 0;
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

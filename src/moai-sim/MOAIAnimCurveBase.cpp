@@ -9,51 +9,49 @@
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	getLength
+/**	@ruby	getLength
 	@text	Return the largest key frame time value in the curve.
 	
 	@in		MOAIAnimCurveBase self
 	@out	number length
 */
-int MOAIAnimCurveBase::_getLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveBase, "U" );
+mrb_value MOAIAnimCurveBase::_getLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveBase, "U" );
 
-	lua_pushnumber ( state, self->GetLength ());
-
-	return 1;
+	return state.ToRValue ( self->GetLength () );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	reserveKeys
+/**	@ruby	reserveKeys
 	@text	Reserve key frames.
 	
 	@in		MOAIAnimCurveBase self
 	@in		number nKeys
 	@out	nil
 */
-int MOAIAnimCurveBase::_reserveKeys ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveBase, "UN" );
+mrb_value MOAIAnimCurveBase::_reserveKeys ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveBase, "UN" );
 
-	u32 total	= state.GetValue < u32 >( 2, 0 );
+	u32 total	= state.GetParamValue < u32 >( 1, 0 );
 
 	self->ReserveKeys ( total );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIAnimCurveBase::_setTime ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveBase, "UN" );
+mrb_value MOAIAnimCurveBase::_setTime ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveBase, "UN" );
 
-	self->mTime = state.GetValue < float >( 2, 0.0f );
+	self->mTime = state.GetParamValue < float >( 1, 0.0f );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setWrapMode
+/**	@ruby	setWrapMode
 	@text	Sets the wrap mode for values above 1.0 and below 0.0.
 			CLAMP sets all values above and below 1.0 and 0.0 to
 			values at 1.0 and 0.0 respectively
@@ -65,14 +63,14 @@ int MOAIAnimCurveBase::_setTime ( lua_State* L ) {
 
 	@out	nil
 */
-int	MOAIAnimCurveBase::_setWrapMode	( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIAnimCurveBase, "U" );
+mrb_value MOAIAnimCurveBase::_setWrapMode	( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIAnimCurveBase, "U" );
 
-	u32 mode = state.GetValue < u32 >( 2, CLAMP );
+	u32 mode = state.GetParamValue < u32 >( 1, CLAMP );
 
 	self->mWrapMode = mode;
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -190,33 +188,25 @@ MOAIAnimCurveBase::~MOAIAnimCurveBase () {
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveBase::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIAnimCurveBase::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaClass ( state );
+	state.DefineClassConst ( klass, "ATTR_TIME", MOAIAnimCurveBaseAttr::Pack ( ATTR_TIME ) );
+	state.DefineClassConst ( klass, "ATTR_VALUE", MOAIAnimCurveBaseAttr::Pack ( ATTR_VALUE ) );
 
-	state.SetField ( -1, "ATTR_TIME", MOAIAnimCurveBaseAttr::Pack ( ATTR_TIME ));
-	state.SetField ( -1, "ATTR_VALUE", MOAIAnimCurveBaseAttr::Pack ( ATTR_VALUE ));
-
-	state.SetField ( -1, "CLAMP", ( u32 )CLAMP );
-	state.SetField ( -1, "WRAP", ( u32 )WRAP );
-	state.SetField ( -1, "MIRROR", ( u32 )MIRROR );
-	state.SetField ( -1, "APPEND", ( u32 )APPEND );
+	state.DefineClassConst ( klass, "CLAMP", ( u32 )CLAMP );
+	state.DefineClassConst ( klass, "WRAP", ( u32 )WRAP );
+	state.DefineClassConst ( klass, "MIRROR", ( u32 )MIRROR );
+	state.DefineClassConst ( klass, "APPEND", ( u32 )APPEND );
 }
 
 //----------------------------------------------------------------//
-void MOAIAnimCurveBase::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIAnimCurveBase::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaFuncs ( state );
+	state.DefineInstanceMethod ( klass, "getLength", _getLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveKeys", _reserveKeys, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTime", _setTime, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setWrapMode", _setWrapMode, MRB_ARGS_ARG ( 0, 1 ) );
 
-	luaL_Reg regTable [] = {
-		{ "getLength",			_getLength },
-		{ "reserveKeys",		_reserveKeys },
-		{ "setTime",			_setTime },
-		{ "setWrapMode",		_setWrapMode },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

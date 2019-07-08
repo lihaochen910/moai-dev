@@ -12,28 +12,70 @@
 //================================================================//
 
 //----------------------------------------------------------------//
-void MOAIDrawable::Draw ( MOAILuaMemberRef& ref, bool debug ) {
+void MOAIDrawable::Draw ( MOAIRubyMemberRef& ref, bool debug ) {
 
 	if ( ref ) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		state.Push ( ref );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+		//state.Push ( ref );
 		MOAIDrawable::Draw ( state, -1, debug );
-		state.Pop ( 1 );
+		//state.Pop ( 1 );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIDrawable::Draw ( MOAILuaState& state, int idx, bool debug ) {
+void MOAIDrawable::Draw ( MOAIRubyState& state, int idx, bool debug ) {
 
 	idx = state.AbsIndex ( idx );
-	int valType = lua_type ( state, idx );
+	mrb_vtype valType = state.GetParamType ( idx );
 	
 	switch ( valType ) {
 	
-		case LUA_TUSERDATA: {
+		case MRB_TT_DATA: {
 		
-			MOAIDrawable* drawable = state.GetLuaObject < MOAIDrawable >( idx, false );
+			/*MOAIDrawable* drawable = state.GetRubyObject < MOAIDrawable >( idx, false );
 			
+			if ( drawable ) {
+				if ( debug ) {
+					drawable->DrawDebug ();
+				}
+				else {
+					drawable->Draw ();
+				}
+			}*/
+			break;
+		}
+		
+		case MRB_TT_ARRAY: {
+		
+			/*size_t tableSize = state.GetArraySize ( state.GetParamValue ( idx ) );
+			for ( size_t i = 0; i < tableSize; ++i ) {
+				lua_rawgeti ( state, idx, i + 1 );
+				MOAIDrawable::Draw ( state, -1, debug );
+				lua_pop ( state, 1 );
+			}*/
+			break;
+		}
+		
+		case LUA_TFUNCTION: {
+		
+			//state.CopyToTop ( idx ); // copy the function to the top
+			//state.DebugCall ( 0, 0 );
+			break;
+		}
+	}
+}
+
+//----------------------------------------------------------------//
+void MOAIDrawable::Draw ( MOAIRubyState& state, mrb_value val, bool debug ) {
+
+	mrb_vtype valType = state.GetType ( val );
+
+	switch ( valType ) {
+
+		case MRB_TT_DATA: {
+
+			MOAIDrawable* drawable = state.GetRubyObject < MOAIDrawable >( val, false );
+
 			if ( drawable ) {
 				if ( debug ) {
 					drawable->DrawDebug ();
@@ -44,22 +86,20 @@ void MOAIDrawable::Draw ( MOAILuaState& state, int idx, bool debug ) {
 			}
 			break;
 		}
-		
-		case LUA_TTABLE: {
-		
-			size_t tableSize = state.GetTableSize ( idx );
-			for ( size_t i = 0; i < tableSize; ++i ) {
-				lua_rawgeti ( state, idx, i + 1 );
-				MOAIDrawable::Draw ( state, -1, debug );
-				lua_pop ( state, 1 );
+
+		case MRB_TT_ARRAY: {
+
+			mrb_int arraySize = state.GetArraySize ( val );
+			for ( mrb_int i = 0; i < arraySize; ++i ) {
+				mrb_value ref = mrb_ary_ref ( state, val, i );
+				MOAIDrawable::Draw ( state, ref, debug );
 			}
 			break;
 		}
-		
-		case LUA_TFUNCTION: {
-		
-			state.CopyToTop ( idx ); // copy the function to the top
-			state.DebugCall ( 0, 0 );
+
+		case MRB_TT_PROC: {
+
+			state.FuncCall ( val, "call" );
 			break;
 		}
 	}

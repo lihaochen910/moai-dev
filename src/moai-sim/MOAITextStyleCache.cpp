@@ -143,7 +143,7 @@ void MOAITextStyleCache::ReleaseStyle ( MOAITextStyle* style ) {
 	if ( style ) {
 		if ( this->mOwner ) {
 			this->mOwner->ClearNodeLink ( *style );
-			this->mOwner->LuaRelease ( style );
+			this->mOwner->RubyRelease ( style );
 		}
 		style->Release ();
 	}
@@ -158,7 +158,7 @@ void MOAITextStyleCache::RetainStyle ( MOAITextStyle* style ) {
 
 		if ( this->mOwner ) {
 			this->mOwner->SetNodeLink ( *style );
-			this->mOwner->LuaRetain ( style );
+			this->mOwner->RubyRetain ( style );
 		}
 	}
 }

@@ -14,7 +14,7 @@ class MOAIPartition;
 // MOAILayer
 //================================================================//
 class MOAILayer :
-	public virtual MOAILuaObject,
+	public virtual MOAIRubyObject,
 	public virtual MOAIDrawable {
 private:
 
@@ -22,18 +22,18 @@ private:
 	u32				mClearColor;
 	u32				mClearMode;
 
-	MOAILuaSharedPtr < MOAIColor >			mClearColorNode;
-	MOAILuaSharedPtr < MOAIFrameBuffer >	mFrameBuffer;
+	MOAIRubySharedPtr < MOAIColor >			mClearColorNode;
+	MOAIRubySharedPtr < MOAIFrameBuffer >	mFrameBuffer;
 
 	//----------------------------------------------------------------//
-	static int		_draw					( lua_State* L );
-	static int		_getClearMode			( lua_State* L );
-	static int		_getFrameBuffer			( lua_State* L );
-	static int		_pushRenderPass			( lua_State* L );
-	static int		_setClearColor			( lua_State* L );
-	static int		_setClearDepth			( lua_State* L );
-	static int		_setClearMode			( lua_State* L );
-	static int		_setFrameBuffer			( lua_State* L );
+	static mrb_value		_draw					( mrb_state* M, mrb_value context );
+	static mrb_value		_getClearMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFrameBuffer			( mrb_state* M, mrb_value context );
+	static mrb_value		_pushRenderPass			( mrb_state* M, mrb_value context );
+	static mrb_value		_setClearColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setClearDepth			( mrb_state* M, mrb_value context );
+	static mrb_value		_setClearMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_setFrameBuffer			( mrb_state* M, mrb_value context );
 
 protected:
 
@@ -54,14 +54,14 @@ public:
 		CLEAR_ON_BUFFER_FLAG,
 	};
 	
-	DECL_LUA_FACTORY ( MOAILayer )
+	DECL_RUBY_FACTORY ( MOAILayer, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	MOAIFrameBuffer*	GetFrameBuffer			();
 						MOAILayer				();
 						~MOAILayer				();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				SetClearColor			( MOAIColor* color );
 	void				SetFrameBuffer			( MOAIFrameBuffer* frameBuffer = 0 );
 };

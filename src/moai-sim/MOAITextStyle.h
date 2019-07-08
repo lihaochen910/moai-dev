@@ -66,29 +66,29 @@ private:
 	friend class MOAITextStyleMap;
 
 	//----------------------------------------------------------------//
-	static int		_getColor				( lua_State* L );
-	static int		_getFont				( lua_State* L );
-	static int		_getScale				( lua_State* L );
-	static int		_getSize				( lua_State* L );
-	static int		_setColor				( lua_State* L );
-	static int		_setFont				( lua_State* L );
-	static int		_setShader				( lua_State* L );
-	static int		_setPadding				( lua_State* L );
-	static int		_setScale				( lua_State* L );
-	static int		_setSize				( lua_State* L );
+	static mrb_value		_getColor				( mrb_state* M, mrb_value context );
+	static mrb_value		_getFont				( mrb_state* M, mrb_value context );
+	static mrb_value		_getScale				( mrb_state* M, mrb_value context );
+	static mrb_value		_getSize				( mrb_state* M, mrb_value context );
+	static mrb_value		_setColor				( mrb_state* M, mrb_value context );
+	static mrb_value		_setFont				( mrb_state* M, mrb_value context );
+	static mrb_value		_setShader				( mrb_state* M, mrb_value context );
+	static mrb_value		_setPadding				( mrb_state* M, mrb_value context );
+	static mrb_value		_setScale				( mrb_state* M, mrb_value context );
+	static mrb_value		_setSize				( mrb_state* M, mrb_value context );
 	
 public:
 
-	DECL_LUA_FACTORY ( MOAITextStyle )
+	DECL_RUBY_FACTORY ( MOAITextStyle, MOAINode )
 	
 	//----------------------------------------------------------------//
 	void			Init					( MOAITextStyleState& style );
 					MOAITextStyle			();
 					~MOAITextStyle			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void			SetFont					( MOAIFont* font );
 	void			SetShader				( MOAIShader* shader );
 };

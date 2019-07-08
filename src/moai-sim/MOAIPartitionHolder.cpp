@@ -16,13 +16,13 @@
 	@in		MOAIPartitionHolder self
 	@out	nil
 */
-int MOAIPartitionHolder::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHolder, "U" )
+mrb_value MOAIPartitionHolder::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHolder, "U" )
 
 	if ( self->mPartition ) {
 		self->mPartition->Clear ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -32,11 +32,10 @@ int MOAIPartitionHolder::_clear ( lua_State* L ) {
 	@in		MOAIPartitionHolder self
 	@out	MOAIPartition partition
 */
-int	MOAIPartitionHolder::_getPartition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHolder, "U" )
+mrb_value	MOAIPartitionHolder::_getPartition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHolder, "U" )
 
-	self->GetPartition ()->PushLuaUserdata ( state );
-	return 1;
+	return self->GetPartition ()->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -49,12 +48,12 @@ int	MOAIPartitionHolder::_getPartition ( lua_State* L ) {
 	@in		MOAIPartition partition
 	@out	nil
 */
-int MOAIPartitionHolder::_setPartition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPartitionHolder, "U" )
+mrb_value MOAIPartitionHolder::_setPartition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPartitionHolder, "U" )
 
-	self->mPartition.Set ( *self, state.GetLuaObject < MOAIPartition >( 2, true ));
+	self->mPartition.Set ( *self, state.GetRubyObject < MOAIPartition >( 1, true ));
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -65,7 +64,7 @@ int MOAIPartitionHolder::_setPartition ( lua_State* L ) {
 MOAIPartition* MOAIPartitionHolder::GetPartition () {
 
 	if ( !this->mPartition ) {
-		this->mPartition.Set ( *this, new MOAIPartition ());
+		this->mPartition.Set ( *this, MOAIRubyRuntime::Get ().GetMainState ().CreateClassInstance < MOAIPartition >());
 	}
 	assert ( this->mPartition );
 	return this->mPartition;
@@ -75,7 +74,7 @@ MOAIPartition* MOAIPartitionHolder::GetPartition () {
 MOAIPartitionHolder::MOAIPartitionHolder () {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -86,21 +85,18 @@ MOAIPartitionHolder::~MOAIPartitionHolder () {
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionHolder::RegisterLuaClass ( MOAILuaState& state ) {
-	UNUSED(state);
+void MOAIPartitionHolder::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIPartitionHolder::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPartitionHolder::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+
+	state.DefineInstanceMethod ( klass, "clear", _clear, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPartition", _getPartition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setPartition", _setPartition, MRB_ARGS_REQ ( 1 ) );
 	
-	luaL_Reg regTable [] = {
-		{ "clear",						_clear },
-		{ "getPartition",				_getPartition },
-		{ "setPartition",				_setPartition },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

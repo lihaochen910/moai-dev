@@ -3,30 +3,32 @@
 
 #include "pch.h"
 #include <moai-sim/MOAIBlendMode.h>
-#include <moai-sim/MOAIGfxMgr.h>
+//#include <moai-sim/MOAIGfxMgr.h>
 
 //================================================================//
 // MOAIBlendMode
 //================================================================//
 
 //----------------------------------------------------------------//
-void MOAIBlendMode::Init ( MOAILuaState& state, int idx ) {
+void MOAIBlendMode::Init ( MOAIRubyState& state, int idx ) {
 
-	u32 equation	= state.GetValue < u32 >( idx++, ZGL_BLEND_MODE_ADD );
-	u32 srcFactor	= state.GetValue < u32 >( idx++, ZGL_BLEND_FACTOR_ONE );
-	u32 dstFactor	= state.GetValue < u32 >( idx, ZGL_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA );
+	u32 equation	= state.GetParamValue < u32 >( idx++, ZGL_BLEND_MODE_ADD );
+	u32 srcFactor	= state.GetParamValue < u32 >( idx++, ZGL_BLEND_FACTOR_ONE );
+	u32 dstFactor	= state.GetParamValue < u32 >( idx, ZGL_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA );
 	
 	this->SetBlend ( equation, srcFactor, dstFactor );
 }
 
 //----------------------------------------------------------------//
-int MOAIBlendMode::Push ( MOAILuaState& state ) const {
+mrb_value MOAIBlendMode::Push ( MOAIRubyState& state ) const {
 
-	state.Push ( this->mEquation );
-	state.Push ( this->mSourceFactor );
-	state.Push ( this->mDestFactor );
-	
-	return 3;
+	mrb_value ary = mrb_ary_new ( state );
+
+	mrb_ary_push ( state, ary, state.ToRValue ( this->mEquation ) );
+	mrb_ary_push ( state, ary, state.ToRValue ( this->mSourceFactor ) );
+	mrb_ary_push ( state, ary, state.ToRValue ( this->mDestFactor ) );
+
+	return ary;
 }
 
 //----------------------------------------------------------------//

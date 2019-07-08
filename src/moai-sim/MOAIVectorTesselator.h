@@ -18,7 +18,7 @@ class SafeTesselator;
 //================================================================//
 // TODO: doxygen
 class MOAIVectorTesselatorWriter :
-	public MOAILuaObject {
+	public MOAIRubyObject {
 private:
 
 	friend class MOAIVectorTesselator;
@@ -59,7 +59,7 @@ private:
 
 public:
 
-	DECL_LUA_OPAQUE ( MOAIVectorTesselatorWriter )
+	DECL_RUBY_OPAQUE ( MOAIVectorTesselatorWriter )
 
 	//----------------------------------------------------------------//
 							MOAIVectorTesselatorWriter			();
@@ -75,7 +75,7 @@ public:
 	@text	Convert vector primitives into triangles.
 */
 class MOAIVectorTesselator :
-	public MOAILuaObject {
+	public MOAIRubyObject {
 private:
 
 	enum {
@@ -100,60 +100,60 @@ private:
 	ZLLeanArray < void* >	mVtxExtras;
 
 	//----------------------------------------------------------------//
-	static int		_clearShapes			( lua_State* L );
-	static int		_clearStyles			( lua_State* L );
-	static int		_clearTransforms		( lua_State* L );
-	static int		_drawingToWorld			( lua_State* L );
-	static int		_drawingToWorldVec		( lua_State* L );
-	static int		_finish					( lua_State* L );
-	static int		_getExtrude				( lua_State* L );
-	static int		_getTransform			( lua_State* L );
-	static int		_openWriter				( lua_State* L );
-	static int		_pushBezierVertices		( lua_State* L );
-	static int		_pushCombo				( lua_State* L );
-	static int		_pushEllipse			( lua_State* L );
-	static int		_pushPoly				( lua_State* L );
-	static int		_pushRect				( lua_State* L );
-    static int      _pushRegion             ( lua_State* L );
-	static int		_pushRotate				( lua_State* L );
-	static int		_pushScale				( lua_State* L );
-	static int		_pushSkew				( lua_State* L );
-	static int		_pushTransform			( lua_State* L );
-	static int		_pushTranslate			( lua_State* L );
-	static int		_pushVertex				( lua_State* L );
-	static int		_readShapes				( lua_State* L );
-	static int		_reserveVertexExtras	( lua_State* L );
-	static int		_setCapStyle			( lua_State* L );
-	static int		_setCircleResolution	( lua_State* L );
-	static int		_setDepthBias			( lua_State* L );
-	static int		_setExtrude				( lua_State* L );
-	static int		_setFillColor			( lua_State* L );
-	static int		_setFillStyle			( lua_State* L );
-	static int		_setFillExtra			( lua_State* L );
-	static int		_setJoinStyle			( lua_State* L );
-	static int		_setLightColor			( lua_State* L );
-	static int		_setLightCurve			( lua_State* L );
-	static int		_setLightVec			( lua_State* L );
-	static int		_setLineColor			( lua_State* L );
-	static int		_setLineStyle			( lua_State* L );
-	static int		_setLineWidth			( lua_State* L );
-	static int		_setMergeNormals		( lua_State* L );
-	static int		_setMiterLimit			( lua_State* L );
-	static int		_setPolyClosed			( lua_State* L );
-	static int		_setShadowColor			( lua_State* L );
-	static int		_setShadowCurve			( lua_State* L );
-	static int		_setStrokeColor			( lua_State* L );
-	static int		_setStrokeDepthBias		( lua_State* L );
-	static int		_setStrokeExtra			( lua_State* L );
-	static int		_setStrokeStyle			( lua_State* L );
-	static int		_setStrokeWidth			( lua_State* L );
-	static int		_setVerbose				( lua_State* L );
-	static int		_setVertexExtra			( lua_State* L );
-	static int		_setWindingRule			( lua_State* L );
-	static int		_tesselate				( lua_State* L );
-	static int		_worldToDrawing			( lua_State* L );
-	static int		_worldToDrawingVec		( lua_State* L );
-	static int		_writeShapes			( lua_State* L );
+	static mrb_value		_clearShapes			( mrb_state* M, mrb_value context );
+	static mrb_value		_clearStyles			( mrb_state* M, mrb_value context );
+	static mrb_value		_clearTransforms		( mrb_state* M, mrb_value context );
+	static mrb_value		_drawingToWorld			( mrb_state* M, mrb_value context );
+	static mrb_value		_drawingToWorldVec		( mrb_state* M, mrb_value context );
+	static mrb_value		_finish					( mrb_state* M, mrb_value context );
+	static mrb_value		_getExtrude				( mrb_state* M, mrb_value context );
+	static mrb_value		_getTransform			( mrb_state* M, mrb_value context );
+	static mrb_value		_openWriter				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushBezierVertices		( mrb_state* M, mrb_value context );
+	static mrb_value		_pushCombo				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushEllipse			( mrb_state* M, mrb_value context );
+	static mrb_value		_pushPoly				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushRegion             ( mrb_state* M, mrb_value context );
+	static mrb_value		_pushRotate				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushScale				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushSkew				( mrb_state* M, mrb_value context );
+	static mrb_value		_pushTransform			( mrb_state* M, mrb_value context );
+	static mrb_value		_pushTranslate			( mrb_state* M, mrb_value context );
+	static mrb_value		_pushVertex				( mrb_state* M, mrb_value context );
+	static mrb_value		_readShapes				( mrb_state* M, mrb_value context );
+	static mrb_value		_reserveVertexExtras	( mrb_state* M, mrb_value context );
+	static mrb_value		_setCapStyle			( mrb_state* M, mrb_value context );
+	static mrb_value		_setCircleResolution	( mrb_state* M, mrb_value context );
+	static mrb_value		_setDepthBias			( mrb_state* M, mrb_value context );
+	static mrb_value		_setExtrude				( mrb_state* M, mrb_value context );
+	static mrb_value		_setFillColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setFillStyle			( mrb_state* M, mrb_value context );
+	static mrb_value		_setFillExtra			( mrb_state* M, mrb_value context );
+	static mrb_value		_setJoinStyle			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLightColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLightCurve			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLightVec			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLineColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLineStyle			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLineWidth			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMergeNormals		( mrb_state* M, mrb_value context );
+	static mrb_value		_setMiterLimit			( mrb_state* M, mrb_value context );
+	static mrb_value		_setPolyClosed			( mrb_state* M, mrb_value context );
+	static mrb_value		_setShadowColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setShadowCurve			( mrb_state* M, mrb_value context );
+	static mrb_value		_setStrokeColor			( mrb_state* M, mrb_value context );
+	static mrb_value		_setStrokeDepthBias		( mrb_state* M, mrb_value context );
+	static mrb_value		_setStrokeExtra			( mrb_state* M, mrb_value context );
+	static mrb_value		_setStrokeStyle			( mrb_state* M, mrb_value context );
+	static mrb_value		_setStrokeWidth			( mrb_state* M, mrb_value context );
+	static mrb_value		_setVerbose				( mrb_state* M, mrb_value context );
+	static mrb_value		_setVertexExtra			( mrb_state* M, mrb_value context );
+	static mrb_value		_setWindingRule			( mrb_state* M, mrb_value context );
+	static mrb_value		_tesselate				( mrb_state* M, mrb_value context );
+	static mrb_value		_worldToDrawing			( mrb_state* M, mrb_value context );
+	static mrb_value		_worldToDrawingVec		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeShapes			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			PushShape				( MOAIVectorShape* shape );
@@ -164,7 +164,7 @@ public:
 	static const u32	TESSELATE_STROKES		= 0x02;
 	static const u32	TESSELATE_ALL			= TESSELATE_FILLS | TESSELATE_STROKES;
 	
-	DECL_LUA_FACTORY ( MOAIVectorTesselator )
+	DECL_RUBY_FACTORY ( MOAIVectorTesselator, MOAIRubyObject )
 	
 	GET_SET ( MOAIVectorStyle&, Style, mStyle )
 	GET_SET ( bool, Verbose, mVerbose )
@@ -194,8 +194,8 @@ public:
 	void				PushTranslate				( float x, float y);
 	void				PushVertex					( float x, float y );
 	void				ReadShapes					( ZLStream& stream );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveVertexExtras			( u32 total, size_t size );
 	void				SetVertexExtra				( u32 idx, void* extra, size_t size );
 	int					Tesselate					( SafeTesselator& tess, u32 flags = TESSELATE_ALL );

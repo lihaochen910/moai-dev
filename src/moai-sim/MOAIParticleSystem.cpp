@@ -25,11 +25,11 @@ class MOAIDataBuffer;
 	@opt	boolean cap					Default value is true.
 	@out	nil
 */
-int MOAIParticleSystem::_capParticles ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+mrb_value MOAIParticleSystem::_capParticles ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
-	self->mCapParticles = state.GetValue < bool >( 2, true );
-	return 0;
+	self->mCapParticles = state.GetParamValue < bool >( 1, true );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -40,11 +40,11 @@ int MOAIParticleSystem::_capParticles ( lua_State* L ) {
 	@opt	boolean cap					Default value is true.
 	@out	nil
 */
-int MOAIParticleSystem::_capSprites ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+mrb_value MOAIParticleSystem::_capSprites ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
-	self->mCapSprites = state.GetValue < bool >( 2, true );
-	return 0;
+	self->mCapSprites = state.GetParamValue < bool >( 1, true );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -54,11 +54,11 @@ int MOAIParticleSystem::_capSprites ( lua_State* L ) {
 	@in		MOAIParticleSystem self
 	@out	nil
 */
-int MOAIParticleSystem::_clearSprites ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+mrb_value MOAIParticleSystem::_clearSprites ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
 	self->mSpriteTop = 0;
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -69,17 +69,16 @@ int MOAIParticleSystem::_clearSprites ( lua_State* L ) {
 	@in		number index
 	@out	MOAIParticleState state
 */
-int MOAIParticleSystem::_getState ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UN" )
+mrb_value MOAIParticleSystem::_getState ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UN" )
 
-	u32 idx = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
 	MOAIParticleState* particleState = self->GetState ( idx );
 	if ( particleState ) {
-		particleState->PushLuaUserdata ( state );
-		return 1;
+		return particleState->PushRubyUserdata ( state );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -90,14 +89,13 @@ int MOAIParticleSystem::_getState ( lua_State* L ) {
 	@in		MOAIParticleSystem self
 	@out	boolean isIdle				Indicates whether the system is currently idle.
 */
-int  MOAIParticleSystem::_isIdle( lua_State* L ) {
+mrb_value MOAIParticleSystem::_isIdle( mrb_state* M, mrb_value context ) {
 	
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
 	bool result = !self->mHead;
 
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }	
 
 
@@ -113,20 +111,19 @@ int  MOAIParticleSystem::_isIdle( lua_State* L ) {
 	@opt	number state				Index of initial particle state.
 	@out	boolean result				true if particle was added, false if not.
 */
-int MOAIParticleSystem::_pushParticle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+mrb_value MOAIParticleSystem::_pushParticle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
-	float x = state.GetValue < float >( 2, 0.0f );
-	float y = state.GetValue < float >( 3, 0.0f );
+	float x = state.GetParamValue < float >( 1, 0.0f );
+	float y = state.GetParamValue < float >( 2, 0.0f );
 	
-	float dx = state.GetValue < float >( 4, 0.0f );
-	float dy = state.GetValue < float >( 5, 0.0f );
+	float dx = state.GetParamValue < float >( 3, 0.0f );
+	float dy = state.GetParamValue < float >( 4, 0.0f );
 
-	u32 stateIdx = state.GetValue < u32 >( 6, 1 ) - 1;
+	u32 stateIdx = state.GetParamValue < u32 >( 5, 1 ) - 1;
 
 	bool result = self->PushParticle ( x, y, dx, dy, stateIdx );
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -142,16 +139,16 @@ int MOAIParticleSystem::_pushParticle ( lua_State* L ) {
 	@opt	number yScale		Default value is 1.
 	@out	boolean result		true is sprite was added, false if not.
 */
-int MOAIParticleSystem::_pushSprite ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UNN" )
+mrb_value MOAIParticleSystem::_pushSprite ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UNN" )
 
 	AKUParticleSprite sprite;
 
-	sprite.mXLoc		= state.GetValue < float >( 2, 0.0f );
-	sprite.mYLoc		= state.GetValue < float >( 3, 0.0f );
-	sprite.mZRot		= state.GetValue < float >( 4, 0.0f );
-	sprite.mXScl		= state.GetValue < float >( 5, 1.0f );
-	sprite.mYScl		= state.GetValue < float >( 6, 1.0f );
+	sprite.mXLoc		= state.GetParamValue < float >( 1, 0.0f );
+	sprite.mYLoc		= state.GetParamValue < float >( 2, 0.0f );
+	sprite.mZRot		= state.GetParamValue < float >( 3, 0.0f );
+	sprite.mXScl		= state.GetParamValue < float >( 4, 1.0f );
+	sprite.mYScl		= state.GetParamValue < float >( 5, 1.0f );
 	
 	sprite.mRed			= 1.0f;
 	sprite.mGreen		= 1.0f;
@@ -165,8 +162,7 @@ int MOAIParticleSystem::_pushSprite ( lua_State* L ) {
 	if ( result ) {
 		self->ScheduleUpdate ();
 	}
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -178,14 +174,14 @@ int MOAIParticleSystem::_pushSprite ( lua_State* L ) {
 	@in		number particleSize		Number of parameters reserved for the particle.
 	@out	nil
 */
-int MOAIParticleSystem::_reserveParticles ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UN" )
+mrb_value MOAIParticleSystem::_reserveParticles ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UN" )
 
-	u32 total	= state.GetValue < u32 >( 2, 0 );
-	u32 size	= state.GetValue < u32 >( 3, 0 );
+	u32 total	= state.GetParamValue < u32 >( 1, 0 );
+	u32 size	= state.GetParamValue < u32 >( 2, 0 );
 
 	self->ReserveParticles ( total, size );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -196,11 +192,11 @@ int MOAIParticleSystem::_reserveParticles ( lua_State* L ) {
 	@in		number nSprites
 	@out	nil
 */
-int MOAIParticleSystem::_reserveSprites ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UN" )
+mrb_value MOAIParticleSystem::_reserveSprites ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UN" )
 
-	self->ReserveSprites ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->ReserveSprites ( state.GetParamValue < u32 >( 1, 0 ));
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -211,12 +207,12 @@ int MOAIParticleSystem::_reserveSprites ( lua_State* L ) {
 	@in		number nStates
 	@out	nil
 */
-int MOAIParticleSystem::_reserveStates ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UN" )
+mrb_value MOAIParticleSystem::_reserveStates ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UN" )
 
 	self->ClearStates ();
-	self->ReserveStates ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->ReserveStates ( state.GetParamValue < u32 >( 1, 0 ));
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -227,11 +223,11 @@ int MOAIParticleSystem::_reserveStates ( lua_State* L ) {
 	@in     number  order		MOAIParticleSystem.ORDER_NORMAL or MOAIParticleSystem.ORDER_REVERSE
 	@out	nil
 */
-int MOAIParticleSystem::_setDrawOrder ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+mrb_value MOAIParticleSystem::_setDrawOrder ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
-	self->mDrawOrder = state.GetValue < u32 >( 2, ORDER_NORMAL );
-	return 0;
+	self->mDrawOrder = state.GetParamValue < u32 >( 1, ORDER_NORMAL );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -243,11 +239,11 @@ int MOAIParticleSystem::_setDrawOrder ( lua_State* L ) {
 	@opt	boolean computBounds		Default value is false.
 	@out	nil
 */
-int MOAIParticleSystem::_setComputeBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "U" )
+mrb_value MOAIParticleSystem::_setComputeBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "U" )
 
-	self->mComputeBounds = state.GetValue < bool >( 2, false );
-	return 0;
+	self->mComputeBounds = state.GetParamValue < bool >( 1, false );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -261,18 +257,18 @@ int MOAIParticleSystem::_setComputeBounds ( lua_State* L ) {
 	@in		number a
 	@out	nil
 */
-int MOAIParticleSystem::_setSpriteColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UNNNN" )
+mrb_value MOAIParticleSystem::_setSpriteColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UNNNN" )
 
 	AKUParticleSprite* sprite = self->GetTopSprite ();
 	if ( sprite ) {
 	
-		sprite->mRed	= state.GetValue < float >( 2, 1.0f );
-		sprite->mGreen	= state.GetValue < float >( 3, 1.0f );
-		sprite->mBlue	= state.GetValue < float >( 4, 1.0f );
-		sprite->mAlpha	= state.GetValue < float >( 5, 1.0f );
+		sprite->mRed	= state.GetParamValue < float >( 1, 1.0f );
+		sprite->mGreen	= state.GetParamValue < float >( 2, 1.0f );
+		sprite->mBlue	= state.GetParamValue < float >( 3, 1.0f );
+		sprite->mAlpha	= state.GetParamValue < float >( 4, 1.0f );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -283,14 +279,14 @@ int MOAIParticleSystem::_setSpriteColor ( lua_State* L ) {
 	@in		number index
 	@out	nil
 */
-int MOAIParticleSystem::_setSpriteDeckIdx ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UN" )
+mrb_value MOAIParticleSystem::_setSpriteDeckIdx ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UN" )
 
 	AKUParticleSprite* sprite = self->GetTopSprite ();
 	if ( sprite ) {
-		sprite->mGfxID = state.GetValue < u32 >( 2, sprite->mGfxID );
+		sprite->mGfxID = state.GetParamValue < u32 >( 1, sprite->mGfxID );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -302,22 +298,22 @@ int MOAIParticleSystem::_setSpriteDeckIdx ( lua_State* L ) {
 	@in		MOAIParticleState state
 	@out	nil
 */
-int MOAIParticleSystem::_setState ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UNU" )
+mrb_value MOAIParticleSystem::_setState ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UNU" )
 
-	u32 idx = state.GetValue < u32 >( 2, 0 ) - 1;
+	u32 idx = state.GetParamValue < u32 >( 1, 0 ) - 1;
 
 	if ( idx < self->mStates.Size ()) {
 	
-		MOAIParticleState* particleState =  state.GetLuaObject < MOAIParticleState >( 3, true );
+		MOAIParticleState* particleState =  state.GetRubyObject < MOAIParticleState >( 2, true );
 		if ( particleState != self->mStates [ idx ]) {
 		
-			self->LuaRetain ( particleState );
-			self->LuaRelease ( self->mStates [ idx ]);
+			self->RubyRetain ( particleState );
+			self->RubyRelease ( self->mStates [ idx ]);
 			self->mStates [ idx ] = particleState;
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -332,20 +328,20 @@ int MOAIParticleSystem::_setState ( lua_State* L ) {
 	@opt	number dy				Default value is 0.
 	@out	nil
 */
-int MOAIParticleSystem::_surge ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleSystem, "UN" )
+mrb_value MOAIParticleSystem::_surge ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleSystem, "UN" )
 
-	u32 n		= state.GetValue < u32 >( 2, 1 );
-	float x		= state.GetValue < float >( 3, 0.0f );
-	float y		= state.GetValue < float >( 4, 0.0f );
-	float dx	= state.GetValue < float >( 5, 0.0f );
-	float dy	= state.GetValue < float >( 6, 0.0f );
+	u32 n		= state.GetParamValue < u32 >( 1, 1 );
+	float x		= state.GetParamValue < float >( 2, 0.0f );
+	float y		= state.GetParamValue < float >( 3, 0.0f );
+	float dx	= state.GetParamValue < float >( 4, 0.0f );
+	float dy	= state.GetParamValue < float >( 5, 0.0f );
 	
 	for ( u32 i = 0; i < n; ++i ) {
 		self->PushParticle ( x, y, dx, dy );
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -356,7 +352,7 @@ int MOAIParticleSystem::_surge ( lua_State* L ) {
 void MOAIParticleSystem::ClearStates () {
 
 	for ( u32 i = 0; i < this->mStates.Size (); ++i ) {
-		this->LuaRelease ( this->mStates [ i ]);
+		this->RubyRelease ( this->mStates [ i ]);
 	}
 	this->mStates.Clear ();
 }
@@ -524,42 +520,38 @@ bool MOAIParticleSystem::PushSprite ( const AKUParticleSprite& sprite ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleSystem::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleSystem::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIGraphicsProp::RegisterLuaClass ( state );
-	MOAIAction::RegisterLuaClass ( state );
+	MOAIGraphicsProp::RegisterRubyClass ( state, klass );
+	MOAIAction::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "ORDER_NORMAL",	( u32 )ORDER_NORMAL );
-	state.SetField ( -1, "ORDER_REVERSE",	( u32 )ORDER_REVERSE );
+	state.DefineClassConst ( klass, "ORDER_NORMAL",	( u32 )ORDER_NORMAL );
+	state.DefineClassConst ( klass, "ORDER_REVERSE",	( u32 )ORDER_REVERSE );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleSystem::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleSystem::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIGraphicsProp::RegisterLuaFuncs ( state );
-	MOAIAction::RegisterLuaFuncs ( state );
+	MOAIGraphicsProp::RegisterRubyFuncs ( state, klass );
+	MOAIAction::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "capParticles",		_capParticles },
-		{ "capSprites",			_capSprites },
-		{ "clearSprites",		_clearSprites },
-		{ "isIdle",				_isIdle },
-		{ "getState",			_getState },
-		{ "pushParticle",		_pushParticle },
-		{ "pushSprite",			_pushSprite },
-		{ "reserveParticles",	_reserveParticles },
-		{ "reserveSprites",		_reserveSprites },
-		{ "reserveStates",		_reserveStates },
-		{ "setDrawOrder",		_setDrawOrder },
-		{ "setComputeBounds",	_setComputeBounds },
-		{ "setSpriteColor",		_setSpriteColor },
-		{ "setSpriteDeckIdx",	_setSpriteDeckIdx },
-		{ "setState",			_setState },
-		{ "surge",				_surge },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "capParticles",		_capParticles, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "capSprites",		_capSprites, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "clearSprites",		_clearSprites, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isIdle",			_isIdle, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getState",			_getState, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "pushParticle",		_pushParticle, MRB_ARGS_ARG ( 0, 5 ) );
+	state.DefineInstanceMethod ( klass, "pushSprite",		_pushSprite, MRB_ARGS_ARG ( 2, 3 ) );
+	state.DefineInstanceMethod ( klass, "reserveParticles",	_reserveParticles, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "reserveSprites",	_reserveSprites, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveStates",	_reserveStates, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setDrawOrder",		_setDrawOrder, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setComputeBounds",	_setComputeBounds, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setSpriteColor",	_setSpriteColor, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setSpriteDeckIdx",	_setSpriteDeckIdx, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setState",			_setState, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "surge",			_surge, MRB_ARGS_ARG ( 0, 5 ) );
+
 }
 
 //----------------------------------------------------------------//
@@ -605,14 +597,14 @@ void MOAIParticleSystem::ReserveStates ( u32 total ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleSystem::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIParticleSystem::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIGraphicsProp::SerializeIn ( state, serializer );
 	MOAIAction::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleSystem::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIParticleSystem::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIGraphicsProp::SerializeOut ( state, serializer );
 	MOAIAction::SerializeOut ( state, serializer );

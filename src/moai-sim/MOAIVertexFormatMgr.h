@@ -10,7 +10,7 @@
 // MOAIVertexFormatMgr
 //================================================================//
 class MOAIVertexFormatMgr :
-	public ZLContextClass < MOAIVertexFormatMgr, MOAILuaObject > {
+	public ZLContextClass < MOAIVertexFormatMgr, MOAIRubyObject > {
 public:
 
 	enum Preset {
@@ -29,7 +29,7 @@ private:
 	MOAIVertexFormat* mFormats [ TOTAL_FORMATS ];
 	
 	//----------------------------------------------------------------//
-	static int			_getFormat			( lua_State* L );
+	static mrb_value			_getFormat			( mrb_state* M, mrb_value context );
 	
 public:
 	
@@ -62,15 +62,15 @@ public:
 		XYZWNNNUVC_COLOR,
 	};
 	
-	DECL_LUA_SINGLETON ( MOAIVertexFormatMgr )
+	DECL_RUBY_SINGLETON ( MOAIVertexFormatMgr )
 	
 	//----------------------------------------------------------------//
 	MOAIVertexFormat*			GetFormat					( u32 formatID );
 	u32							GetVertexSize				( u32 formatID );
 								MOAIVertexFormatMgr			();
 								~MOAIVertexFormatMgr		();
-	void						RegisterLuaClass			( MOAILuaState& state );
-	void						RegisterLuaFuncs			( MOAILuaState& state );
+	void						RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void						RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

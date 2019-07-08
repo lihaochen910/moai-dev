@@ -22,14 +22,14 @@ protected:
 	friend class MOAIGfxStateGPUCache;
 	friend class MOAIShaderProgram;
 
-	MOAILuaSharedPtr < MOAIShaderProgram >		mProgram;
+	MOAIRubySharedPtr < MOAIShaderProgram >		mProgram;
 	ZLLeanArray < u8 >							mPendingUniformBuffer;
 
 	//----------------------------------------------------------------//
-	static int				_getAttributeID				( lua_State* L );
-	static int				_setProgram					( lua_State* L );
-	static int				_setUniform					( lua_State* L );
-	static int				_setUniformArrayItem		( lua_State* L );
+	static mrb_value				_getAttributeID				( mrb_state* M, mrb_value context );
+	static mrb_value				_setProgram					( mrb_state* M, mrb_value context );
+	static mrb_value				_setUniform					( mrb_state* M, mrb_value context );
+	static mrb_value				_setUniformArrayItem		( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool					IsDirty					();
@@ -39,20 +39,20 @@ protected:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIShader )
+	DECL_RUBY_FACTORY ( MOAIShader, MOAINode )
 
 	GET ( MOAIShaderProgram*, Program, mProgram )
 
 	//----------------------------------------------------------------//
 	void					ApplyUniforms			();
-	static MOAIShader*		AffirmShader			( MOAILuaState& state, int idx );
+	static MOAIShader*		AffirmShader			( MOAIRubyState& state, int idx );
 	void					BindUniforms			();
 	void					Bless					();
 	bool					HasDirtyUniforms		();
 							MOAIShader				();
 							~MOAIShader				();
-	void					RegisterLuaClass		( MOAILuaState& state );
-	void					RegisterLuaFuncs		( MOAILuaState& state );
+	void					RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void					ResizeUniformArray		( u32 uniformID, u32 count );
 	void					ScheduleTextures		();
 	void					SetProgram				( MOAIShaderProgram* program );

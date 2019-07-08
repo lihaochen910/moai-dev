@@ -166,7 +166,7 @@ void MOAITextLayoutRules::ReleaseCurve ( MOAIAnimCurve* curve  ) {
 
 	if ( curve ) {
 		if ( this->mOwner ) {
-			this->mOwner->LuaRelease ( curve );
+			this->mOwner->RubyRelease ( curve );
 		}
 		curve->Release ();
 	}
@@ -187,7 +187,7 @@ void MOAITextLayoutRules::RetainCurve ( MOAIAnimCurve* curve  ) {
 	if ( curve ) {
 		curve->Retain ();
 		if ( this->mOwner ) {
-			this->mOwner->LuaRetain ( curve );
+			this->mOwner->RubyRetain ( curve );
 		}
 	}
 }

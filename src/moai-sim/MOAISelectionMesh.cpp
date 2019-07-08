@@ -19,103 +19,102 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISelectionMesh::_addSelection ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISelectionMesh, "UNN*" )
+mrb_value MOAISelectionMesh::_addSelection ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISelectionMesh, "UNN*" )
 	
 	u32 set		= 0;
 	u32 base	= 0;
 	u32 top		= 0;
 	
-	if ( state.IsType ( 4, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 3, MRB_TT_FIXNUM )) {
 
-		set			= state.GetValue < u32 >( 2, 1 ) - 1;
-		base		= state.GetValue < u32 >( 3, 1 ) - 1;
-		top			= state.GetValue < u32 >( 4, 1 ) - 1;
+		set			= state.GetParamValue < u32 >( 1, 1 ) - 1;
+		base		= state.GetParamValue < u32 >( 2, 1 ) - 1;
+		top			= state.GetParamValue < u32 >( 3, 1 ) - 1;
 	}
 	else {
 	
 		ZLResult < u32 > result = self->AffirmSpanSet ();
-		if ( result.mCode != ZL_OK ) return 0;
+		if ( result.mCode != ZL_OK ) return mrb_nil_value ();
 		
 		set			= result;
-		base		= state.GetValue < u32 >( 2, 1 ) - 1;
-		top			= state.GetValue < u32 >( 3, 1 ) - 1;
+		base		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+		top			= state.GetParamValue < u32 >( 2, 1 ) - 1;
 	}
 	
 	self->AddSelection ( set, base, top );
-	state.Push ( set + 1 );
-	return 1;
+	return state.ToRValue ( set + 1 );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISelectionMesh::_clearSelection ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISelectionMesh, "UN" )
+mrb_value MOAISelectionMesh::_clearSelection ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISelectionMesh, "UN" )
 
-	u32 set			= state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 set			= state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
-	if ( state.CheckParams ( 3, "NN", false )) {
+	if ( state.CheckParams ( 2, "NN", false )) {
 	
-		u32 base		= state.GetValue < u32 >( 3, 1 ) - 1;
-		u32 top			= state.GetValue < u32 >( 4, 1 ) - 1;
+		u32 base		= state.GetParamValue < u32 >( 2, 1 ) - 1;
+		u32 top			= state.GetParamValue < u32 >( 3, 1 ) - 1;
 	
 		self->ClearSelection ( set, base, top );
 	}
 	else {
 		self->ClearSelection ( set );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISelectionMesh::_mergeSelection ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISelectionMesh, "UNN" )
+mrb_value MOAISelectionMesh::_mergeSelection ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISelectionMesh, "UNN" )
 
-	u32 set			= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 merge		= state.GetValue < u32 >( 3, 1 ) - 1;
+	u32 set			= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 merge		= state.GetParamValue < u32 >( 2, 1 ) - 1;
 
 	self->MergeSelection ( set, merge );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISelectionMesh::_printSelection ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISelectionMesh, "U" )
+mrb_value MOAISelectionMesh::_printSelection ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISelectionMesh, "U" )
 
-	if ( state.IsType ( 2, LUA_TNUMBER )) {
-		self->PrintSelection ( state.GetValue < u32 >( 2, 1 ) - 1 );
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
+		self->PrintSelection ( state.GetParamValue < u32 >( 1, 1 ) - 1 );
 	}
 	else {
 		self->PrintSelections ();
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISelectionMesh::_reserveSelections ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISelectionMesh, "U" )
+mrb_value MOAISelectionMesh::_reserveSelections ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISelectionMesh, "U" )
 
-	u32 total = state.GetValue < u32 >( 2, 0 );
+	u32 total = state.GetParamValue < u32 >( 1, 0 );
 	self->ReserveSelections ( total );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAISelectionMesh::_setMesh ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAISelectionMesh, "U" )
+mrb_value MOAISelectionMesh::_setMesh ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAISelectionMesh, "U" )
 
-	MOAIMesh* mesh = state.GetLuaObject < MOAIMesh >( 2, true );
+	MOAIMesh* mesh = state.GetRubyObject < MOAIMesh >( 1, true );
 
 	self->mDeck.Set ( *self, mesh );
 	self->mMesh = mesh;
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -543,28 +542,23 @@ void MOAISelectionMesh::PrintSelections () {
 }
 
 //----------------------------------------------------------------//
-void MOAISelectionMesh::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAISelectionMesh::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeckProxy::RegisterLuaClass ( state );
+	MOAIDeckProxy::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAISelectionMesh::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAISelectionMesh::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeckProxy::RegisterLuaFuncs ( state );
+	MOAIDeckProxy::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "addSelection",			_addSelection },
-		{ "clearSelection",			_clearSelection },
-		{ "mergeSelection",			_mergeSelection },
-		{ "printSelection",			_printSelection },
-		{ "reserveSelections",		_reserveSelections },
-		{ "setDeck",				_setMesh }, // override
-		{ "setMesh",				_setMesh },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "addSelection",			_addSelection, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "clearSelection",		_clearSelection, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "mergeSelection",		_mergeSelection, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "printSelection",		_printSelection, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "reserveSelections",	_reserveSelections, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setDeck",				_setMesh, MRB_ARGS_REQ ( 1 ) ); // override
+	state.DefineInstanceMethod ( klass, "setMesh",				_setMesh, MRB_ARGS_REQ ( 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -576,13 +570,13 @@ void MOAISelectionMesh::ReserveSelections ( u32 total ) {
 }
 
 //----------------------------------------------------------------//
-void MOAISelectionMesh::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAISelectionMesh::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIDeckProxy::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAISelectionMesh::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAISelectionMesh::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIDeckProxy::SerializeOut ( state, serializer );
 }

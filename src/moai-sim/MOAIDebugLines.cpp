@@ -61,42 +61,42 @@ void MOAIDebugLineStyleSet::ReserveStyles ( u32 size ) {
 	@opt	number a			Alpha component of line color. Default value is 1.
 	@out	nil
 */
-int MOAIDebugLinesMgr::_setStyle ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDebugLinesMgr, "" )
+mrb_value MOAIDebugLinesMgr::_setStyle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDebugLinesMgr, "" )
 	
-	u32 packedID	= state.GetValue < u32 >( 1, 0 );
-	float size		= state.GetValue < float >( 2, 1.0f );
-	float r			= state.GetValue < float >( 3, 1.0f );
-	float g			= state.GetValue < float >( 4, 1.0f );
-	float b			= state.GetValue < float >( 5, 1.0f );
-	float a			= state.GetValue < float >( 6, 1.0f );
+	u32 packedID	= state.GetParamValue < u32 >( 1, 0 );
+	float size		= state.GetParamValue < float >( 2, 1.0f );
+	float r			= state.GetParamValue < float >( 3, 1.0f );
+	float g			= state.GetParamValue < float >( 4, 1.0f );
+	float b			= state.GetParamValue < float >( 5, 1.0f );
+	float a			= state.GetParamValue < float >( 6, 1.0f );
 	
 	u32 color = ZLColor::PackRGBA ( r, g, b, a );
 	
 	self->SelectStyleSet ( MOAIDebugLinesMgr::GetSetID ( packedID ));
 	self->SetStyle ( MOAIDebugLinesMgr::GetStyleID ( packedID ), size, color );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDebugLinesMgr::_showDebugLines ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIDebugLinesMgr, "" )
+mrb_value MOAIDebugLinesMgr::_showDebugLines ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIDebugLinesMgr, "" )
 
-	if ( state.IsType ( 1, LUA_TNUMBER )) {
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
 	
-		u32 packedID = state.GetValue < u32 >( 1, 0 );
+		u32 packedID = state.GetParamValue < u32 >( 1, 0 );
 		
 		MOAIDebugLineStyleSet* styleSet = self->mStyleSets.value_for_key ( MOAIDebugLinesMgr::GetSetID ( packedID ), 0 );
 		if ( styleSet ) {
-			styleSet->mShowDebugLines = state.GetValue < bool >( 2, true );
+			styleSet->mShowDebugLines = state.GetParamValue < bool >( 2, true );
 		}
 	}
 	else {
-		self->mShowDebugLines = state.GetValue < bool >( 1, true );
+		self->mShowDebugLines = state.GetParamValue < bool >( 1, true );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -165,7 +165,7 @@ MOAIDebugLinesMgr::MOAIDebugLinesMgr () :
 	mActiveStyleSet ( 0 ),
 	mShowDebugLines ( true ) {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -178,15 +178,11 @@ MOAIDebugLinesMgr::~MOAIDebugLinesMgr () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDebugLinesMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDebugLinesMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable[] = {
-		{ "setStyle",			_setStyle },
-		{ "showDebugLines",		_showDebugLines },
-		{ NULL, NULL }
-	};
+	state.DefineStaticMethod ( klass, "setStyle", _setStyle, MRB_ARGS_ARG ( 0, 5 ) );
+	state.DefineStaticMethod ( klass, "showDebugLines", _showDebugLines, MRB_ARGS_ARG ( 1, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

@@ -78,27 +78,27 @@ private:
 	MOAIBitmapGlyph*		mCurrentGlyph;
 
 	//----------------------------------------------------------------//
-	static int		_loadPage					( lua_State* L );
+	static mrb_value		_loadPage					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void			LoadPage					( cc8* filename, float size, cc8* charCodes );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBitmapFontReader )
+	DECL_RUBY_FACTORY ( MOAIBitmapFontReader, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	int				GetFaceMetrics				( MOAIFontFaceMetrics& faceMetrics );
 	int				GetGlyphMetrics				( MOAIGlyphMetrics& glyphMetrics );
 					MOAIBitmapFontReader		();
 					~MOAIBitmapFontReader		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	int				RenderGlyph					( MOAIImage& image, float x, float y );
 	int				SelectFace					( float size );
 	int				SelectGlyph					( u32 c );
-	void			SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void			SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

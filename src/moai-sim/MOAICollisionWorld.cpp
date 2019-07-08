@@ -46,20 +46,20 @@ private:
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionWorld::_processOverlaps ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionWorld, "U" )
+mrb_value MOAICollisionWorld::_processOverlaps ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionWorld, "U" )
 
 	self->ProcessOverlaps ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAICollisionWorld::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICollisionWorld, "U" )
+mrb_value MOAICollisionWorld::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICollisionWorld, "U" )
 	
-	self->mCallback.SetRef ( state, 2 );
-	return 0;
+	self->mCallback.SetRef ( state.GetParamValue ( 1 ) );
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -174,12 +174,14 @@ void MOAICollisionWorld::DoCallback ( u32 eventID, MOAICollisionProp& prop0, MOA
 	
 	if ( this->mCallback ) {
 		
-		MOAIScopedLuaState state = this->mCallback.GetSelf ();
-		
-		state.Push ( eventID );
-		state.Push ( &prop0 );
-		state.Push ( &prop1 );
-		state.DebugCall ( 3, 0 );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value ret [ 3 ];
+		ret [ 0 ] = state.ToRValue ( eventID );
+		ret [ 1 ] = state.ToRValue < MOAIRubyObject* >( &prop0 );
+		ret [ 2 ] = state.ToRValue < MOAIRubyObject* >( &prop1 );
+
+		state.FuncCall ( this->mCallback, "call", 3, ret );
 	}
 }
 
@@ -188,25 +190,30 @@ void MOAICollisionWorld::DoCallback ( u32 eventID, MOAICollisionProp& prop0, MOA
 	
 	if ( this->mCallback ) {
 	
-		MOAIScopedLuaState state = this->mCallback.GetSelf ();
-		
-		state.Push ( eventID );
-		state.Push ( &prop0 );
-		state.Push ( &prop1 );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value ret [ 4 ];
+		ret [ 0 ] = state.ToRValue ( eventID );
+		ret [ 1 ] = state.ToRValue < MOAIRubyObject* >( &prop0 );
+		ret [ 2 ] = state.ToRValue < MOAIRubyObject* >( &prop1 );
 		
 		if ( bounds.mStatus == ZLBounds::ZL_BOUNDS_OK ) {
+
+			mrb_value ary = mrb_ary_new ( state );
+
+			mrb_ary_push ( state, ary, state.ToRValue ( bounds.mMin.mX ));
+			mrb_ary_push ( state, ary, state.ToRValue ( bounds.mMin.mY ));
+			mrb_ary_push ( state, ary, state.ToRValue ( bounds.mMin.mZ ));
+			mrb_ary_push ( state, ary, state.ToRValue ( bounds.mMax.mX ));
+			mrb_ary_push ( state, ary, state.ToRValue ( bounds.mMax.mY ));
+			mrb_ary_push ( state, ary, state.ToRValue ( bounds.mMax.mZ ));
+			ret [ 3 ] = ary;
 		
-			state.Push ( bounds.mMin.mX );
-			state.Push ( bounds.mMin.mY );
-			state.Push ( bounds.mMin.mZ );
-			state.Push ( bounds.mMax.mX );
-			state.Push ( bounds.mMax.mY );
-			state.Push ( bounds.mMax.mZ );
-			
-			state.DebugCall ( 9, 0 );
+			state.FuncCall ( this->mCallback, "call", 4, ret );
 		}
 		else {
-			state.DebugCall ( 3, 0 );
+			ret [ 3 ] = mrb_nil_value ();
+			state.FuncCall ( this->mCallback, "call", 4, ret );
 		}
 	}
 }
@@ -378,38 +385,34 @@ void MOAICollisionWorld::PruneOverlaps ( MOAICollisionProp& prop ) {
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionWorld::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICollisionWorld::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAction::RegisterLuaClass ( state );
-	MOAIPartition::RegisterLuaClass ( state );
+	MOAIAction::RegisterRubyClass ( state, klass );
+	MOAIPartition::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "OVERLAP_BEGIN",				( u32 )OVERLAP_BEGIN );
-	state.SetField ( -1, "OVERLAP_END",					( u32 )OVERLAP_END );
-	state.SetField ( -1, "OVERLAP_UPDATE",				( u32 )OVERLAP_UPDATE );
+	state.DefineClassConst ( klass, "OVERLAP_BEGIN",		( u32 )OVERLAP_BEGIN );
+	state.DefineClassConst ( klass, "OVERLAP_END",			( u32 )OVERLAP_END );
+	state.DefineClassConst ( klass, "OVERLAP_UPDATE",		( u32 )OVERLAP_UPDATE );
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionWorld::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICollisionWorld::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIAction::RegisterLuaFuncs ( state );
-	MOAIPartition::RegisterLuaFuncs ( state );
+	MOAIAction::RegisterRubyFuncs ( state, klass );
+	MOAIPartition::RegisterRubyFuncs ( state, klass );
 	
-	luaL_Reg regTable [] = {
-		{ "processOverlaps",	_processOverlaps },
-		{ "setCallback",		_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "processOverlaps",	_processOverlaps, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback",		_setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionWorld::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAICollisionWorld::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAIAction::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAICollisionWorld::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAICollisionWorld::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAIAction::SerializeOut ( state, serializer );
 }
 

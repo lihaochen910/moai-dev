@@ -29,19 +29,19 @@ protected:
 	ZLAffine3D		mWorldToLocalMtx;
 
 	//----------------------------------------------------------------//
-	static int	_getWorldDir		( lua_State* L );
-	static int	_getWorldLoc		( lua_State* L );
-	static int	_getWorldRot		( lua_State* L );
-	static int	_getWorldScl		( lua_State* L );
-	static int	_getWorldXAxis		( lua_State* L );
-	static int	_getWorldYAxis		( lua_State* L );
-	static int	_getWorldZAxis		( lua_State* L );
-	static int	_getWorldXNormal	( lua_State* L );
-	static int	_getWorldYNormal	( lua_State* L );
-	static int	_getWorldZNormal	( lua_State* L );
-	static int	_modelToWorld		( lua_State* L );
-	static int	_setParent			( lua_State* L );
-	static int	_worldToModel		( lua_State* L );
+	static mrb_value	_getWorldDir		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldLoc		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldRot		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldScl		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldXAxis		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldYAxis		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldZAxis		( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldXNormal	( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldYNormal	( mrb_state* M, mrb_value context );
+	static mrb_value	_getWorldZNormal	( mrb_state* M, mrb_value context );
+	static mrb_value	_modelToWorld		( mrb_state* M, mrb_value context );
+	static mrb_value	_setParent			( mrb_state* M, mrb_value context );
+	static mrb_value	_worldToModel		( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool				MOAINode_ApplyAttrOp						( u32 attrID, MOAIAttribute& attr, u32 op );
@@ -80,8 +80,8 @@ public:
 	const ZLAffine3D&		GetWorldToLocalMtx			() const;
 							MOAITransformBase			();
 							~MOAITransformBase			();
-	void					RegisterLuaClass			( MOAILuaState& state );
-	void					RegisterLuaFuncs			( MOAILuaState& state );
+	void					RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

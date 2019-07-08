@@ -12,37 +12,37 @@
 //----------------------------------------------------------------//
 void AKUDetectFramebuffer () {
 
-	MOAIGfxMgr::Get ().DetectFramebuffer ();
+	 MOAIGfxMgr::Get ().DetectFramebuffer ();
 }
 
 //----------------------------------------------------------------//
 void AKUDetectGfxContext () {
 
-	MOAIGfxMgr::Get ().DetectContext ();
+	 MOAIGfxMgr::Get ().DetectContext ();
 }
 
 //----------------------------------------------------------------//
 void AKUDiscardGfxResources () {
 
-	MOAIGfxMgr::Get ().mResourceMgr.DiscardResources ();
+	 MOAIGfxMgr::Get ().mResourceMgr.DiscardResources ();
 }
 
 //----------------------------------------------------------------//
 void AKUDisplayListBeginPhase ( int phase ) {
 
-	MOAIGfxMgr::Get ().mPipelineMgr.BeginPhase ( phase );
+	 MOAIGfxMgr::Get ().mPipelineMgr.BeginPhase ( phase );
 }
 
 //----------------------------------------------------------------//
 void AKUDisplayListEnable ( int list ) {
 
-	MOAIGfxMgr::Get ().mPipelineMgr.EnablePipeline ( list );
+	 MOAIGfxMgr::Get ().mPipelineMgr.EnablePipeline ( list );
 }
 
 //----------------------------------------------------------------//
 void AKUDisplayListEndPhase ( int phase ) {
 
-	MOAIGfxMgr::Get ().mPipelineMgr.EndPhase ( phase );
+	 MOAIGfxMgr::Get ().mPipelineMgr.EndPhase ( phase );
 }
 
 //----------------------------------------------------------------//
@@ -174,7 +174,7 @@ void AKUPause ( bool pause ) {
 //----------------------------------------------------------------//
 void AKURender () {
 
-	MOAIRenderMgr::Get ().Render ();
+	 MOAIRenderMgr::Get ().Render ();
 }
 
 //----------------------------------------------------------------//
@@ -186,13 +186,13 @@ void AKUSetFunc_HideCursor ( AKUHideCursorFunc func ) {
 //----------------------------------------------------------------//
 void AKUReserveInputDevices ( int total ) {
 
-	MOAIInputMgr::Get ().ReserveDevices (( u8 )total );
+	 MOAIInputMgr::Get ().ReserveDevices (( u8 )total );
 }
 
 //----------------------------------------------------------------//
 void AKUReserveInputDeviceSensors ( int deviceID, int total ) {
 
-	MOAIInputMgr::Get ().ReserveSensors (( u8 )deviceID, ( u8 )total );
+	 MOAIInputMgr::Get ().ReserveSensors (( u8 )deviceID, ( u8 )total );
 }
 
 //----------------------------------------------------------------//
@@ -222,115 +222,115 @@ void AKUSetFunc_SetSimStep ( AKUSetSimStepFunc func ) {
 //----------------------------------------------------------------//
 void AKUSetInputAutoTimestamp ( bool autotimestamp ) {
 
-	MOAIInputMgr::Get ().SetAutotimestamp ( autotimestamp );
+	 MOAIInputMgr::Get ().SetAutotimestamp ( autotimestamp );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputConfigurationName ( char const* name ) {
 
-	MOAIInputMgr::Get ().SetConfigurationName ( name );
+	 MOAIInputMgr::Get ().SetConfigurationName ( name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDevice ( int deviceID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetDevice (( u8 )deviceID, name );
+	 MOAIInputMgr::Get ().SetDevice (( u8 )deviceID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceHardwareInfo ( int deviceID, char const* hardwareInfo ) {
 
-	MOAIInputMgr::Get ().SetDeviceHardwareInfo (( u8 )deviceID, hardwareInfo );
+	 MOAIInputMgr::Get ().SetDeviceHardwareInfo (( u8 )deviceID, hardwareInfo );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceActive ( int deviceID, bool active ) {
 
-	MOAIInputMgr::Get ().SetDeviceActive (( u8 )deviceID, active );
+	 MOAIInputMgr::Get ().SetDeviceActive (( u8 )deviceID, active );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceButton ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIButtonSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIButtonSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceCompass ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAICompassSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAICompassSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceKeyboard ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIKeyboardSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIKeyboardSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceJoystick ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIJoystickSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIJoystickSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceLevel ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIMotionSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIMotionSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceLocation ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAILocationSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAILocationSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDevicePointer ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIPointerSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIPointerSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceTouch ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAITouchSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAITouchSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceVector ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIVectorSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIVectorSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputDeviceWheel ( int deviceID, int sensorID, char const* name ) {
 
-	MOAIInputMgr::Get ().SetSensor < MOAIWheelSensor >(( u8 )deviceID, ( u8 )sensorID, name );
+	 MOAIInputMgr::Get ().SetSensor < MOAIWheelSensor >(( u8 )deviceID, ( u8 )sensorID, name );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputTimebase ( double timebase ) {
 
-	MOAIInputMgr::Get ().SetTimebase ( timebase );
+	 MOAIInputMgr::Get ().SetTimebase ( timebase );
 }
 
 //----------------------------------------------------------------//
 void AKUSetInputTimestamp ( double timestamp ) {
 
-	MOAIInputMgr::Get ().SetTimestamp ( timestamp );
+	 MOAIInputMgr::Get ().SetTimestamp ( timestamp );
 }
 
 //----------------------------------------------------------------//
 void AKUSetOrientation ( int orientation ) {
 
-	MOAIGfxMgr::Get ().mGfxState.GetDefaultFrameBuffer ()->SetLandscape ( orientation == AKU_ORIENTATION_LANDSCAPE );
+	 MOAIGfxMgr::Get ().mGfxState.GetDefaultFrameBuffer ()->SetLandscape ( orientation == AKU_ORIENTATION_LANDSCAPE );
 }
 
 //----------------------------------------------------------------//	
 void AKUSetScreenDpi ( int dpi ) {
 
-	MOAIEnvironment::Get ().SetValue ( MOAI_ENV_screenDpi, dpi );
+	 MOAIEnvironment::Get ().SetValue ( MOAI_ENV_screenDpi, dpi );
 }
 
 //----------------------------------------------------------------//
@@ -343,22 +343,22 @@ void AKUSetScreenSize ( int width, int height) {
 //----------------------------------------------------------------//
 void AKUSetViewSize ( int width, int height ) {
 	
-	MOAIGfxMgr& gfxMgr= MOAIGfxMgr::Get ();
+	 MOAIGfxMgr& gfxMgr= MOAIGfxMgr::Get ();
 	
-	u32 currentWidth = gfxMgr.mGfxState.GetBufferWidth ();
-	u32 currentHeight = gfxMgr.mGfxState.GetBufferHeight ();
+	 u32 currentWidth = gfxMgr.mGfxState.GetBufferWidth ();
+	 u32 currentHeight = gfxMgr.mGfxState.GetBufferHeight ();
 	
-	if (( currentWidth != ( u32 )width ) || ( currentHeight != ( u32 )height )) {
+	 if (( currentWidth != ( u32 )width ) || ( currentHeight != ( u32 )height )) {
 	
-		MOAIGfxMgr::Get ().SetBufferSize ( width, height );
+	 	MOAIGfxMgr::Get ().SetBufferSize ( width, height );
 		
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+		/*MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
 		if ( gfxMgr.PushListener ( MOAIGfxMgr::EVENT_RESIZE, state )) {
 			lua_pushnumber ( state, width );
 			lua_pushnumber ( state, height );
 			state.DebugCall ( 2, 0 );
-		}
-	}
+		}*/
+	 }
 }
 
 //----------------------------------------------------------------//
@@ -386,11 +386,13 @@ void AKUSimContextInitialize () {
 
 	ZLBitBuffer::Test ();
 
+	//ZLLog_DebugF ( ZLLog::CONSOLE, "AKUSimContextInitialize Mgr Affirm start!\n" );
+
 	MOAINodeMgr::Affirm ();
 	MOAIActionStackMgr::Affirm ();
 
 	//MOAIProfiler::Affirm ();
-	MOAIGfxMgr::Affirm ();
+	//MOAIGfxMgr::Affirm ();
 	MOAIMaterialMgr::Affirm ();
 	MOAIImageFormatMgr::Affirm ();
 	MOAIVertexFormatMgr::Affirm ();
@@ -400,124 +402,133 @@ void AKUSimContextInitialize () {
 	MOAIPartitionResultMgr::Affirm ();
 	MOAINodeMgr::Affirm ();
 	MOAIInputMgr::Affirm ();
-	MOAISim::Affirm ();
+	//MOAISim::Affirm ();
 	MOAIRenderMgr::Affirm ();
-	
+
+	//ZLLog_DebugF ( ZLLog::CONSOLE, "AKUSimContextInitialize Mgr Affirm ok!\n" );
+
 	// MOAI
-	REGISTER_LUA_CLASS ( MOAIAction )
-	REGISTER_LUA_CLASS ( MOAIActionTree )
-	REGISTER_LUA_CLASS ( MOAIAnim )
-	REGISTER_LUA_CLASS ( MOAIAnimCurve )
-	REGISTER_LUA_CLASS ( MOAIAnimCurveBone )
-	REGISTER_LUA_CLASS ( MOAIAnimCurveQuat )
-	REGISTER_LUA_CLASS ( MOAIAnimCurveVec )
+	REGISTER_RUBY_CLASS ( MOAIAction )
+	REGISTER_RUBY_CLASS ( MOAIActionTree )
+	REGISTER_RUBY_CLASS ( MOAIAnim )
+	REGISTER_RUBY_CLASS ( MOAIAnimCurve )
+	REGISTER_RUBY_CLASS ( MOAIAnimCurveBone )
+	REGISTER_RUBY_CLASS ( MOAIAnimCurveQuat )
+	REGISTER_RUBY_CLASS ( MOAIAnimCurveVec )
 	//REGISTER_LUA_CLASS ( MOAIBspBuilder2D )
-	REGISTER_LUA_CLASS ( MOAIButtonSensor )
-	REGISTER_LUA_CLASS ( MOAICamera )
-	REGISTER_LUA_CLASS ( MOAICameraAnchor2D )
-	REGISTER_LUA_CLASS ( MOAICameraFitter2D )
-	REGISTER_LUA_CLASS ( MOAICollisionDeck )
-	REGISTER_LUA_CLASS ( MOAICollisionProp )
-	REGISTER_LUA_CLASS ( MOAICollisionWorld )
-	REGISTER_LUA_CLASS ( MOAIColor )
-	REGISTER_LUA_CLASS ( MOAICompassSensor )
-	REGISTER_LUA_CLASS ( MOAICoroutine )
-	REGISTER_LUA_CLASS ( MOAIDebugLinesMgr )
-	REGISTER_LUA_CLASS ( MOAIDeckRemapper )
-	REGISTER_LUA_CLASS ( MOAIDraw )
-	REGISTER_LUA_CLASS ( MOAIDrawDeck )
-	REGISTER_LUA_CLASS ( MOAIEaseDriver )
-	REGISTER_LUA_CLASS ( MOAIEaseType )
-	REGISTER_LUA_CLASS ( MOAIFancyGrid )
-	REGISTER_LUA_CLASS ( MOAIFrameBuffer )
-	REGISTER_LUA_CLASS ( MOAIFrameBufferTexture )
-	REGISTER_LUA_CLASS ( MOAIGeometryWriter )
-	REGISTER_LUA_CLASS ( MOAIGfxMgr )
-	REGISTER_LUA_CLASS ( MOAIGraphicsProp )
-	REGISTER_LUA_CLASS ( MOAIGraphicsGridProp )
-	REGISTER_LUA_CLASS ( MOAIGrid )
-	REGISTER_LUA_CLASS ( MOAIGridSpace )
-	REGISTER_LUA_CLASS ( MOAIGridPathGraph )
-	REGISTER_LUA_CLASS ( MOAIImage )
-	REGISTER_LUA_CLASS ( MOAIImageTexture )
-	REGISTER_LUA_CLASS ( MOAIIndexBuffer )
-	REGISTER_LUA_CLASS ( MOAIInputDevice )
-	REGISTER_LUA_CLASS ( MOAIInputMgr )
-	REGISTER_LUA_CLASS ( MOAIJoystickSensor )
-	REGISTER_LUA_CLASS ( MOAIKeyCode )
-	REGISTER_LUA_CLASS ( MOAIKeyboardSensor )
-	REGISTER_LUA_CLASS ( MOAILayer )
-	//REGISTER_LUA_CLASS ( MOAILayoutFrame )
-	REGISTER_LUA_CLASS ( MOAILight )
-	REGISTER_LUA_CLASS ( MOAILightFormat )
-	REGISTER_LUA_CLASS ( MOAILocationSensor )
-	REGISTER_LUA_CLASS ( MOAIMaterialBatch )
-	REGISTER_LUA_CLASS ( MOAIMatrix )
-	REGISTER_LUA_CLASS ( MOAIMesh )
-	REGISTER_LUA_CLASS ( MOAIMetaTileDeck2D )
-	REGISTER_LUA_CLASS ( MOAIMotionSensor )
-	REGISTER_LUA_CLASS ( MOAINode )
-	REGISTER_LUA_CLASS ( MOAINodeMgr )
-	REGISTER_LUA_CLASS ( MOAIParticleCallbackPlugin )
-	REGISTER_LUA_CLASS ( MOAIParticleDistanceEmitter )
-	REGISTER_LUA_CLASS ( MOAIParticleForce )
-	REGISTER_LUA_CLASS ( MOAIParticleScript )
-	REGISTER_LUA_CLASS ( MOAIParticleState )
-	REGISTER_LUA_CLASS ( MOAIParticleSystem )
-	REGISTER_LUA_CLASS ( MOAIParticleTimedEmitter )
-	REGISTER_LUA_CLASS ( MOAIPartition )
-	REGISTER_LUA_CLASS ( MOAIPartitionViewLayer )
-	REGISTER_LUA_CLASS ( MOAIPath )
-	REGISTER_LUA_CLASS ( MOAIPathFinder )
-	REGISTER_LUA_CLASS ( MOAIPathStepper )
-	REGISTER_LUA_CLASS ( MOAIPathTerrainDeck )
-	REGISTER_LUA_CLASS ( MOAIPinTransform )
-	REGISTER_LUA_CLASS ( MOAIPointerSensor )
+	REGISTER_RUBY_CLASS ( MOAIButtonSensor )
+	REGISTER_RUBY_CLASS ( MOAICamera )
+	REGISTER_RUBY_CLASS ( MOAICameraAnchor2D )
+	REGISTER_RUBY_CLASS ( MOAICameraFitter2D )
+	REGISTER_RUBY_CLASS ( MOAICollisionDeck )
+	REGISTER_RUBY_CLASS ( MOAICollisionProp )
+	REGISTER_RUBY_CLASS ( MOAICollisionWorld )
+	REGISTER_RUBY_CLASS ( MOAIColor )
+	REGISTER_RUBY_CLASS ( MOAICompassSensor )
+	REGISTER_RUBY_CLASS ( MOAICoroutine )
+	REGISTER_RUBY_CLASS ( MOAIDebugLinesMgr )
+	REGISTER_RUBY_CLASS ( MOAIDeckRemapper )
+	REGISTER_RUBY_CLASS ( MOAIDraw )
+	REGISTER_RUBY_CLASS ( MOAIDrawDeck )
+	REGISTER_RUBY_CLASS ( MOAIEaseDriver )
+	REGISTER_RUBY_CLASS ( MOAIEaseType )
+	REGISTER_RUBY_CLASS ( MOAIFancyGrid )
+	REGISTER_RUBY_CLASS ( MOAIFrameBuffer )
+	//REGISTER_RUBY_CLASS ( MOAIFrameBufferTexture )
+	REGISTER_RUBY_CLASS ( MOAIGeometryWriter )
+
+	REGISTER_RUBY_CLASS ( MOAIGfxMgr )
+	REGISTER_RUBY_CLASS ( MOAIGraphicsProp )
+	REGISTER_RUBY_CLASS ( MOAIGraphicsGridProp )
+	REGISTER_RUBY_CLASS ( MOAIGrid )
+	REGISTER_RUBY_CLASS ( MOAIGridSpace )
+	REGISTER_RUBY_CLASS ( MOAIGridPathGraph )
+	REGISTER_RUBY_CLASS ( MOAIImage )
+	REGISTER_RUBY_CLASS ( MOAIImageTexture )
+	REGISTER_RUBY_CLASS ( MOAIIndexBuffer )
+	REGISTER_RUBY_CLASS ( MOAIInputDevice )
+	REGISTER_RUBY_CLASS ( MOAIInputMgr )
+	REGISTER_RUBY_CLASS ( MOAIJoystickSensor )
+	REGISTER_RUBY_CLASS ( MOAIKeyCode )
+	REGISTER_RUBY_CLASS ( MOAIKeyboardSensor )
+	REGISTER_RUBY_CLASS ( MOAILayer )
+	REGISTER_RUBY_CLASS ( MOAILayoutFrame )
+	REGISTER_RUBY_CLASS ( MOAILight )
+	REGISTER_RUBY_CLASS ( MOAILightFormat )
+	REGISTER_RUBY_CLASS ( MOAILocationSensor )
+	REGISTER_RUBY_CLASS ( MOAIMaterialBatch )
+	REGISTER_RUBY_CLASS ( MOAIMatrix )
+	REGISTER_RUBY_CLASS ( MOAIMesh )
+	REGISTER_RUBY_CLASS ( MOAIMetaTileDeck2D )
+	REGISTER_RUBY_CLASS ( MOAIMotionSensor )
+	REGISTER_RUBY_CLASS ( MOAINode )
+	REGISTER_RUBY_CLASS ( MOAINodeMgr )
+	REGISTER_RUBY_CLASS ( MOAIParticleCallbackPlugin )
+	REGISTER_RUBY_CLASS ( MOAIParticleDistanceEmitter )
+	REGISTER_RUBY_CLASS ( MOAIParticleForce )
+	REGISTER_RUBY_CLASS ( MOAIParticleScript )
+	REGISTER_RUBY_CLASS ( MOAIParticleState )
+	REGISTER_RUBY_CLASS ( MOAIParticleSystem )
+	REGISTER_RUBY_CLASS ( MOAIParticleTimedEmitter )
+	REGISTER_RUBY_CLASS ( MOAIPartition )
+	REGISTER_RUBY_CLASS ( MOAIPartitionViewLayer )
+	REGISTER_RUBY_CLASS ( MOAIPath )
+	REGISTER_RUBY_CLASS ( MOAIPathFinder )
+	REGISTER_RUBY_CLASS ( MOAIPathStepper )
+	REGISTER_RUBY_CLASS ( MOAIPathTerrainDeck )
+	REGISTER_RUBY_CLASS ( MOAIPinTransform )
+	REGISTER_RUBY_CLASS ( MOAIPointerSensor )
 	//REGISTER_LUA_CLASS ( MOAIProfilerReportBox )
-	REGISTER_LUA_CLASS ( MOAIRegion )
-	REGISTER_LUA_CLASS ( MOAIRenderMgr )
-	REGISTER_LUA_CLASS ( MOAIScissorRect )
-	REGISTER_LUA_CLASS ( MOAIScriptNode )
-	REGISTER_LUA_CLASS ( MOAISelectionMesh )
-	REGISTER_LUA_CLASS ( MOAIShader )
-	REGISTER_LUA_CLASS ( MOAIShaderMgr )
-	REGISTER_LUA_CLASS ( MOAIShaderProgram )
-	REGISTER_LUA_CLASS ( MOAISim )
-	REGISTER_LUA_CLASS ( MOAISpriteDeck2D )
-	REGISTER_LUA_CLASS ( MOAIStretchPatch2D )
+	REGISTER_RUBY_CLASS ( MOAIRegion )
+	REGISTER_RUBY_CLASS ( MOAIRenderMgr )
+	REGISTER_RUBY_CLASS ( MOAIScissorRect )
+	REGISTER_RUBY_CLASS ( MOAIScriptNode )
+	REGISTER_RUBY_CLASS ( MOAISelectionMesh )
+	REGISTER_RUBY_CLASS ( MOAIShader )
+	REGISTER_RUBY_CLASS ( MOAIShaderMgr )
+	REGISTER_RUBY_CLASS ( MOAIShaderProgram )
+	REGISTER_RUBY_CLASS ( MOAISim )
+	REGISTER_RUBY_CLASS ( MOAISpriteDeck2D )
+	REGISTER_RUBY_CLASS ( MOAIStretchPatch2D )
 	//REGISTER_LUA_CLASS ( MOAISurfaceDeck2D )
-	REGISTER_LUA_CLASS ( MOAITableLayer )
-	REGISTER_LUA_CLASS ( MOAITableViewLayer )
-	REGISTER_LUA_CLASS ( MOAITexture )
-	REGISTER_LUA_CLASS ( MOAITileDeck2D )
-	REGISTER_LUA_CLASS ( MOAITimer )
-	REGISTER_LUA_CLASS ( MOAITouchSensor )
-	REGISTER_LUA_CLASS ( MOAITransform )
-	REGISTER_LUA_CLASS ( MOAIVecPathGraph )
-	REGISTER_LUA_CLASS ( MOAIVectorTesselator )
-	REGISTER_LUA_CLASS ( MOAIVertexArray )
-	REGISTER_LUA_CLASS ( MOAIVertexBuffer )
-	REGISTER_LUA_CLASS ( MOAIVertexFormat )
-	REGISTER_LUA_CLASS ( MOAIVertexFormatMgr )
-	REGISTER_LUA_CLASS ( MOAIViewport )
-	REGISTER_LUA_CLASS ( MOAIWheelSensor )
+	REGISTER_RUBY_CLASS ( MOAITableLayer )
+	REGISTER_RUBY_CLASS ( MOAITableViewLayer )
+	REGISTER_RUBY_CLASS ( MOAITexture )
+	REGISTER_RUBY_CLASS ( MOAITileDeck2D )
+	REGISTER_RUBY_CLASS ( MOAITimer )
+	REGISTER_RUBY_CLASS ( MOAITouchSensor )
+	REGISTER_RUBY_CLASS ( MOAITransform )
+	REGISTER_RUBY_CLASS ( MOAIVecPathGraph )
+	REGISTER_RUBY_CLASS ( MOAIVectorTesselator )
+	REGISTER_RUBY_CLASS ( MOAIVertexArray )
+	REGISTER_RUBY_CLASS ( MOAIVertexBuffer )
+	REGISTER_RUBY_CLASS ( MOAIVertexFormat )
+	REGISTER_RUBY_CLASS ( MOAIVertexFormatMgr )
+	REGISTER_RUBY_CLASS ( MOAIViewport )
+	REGISTER_RUBY_CLASS ( MOAIWheelSensor )
 	
 	// text stuff here for now
-	REGISTER_LUA_CLASS ( MOAIBitmapFontReader )
-	REGISTER_LUA_CLASS ( MOAIDynamicGlyphCache )
-	REGISTER_LUA_CLASS ( MOAIFont )
-	REGISTER_LUA_CLASS ( MOAIStaticGlyphCache )
-	REGISTER_LUA_CLASS ( MOAITextBundle )
-	REGISTER_LUA_CLASS ( MOAITextLabel )
-	REGISTER_LUA_CLASS ( MOAITextStyle )
+	REGISTER_RUBY_CLASS ( MOAIBitmapFontReader )
+	REGISTER_RUBY_CLASS ( MOAIDynamicGlyphCache )
+	REGISTER_RUBY_CLASS ( MOAIFont )
+	REGISTER_RUBY_CLASS ( MOAIStaticGlyphCache )
+	REGISTER_RUBY_CLASS ( MOAITextBundle )
+	REGISTER_RUBY_CLASS ( MOAITextLabel )
+	REGISTER_RUBY_CLASS ( MOAITextStyle )
 	
 	#if MOAI_WITH_TINYXML
-		REGISTER_LUA_CLASS ( MOAIParticlePexPlugin )
+		REGISTER_RUBY_CLASS ( MOAIParticlePexPlugin )
 	#endif
 	
 	#if MOAI_WITH_FREETYPE
-		REGISTER_LUA_CLASS ( MOAIFreeTypeFontReader )
+		REGISTER_RUBY_CLASS ( MOAIFreeTypeFontReader )
 	#endif
+
+	MOAIGfxMgr::Affirm ();
+	MOAIGfxMgr::Get ().mGfxState.InitBuffers ();
+	MOAISim::Affirm ();
+
+	REGISTER_RUBY_CLASS ( MOAIFrameBufferTexture )
 }
 
 //----------------------------------------------------------------//

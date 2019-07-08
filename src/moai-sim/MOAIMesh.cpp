@@ -200,11 +200,11 @@ ZLVec3D MOAIMeshPrimReader::ReadCoord ( u32 idx ) const {
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMesh::_buildQuadTree ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_buildQuadTree ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 
-	u32 targetPrimsPerNode		= state.GetValue < u32 >( 1, MOAIMeshSparseQuadTree::DEFAULT_TARGET_PRIMS_PER_NODE );
-	u32 vertexBufferIndex		= state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 targetPrimsPerNode		= state.GetParamValue < u32 >( 1, MOAIMeshSparseQuadTree::DEFAULT_TARGET_PRIMS_PER_NODE );
+	u32 vertexBufferIndex		= state.GetParamValue < u32 >( 2, 1 ) - 1;
 
 	MOAIMeshPrimReader coordReader;
 	
@@ -214,17 +214,17 @@ int MOAIMesh::_buildQuadTree ( lua_State* L ) {
 		quadTree->Init ( coordReader, targetPrimsPerNode );
 		self->mPartition = quadTree;
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMesh::_buildTernaryTree ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_buildTernaryTree ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 	
-	u32 axisMask				= state.GetValue < u32 >( 2, MOAIMeshTernaryTree::AXIS_MASK_ALL );
-	u32 targetPrimsPerNode		= state.GetValue < u32 >( 3, MOAIMeshTernaryTree::DEFAULT_TARGET_PRIMS_PER_NODE );
-	u32 vertexBufferIndex		= state.GetValue < u32 >( 4, 1 ) - 1;
+	u32 axisMask				= state.GetParamValue < u32 >( 1, MOAIMeshTernaryTree::AXIS_MASK_ALL );
+	u32 targetPrimsPerNode		= state.GetParamValue < u32 >( 2, MOAIMeshTernaryTree::DEFAULT_TARGET_PRIMS_PER_NODE );
+	u32 vertexBufferIndex		= state.GetParamValue < u32 >( 3, 1 ) - 1;
 	
 	MOAIMeshPrimReader coordReader;
 	
@@ -234,31 +234,31 @@ int MOAIMesh::_buildTernaryTree ( lua_State* L ) {
 		ternaryTree->Init ( coordReader, targetPrimsPerNode, axisMask );
 		self->mPartition = ternaryTree;
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIMesh::_getPrimsForPoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_getPrimsForPoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 	
 	// TODO: this is a naive first pass. need to use the partition if one has been created.
 	// TODO: handle all prim types or bail if not triangles
 	
 	MOAIMeshPrimReader primReader;
 	
-	bool is3D = state.CheckParams ( 2, "NNN", false );
+	bool is3D = state.CheckParams ( 1, "NNN", false );
 	
-	ZLVec3D point = state.GetValue < ZLVec3D >( 2, ZLVec3D::ORIGIN );
+	ZLVec3D point = state.GetParamValue < ZLVec3D >( 1, ZLVec3D::ORIGIN );
 
-	u32 totalPrims = 0;
+	mrb_value ary = mrb_ary_new ( M );
 
 	ZLBox meshBounds = self->GetBounds ();
 	if ((( is3D ) && meshBounds.Contains ( point )) || meshBounds.Contains ( point, ZLBox::PLANE_XY )) {
 		
 		if ( primReader.Init ( *self, 0 )) {
 			
-			u32 basePrim = state.GetValue < u32 >( 5, 1 ) - 1;
-			u32 nPrims = state.GetValue < u32 >( 6, primReader.GetTotalPrims ());
+			u32 basePrim = state.GetParamValue < u32 >( 4, 1 ) - 1;
+			u32 nPrims = state.GetParamValue < u32 >( 5, primReader.GetTotalPrims ());
 			
 			for ( u32 i = basePrim; i < nPrims; ++i ) {
 				
@@ -280,25 +280,24 @@ int MOAIMesh::_getPrimsForPoint ( lua_State* L ) {
 							prim.mCoords [ 2 ].Vec2D (),
 							point.Vec2D ())
 						) {
-					
-						state.Push ( i + 1 );
-						totalPrims++;
+						
+						mrb_ary_push ( M, ary, state.ToRValue ( i + 1 ) );
 					}
 				}
 			}
 		}
 	}
-	return totalPrims;
+	return ary;
 }
 
 //----------------------------------------------------------------//
-int MOAIMesh::_getRegionForPrim ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_getRegionForPrim ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 
 	// TODO: non-triangle meshes? need to support or error out
 
-	u32 basePrimID = state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 nPrims = state.GetValue < u32 >( 3, 1 );
+	u32 basePrimID = state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 nPrims = state.GetParamValue < u32 >( 2, 1 );
 
 	SafeTesselator tesselator;
 
@@ -326,27 +325,26 @@ int MOAIMesh::_getRegionForPrim ( lua_State* L ) {
 	
 	tesselator.Tesselate ( TESS_WINDING_NONZERO, TESS_BOUNDARY_CONTOURS, 0, 0 );
 
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 4, false );
-	region = region ? region : new MOAIRegion ();
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 3, false );
+	region = region ? region : state.CreateClassInstance < MOAIRegion >();
 
 	region->Copy ( tesselator );
 
-	state.Push ( region );
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( region );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMesh::_intersectRay ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_intersectRay ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 	
 	// TODO: this is a naive first pass. need to use the partition if one has been created.
 	// TODO: handle all prim types or bail if not triangles
 	
 	MOAIMeshPrimReader primReader;
 	
-	ZLVec3D loc		= state.GetValue < ZLVec3D >( 2, ZLVec3D::ORIGIN );
-	ZLVec3D vec		= state.GetValue < ZLVec3D >( 5, ZLVec3D::ORIGIN );
+	ZLVec3D loc		= state.GetParamValue < ZLVec3D >( 1, ZLVec3D::ORIGIN );
+	ZLVec3D vec		= state.GetParamValue < ZLVec3D >( 4, ZLVec3D::ORIGIN );
 	
 	bool hasHit = false;
 	float bestTime = 0.0f;
@@ -377,35 +375,39 @@ int MOAIMesh::_intersectRay ( lua_State* L ) {
 	}
 	
 	if ( hasHit ) {
-		state.Push ( bestTime );
-		state.Push ( bestHit );
-		return 4;
+		mrb_value ret [ 4 ];
+		ret [ 0 ] = state.ToRValue ( bestTime );
+		ret [ 1 ] = state.ToRValue ( bestHit.mX );
+		ret [ 2 ] = state.ToRValue ( bestHit.mY );
+		ret [ 3 ] = state.ToRValue ( bestHit.mZ );
+
+		return mrb_ary_new_from_values ( state, 4, ret );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMesh::_printPartition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_printPartition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 
 	if ( self->mPartition ) {
 		self->mPartition->Print ();
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMesh::_readPrimCoords ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_readPrimCoords ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	
 	if ( stream ) {
 	
-		u32 basePrimID = state.GetValue < u32 >( 3, 1 ) - 1;
-		u32 nPrims = state.GetValue < u32 >( 4, 1 );
+		u32 basePrimID = state.GetParamValue < u32 >( 2, 1 ) - 1;
+		u32 nPrims = state.GetParamValue < u32 >( 3, 1 );
 
 		MOAIMeshPrimReader primReader;
 		
@@ -431,20 +433,21 @@ int MOAIMesh::_readPrimCoords ( lua_State* L ) {
 			}
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMesh::_setBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_setBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 	
 	self->ClearBounds ();
 	
-	if ( state.CheckParams ( 2, "NNNNNN-" )) {
-		self->SetBounds ( state.GetValue < ZLBox >( 2, self->mBounds ));
-	}
-	return 0;
+	/*if ( state.CheckParams ( 1, "NNNNNN-" )) {
+		self->SetBounds ( state.GetParamValue < ZLBox >( 1, self->mBounds ));
+	}*/
+	self->SetBounds ( state.GetParamValue < ZLBox > ( 1, self->mBounds ) );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -455,11 +458,11 @@ int MOAIMesh::_setBounds ( lua_State* L ) {
 	@in		MOAIGfxBuffer indexBuffer
 	@out	nil
 */
-int MOAIMesh::_setIndexBuffer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_setIndexBuffer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 	
-	self->SetIndexBuffer ( state.GetLuaObject < MOAIIndexBuffer >( 2, true ));
-	return 0;
+	self->SetIndexBuffer ( state.GetRubyObject < MOAIIndexBuffer >( 1, true ));
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -471,11 +474,11 @@ int MOAIMesh::_setIndexBuffer ( lua_State* L ) {
 	@in		number penWidth
 	@out	nil
 */
-int MOAIMesh::_setPenWidth ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "UN" )
+mrb_value MOAIMesh::_setPenWidth ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "UN" )
 	
-	self->mPenWidth = state.GetValue < float >( 2, 1.0f );
-	return 0;
+	self->mPenWidth = state.GetParamValue < float >( 1, 1.0f );
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -487,20 +490,20 @@ int MOAIMesh::_setPenWidth ( lua_State* L ) {
 								GL_LINE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP
 	@out	nil
 */
-int MOAIMesh::_setPrimType ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "UN" )
+mrb_value MOAIMesh::_setPrimType ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "UN" )
 	
-	self->SetPrimType ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->SetPrimType ( state.GetParamValue < u32 >( 1, 0 ));
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------///
 // TODO: doxygen
-int MOAIMesh::_setTotalElements ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMesh, "U" )
+mrb_value MOAIMesh::_setTotalElements ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMesh, "U" )
 
-	self->SetTotalElements ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->SetTotalElements ( state.GetParamValue < u32 >( 1, 0 ));
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -599,53 +602,50 @@ MOAIMesh::~MOAIMesh () {
 }
 
 //----------------------------------------------------------------//
-void MOAIMesh::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIMesh::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
-	MOAIMaterialBatchHolder::RegisterLuaClass ( state );
-	MOAIVertexArray::RegisterLuaClass ( state );
+	//MOAIDeck::RegisterRubyFuncs ( state, klass );
+	MOAIDeck::RegisterRubyClass ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyClass ( state, klass );
+	MOAIVertexArray::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "GL_POINTS",			( u32 )ZGL_PRIM_POINTS );
-	state.SetField ( -1, "GL_LINES",			( u32 )ZGL_PRIM_LINES );
-	state.SetField ( -1, "GL_TRIANGLES",		( u32 )ZGL_PRIM_TRIANGLES );
-	state.SetField ( -1, "GL_LINE_LOOP",		( u32 )ZGL_PRIM_LINE_LOOP );
-	state.SetField ( -1, "GL_LINE_STRIP",		( u32 )ZGL_PRIM_LINE_STRIP );
-	state.SetField ( -1, "GL_TRIANGLE_FAN",		( u32 )ZGL_PRIM_TRIANGLE_FAN );
-	state.SetField ( -1, "GL_TRIANGLE_STRIP",	( u32 )ZGL_PRIM_TRIANGLE_STRIP );
+	state.DefineClassConst ( klass, "GL_POINTS",			( u32 )ZGL_PRIM_POINTS );
+	state.DefineClassConst ( klass, "GL_LINES",			( u32 )ZGL_PRIM_LINES );
+	state.DefineClassConst ( klass, "GL_TRIANGLES",		( u32 )ZGL_PRIM_TRIANGLES );
+	state.DefineClassConst ( klass, "GL_LINE_LOOP",		( u32 )ZGL_PRIM_LINE_LOOP );
+	state.DefineClassConst ( klass, "GL_LINE_STRIP",		( u32 )ZGL_PRIM_LINE_STRIP );
+	state.DefineClassConst ( klass, "GL_TRIANGLE_FAN",		( u32 )ZGL_PRIM_TRIANGLE_FAN );
+	state.DefineClassConst ( klass, "GL_TRIANGLE_STRIP",	( u32 )ZGL_PRIM_TRIANGLE_STRIP );
 	
-	state.SetField ( -1, "X_AXIS_MASK",			( u32 )MOAIMeshTernaryTree::X_AXIS_MASK );
-	state.SetField ( -1, "Y_AXIS_MASK",			( u32 )MOAIMeshTernaryTree::Y_AXIS_MASK );
-	state.SetField ( -1, "Z_AXIS_MASK",			( u32 )MOAIMeshTernaryTree::Z_AXIS_MASK );
-	state.SetField ( -1, "AXIS_MASK_ALL",		( u32 )MOAIMeshTernaryTree::AXIS_MASK_ALL );
+	state.DefineClassConst ( klass, "X_AXIS_MASK",			( u32 )MOAIMeshTernaryTree::X_AXIS_MASK );
+	state.DefineClassConst ( klass, "Y_AXIS_MASK",			( u32 )MOAIMeshTernaryTree::Y_AXIS_MASK );
+	state.DefineClassConst ( klass, "Z_AXIS_MASK",			( u32 )MOAIMeshTernaryTree::Z_AXIS_MASK );
+	state.DefineClassConst ( klass, "AXIS_MASK_ALL",		( u32 )MOAIMeshTernaryTree::AXIS_MASK_ALL );
 }
 
 //----------------------------------------------------------------//
-void MOAIMesh::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIMesh::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIDeck::RegisterLuaFuncs ( state );
-	MOAIMaterialBatchHolder::RegisterLuaFuncs ( state );
-	MOAIVertexArray::RegisterLuaFuncs ( state );
+	MOAIDeck::RegisterRubyFuncs ( state, klass );
+	MOAIMaterialBatchHolder::RegisterRubyFuncs ( state, klass );
+	MOAIVertexArray::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "buildQuadTree",				_buildQuadTree },
-		{ "buildTernaryTree",			_buildTernaryTree },
-		{ "getPrimsForPoint",			_getPrimsForPoint },
-		{ "getRegionForPrim",			_getRegionForPrim },
-		{ "intersectRay",				_intersectRay },
-		{ "printPartition",				_printPartition },
-		{ "readPrimCoords",				_readPrimCoords },
-		{ "reserveVAOs",				_reserveVAOs },
-		{ "reserveVertexBuffers",		_reserveVertexBuffers },
-		{ "setBounds",					_setBounds },
-		{ "setIndexBuffer",				_setIndexBuffer },
-		{ "setPenWidth",				_setPenWidth },
-		{ "setPrimType",				_setPrimType },
-		{ "setTotalElements",			_setTotalElements },
-		{ "setVertexBuffer",			_setVertexBuffer },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "buildQuadTree",			_buildQuadTree, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "buildTernaryTree",			_buildTernaryTree, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "getPrimsForPoint",			_getPrimsForPoint, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "getRegionForPrim",			_getRegionForPrim, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "intersectRay",				_intersectRay, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "printPartition",			_printPartition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readPrimCoords",			_readPrimCoords, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "reserveVAOs",				_reserveVAOs, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveVertexBuffers",		_reserveVertexBuffers, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setBounds",				_setBounds, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setIndexBuffer",			_setIndexBuffer, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPenWidth",				_setPenWidth, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setPrimType",				_setPrimType, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTotalElements",			_setTotalElements, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setVertexBuffer",			_setVertexBuffer, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//
@@ -667,58 +667,58 @@ void MOAIMesh::ReserveVertexBuffers ( u32 total ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIMesh::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIMesh::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAIDeck::SerializeIn ( state, serializer );
 	MOAIMaterialBatchHolder::SerializeIn ( state, serializer );
 	MOAIVertexArray::SerializeIn ( state, serializer );
 
-	this->SetIndexBuffer ( serializer.MemberIDToObject < MOAIIndexBuffer >( state.GetFieldValue < MOAISerializer::ObjID >( -1, "mIndexBuffer", 0 )));
-	
+	/*this->SetIndexBuffer ( serializer.MemberIDToObject < MOAIIndexBuffer >( state.GetFieldValue < MOAISerializer::ObjID >( -1, "mIndexBuffer", 0 )));
+
 	this->mTotalElements = state.GetFieldValue < u32 >( -1, "mTotalElements", 0 );
-	
+
 	if ( state.PushFieldWithType ( -1, "mBounds", LUA_TTABLE )) {
-		
+
 		this->mBounds.mMin.mX	= state.GetFieldValue < float >( -1, "mMinX", 0 );
 		this->mBounds.mMin.mY	= state.GetFieldValue < float >( -1, "mMinY", 0 );
 		this->mBounds.mMin.mZ	= state.GetFieldValue < float >( -1, "mMinZ", 0 );
-		
+
 		this->mBounds.mMax.mX	= state.GetFieldValue < float >( -1, "mMaxX", 0 );
 		this->mBounds.mMax.mY	= state.GetFieldValue < float >( -1, "mMaxY", 0 );
 		this->mBounds.mMax.mZ	= state.GetFieldValue < float >( -1, "mMaxZ", 0 );
-		
+
 		this->mBounds.UpdateStatus ();
-		
+
 		state.Pop ();
 	}
-	
-	this->mPenWidth = state.GetFieldValue < float >( -1, "mPenWidth", 0 );
+
+	this->mPenWidth = state.GetFieldValue < float >( -1, "mPenWidth", 0 );*/
 }
 
 //----------------------------------------------------------------//
-void MOAIMesh::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIMesh::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAIDeck::SerializeOut ( state, serializer );
 	MOAIMaterialBatchHolder::SerializeOut ( state, serializer );
 	MOAIVertexArray::SerializeOut ( state, serializer );
 
-	state.SetField ( -1, "mIndexBuffer", serializer.AffirmMemberID ( this->mIndexBuffer ));
-	
+	/*state.DefineClassConst ( klass, "mIndexBuffer", serializer.AffirmMemberID ( this->mIndexBuffer ));
+
 	state.SetField < u32 >( -1, "mTotalElements", this->mTotalElements );
-	
+
 	lua_newtable ( state );
-	
+
 		state.SetField < float >( -1, "mMinX", this->mBounds.mMin.mX );
 		state.SetField < float >( -1, "mMinY", this->mBounds.mMin.mY );
 		state.SetField < float >( -1, "mMinZ", this->mBounds.mMin.mZ );
-	
+
 		state.SetField < float >( -1, "mMaxX", this->mBounds.mMax.mX );
 		state.SetField < float >( -1, "mMaxY", this->mBounds.mMax.mY );
 		state.SetField < float >( -1, "mMaxZ", this->mBounds.mMax.mZ );
-	
+
 	lua_setfield ( state, -2, "mBounds" );
-	
-	state.SetField < u32 >( -1, "mPenWidth", ( u32 )this->mPenWidth );
+
+	state.SetField < u32 >( -1, "mPenWidth", ( u32 )this->mPenWidth );*/
 }
 
 //----------------------------------------------------------------//

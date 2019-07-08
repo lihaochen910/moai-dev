@@ -39,8 +39,8 @@ public:
 	MOAIGlyph*		GetGlyph				( u32 c );
 					MOAIGlyphSet			();
 					~MOAIGlyphSet			();
-	void			SerializeIn				( MOAILuaState& state );
-	void			SerializeOut			( MOAILuaState& state );
+	void			SerializeIn				( MOAIRubyState& state );
+	void			SerializeOut			( MOAIRubyState& state );
 };
 
 #endif

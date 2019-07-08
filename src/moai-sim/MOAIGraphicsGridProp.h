@@ -46,15 +46,15 @@ private:
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIGraphicsGridProp )
+	DECL_RUBY_FACTORY ( MOAIGraphicsGridProp, MOAINode )
 
 	//----------------------------------------------------------------//
 					MOAIGraphicsGridProp		();
 	virtual			~MOAIGraphicsGridProp		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
-	void			SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

@@ -26,7 +26,7 @@ public:
 	@text	Vertex format class.
 */
 class MOAIVertexFormat :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 public:
 
 	enum {
@@ -65,22 +65,22 @@ private:
 	u32										mVertexSize;
 
 	//----------------------------------------------------------------//
-	static int					_clear							( lua_State* L );
-	static int					_declareAttribute				( lua_State* L );
-	static int					_declareBoneCount				( lua_State* L );
-	static int					_declareBoneIndices				( lua_State* L );
-	static int					_declareBoneWeights				( lua_State* L );
-	static int					_declareColor					( lua_State* L );
-	static int					_declareCoord					( lua_State* L );
-	static int					_declareNormal					( lua_State* L );
-	static int					_declareUV						( lua_State* L );
-	static int					_getVertexSize					( lua_State* L );
+	static mrb_value			_clear							( mrb_state* M, mrb_value context );
+	static mrb_value			_declareAttribute				( mrb_state* M, mrb_value context );
+	static mrb_value			_declareBoneCount				( mrb_state* M, mrb_value context );
+	static mrb_value			_declareBoneIndices				( mrb_state* M, mrb_value context );
+	static mrb_value			_declareBoneWeights				( mrb_state* M, mrb_value context );
+	static mrb_value			_declareColor					( mrb_state* M, mrb_value context );
+	static mrb_value			_declareCoord					( mrb_state* M, mrb_value context );
+	static mrb_value			_declareNormal					( mrb_state* M, mrb_value context );
+	static mrb_value			_declareUV						( mrb_state* M, mrb_value context );
+	static mrb_value			_getVertexSize					( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void						Bind							( ZLSharedConstBuffer* buffer ) const;
 	static u32					GetComponentSize				( u32 size, u32 type );
-	static u32					GetLuaIndexForUseID				( u32 useID );
-	static u32					GetUseIDForLuaIndex				( u32 idx );
+	static u32					GetRubyIndexForUseID				( u32 useID );
+	static u32					GetUseIDForRubyIndex				( u32 idx );
 	size_t						ReadComponents					( ZLStream& stream, u32 useID, float* components, size_t size ) const;
 	void						Unbind							() const;
 	size_t						WriteComponents					( ZLStream& stream, u32 useID, const float* components, size_t size ) const;
@@ -117,12 +117,12 @@ private:
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAIVertexFormat )
+	DECL_RUBY_FACTORY ( MOAIVertexFormat, MOAIRubyObject )
 	
 	GET_CONST ( u32, VertexSize, mVertexSize )
 	
 	//----------------------------------------------------------------//
-	static MOAIVertexFormat*		AffirmVertexFormat				( MOAILuaState& state, int idx );
+	static MOAIVertexFormat*		AffirmVertexFormat				( MOAIRubyState& state, int idx );
 	void							Clear							();
 	int								Compare							( const void* v0, const void* v1, float componentEpsilon, float normEpsilon ) const;
 	
@@ -158,13 +158,13 @@ public:
 	ZLVec3D							ReadNormal						( ZLStream& stream, u32 idx ) const;
 	ZLVec3D							ReadUV							( ZLStream& stream, u32 idx ) const;
 	
-	void							RegisterLuaClass				( MOAILuaState& state );
-	void							RegisterLuaFuncs				( MOAILuaState& state );
+	void							RegisterRubyClass				( MOAIRubyState& state, RClass* klass );
+	void							RegisterRubyFuncs				( MOAIRubyState& state, RClass* klass );
 	
 	size_t							SeekVertex						( ZLStream& stream, size_t base, size_t vertex ) const;
 	
-	void							SerializeIn						( MOAILuaState& state, MOAIDeserializer& serializer );
-	void							SerializeOut					( MOAILuaState& state, MOAISerializer& serializer );
+	void							SerializeIn						( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void							SerializeOut					( MOAIRubyState& state, MOAISerializer& serializer );
 	
 	static ZLVec4D					UnpackAttribute					( const void* buffer, const MOAIVertexAttribute& attribute, float yFallback, float zFallback, float wFallback );
 	static ZLVec4D					UnpackCoord						( const void* buffer, const MOAIVertexAttribute& attribute );
@@ -218,13 +218,13 @@ public:
 //	ZLVec3D							ReadNormal						( ZLStream& stream, u32 idx ) const;
 //	ZLVec3D							ReadUV							( ZLStream& stream, u32 idx ) const;
 //	
-//	void							RegisterLuaClass				( MOAILuaState& state );
-//	void							RegisterLuaFuncs				( MOAILuaState& state );
+//	void							RegisterRubyClass				( MOAIRubyState& state );
+//	void							RegisterRubyFuncs				( MOAIRubyState& state );
 //	
 //	size_t							SeekVertex						( ZLStream& stream, size_t base, size_t vertex ) const;
 //	
-//	void							SerializeIn						( MOAILuaState& state, MOAIDeserializer& serializer );
-//	void							SerializeOut					( MOAILuaState& state, MOAISerializer& serializer );
+//	void							SerializeIn						( MOAIRubyState& state, MOAIDeserializer& serializer );
+//	void							SerializeOut					( MOAIRubyState& state, MOAISerializer& serializer );
 //	
 //	static ZLVec4D					UnpackAttribute					( const void* buffer, const MOAIVertexAttribute& attribute, float yFallback, float zFallback, float wFallback );
 //	static ZLVec4D					UnpackCoord						( const void* buffer, const MOAIVertexAttribute& attribute );

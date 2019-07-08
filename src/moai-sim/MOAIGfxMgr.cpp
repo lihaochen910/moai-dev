@@ -24,15 +24,15 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGfxMgr::_enablePipelineLogging ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIGfxMgr, "" )
+mrb_value MOAIGfxMgr::_enablePipelineLogging ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIGfxMgr, "" )
 
-	MOAIGfxMgr::Get ().mPipelineMgr.EnablePipelineLogging ( state.GetValue < bool >( 1, false ));
+	MOAIGfxMgr::Get ().mPipelineMgr.EnablePipelineLogging ( state.GetParamValue < bool >( 1, false ));
 
 	ZLFileSys::DeleteDirectory ( GFX_PIPELINE_LOGGING_FOLDER, true, true );
 	ZLFileSys::AffirmPath ( GFX_PIPELINE_LOGGING_FOLDER );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -41,12 +41,11 @@ int MOAIGfxMgr::_enablePipelineLogging ( lua_State* L ) {
 
 	@out	MOAIFrameBuffer frameBuffer
 */
-int MOAIGfxMgr::_getFrameBuffer ( lua_State* L ) {
+mrb_value MOAIGfxMgr::_getFrameBuffer ( mrb_state* M, mrb_value context ) {
 
-	MOAILuaState state ( L );
-	state.Push ( MOAIGfxMgr::Get ().mGfxState.GetDefaultFrameBuffer ());
+	MOAIRubyState state ( M );
 
-	return 1;
+	return state.ToRValue < MOAIRubyObject* >( MOAIGfxMgr::Get ().mGfxState.GetDefaultFrameBuffer ());
 }
 
 //----------------------------------------------------------------//
@@ -55,12 +54,11 @@ int MOAIGfxMgr::_getFrameBuffer ( lua_State* L ) {
  
 	@out	number maxTextureSize
 */
-int MOAIGfxMgr::_getMaxTextureSize ( lua_State* L ) {
+mrb_value MOAIGfxMgr::_getMaxTextureSize ( mrb_state* M, mrb_value context ) {
 	
-	MOAILuaState state ( L );
-	state.Push ( MOAIGfxMgr::Get ().mMaxTextureSize );
+	MOAIRubyState state ( M );
 	
-	return 1;
+	return state.ToRValue ( MOAIGfxMgr::Get ().mMaxTextureSize );
 }
 
 //----------------------------------------------------------------//
@@ -69,11 +67,11 @@ int MOAIGfxMgr::_getMaxTextureSize ( lua_State* L ) {
 
 	@out	number maxTextureUnits
 */
-int MOAIGfxMgr::_getMaxTextureUnits ( lua_State* L ) {
+mrb_value MOAIGfxMgr::_getMaxTextureUnits ( mrb_state* M, mrb_value context ) {
 
-	lua_pushnumber ( L, ( double )MOAIGfxMgr::Get ().mGfxState.CountTextureUnits ());
+	MOAIRubyState state ( M );
 
-	return 1;
+	return state.ToRValue ( ( double )MOAIGfxMgr::Get ().mGfxState.CountTextureUnits () );
 }
 
 //----------------------------------------------------------------//
@@ -83,14 +81,17 @@ int MOAIGfxMgr::_getMaxTextureUnits ( lua_State* L ) {
 	@out	number width
 	@out	number height
 */
-int MOAIGfxMgr::_getViewSize ( lua_State* L  ) {
+mrb_value MOAIGfxMgr::_getViewSize ( mrb_state* M, mrb_value context  ) {
 
 	MOAIFrameBuffer* frameBuffer = MOAIGfxMgr::Get ().mGfxState.GetCurrentFrameBuffer ();
 	
-	lua_pushnumber ( L, frameBuffer->GetBufferWidth ());
-	lua_pushnumber ( L, frameBuffer->GetBufferHeight ());
+	MOAIRubyState state ( M );
 	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( frameBuffer->GetBufferWidth () );
+	ret [ 1 ] = state.ToRValue ( frameBuffer->GetBufferHeight () );
+
+	return mrb_ary_new_from_values ( M, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -101,14 +102,14 @@ int MOAIGfxMgr::_getViewSize ( lua_State* L  ) {
 	@opt	number age		Default value is 0.
 	@out	nil
 */
-int MOAIGfxMgr::_purgeResources ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIGfxMgr::_purgeResources ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	u32 age = state.GetValue < u32 >( 1, 0 );
+	u32 age = state.GetParamValue < u32 >( 1, 0 );
 
 	MOAIGfxMgr::Get ().mResourceMgr.PurgeResources ( age );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -117,12 +118,12 @@ int MOAIGfxMgr::_purgeResources ( lua_State* L ) {
  
 	@out	nil
 */
-int MOAIGfxMgr::_renewResources ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIGfxMgr::_renewResources ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
 	MOAIGfxMgr::Get ().mResourceMgr.RenewResources ();
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -200,8 +201,8 @@ MOAIGfxMgr::MOAIGfxMgr () :
 		RTTI_SINGLE ( MOAIGfxStateGPUCache )
 		RTTI_SINGLE ( MOAIGlobalEventSource )
 	RTTI_END
-	
-	this->mGfxState.SetDefaultFrameBuffer ( new MOAIFrameBuffer ());
+
+	this->mGfxState.SetDefaultFrameBuffer ( MOAIRubyRuntime::Get ().State ().CreateClassInstance < MOAIFrameBuffer >() );
 }
 
 //----------------------------------------------------------------//
@@ -223,31 +224,27 @@ void MOAIGfxMgr::OnGlobalsFinalize () {
 //----------------------------------------------------------------//
 void MOAIGfxMgr::OnGlobalsInitialize () {
 
-	this->mGfxState.InitBuffers ();
+	//this->mGfxState.InitBuffers ();
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGfxMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "EVENT_RESIZE",	( u32 )EVENT_RESIZE );
+	state.DefineClassConst ( klass, "EVENT_RESIZE",	( u32 )EVENT_RESIZE );
 	
-	state.SetField ( -1, "DRAWING_PIPELINE",	( u32 )MOAIGfxPipelineClerk::DRAWING_PIPELINE );
-	state.SetField ( -1, "LOADING_PIPELINE",	( u32 )MOAIGfxPipelineClerk::LOADING_PIPELINE );
+	state.DefineClassConst ( klass, "DRAWING_PIPELINE",	( u32 )MOAIGfxPipelineClerk::DRAWING_PIPELINE );
+	state.DefineClassConst ( klass, "LOADING_PIPELINE",	( u32 )MOAIGfxPipelineClerk::LOADING_PIPELINE );
 
-	luaL_Reg regTable [] = {
-		{ "enablePipelineLogging",		_enablePipelineLogging },
-		{ "getFrameBuffer",				_getFrameBuffer },
-		{ "getListener",				&MOAIGlobalEventSource::_getListener < MOAIGfxMgr > },
-		{ "getMaxTextureSize",			_getMaxTextureSize },
-		{ "getMaxTextureUnits",			_getMaxTextureUnits },
-		{ "getViewSize",				_getViewSize },
-		{ "purgeResources",				_purgeResources },
-		{ "renewResources",				_renewResources },
-		{ "setListener",				&MOAIGlobalEventSource::_setListener < MOAIGfxMgr > },
-		{ NULL, NULL }
-	};
+	state.DefineStaticMethod ( klass, "enablePipelineLogging",	_enablePipelineLogging, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getFrameBuffer",			_getFrameBuffer, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getListener",			&MOAIGlobalEventSource::_getListener < MOAIGfxMgr >, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getMaxTextureSize",		_getMaxTextureSize, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getMaxTextureUnits",		_getMaxTextureUnits, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getViewSize",			_getViewSize, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "purgeResources",			_purgeResources, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "renewResources",			_renewResources, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setListener",			&MOAIGlobalEventSource::_setListener < MOAIGfxMgr >, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

@@ -153,47 +153,47 @@ private:
 	bool					mAutoFlip;
 	
 	//----------------------------------------------------------------//
-	static int			_clearHighlights		( lua_State* L );
-	static int			_getAlignment			( lua_State* L );
-	static int			_getGlyphScale			( lua_State* L );
-	static int			_getLineSpacing			( lua_State* L );
-	static int			_getOverrunRules		( lua_State* L );
-	static int			_getRect				( lua_State* L );
-	static int			_getSizingRules			( lua_State* L );
-	static int			_getStyle				( lua_State* L );
-	static int			_getText				( lua_State* L );
-	static int			_getTextBounds			( lua_State* L );
-	static int			_hasOverrun				( lua_State* L );
-	static int			_more					( lua_State* L );
-	static int			_nextPage				( lua_State* L );
-	static int			_revealAll				( lua_State* L );
-	static int			_reserveCurves			( lua_State* L );
-	static int			_setAlignment			( lua_State* L );
-	static int			_setAutoFlip			( lua_State* L );
-	static int			_setBounds				( lua_State* L );
-	static int			_setCurve				( lua_State* L );
-	static int			_setGlyphScale			( lua_State* L );
-	static int			_setHighlight			( lua_State* L );
-	static int			_setLineSnap			( lua_State* L );
-	static int			_setLineSpacing			( lua_State* L );
-	static int			_setMargins				( lua_State* L );
-	static int			_setOverrunRules		( lua_State* L );
-	static int			_setRect				( lua_State* L );
-	static int			_setRectLimits			( lua_State* L );
-	static int			_setReveal				( lua_State* L );
-	static int			_setSpeed				( lua_State* L );
-	static int			_setSizingRules			( lua_State* L );
-	static int			_setStyle				( lua_State* L );
-	static int			_setText				( lua_State* L );
-	static int			_setWordBreak			( lua_State* L );
-	static int			_setYFlip				( lua_State* L );
-	static int			_spool					( lua_State* L );
+	static mrb_value			_clearHighlights		( mrb_state* M, mrb_value context );
+	static mrb_value			_getAlignment			( mrb_state* M, mrb_value context );
+	static mrb_value			_getGlyphScale			( mrb_state* M, mrb_value context );
+	static mrb_value			_getLineSpacing			( mrb_state* M, mrb_value context );
+	static mrb_value			_getOverrunRules		( mrb_state* M, mrb_value context );
+	static mrb_value			_getRect				( mrb_state* M, mrb_value context );
+	static mrb_value			_getSizingRules			( mrb_state* M, mrb_value context );
+	static mrb_value			_getStyle				( mrb_state* M, mrb_value context );
+	static mrb_value			_getText				( mrb_state* M, mrb_value context );
+	static mrb_value			_getTextBounds			( mrb_state* M, mrb_value context );
+	static mrb_value			_hasOverrun				( mrb_state* M, mrb_value context );
+	static mrb_value			_more					( mrb_state* M, mrb_value context );
+	static mrb_value			_nextPage				( mrb_state* M, mrb_value context );
+	static mrb_value			_revealAll				( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveCurves			( mrb_state* M, mrb_value context );
+	static mrb_value			_setAlignment			( mrb_state* M, mrb_value context );
+	static mrb_value			_setAutoFlip			( mrb_state* M, mrb_value context );
+	static mrb_value			_setBounds				( mrb_state* M, mrb_value context );
+	static mrb_value			_setCurve				( mrb_state* M, mrb_value context );
+	static mrb_value			_setGlyphScale			( mrb_state* M, mrb_value context );
+	static mrb_value			_setHighlight			( mrb_state* M, mrb_value context );
+	static mrb_value			_setLineSnap			( mrb_state* M, mrb_value context );
+	static mrb_value			_setLineSpacing			( mrb_state* M, mrb_value context );
+	static mrb_value			_setMargins				( mrb_state* M, mrb_value context );
+	static mrb_value			_setOverrunRules		( mrb_state* M, mrb_value context );
+	static mrb_value			_setRect				( mrb_state* M, mrb_value context );
+	static mrb_value			_setRectLimits			( mrb_state* M, mrb_value context );
+	static mrb_value			_setReveal				( mrb_state* M, mrb_value context );
+	static mrb_value			_setSpeed				( mrb_state* M, mrb_value context );
+	static mrb_value			_setSizingRules			( mrb_state* M, mrb_value context );
+	static mrb_value			_setStyle				( mrb_state* M, mrb_value context );
+	static mrb_value			_setText				( mrb_state* M, mrb_value context );
+	static mrb_value			_setWordBreak			( mrb_state* M, mrb_value context );
+	static mrb_value			_setYFlip				( mrb_state* M, mrb_value context );
+	static mrb_value			_spool					( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	#ifdef DOXYGEN
-		static int		_affirmStyle			( lua_State* L );
-		static int		_setFont				( lua_State* L );
-		static int		_setTextSize			( lua_State* L );
+		static mrb_value		_affirmStyle			( mrb_state* M, mrb_value context );
+		static mrb_value		_setFont				( mrb_state* M, mrb_value context );
+		static mrb_value		_setTextSize			( mrb_state* M, mrb_value context );
 	#endif
 	
 	//----------------------------------------------------------------//
@@ -215,7 +215,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAITextLabel )
+	DECL_RUBY_FACTORY ( MOAITextLabel, MOAIGraphicsProp )
 	
 	enum {
 		DEBUG_DRAW_TEXT_LABEL,
@@ -235,10 +235,10 @@ public:
 						~MOAITextLabel			();
 	bool				More					();
 	void				NextPage				( bool reveal );
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
-	void				SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 	void				SetText					( cc8* text );
 };
 

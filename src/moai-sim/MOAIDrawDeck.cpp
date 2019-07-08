@@ -19,25 +19,25 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIDrawDeck::_setBounds ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDrawDeck, "U" )
+mrb_value MOAIDrawDeck::_setBounds ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDrawDeck, "U" )
 
-	int top = state.GetTop ();
+	int top = state.GetParamsCount ();
 
 	switch ( top ) {
 	
 		case 5:
-			self->mBounds.Init ( state.GetRect < float >( 2 ));
+			self->mBounds.Init ( state.GetRect < float >( 1 ));
 			break;
 	
 		case 7:
-			self->mBounds.Init ( state.GetBox ( 2 ));
+			self->mBounds.Init ( state.GetBox ( 1 ));
 			break;
 			
 		default:
 			self->mBounds = ZLBounds::GLOBAL;
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -50,11 +50,11 @@ int MOAIDrawDeck::_setBounds ( lua_State* L ) {
 	@in		function callback
 	@out	nil
 */
-int MOAIDrawDeck::_setBoundsCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDrawDeck, "U" )
+mrb_value MOAIDrawDeck::_setBoundsCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDrawDeck, "U" )
 	
-	self->mOnBounds.SetRef ( *self, state, 2 );
-	return 0;
+	self->mOnBounds.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -66,11 +66,11 @@ int MOAIDrawDeck::_setBoundsCallback ( lua_State* L ) {
 	@in		function callback
 	@out	nil
 */
-int MOAIDrawDeck::_setDrawCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDrawDeck, "U" )
+mrb_value MOAIDrawDeck::_setDrawCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDrawDeck, "U" )
 	
-	self->mOnDraw.SetRef ( *self, state, 2 );
-	return 0;
+	self->mOnDraw.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -93,24 +93,20 @@ MOAIDrawDeck::~MOAIDrawDeck () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDrawDeck::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDrawDeck::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStretchDeck::RegisterLuaClass ( state );
+	MOAIStretchDeck::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDrawDeck::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDrawDeck::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStretchDeck::RegisterLuaFuncs ( state );
+	MOAIStretchDeck::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setBounds",				_setBounds },
-		{ "setBoundsCallback",		_setBoundsCallback },
-		{ "setDrawCallback",		_setDrawCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "setBounds", _setBounds, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "setBoundsCallback", _setBoundsCallback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setDrawCallback", _setDrawCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//
@@ -133,13 +129,15 @@ void MOAIDrawDeck::MOAIDeck_Draw ( u32 idx ) {
 		MOAIGfxState& gfxState = MOAIGfxMgr::Get ().mGfxState;
 		ZLVec3D stretch = this->BindStretchVertexTransform ();
 	
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		this->mOnDraw.PushRef ( state );
-		state.Push ( idx + 1 );
-		state.Push ( stretch.mX );
-		state.Push ( stretch.mY );
-		state.Push ( stretch.mZ );
-		state.DebugCall ( 4, 0 );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value ret [ 4 ];
+		ret [ 0 ] = state.ToRValue ( idx + 1 );
+		ret [ 1 ] = state.ToRValue ( stretch.mX );
+		ret [ 2 ] = state.ToRValue ( stretch.mY );
+		ret [ 3 ] = state.ToRValue ( stretch.mZ );
+
+		state.FuncCall ( this->mOnDraw, "call", 4, ret );
 	}
 }
 
@@ -148,16 +146,16 @@ ZLBounds MOAIDrawDeck::MOAIDeck_GetBounds ( u32 idx ) {
 	
 	if ( this->mOnBounds ) {
 	
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 		
-		this->mOnBounds.PushRef ( state );
+		mrb_value ret [ 1 ];
+		ret [ 0 ] = state.ToRValue ( idx + 1 );
+
+		state.FuncCall ( this->mOnBounds, "call", 1, ret );
 		
-		lua_pushnumber ( state, idx + 1 );
-		state.DebugCall ( 1, 6 );
-		
-		ZLBounds bounds;
-		bounds.Init ( state.GetBox ( -6 ));
-		return bounds;
+		// ZLBounds bounds;
+		// bounds.Init ( state.GetBox ( -6 ));
+		// return bounds;
 	}
 	return this->mBounds;
 }

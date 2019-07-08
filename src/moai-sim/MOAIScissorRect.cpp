@@ -18,12 +18,10 @@
 	@out	number xMax
 	@out	number yMax
 */
-int MOAIScissorRect::_getRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIScissorRect, "U" )
+mrb_value MOAIScissorRect::_getRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIScissorRect, "U" )
 	
-	state.Push ( self->mRect );
-	
-	return 4;
+	return state.Get ( self->mRect );
 }
 
 //----------------------------------------------------------------//
@@ -36,12 +34,12 @@ int MOAIScissorRect::_getRect ( lua_State* L ) {
 	@in		number y2					The Y coordinate of the rect's lower-right point.
 	@out	nil
 */
-int MOAIScissorRect::_setRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIScissorRect, "U" )
+mrb_value MOAIScissorRect::_setRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIScissorRect, "U" )
 	
-	self->mRect = state.GetRect < float >( 2 );
+	self->mRect = state.GetRect < float >( 1 );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -52,13 +50,13 @@ int MOAIScissorRect::_setRect ( lua_State* L ) {
 	@opt	MOAIScissorRect parent		Default value is nil.
 	@out	nil
 */
-int MOAIScissorRect::_setScissorRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIScissorRect, "U" )
+mrb_value MOAIScissorRect::_setScissorRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIScissorRect, "U" )
 	
-	MOAIScissorRect* scissorRect = state.GetLuaObject < MOAIScissorRect >( 2, true );
+	MOAIScissorRect* scissorRect = state.GetRubyObject < MOAIScissorRect >( 1, true );
 	self->mScissorRect.Set ( *self, scissorRect );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -126,23 +124,19 @@ MOAIScissorRect::~MOAIScissorRect () {
 }
 
 //----------------------------------------------------------------//
-void MOAIScissorRect::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIScissorRect::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITransform::RegisterLuaClass ( state );
+	MOAITransform::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIScissorRect::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIScissorRect::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITransform::RegisterLuaFuncs ( state );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getRect",			_getRect },
-		{ "setRect",			_setRect },
-		{ "setScissorRect",		_setScissorRect },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getRect", _getRect, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setRect", _setRect, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "setScissorRect", _setScissorRect, MRB_ARGS_ARG ( 0, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

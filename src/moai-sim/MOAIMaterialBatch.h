@@ -22,35 +22,35 @@ class MOAITextureBase;
 			need elements form multiple shaders and textures.
 */
 class MOAIMaterialBatch :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 		
 	u32								mIndexBatchSize;
 	ZLLeanArray < MOAIMaterial >	mMaterials;
 	
 	//----------------------------------------------------------------//
-	static int			_getBlendMode				( lua_State* L );
-	static int			_getCullMode				( lua_State* L );
-	static int			_getDepthMask				( lua_State* L );
-	static int			_getDepthTest				( lua_State* L );
-	static int			_getIndexBatchSize			( lua_State* L );
-	static int			_getLight					( lua_State* L );
-	static int			_getShader					( lua_State* L );
-	static int			_getTexture					( lua_State* L );
-	static int			_reserveMaterials			( lua_State* L );
-	static int			_setBlendMode				( lua_State* L );
-	static int			_setCullMode				( lua_State* L );
-	static int			_setDepthMask				( lua_State* L );
-	static int			_setDepthTest				( lua_State* L );
-	static int			_setIndexBatchSize			( lua_State* L );
-	static int			_setLight					( lua_State* L );
-	static int			_setShader					( lua_State* L );
-	static int			_setTexture					( lua_State* L );
+	static mrb_value			_getBlendMode				( mrb_state* M, mrb_value context );
+	static mrb_value			_getCullMode				( mrb_state* M, mrb_value context );
+	static mrb_value			_getDepthMask				( mrb_state* M, mrb_value context );
+	static mrb_value			_getDepthTest				( mrb_state* M, mrb_value context );
+	static mrb_value			_getIndexBatchSize			( mrb_state* M, mrb_value context );
+	static mrb_value			_getLight					( mrb_state* M, mrb_value context );
+	static mrb_value			_getShader					( mrb_state* M, mrb_value context );
+	static mrb_value			_getTexture					( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveMaterials			( mrb_state* M, mrb_value context );
+	static mrb_value			_setBlendMode				( mrb_state* M, mrb_value context );
+	static mrb_value			_setCullMode				( mrb_state* M, mrb_value context );
+	static mrb_value			_setDepthMask				( mrb_state* M, mrb_value context );
+	static mrb_value			_setDepthTest				( mrb_state* M, mrb_value context );
+	static mrb_value			_setIndexBatchSize			( mrb_state* M, mrb_value context );
+	static mrb_value			_setLight					( mrb_state* M, mrb_value context );
+	static mrb_value			_setShader					( mrb_state* M, mrb_value context );
+	static mrb_value			_setTexture					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
-	static u32			GetMaterialID				( MOAILuaState& state, int& idx );
-	static u32			GetMaterialID				( MOAILuaState& state, int& idx, bool& set );
-	static u32			GetNamedGlobalID			( MOAILuaState& state, int& idx, u32& globalID );
+	static u32			GetMaterialID				( MOAIRubyState& state, int& idx );
+	static u32			GetMaterialID				( MOAIRubyState& state, int& idx, bool& set );
+	static u32			GetNamedGlobalID			( MOAIRubyState& state, int& idx, u32& globalID );
 
 	//----------------------------------------------------------------//
 	inline u32 GetRawIndex ( u32 idx ) {
@@ -65,59 +65,59 @@ public:
 
 	GET_SET ( u32, IndexBatchSize, mIndexBatchSize )
 
-	DECL_LUA_FACTORY ( MOAIMaterialBatch )
+	DECL_RUBY_FACTORY ( MOAIMaterialBatch, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	MOAIMaterial&		AffirmMaterial				( u32 idx );
 	void				Clear						();
-	int					GetBlendEquation			( MOAILuaState& state, int idx );
-	int					GetBlendMode				( MOAILuaState& state, int idx );
-	int					GetCullMode					( MOAILuaState& state, int idx );
-	int					GetDepthMask				( MOAILuaState& state, int idx );
-	int					GetDepthTest				( MOAILuaState& state, int idx );
-	int					GetLight					( MOAILuaState& state, int idx );
+	int					GetBlendEquation			( MOAIRubyState& state, int idx );
+	mrb_value			GetBlendMode				( MOAIRubyState& state, int idx );
+	mrb_value			GetCullMode					( MOAIRubyState& state, int idx );
+	mrb_value			GetDepthMask				( MOAIRubyState& state, int idx );
+	mrb_value			GetDepthTest				( MOAIRubyState& state, int idx );
+	mrb_value			GetLight					( MOAIRubyState& state, int idx );
 	MOAIMaterial*		GetMaterial					( u32 idx );
-	int					GetShader					( MOAILuaState& state, int idx );
-	int					GetTexture					( MOAILuaState& state, int idx );
+	mrb_value			GetShader					( MOAIRubyState& state, int idx );
+	mrb_value			GetTexture					( MOAIRubyState& state, int idx );
 						MOAIMaterialBatch			();
 	virtual				~MOAIMaterialBatch			();
 	MOAIMaterial*		RawGetMaterial				( u32 idx );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				Reserve						( u32 n );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	
 	void				SetBlendMode				( u32 idx );
 	void				SetBlendMode				( u32 idx, const MOAIBlendMode& blendMode );
-	void				SetBlendMode				( MOAILuaState& state, int idx );
+	void				SetBlendMode				( MOAIRubyState& state, int idx );
 	
 	void				SetCullMode					( u32 idx );
 	void				SetCullMode					( u32 idx, int cullMode );
-	void				SetCullMode					( MOAILuaState& state, int idx );
+	void				SetCullMode					( MOAIRubyState& state, int idx );
 	
 	void				SetDepthMask				( u32 idx );
 	void				SetDepthMask				( u32 idx, bool depthMask );
-	void				SetDepthMask				( MOAILuaState& state, int idx );
+	void				SetDepthMask				( MOAIRubyState& state, int idx );
 	
 	void				SetDepthTest				( u32 idx );
 	void				SetDepthTest				( u32 idx, int depthTest );
-	void				SetDepthTest				( MOAILuaState& state, int idx );
+	void				SetDepthTest				( MOAIRubyState& state, int idx );
 	
 	void				SetLight					( u32 idx, u32 name );
 	void				SetLight					( u32 idx, u32 name, MOAILight* light );
-	MOAILight*			SetLight					( MOAILuaState& state, int idx );
+	MOAILight*			SetLight					( MOAIRubyState& state, int idx );
 
 	void				SetShader					( u32 idx );
 	void				SetShader					( u32 idx, u32 shaderID );
 	void				SetShader					( u32 idx, MOAIShader* shader );
-	MOAIShader*			SetShader					( MOAILuaState& state, int idx );
+	MOAIShader*			SetShader					( MOAIRubyState& state, int idx );
 
 	void				SetTexture					( u32 idx );
 	void				SetTexture					( u32 idx, MOAITextureBase* texture );
 	void				SetTexture					( u32 idx, u32 name );
 	void				SetTexture					( u32 idx, u32 name, MOAITextureBase* texture );
-	MOAITextureBase*	SetTexture					( MOAILuaState& state, int idx );
+	MOAITextureBase*	SetTexture					( MOAIRubyState& state, int idx );
 
 	size_t				Size						();
 

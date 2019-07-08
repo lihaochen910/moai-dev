@@ -17,66 +17,66 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_append ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_append ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* regionA = state.GetLuaObject < MOAIRegion >( 2, false );
-	MOAIRegion* regionB = state.GetLuaObject < MOAIRegion >( 3, false );
+	MOAIRegion* regionA = state.GetRubyObject < MOAIRegion >( 1, false );
+	MOAIRegion* regionB = state.GetRubyObject < MOAIRegion >( 2, false );
 
 	if ( regionA && regionB ) {
 		self->Append ( *regionA, *regionB );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_bless ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_bless ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
 	self->Bless ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_boolean ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UUU" )
+mrb_value MOAIRegion::_boolean ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UUU" )
 
-	MOAIRegion* regionA		= state.GetLuaObject < MOAIRegion >( 2, false );
-	MOAIRegion* regionB		= state.GetLuaObject < MOAIRegion >( 3, false );
+	MOAIRegion* regionA		= state.GetRubyObject < MOAIRegion >( 1, false );
+	MOAIRegion* regionB		= state.GetRubyObject < MOAIRegion >( 2, false );
 
-	u32 operation			= state.GetValue < u32 >( 4, BOOLEAN_OR );
+	u32 operation			= state.GetParamValue < u32 >( 3, BOOLEAN_OR );
 
 	if ( regionA && regionB ) {
 		self->Boolean ( *regionA, *regionB, operation );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
 	self->Clear ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_clip ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_clip ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 2, true );
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 1, true );
 	
 	if ( region ) {
 	
-		MOAIRegion* clip = state.GetLuaObject < MOAIRegion >( 3, false );
+		MOAIRegion* clip = state.GetRubyObject < MOAIRegion >( 2, false );
 		if ( clip ) {
 			
-			MOAITransform* transform = state.GetLuaObject < MOAITransform >( 4, false );
+			MOAITransform* transform = state.GetRubyObject < MOAITransform >( 3, false );
 			
 			if ( transform ) {
 				self->Clip ( *region, *clip, &transform->GetLocalToWorldMtx ());
@@ -87,9 +87,9 @@ int MOAIRegion::_clip ( lua_State* L ) {
 		}
 		else {
 	
-			float xn	= state.GetValue < float >( 3, 0.0f );
-			float yn	= state.GetValue < float >( 4, 0.0f );
-			float d		= state.GetValue < float >( 5, 0.0f );
+			float xn	= state.GetParamValue < float >( 2, 0.0f );
+			float yn	= state.GetParamValue < float >( 3, 0.0f );
+			float d		= state.GetParamValue < float >( 4, 0.0f );
 			
 			ZLVec2D n ( xn, yn );
 			float len = n.Length ();
@@ -105,21 +105,21 @@ int MOAIRegion::_clip ( lua_State* L ) {
 			}
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_convexHull ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_convexHull ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	
 	if ( stream ) {
 	
 		size_t resetCursor = stream->GetCursor ();
 	
-		size_t nVerts = state.GetValue < u32 >( 3, 0 );
+		size_t nVerts = state.GetParamValue < u32 >( 2, 0 );
 	
 		if ( nVerts == 0 ) {
 			nVerts = stream->GetLength () / ZLPolygon2D::VERTEX_SIZE;
@@ -131,174 +131,173 @@ int MOAIRegion::_convexHull ( lua_State* L ) {
 			ZLSizeResult result = self->ConvexHull ( *stream, nVerts );
 			
 			if ( result.mCode == ZL_OK ) {
-				state.Push (( u32 )result.mValue );
-				return 1;
+				return state.ToRValue ( ( u32 )result.mValue );
 			}
 		}
 		
 		stream->Seek (( long )resetCursor, SEEK_SET );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_copy ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UU" )
+mrb_value MOAIRegion::_copy ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UU" )
 
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 1, false );
 
 	if ( region ) {
 		self->Copy ( *region );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_countPolygons ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_countPolygons ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	state.Push (( u32 )self->mPolygons.Size ());
-	return 1;
+	return state.ToRValue ( ( u32 )self->mPolygons.Size () );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_cull ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_cull ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* region		= state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region		= state.GetRubyObject < MOAIRegion >( 1, false );
 	
 	if ( region ) {
 	
-		u32 flag			= state.GetValue < u32 >( 3, ZLPolygon2D::IS_CLOCKWISE );
+		u32 flag			= state.GetParamValue < u32 >( 2, ZLPolygon2D::IS_CLOCKWISE );
 
-		bool checkArea		= state.IsType ( 4, LUA_TNUMBER );
-		float minArea		= state.GetValue < float >( 4, 0.0f );
+		bool checkArea		= state.ParamIsType ( 3, MRB_TT_FLOAT );
+		float minArea		= state.GetParamValue < float >( 3, 0.0f );
 
 		self->Cull ( *region, flag, checkArea, minArea );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_drawDebug ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_drawDebug ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
 	self->DrawDebug ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_edge ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_edge ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* region		= state.GetLuaObject < MOAIRegion >( 2, false );
-	ZLVec2D point			= state.GetValue < ZLVec2D >( 3, ZLVec2D ( 0.0f, 0.0f ));
+	MOAIRegion* region		= state.GetRubyObject < MOAIRegion >( 1, false );
+	ZLVec2D point			= state.GetParamValue < ZLVec2D >( 2, ZLVec2D ( 0.0f, 0.0f ));
 	
 	if ( region ) {
 		self->Edge ( *region, point );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIRegion::_findExtremity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UNN" )
+mrb_value MOAIRegion::_findExtremity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UNN" )
 
-	ZLVec2D n = state.GetValue < ZLVec2D >( 2, ZLVec2D ( 0.0f, 0.0f ));
+	ZLVec2D n = state.GetParamValue < ZLVec2D >( 1, ZLVec2D ( 0.0f, 0.0f ));
 	ZLVec2D e;
 	
 	if ( self->FindExtremity ( n, e )) {
 	
-		state.Push ( e.mX );
-		state.Push ( e.mY );
-		
-		return 2;
+		mrb_value ret [ 2 ];
+		ret [ 0 ] = state.ToRValue ( e.mX );
+		ret [ 1 ] = state.ToRValue ( e.mY );
+
+		return mrb_ary_new_from_values ( state, 2, ret );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_getDistance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_getDistance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	ZLVec2D point = state.GetValue < ZLVec2D >( 2, ZLVec2D ( 0.0f, 0.0f ));
+	ZLVec2D point = state.GetParamValue < ZLVec2D >( 1, ZLVec2D ( 0.0f, 0.0f ));
 
 	float d;
 	ZLVec2D p;
 	
 	if ( self->GetDistance ( point, d, p )) {
 	
-		state.Push ( d );
-		state.Push ( p.mX );
-		state.Push ( p.mY );
-		
-		return 3;
+		mrb_value ret [ 3 ];
+		ret [ 0 ] = state.ToRValue ( d );
+		ret [ 1 ] = state.ToRValue ( p.mX );
+		ret [ 2 ] = state.ToRValue ( p.mY );
+
+		return mrb_ary_new_from_values ( state, 3, ret );
 	}
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_getPolygon ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_getPolygon ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	u32 polygonID = state.GetValue < u32 >( 2, 1 ) - 1;
+	u32 polygonID = state.GetParamValue < u32 >( 1, 1 ) - 1;
 	
 	if ( polygonID < self->mPolygons.Size ()) {
-	
-		lua_newtable ( state );
-	
+		
+		mrb_value ary = mrb_ary_new ( M );
+		
 		const ZLPolygon2D& polygon = self->mPolygons [ polygonID ];
 	
 		size_t polygonSize = polygon.GetSize ();
 		for ( size_t i = 0; i < polygonSize; ++i ) {
 		
 			ZLVec2D vec = polygon.GetVertex ( i );
+
+			mrb_value hash = mrb_hash_new ( M );
+
+			mrb_hash_set ( M, hash, state.ToRValue ( "x" ), state.ToRValue ( vec.mX ) );
+			mrb_hash_set ( M, hash, state.ToRValue ( "y" ), state.ToRValue ( vec.mY ) );
 		
-			state.Push (( u32 )i + 1 );
-		
-			lua_newtable ( state );
-			state.SetField ( -1, "x", vec.mX );
-			state.SetField ( -1, "y", vec.mY );
-			
-			lua_settable ( state, -3 );
+			mrb_ary_push ( M, ary, hash );
 		}
-		return 1;
+		return ary;
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_getTriangles ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_getTriangles ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
 	u32 base = 0;
 	int totalElements = 0;
 	
-	MOAIVertexBuffer* vtxBuffer		= state.GetLuaObject < MOAIVertexBuffer >( 2, false );
-	MOAIIndexBuffer* idxBuffer		= state.GetLuaObject < MOAIIndexBuffer >( 3, false );
+	MOAIVertexBuffer* vtxBuffer		= state.GetRubyObject < MOAIVertexBuffer >( 1, false );
+	MOAIIndexBuffer* idxBuffer		= state.GetRubyObject < MOAIIndexBuffer >( 2, false );
 
 	if ( vtxBuffer && idxBuffer ) {
 	
-		u32 idxSizeInBytes = state.GetValue < u32 >( 4, 4 );
-		MOAIVertexFormat* format = state.GetLuaObject < MOAIVertexFormat >( 5, false );
+		u32 idxSizeInBytes = state.GetParamValue < u32 >( 3, 4 );
+		MOAIVertexFormat* format = state.GetRubyObject < MOAIVertexFormat >( 4, false );
 		
 		base = ( u32 )( idxBuffer->GetCursor () / idxSizeInBytes );
 		totalElements = self->GetTriangles ( *format, *vtxBuffer, *idxBuffer, idxSizeInBytes );
 	}
 	else {
 		
-		MOAIStream* vtxStream		= state.GetLuaObject < MOAIStream >( 2, false );
-		MOAIStream* idxStream		= state.GetLuaObject < MOAIStream >( 3, false );
-		MOAIVertexFormat* format	= state.GetLuaObject < MOAIVertexFormat >( 4, false );
+		MOAIStream* vtxStream		= state.GetRubyObject < MOAIStream >( 1, false );
+		MOAIStream* idxStream		= state.GetRubyObject < MOAIStream >( 2, false );
+		MOAIVertexFormat* format	= state.GetRubyObject < MOAIVertexFormat >( 3, false );
 		
 		if ( vtxStream && idxStream && format ) {
 			base = ( u32 )( idxStream->GetCursor () / 4 );
@@ -306,157 +305,156 @@ int MOAIRegion::_getTriangles ( lua_State* L ) {
 		}
 	}
 	
-	state.Push ( totalElements );
-	state.Push ( base );
-	state.Push ( base + totalElements );
-	return 3;
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( totalElements );
+	ret [ 1 ] = state.ToRValue ( base );
+	ret [ 2 ] = state.ToRValue ( base + totalElements );
+
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_getVertices ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_getVertices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	
 	if ( stream ) {
 	
 		ZLSizeResult result = self->GetVertices ( *stream );
 		
 		if ( result.mCode == ZL_OK ) {
-			state.Push (( u32 )result.mValue );
-			return 1;
+			return state.ToRValue ( ( u32 )result.mValue );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_pad ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_pad ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 1, false );
 	if ( region ) {
-		self->Pad ( *region, state.GetValue < float >( 3, 0.0f ));
+		self->Pad ( *region, state.GetParamValue < float >( 2, 0.0f ));
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_pointInside ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UNN" )
+mrb_value MOAIRegion::_pointInside ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UNN" )
 	
-	float x		= state.GetValue < float >( 2, 0.0f );
-	float y		= state.GetValue < float >( 3, 0.0f );
-	float pad	= state.GetValue < float >( 4, 0.0f );
+	float x		= state.GetParamValue < float >( 1, 0.0f );
+	float y		= state.GetParamValue < float >( 2, 0.0f );
+	float pad	= state.GetParamValue < float >( 3, 0.0f );
 
-	state.Push ( self->PointInside ( ZLVec2D ( x, y ), pad ));
-	
-	return 1;
+	return state.ToRValue ( self->PointInside ( ZLVec2D ( x, y ), pad ) );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_print ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_print ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
 	self->Print ();
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_reservePolygons ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_reservePolygons ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	self->ReservePolygons ( state.GetValue < u32 >( 2, 0 ));
-	return 0;
+	self->ReservePolygons ( state.GetParamValue < u32 >( 1, 0 ));
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_reserveVertices ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UN" )
+mrb_value MOAIRegion::_reserveVertices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UN" )
 	
-	u32 idx		= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 size	= state.GetValue < u32 >( 3, 0 );
+	u32 idx		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 size	= state.GetParamValue < u32 >( 2, 0 );
 	
 	self->mPolygons [ idx ].ReserveVertices ( size );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_reverseWinding ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_reverseWinding ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	MOAIRegion* region		= state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region		= state.GetRubyObject < MOAIRegion >( 1, false );
 	
 	if ( region ) {
 		self->ReverseWinding ( *region );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_setVertex ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UNNNN" )
+mrb_value MOAIRegion::_setVertex ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UNNNN" )
 	
-	u32 polyIdx		= state.GetValue < u32 >( 2, 1 ) - 1;
-	u32 vertIdx		= state.GetValue < u32 >( 3, 1 ) - 1;
+	u32 polyIdx		= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	u32 vertIdx		= state.GetParamValue < u32 >( 2, 1 ) - 1;
 	
-	float x			= state.GetValue < float >( 4, 0.0f );
-	float y			= state.GetValue < float >( 5, 0.0f );
+	float x			= state.GetParamValue < float >( 3, 0.0f );
+	float y			= state.GetParamValue < float >( 4, 0.0f );
 	
 	self->mPolygons [ polyIdx ].SetVert ( vertIdx, x, y );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_setWinding ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "UU" )
+mrb_value MOAIRegion::_setWinding ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "UU" )
 	
-	MOAIRegion* region		= state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region		= state.GetRubyObject < MOAIRegion >( 2, false );
 	
 	if ( region ) {
 		
 		if ( self != region ) {
 			self->Copy ( *region );
 		}
-		self->SetWinding ( state.GetValue < u32 >( 3, WINDING_ANTICLOCKWISE ));
+		self->SetWinding ( state.GetParamValue < u32 >( 3, WINDING_ANTICLOCKWISE ));
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_snap ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_snap ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	MOAIRegion* region		= state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region		= state.GetRubyObject < MOAIRegion >( 2, false );
 
 	if ( region ) {
 	
-		float xSnap = state.GetValue < float >( 3, 0.0f );
-		float ySnap = state.GetValue < float >( 4, 0.0f );
+		float xSnap = state.GetParamValue < float >( 3, 0.0f );
+		float ySnap = state.GetParamValue < float >( 4, 0.0f );
 
 		self->Snap ( *region, xSnap, ySnap );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIRegion::_stroke ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_stroke ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 
-	MOAIRegion* region		= state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region		= state.GetRubyObject < MOAIRegion >( 1, false );
 	
 	if ( region ) {
 		
@@ -466,17 +464,17 @@ int MOAIRegion::_stroke ( lua_State* L ) {
 		float interior			= 0.0;
 		bool strokeInterior		= false;
 		
-		if ( state.IsType ( 3, LUA_TNUMBER )) {
-			exterior = state.GetValue < float >( 3, 0.0f );
+		if ( state.ParamIsType ( 2, MRB_TT_FLOAT )) {
+			exterior = state.GetParamValue < float >( 2, 0.0f );
 			strokeExterior = true;
 		}
 		
-		if ( strokeExterior && state.IsType ( 4, LUA_TNUMBER )) {
+		if ( strokeExterior && state.ParamIsType ( 3, MRB_TT_FLOAT )) {
 		
 			interior = exterior;
 			strokeInterior = true;
 		
-			exterior = state.GetValue < float >( 4, 0.0f );
+			exterior = state.GetParamValue < float >( 3, 0.0f );
 		}
 	
 		if ( strokeExterior || strokeInterior ) {
@@ -486,50 +484,50 @@ int MOAIRegion::_stroke ( lua_State* L ) {
 			self->Copy ( *region );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIRegion::_tesselate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_tesselate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* regionA		= state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* regionA		= state.GetRubyObject < MOAIRegion >( 1, false );
 
 	if ( regionA ) {
 	
-		MOAIRegion* regionB		= state.GetLuaObject < MOAIRegion >( 3, false );
+		MOAIRegion* regionB		= state.GetRubyObject < MOAIRegion >( 2, false );
 	
 		if ( regionB ) {
 		
-			u32 windingRule		= state.GetValue < u32 >( 4, TESS_WINDING_ODD );
+			u32 windingRule		= state.GetParamValue < u32 >( 3, TESS_WINDING_ODD );
 			self->CombineAndTesselate ( *regionA, *regionB, windingRule );
 		}
 		else {
 		
-			u32 windingRule		= state.GetValue < u32 >( 3, TESS_WINDING_ODD );
+			u32 windingRule		= state.GetParamValue < u32 >( 2, TESS_WINDING_ODD );
 			self->Tesselate ( *regionA, windingRule );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
-int MOAIRegion::_translate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIRegion, "U" )
+mrb_value MOAIRegion::_translate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIRegion, "U" )
 	
-	MOAIRegion* region = state.GetLuaObject < MOAIRegion >( 2, false );
+	MOAIRegion* region = state.GetRubyObject < MOAIRegion >( 1, false );
 	
 	if ( region ) {
 	
-		float xOff = state.GetValue < float >( 2, 0.0f );
-		float yOff = state.GetValue < float >( 3, 0.0f );
+		float xOff = state.GetParamValue < float >( 2, 0.0f );
+		float yOff = state.GetParamValue < float >( 3, 0.0f );
 		
 		ZLAffine2D mtx;
 		mtx.Translate ( xOff, yOff );
 		
 		self->Transform ( *region, mtx );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -1042,7 +1040,7 @@ ZLSizeResult MOAIRegion::GetVertices ( ZLStream& vtxStream ) const {
 //----------------------------------------------------------------//
 MOAIRegion::MOAIRegion () {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -1164,74 +1162,70 @@ void MOAIRegion::Read ( ZLStream& verts, ZLStream& polySizes ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIRegion::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIRegion::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "BOOLEAN_AND",					( u32 )BOOLEAN_AND );
-	state.SetField ( -1, "BOOLEAN_NOT",					( u32 )BOOLEAN_NOT );
-	state.SetField ( -1, "BOOLEAN_OR",					( u32 )BOOLEAN_OR );
-	state.SetField ( -1, "BOOLEAN_XOR",					( u32 )BOOLEAN_XOR );
+	state.DefineClassConst ( klass, "BOOLEAN_AND",					( u32 )BOOLEAN_AND );
+	state.DefineClassConst ( klass, "BOOLEAN_NOT",					( u32 )BOOLEAN_NOT );
+	state.DefineClassConst ( klass, "BOOLEAN_OR",					( u32 )BOOLEAN_OR );
+	state.DefineClassConst ( klass, "BOOLEAN_XOR",					( u32 )BOOLEAN_XOR );
 	
-	state.SetField ( -1, "TESS_WINDING_ODD",			( u32 )TESS_WINDING_ODD );
-	state.SetField ( -1, "TESS_WINDING_NONZERO",		( u32 )TESS_WINDING_NONZERO );
-	state.SetField ( -1, "TESS_WINDING_POSITIVE",		( u32 )TESS_WINDING_POSITIVE );
-	state.SetField ( -1, "TESS_WINDING_NEGATIVE",		( u32 )TESS_WINDING_NEGATIVE );
-	state.SetField ( -1, "TESS_WINDING_ABS_GEQ_TWO",	( u32 )TESS_WINDING_ABS_GEQ_TWO );
+	state.DefineClassConst ( klass, "TESS_WINDING_ODD",			( u32 )TESS_WINDING_ODD );
+	state.DefineClassConst ( klass, "TESS_WINDING_NONZERO",		( u32 )TESS_WINDING_NONZERO );
+	state.DefineClassConst ( klass, "TESS_WINDING_POSITIVE",		( u32 )TESS_WINDING_POSITIVE );
+	state.DefineClassConst ( klass, "TESS_WINDING_NEGATIVE",		( u32 )TESS_WINDING_NEGATIVE );
+	state.DefineClassConst ( klass, "TESS_WINDING_ABS_GEQ_TWO",	( u32 )TESS_WINDING_ABS_GEQ_TWO );
 	
-	state.SetField ( -1, "IS_COMPLEX",					( u32 )ZLPolygon2D::IS_COMPLEX );
-	state.SetField ( -1, "IS_CORRUPT",					( u32 )ZLPolygon2D::IS_CORRUPT );
-	state.SetField ( -1, "IS_UNKNOWN",					( u32 )ZLPolygon2D::IS_UNKNOWN );
-	state.SetField ( -1, "IS_CONVEX",					( u32 )ZLPolygon2D::IS_CONVEX );
-	state.SetField ( -1, "IS_CONCAVE",					( u32 )ZLPolygon2D::IS_CONCAVE );
-	state.SetField ( -1, "IS_CLOCKWISE",				( u32 )ZLPolygon2D::IS_CLOCKWISE );
-	state.SetField ( -1, "IS_ANTICLOCKWISE",			( u32 )ZLPolygon2D::IS_ANTICLOCKWISE );
-	state.SetField ( -1, "IS_CLOCKWISE_CONVEX",			( u32 )ZLPolygon2D::IS_CLOCKWISE_CONVEX );
-	state.SetField ( -1, "IS_CLOCKWISE_CONCAVE",		( u32 )ZLPolygon2D::IS_CLOCKWISE_CONCAVE );
-	state.SetField ( -1, "IS_ANTICLOCKWISE_CONVEX",		( u32 )ZLPolygon2D::IS_ANTICLOCKWISE_CONVEX );
-	state.SetField ( -1, "IS_ANTICLOCKWISE_CONCAVE",	( u32 )ZLPolygon2D::IS_ANTICLOCKWISE_CONCAVE );
+	state.DefineClassConst ( klass, "IS_COMPLEX",					( u32 )ZLPolygon2D::IS_COMPLEX );
+	state.DefineClassConst ( klass, "IS_CORRUPT",					( u32 )ZLPolygon2D::IS_CORRUPT );
+	state.DefineClassConst ( klass, "IS_UNKNOWN",					( u32 )ZLPolygon2D::IS_UNKNOWN );
+	state.DefineClassConst ( klass, "IS_CONVEX",					( u32 )ZLPolygon2D::IS_CONVEX );
+	state.DefineClassConst ( klass, "IS_CONCAVE",					( u32 )ZLPolygon2D::IS_CONCAVE );
+	state.DefineClassConst ( klass, "IS_CLOCKWISE",				( u32 )ZLPolygon2D::IS_CLOCKWISE );
+	state.DefineClassConst ( klass, "IS_ANTICLOCKWISE",			( u32 )ZLPolygon2D::IS_ANTICLOCKWISE );
+	state.DefineClassConst ( klass, "IS_CLOCKWISE_CONVEX",			( u32 )ZLPolygon2D::IS_CLOCKWISE_CONVEX );
+	state.DefineClassConst ( klass, "IS_CLOCKWISE_CONCAVE",		( u32 )ZLPolygon2D::IS_CLOCKWISE_CONCAVE );
+	state.DefineClassConst ( klass, "IS_ANTICLOCKWISE_CONVEX",		( u32 )ZLPolygon2D::IS_ANTICLOCKWISE_CONVEX );
+	state.DefineClassConst ( klass, "IS_ANTICLOCKWISE_CONCAVE",	( u32 )ZLPolygon2D::IS_ANTICLOCKWISE_CONCAVE );
 	
-	state.SetField ( -1, "MAKE_CONVEX",					( u32 )ZLPolygon2D::IS_CONVEX );
-	state.SetField ( -1, "MAKE_CONCAVE",				( u32 )ZLPolygon2D::IS_CONCAVE );
+	state.DefineClassConst ( klass, "MAKE_CONVEX",					( u32 )ZLPolygon2D::IS_CONVEX );
+	state.DefineClassConst ( klass, "MAKE_CONCAVE",				( u32 )ZLPolygon2D::IS_CONCAVE );
 	
-	state.SetField ( -1, "WINDING_CLOCKWISE",			( u32 )WINDING_CLOCKWISE );
-	state.SetField ( -1, "WINDING_ANTICLOCKWISE",		( u32 )WINDING_ANTICLOCKWISE );
+	state.DefineClassConst ( klass, "WINDING_CLOCKWISE",			( u32 )WINDING_CLOCKWISE );
+	state.DefineClassConst ( klass, "WINDING_ANTICLOCKWISE",		( u32 )WINDING_ANTICLOCKWISE );
 }
 
 //----------------------------------------------------------------//
-void MOAIRegion::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIRegion::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "append",				_append },
-		{ "bless",				_bless },
-		{ "boolean",			_boolean },
-		{ "clear",				_clear },
-		{ "clip",				_clip },
-		{ "convexHull",			_convexHull },
-		{ "copy",				_copy },
-		{ "countPolygons",		_countPolygons },
-		{ "cull",				_cull },
-		{ "drawDebug",			_drawDebug },
-		{ "edge",				_edge },
-		{ "findExtremity",		_findExtremity },
-		{ "getDistance",		_getDistance },
-		{ "getPolygon",			_getPolygon },
-		{ "getTriangles",		_getTriangles },
-		{ "getVertices",		_getVertices },
-		{ "pad",				_pad },
-		{ "pointInside",		_pointInside },
-		{ "print",				_print },
-		{ "reservePolygons",	_reservePolygons },
-		{ "reserveVertices",	_reserveVertices },
-		{ "reverseWinding",		_reverseWinding },
-		{ "setVertex",			_setVertex },
-		{ "setWinding",			_setWinding },
-		{ "snap",				_snap },
-		{ "stroke",				_stroke },
-		{ "tesselate",			_tesselate },
-		{ "translate",			_translate },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "append",				_append, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "bless",				_bless, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "boolean",			_boolean, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "clear",				_clear, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "clip",				_clip, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "convexHull",			_convexHull, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "copy",				_copy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "countPolygons",		_countPolygons, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "cull",				_cull, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "drawDebug",			_drawDebug, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "edge",				_edge, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "findExtremity",		_findExtremity, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getDistance",		_getDistance, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPolygon",			_getPolygon, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTriangles",		_getTriangles, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getVertices",		_getVertices, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pad",				_pad, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pointInside",		_pointInside, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "print",				_print, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reservePolygons",	_reservePolygons, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reserveVertices",	_reserveVertices, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "reverseWinding",		_reverseWinding, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setVertex",			_setVertex, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setWinding",			_setWinding, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "snap",				_snap, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "stroke",				_stroke, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "tesselate",			_tesselate, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "translate",			_translate, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
@@ -1265,41 +1259,41 @@ void MOAIRegion::ReverseWinding ( const MOAIRegion& region ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIRegion::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIRegion::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( serializer );
 
-	size_t nPolys = ( int )lua_objlen ( state, -1 );
-	this->mPolygons.Init ( nPolys );
+	// size_t nPolys = ( int )lua_objlen ( state, -1 );
+	// this->mPolygons.Init ( nPolys );
 	
-	for ( size_t i = 0; i < nPolys; ++i ) {
-		ZLPolygon2D& poly = this->mPolygons [ i ];
+	// for ( size_t i = 0; i < nPolys; ++i ) {
+	// 	ZLPolygon2D& poly = this->mPolygons [ i ];
 	
-		state.PushField ( -1, ( int )( i + 1 )); // TODO: cast
+	// 	state.PushField ( -1, ( int )( i + 1 )); // TODO: cast
 	
-		size_t len = 0;
-		const void* vertices = lua_tolstring ( state, -1, &len );
+	// 	size_t len = 0;
+	// 	const void* vertices = lua_tolstring ( state, -1, &len );
 		
-		size_t nVertices = len / sizeof ( ZLVec2D );
+	// 	size_t nVertices = len / sizeof ( ZLVec2D );
 		
-		poly.SetVertices (( ZLVec2D* )vertices, nVertices );
-		poly.Bless ();
+	// 	poly.SetVertices (( ZLVec2D* )vertices, nVertices );
+	// 	poly.Bless ();
 		
-		state.Pop ( 1 );
-	}
+	// 	state.Pop ( 1 );
+	// }
 }
 
 //----------------------------------------------------------------//
-void MOAIRegion::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIRegion::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( serializer );
 	
-	size_t nPolys = this->mPolygons.Size ();
-	for ( size_t i = 0; i < nPolys; ++i ) {
-		const ZLPolygon2D& poly = this->mPolygons [ i ];
+	// size_t nPolys = this->mPolygons.Size ();
+	// for ( size_t i = 0; i < nPolys; ++i ) {
+	// 	const ZLPolygon2D& poly = this->mPolygons [ i ];
 
-		state.Push (( u32 )i + 1 );
-		lua_pushlstring ( state, ( cc8* )poly.GetVertices (), poly.GetSize () * sizeof ( ZLVec2D ));
-		lua_settable ( state, -3 );
-	}
+	// 	state.Push (( u32 )i + 1 );
+	// 	lua_pushlstring ( state, ( cc8* )poly.GetVertices (), poly.GetSize () * sizeof ( ZLVec2D ));
+	// 	lua_settable ( state, -3 );
+	// }
 }
 
 //----------------------------------------------------------------//

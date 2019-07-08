@@ -37,12 +37,12 @@ private:
 	
 	ZLLeanPool < MOAIPropOverlap > mOverlapPool;
 
-	MOAILuaStrongRef mCallback;
+	MOAIRubyStrongRef mCallback;
 
 	//----------------------------------------------------------------//
-	static int			_insertProp				( lua_State* L );
-	static int			_processOverlaps		( lua_State* L );
-	static int			_setCallback			( lua_State* L );
+	static mrb_value			_insertProp				( mrb_state* M, mrb_value context );
+	static mrb_value			_processOverlaps		( mrb_state* M, mrb_value context );
+	static mrb_value			_setCallback			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				AffirmOverlap			( MOAICollisionProp& prop0, u32 type0, MOAICollisionProp& prop1, u32 type1, const ZLBounds& bounds );
@@ -69,7 +69,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAICollisionWorld )
+	DECL_RUBY_FACTORY ( MOAICollisionWorld, MOAIAction )
 	
 	enum {
 		OVERLAP_BEGIN,
@@ -85,10 +85,10 @@ public:
 	//----------------------------------------------------------------//
 					MOAICollisionWorld		();
 					~MOAICollisionWorld		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
-	void			SerializeIn				( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut			( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn				( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut			( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

@@ -25,9 +25,9 @@ protected:
 	bool				mUseVAOs;
 
 	//----------------------------------------------------------------//
-	static int			_reserveVAOs				( lua_State* L );
-	static int			_reserveVertexBuffers		( lua_State* L );
-	static int			_setVertexBuffer			( lua_State* L );
+	static mrb_value			_reserveVAOs				( mrb_state* M, mrb_value context );
+	static mrb_value			_reserveVertexBuffers		( mrb_state* M, mrb_value context );
+	static mrb_value			_setVertexBuffer			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool				AffirmVertexBuffers			( u32 idx );
@@ -43,7 +43,7 @@ protected:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIVertexArray )
+	DECL_RUBY_FACTORY ( MOAIVertexArray, MOAIInstanceEventSource )
 	
 	IS ( UsingVAOs, mUseVAOs, true )
 	
@@ -52,12 +52,12 @@ public:
 	MOAIVertexFormat*	GetVertexFormat				( u32 idx );
 						MOAIVertexArray				();
 						~MOAIVertexArray			();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 	void				ReserveVAOs					( u32 total );
 	void				ReserveVertexBuffers		( u32 total );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 	void				SetVertexBuffer				( u32 idx, MOAIVertexBuffer* vtxBuffer, MOAIVertexFormat* vtxFormat );
 };
 

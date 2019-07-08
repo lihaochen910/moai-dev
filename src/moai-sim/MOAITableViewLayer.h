@@ -22,15 +22,15 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAITableViewLayer )
+	DECL_RUBY_FACTORY ( MOAITableViewLayer, MOAILayer )
 	
 	//----------------------------------------------------------------//
 						MOAITableViewLayer			();
 						~MOAITableViewLayer			();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

@@ -17,13 +17,14 @@
 	@out	number x
 	@out	number y
 */
-int MOAIPointerSensor::_getLoc ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPointerSensor, "U" )
+mrb_value MOAIPointerSensor::_getLoc ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPointerSensor, "U" )
 
-	lua_pushnumber ( state, self->mX );
-	lua_pushnumber ( state, self->mY );
+	mrb_value argv [ 2 ];
+	argv [ 0 ] = state.ToRValue ( self->mX );
+	argv [ 1 ] = state.ToRValue ( self->mY );
 
-	return 2;
+	return mrb_ary_new_from_values ( state, 2, argv );
 }
 
 //----------------------------------------------------------------//
@@ -34,12 +35,13 @@ int MOAIPointerSensor::_getLoc ( lua_State* L ) {
 	@opt	function callback			Default value is nil.
 	@out	nil
 */
-int MOAIPointerSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIPointerSensor, "U" )
+mrb_value MOAIPointerSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIPointerSensor, "U" )
+
+	//printf ( "MOAIPointerSensor::_setCallback() %d\n", mrb_type (state.GetParamValue ( 1 )) );
 	
-	self->mOnMove.SetRef ( state, 2 );
-	
-	return 0;
+	self->mOnMove.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -74,31 +76,32 @@ void MOAIPointerSensor::ParseEvent ( ZLStream& eventStream ) {
 
 	this->mX = x;
 	this->mY = y;
+
+	//printf ( "MOAIPointerSensor::ParseEvent() %d, %d\n", x, y );
 	
 	if ( this->mOnMove ) {
-		MOAIScopedLuaState state = this->mOnMove.GetSelf ();
-		lua_pushnumber ( state, this->mX );
-		lua_pushnumber ( state, this->mY );
-		state.DebugCall ( 2, 0 );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 2 ];
+		argv [ 0 ] = state.ToRValue ( this->mX );
+		argv [ 1 ] = state.ToRValue ( this->mY );
+
+		state.FuncCall ( this->mOnMove, "call", 2, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIPointerSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIPointerSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIPointerSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIPointerSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getLoc",			_getLoc },
-		{ "setCallback",	_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getLoc", _getLoc, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

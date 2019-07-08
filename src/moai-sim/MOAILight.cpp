@@ -14,41 +14,40 @@
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILight::_getFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILight, "U" )
-	self->mFormat.PushRef ( state );
-	return 1;
+mrb_value MOAILight::_getFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILight, "U" )
+	return state.ToRValue < MOAIRubyObject* >( self->mFormat );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILight::_setFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILight, "U" )
-	self->mFormat.Set ( *self, state.GetLuaObject < MOAILightFormat >( 2, true ));
-	return 0;
+mrb_value MOAILight::_setFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILight, "U" )
+	self->mFormat.Set ( *self, state.GetRubyObject < MOAILightFormat >( 1, true ));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILight::_setTexture ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILight, "U" )
-	return 0;
+mrb_value MOAILight::_setTexture ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILight, "U" )
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAILight::_setTransform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILight, "U" )
-	return 0;
+mrb_value MOAILight::_setTransform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILight, "U" )
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAILight::_setUniform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILight, "U" )
+mrb_value MOAILight::_setUniform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILight, "U" )
 
-	u32 uniformID	= state.GetValue < u32 >( 2, 1 ) - 1;
-	self->SetUniform ( L, 3, self->mBuffer, uniformID, 0 );
-	return 0;
+	u32 uniformID	= state.GetParamValue < u32 >( 1, 1 ) - 1;
+	self->SetUniform ( M, 2, self->mBuffer, uniformID, 0 );
+	return context;
 }
 
 //================================================================//
@@ -90,26 +89,22 @@ MOAILight::~MOAILight () {
 }
 
 //----------------------------------------------------------------//
-void MOAILight::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAILight::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAILight::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAILight::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getFormat",				_getFormat },
-		{ "setFormat",				_setFormat },
-		{ "setTexture",				_setTexture },
-		{ "setTransform",			_setTransform },
-		{ "setUniform",				_setUniform },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getFormat", _getFormat, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setFormat", _setFormat, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setTexture", _setTexture, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setTransform", _setTransform, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setUniform", _setUniform, MRB_ARGS_ANY () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

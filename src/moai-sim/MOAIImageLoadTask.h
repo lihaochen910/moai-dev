@@ -20,7 +20,7 @@ private:
 	STLString				mFilename;
 	MOAIDataBuffer*			mDataBuffer;
 	MOAIImage*				mTarget;
-	MOAILuaStrongRef		mOnFinish;
+	MOAIRubyStrongRef		mOnFinish;
 	u32						mTransform;
 
 	//----------------------------------------------------------------//
@@ -34,9 +34,9 @@ public:
 	void		Init				( MOAIDataBuffer& data, MOAIImage& target, u32 transform );
 				MOAIImageLoadTask	();
 				~MOAIImageLoadTask	();
-	void		RegisterLuaClass	( MOAILuaState& state );
-	void		RegisterLuaFuncs	( MOAILuaState& state );
-	void		SetCallback			( lua_State* L, int idx );
+	void		RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void		RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
+	void		SetCallback			( mrb_state* M, int idx );
 };
 
 #endif

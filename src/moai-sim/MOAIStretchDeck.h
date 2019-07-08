@@ -18,7 +18,7 @@ protected:
 	float			mStretchFactor;
 
 	//----------------------------------------------------------------//
-	static int		_setStretchFactor			( lua_State* L );
+	static mrb_value		_setStretchFactor			( mrb_state* M, mrb_value context );
 	
 public:
 		
@@ -26,8 +26,8 @@ public:
 	ZLVec3D			BindStretchVertexTransform				() const;
 					MOAIStretchDeck							();
 					~MOAIStretchDeck						();
-	void			RegisterLuaClass						( MOAILuaState& state );
-	void			RegisterLuaFuncs						( MOAILuaState& state );
+	void			RegisterRubyClass						( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs						( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

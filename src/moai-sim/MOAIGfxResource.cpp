@@ -23,22 +23,20 @@
 	@in		MOAIGfxResource self
 	@out	number age
 */
-int MOAIGfxResource::_getAge ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxResource, "U" )
+mrb_value MOAIGfxResource::_getAge ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxResource, "U" )
 
 	u32 age = MOAIRenderMgr::Get ().GetRenderCounter () - self->mLastRenderCount;
-	lua_pushnumber ( state, age );
 
-	return 1;
+	return state.ToRValue ( age );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGfxResource::_getResourceState ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxResource, "U" )
+mrb_value MOAIGfxResource::_getResourceState ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxResource, "U" )
 
-	state.Push ( self->mState );
-	return 1;
+	return state.ToRValue ( self->mState );
 }
 
 //----------------------------------------------------------------//
@@ -57,23 +55,22 @@ int MOAIGfxResource::_getResourceState ( lua_State* L ) {
 	@opt	number age				Release only if the texture hasn't been used in X frames.
 	@out	boolean released		True if the texture was actually released.
 */
-int MOAIGfxResource::_purge ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxResource, "U" )
+mrb_value MOAIGfxResource::_purge ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxResource, "U" )
 
-	int age = state.GetValue < int >( 2, 0 );
-	lua_pushboolean ( L, self->Purge ( age ));
+	int age = state.GetParamValue < int >( 1, 0 );
 
-	return 1;
+	return state.ToRValue ( self->Purge ( age ) );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIGfxResource::_scheduleForGPUCreate ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxResource, "U" )
+mrb_value MOAIGfxResource::_scheduleForGPUCreate ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxResource, "U" )
 
-	u32 listID = state.GetValue < u32 >( 2, MOAIGfxPipelineClerk::DRAWING_PIPELINE );
+	u32 listID = state.GetParamValue < u32 >( 1, MOAIGfxPipelineClerk::DRAWING_PIPELINE );
 	self->ScheduleForGPUCreate ( listID );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -85,12 +82,12 @@ int MOAIGfxResource::_scheduleForGPUCreate ( lua_State* L ) {
 	@opt	function reloader
 	@out	nil
 */
-int MOAIGfxResource::_setReloader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIGfxResource, "U" )
+mrb_value MOAIGfxResource::_setReloader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIGfxResource, "U" )
 
-	self->mReloader.SetRef ( *self, state, 2 );
+	self->mReloader.SetRef ( *self, state, 1 );
 	self->InvokeLoader ();
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -214,7 +211,7 @@ bool MOAIGfxResource::HasReloader () {
 bool MOAIGfxResource::InvokeLoader () {
 
 	if ( this->mReloader ) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 		if ( this->mReloader.PushRef ( state )) {
 			state.DebugCall ( 0, 0 );
 			return true;
@@ -258,7 +255,7 @@ void MOAIGfxResource::OnGfxEvent ( u32 event, void* userdata ) {
 		// we should only get this event if the creation sequence was successful
 		this->mState = STATE_READY_TO_BIND;
 		
-		// let Lua know the resource is ready for use
+		// let Ruby know the resource is ready for use
 		this->InvokeListener ( GFX_EVENT_CREATED );
 	}
 }
@@ -283,37 +280,34 @@ bool MOAIGfxResource::Purge ( u32 age ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxResource::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIGfxResource::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIInstanceEventSource::RegisterLuaClass ( state );
+	MOAIInstanceEventSource::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "STATE_UNINITIALIZED",					( u32 )STATE_UNINITIALIZED );
-	state.SetField ( -1, "STATE_READY_FOR_CPU_CREATE",			( u32 )STATE_READY_FOR_CPU_CREATE );
-	state.SetField ( -1, "STATE_READY_FOR_GPU_CREATE",			( u32 )STATE_READY_FOR_GPU_CREATE );
-	state.SetField ( -1, "STATE_READY_TO_BIND",					( u32 )STATE_READY_TO_BIND );
-	state.SetField ( -1, "STATE_ERROR",							( u32 )STATE_ERROR );
+	state.DefineClassConst ( klass, "STATE_UNINITIALIZED",					( u32 )STATE_UNINITIALIZED );
+	state.DefineClassConst ( klass, "STATE_READY_FOR_CPU_CREATE",			( u32 )STATE_READY_FOR_CPU_CREATE );
+	state.DefineClassConst ( klass, "STATE_READY_FOR_GPU_CREATE",			( u32 )STATE_READY_FOR_GPU_CREATE );
+	state.DefineClassConst ( klass, "STATE_READY_TO_BIND",					( u32 )STATE_READY_TO_BIND );
+	state.DefineClassConst ( klass, "STATE_ERROR",							( u32 )STATE_ERROR );
 	
-	state.SetField ( -1, "GFX_EVENT_CREATED",					( u32 )GFX_EVENT_CREATED );
+	state.DefineClassConst ( klass, "GFX_EVENT_CREATED",					( u32 )GFX_EVENT_CREATED );
 	
-	state.SetField ( -1, "DRAWING_PIPELINE",					( u32 )MOAIGfxPipelineClerk::DRAWING_PIPELINE );
-	state.SetField ( -1, "LOADING_PIPELINE",					( u32 )MOAIGfxPipelineClerk::LOADING_PIPELINE );
+	state.DefineClassConst ( klass, "DRAWING_PIPELINE",					( u32 )MOAIGfxPipelineClerk::DRAWING_PIPELINE );
+	state.DefineClassConst ( klass, "LOADING_PIPELINE",					( u32 )MOAIGfxPipelineClerk::LOADING_PIPELINE );
 }
 
 //----------------------------------------------------------------//
-void MOAIGfxResource::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIGfxResource::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIInstanceEventSource::RegisterLuaFuncs ( state );
+	MOAIInstanceEventSource::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getAge",					_getAge },
-		{ "getResourceState",		_getResourceState },
-		{ "purge",					_purge },
-		{ "softRelease",			_purge }, // back compat
-		{ "scheduleForGPUCreate",	_scheduleForGPUCreate },
-		{ "setReloader",			_setReloader },
-		{ NULL, NULL }
-	};
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getAge", _getAge, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getResourceState", _getResourceState, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "purge", _purge, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "softRelease", _purge, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "scheduleForGPUCreate", _scheduleForGPUCreate, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setReloader", _setReloader, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//

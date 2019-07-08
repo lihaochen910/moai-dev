@@ -10,7 +10,7 @@ class MOAIPathFinder;
 // MOAIPathGraph
 //================================================================//
 class MOAIPathGraph :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 
 	friend class MOAIPathFinder;
@@ -18,7 +18,7 @@ protected:
 	u32		mHeuristic;
 
 	//----------------------------------------------------------------//
-	static int		_setHeuristic			( lua_State* L );
+	static mrb_value		_setHeuristic			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	virtual void	PushNeighbors			( MOAIPathFinder& pathFinder, int nodeID ) = 0;
@@ -28,8 +28,8 @@ public:
 	//----------------------------------------------------------------//
 					MOAIPathGraph			();
 					~MOAIPathGraph			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

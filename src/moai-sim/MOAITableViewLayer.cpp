@@ -41,28 +41,28 @@ MOAITableViewLayer::~MOAITableViewLayer () {
 }
 
 //----------------------------------------------------------------//
-void MOAITableViewLayer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITableViewLayer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITableLayer::RegisterLuaClass ( state );
-	MOAIViewLayer::RegisterLuaClass ( state );
+	MOAITableLayer::RegisterRubyClass ( state, klass );
+	MOAIViewLayer::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITableViewLayer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITableViewLayer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITableLayer::RegisterLuaFuncs ( state );
-	MOAIViewLayer::RegisterLuaFuncs ( state );
+	MOAITableLayer::RegisterRubyFuncs ( state, klass );
+	MOAIViewLayer::RegisterRubyFuncs ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAITableViewLayer::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAITableViewLayer::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 
 	MOAITableLayer::SerializeIn ( state, serializer );
 	MOAIViewLayer::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAITableViewLayer::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAITableViewLayer::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 
 	MOAITableLayer::SerializeOut ( state, serializer );
 	MOAIViewLayer::SerializeOut ( state, serializer );
@@ -81,9 +81,9 @@ void MOAITableViewLayer::MOAIDrawable_Draw ( int subPrimID ) {
 //----------------------------------------------------------------//
 void MOAITableViewLayer::MOAIViewLayer_Draw () {
 	
-	MOAIDrawable::Draw ( this->mRenderTable );
+	MOAIDrawable::Draw ( MOAIRubyRuntime::Get ().State (), this->mRenderTable );
 	
 	if ( MOAIDebugLinesMgr::Get ().IsVisible () && this->mShowDebugLines ) {
-		MOAIDrawable::Draw ( this->mRenderTable, true );
+		MOAIDrawable::Draw ( MOAIRubyRuntime::Get ().State (), this->mRenderTable, true );
 	}
 }

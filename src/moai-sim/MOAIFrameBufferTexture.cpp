@@ -22,25 +22,25 @@
 	@opt	number stencilFormat
 	@out	nil
 */
-int MOAIFrameBufferTexture::_init ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFrameBufferTexture, "UNN" )
+mrb_value MOAIFrameBufferTexture::_init ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFrameBufferTexture, "UNN" )
 	
-	u32 width				= state.GetValue < u32 >( 2, 0 );
-	u32 height				= state.GetValue < u32 >( 3, 0 );
+	u32 width				= state.GetParamValue < u32 >( 1, 0 );
+	u32 height				= state.GetParamValue < u32 >( 2, 0 );
 	
 	// TODO: fix me
 	#if defined ( MOAI_OS_ANDROID ) || defined ( MOAI_OS_HTML )
-		u32 colorFormat		= state.GetValue < u32 >( 4, ZGL_PIXEL_FORMAT_RGB565 );
+		u32 colorFormat		= state.GetParamValue < u32 >( 3, ZGL_PIXEL_FORMAT_RGB565 );
 	#else
-		u32 colorFormat		= state.GetValue < u32 >( 4, ZGL_PIXEL_FORMAT_RGBA8 );
+		u32 colorFormat		= state.GetParamValue < u32 >( 3, ZGL_PIXEL_FORMAT_RGBA8 );
 	#endif
 	
-	u32 depthFormat		= state.GetValue < u32 >( 5, 0 );
-	u32 stencilFormat	= state.GetValue < u32 >( 6, 0 );
+	u32 depthFormat		= state.GetParamValue < u32 >( 4, 0 );
+	u32 stencilFormat	= state.GetParamValue < u32 >( 5, 0 );
 	
 	self->Init ( width, height, colorFormat, depthFormat, stencilFormat );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -178,33 +178,29 @@ void MOAIFrameBufferTexture::OnGPUDeleteOrDiscard ( bool shouldDelete ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFrameBufferTexture::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFrameBufferTexture::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIFrameBuffer::RegisterLuaClass ( state );
-	MOAITextureBase::RegisterLuaClass ( state );
+	MOAIFrameBuffer::RegisterRubyClass ( state, klass );
+	MOAITextureBase::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIFrameBufferTexture::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIFrameBufferTexture::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIFrameBuffer::RegisterLuaFuncs ( state );
-	MOAITextureBase::RegisterLuaFuncs ( state );	
+	MOAIFrameBuffer::RegisterRubyFuncs ( state, klass );
+	MOAITextureBase::RegisterRubyFuncs ( state, klass );
+	
+	state.DefineInstanceMethod ( klass, "init", _init, MRB_ARGS_ARG ( 2, 3 ) );
 
-	luaL_Reg regTable [] = {
-		{ "init",						_init },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIFrameBufferTexture::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIFrameBufferTexture::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAITextureBase::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIFrameBufferTexture::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIFrameBufferTexture::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAITextureBase::SerializeOut ( state, serializer );
 }
 

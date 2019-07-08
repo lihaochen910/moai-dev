@@ -49,15 +49,15 @@ protected:
 	ZLRect mPadding;
 	
 	//----------------------------------------------------------------//
-	static int			_setColorFormat				( lua_State* L );
-	static int			_setPadding					( lua_State* L );
+	static mrb_value			_setColorFormat				( mrb_state* M, mrb_value context );
+	static mrb_value			_setPadding					( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	void				ClearPages					();
 	
 public:
 	
-	DECL_LUA_FACTORY ( MOAIDynamicGlyphCache )
+	DECL_RUBY_FACTORY ( MOAIDynamicGlyphCache, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 	MOAIImage*			GetGlyphImage				( MOAIGlyph& glyph );
@@ -67,10 +67,10 @@ public:
 						MOAIDynamicGlyphCache		();
 						~MOAIDynamicGlyphCache		();
 	int					PlaceGlyph					( MOAIFont& font, MOAIGlyph& glyph );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
-	void				SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void				SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void				SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void				SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

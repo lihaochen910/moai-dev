@@ -80,21 +80,21 @@ static void _renderSpan ( const int y, const int count, const FT_Span* const spa
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFreeTypeFontReader::_enableAntiAliasing ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFreeTypeFontReader, "U" )
-	self->mAntiAlias = state.GetValue < bool >( 2, false );
-	return 0;
+mrb_value MOAIFreeTypeFontReader::_enableAntiAliasing ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFreeTypeFontReader, "U" )
+	self->mAntiAlias = state.GetParamValue < bool >( 1, false );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFreeTypeFontReader::_extractSystemFont ( lua_State* L ) {
-	MOAI_LUA_SETUP_CLASS ( "S" )
+mrb_value MOAIFreeTypeFontReader::_extractSystemFont ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_CLASS ( "S" )
 
 	#ifdef __APPLE__
 
-		cc8* fontName = state.GetValue < cc8* >( 1, 0 );
-		cc8* fileName = state.GetValue < cc8* >( 2, 0 );
+		cc8* fontName = state.GetParamValue < cc8* >( 1, 0 );
+		cc8* fileName = state.GetParamValue < cc8* >( 2, 0 );
 		
 		if ( fontName && fileName ) {
 		
@@ -104,43 +104,42 @@ int MOAIFreeTypeFontReader::_extractSystemFont ( lua_State* L ) {
 			stream.Close ();
 		}
 	#endif
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFreeTypeFontReader::_setPenColor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFreeTypeFontReader, "U" )
-	self->mPenColor = state.GetColor ( 2, 1.0f, 1.0f, 1.0f, 1.0f );
-	return 0;
+mrb_value MOAIFreeTypeFontReader::_setPenColor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFreeTypeFontReader, "U" )
+	self->mPenColor = state.GetColor ( 1, 1.0f, 1.0f, 1.0f, 1.0f );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIFreeTypeFontReader::_strokeGlyph ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFreeTypeFontReader, "U" )
+mrb_value MOAIFreeTypeFontReader::_strokeGlyph ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFreeTypeFontReader, "U" )
 
 	int result = MOAIFontReader::FONT_ERROR;
-	MOAIImage* image = state.GetLuaObject < MOAIImage >( 2, true );
+	MOAIImage* image = state.GetRubyObject < MOAIImage >( 1, true );
 	
 	if ( image ) {
 	
-		float x				= state.GetValue < float >( 3, 0.0f );
-		float y				= state.GetValue < float >( 4, 0.0f );
-		float strokeSize	= state.GetValue < float >( 5, 0.0f );
+		float x				= state.GetParamValue < float >( 2, 0.0f );
+		float y				= state.GetParamValue < float >( 3, 0.0f );
+		float strokeSize	= state.GetParamValue < float >( 4, 0.0f );
 
-		u32 capStyle		= state.GetValue < u32 >( 6, ( u32 )FT_STROKER_LINECAP_SQUARE );
-		u32 joinStyle		= state.GetValue < u32 >( 7, ( u32 )FT_STROKER_LINEJOIN_MITER_VARIABLE );
+		u32 capStyle		= state.GetParamValue < u32 >( 5, ( u32 )FT_STROKER_LINECAP_SQUARE );
+		u32 joinStyle		= state.GetParamValue < u32 >( 6, ( u32 )FT_STROKER_LINEJOIN_MITER_VARIABLE );
 		
 		// PCM: this scalar is arbitrary. FT miter limit doesn't behave like I'd expect.
 		// (I'd expect either a simple distance, or a ratio, like SVG uses.)
 		// TODO: investigate FT's miter limit implementation and fix accordingly.
-		float miterLimit	= state.GetValue < float >( 8, strokeSize * 100.0f );
+		float miterLimit	= state.GetParamValue < float >( 7, strokeSize * 100.0f );
 
 		result = self->StrokeGlyph ( *image, x, y, strokeSize, capStyle, joinStyle, miterLimit );
 	}
-	state.Push ( result != MOAIFontReader::OK );
-	return 1;
+	return state.ToRValue ( result != MOAIFontReader::OK );
 }
 
 //================================================================//
@@ -270,39 +269,31 @@ int MOAIFreeTypeFontReader::OpenFontFile ( cc8* filename ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFreeTypeFontReader::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIFontReader::RegisterLuaClass ( state );
+void MOAIFreeTypeFontReader::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIFontReader::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "STROKER_CAP_STYLE_BUTT",				( u32 )FT_STROKER_LINECAP_BUTT );
-	state.SetField ( -1, "STROKER_CAP_STYLE_ROUND",				( u32 )FT_STROKER_LINECAP_ROUND );
-	state.SetField ( -1, "STROKER_CAP_STYLE_SQUARE",			( u32 )FT_STROKER_LINECAP_SQUARE );
+	state.DefineClassConst ( klass, "STROKER_CAP_STYLE_BUTT",				( u32 )FT_STROKER_LINECAP_BUTT );
+	state.DefineClassConst ( klass, "STROKER_CAP_STYLE_ROUND",				( u32 )FT_STROKER_LINECAP_ROUND );
+	state.DefineClassConst ( klass, "STROKER_CAP_STYLE_SQUARE",				( u32 )FT_STROKER_LINECAP_SQUARE );
 	
-	state.SetField ( -1, "STROKER_JOIN_STYLE_ROUND",			( u32 )FT_STROKER_LINEJOIN_ROUND );
-	state.SetField ( -1, "STROKER_JOIN_STYLE_BEVEL",			( u32 )FT_STROKER_LINEJOIN_BEVEL );
-	state.SetField ( -1, "STROKER_JOIN_STYLE_MITER_VARIABLE",	( u32 )FT_STROKER_LINEJOIN_MITER_VARIABLE );
-	state.SetField ( -1, "STROKER_JOIN_STYLE_MITER",			( u32 )FT_STROKER_LINEJOIN_MITER );
-	state.SetField ( -1, "STROKER_JOIN_STYLE_MITER_FIXED",		( u32 )FT_STROKER_LINEJOIN_MITER_FIXED );
+	state.DefineClassConst ( klass, "STROKER_JOIN_STYLE_ROUND",				( u32 )FT_STROKER_LINEJOIN_ROUND );
+	state.DefineClassConst ( klass, "STROKER_JOIN_STYLE_BEVEL",				( u32 )FT_STROKER_LINEJOIN_BEVEL );
+	state.DefineClassConst ( klass, "STROKER_JOIN_STYLE_MITER_VARIABLE",	( u32 )FT_STROKER_LINEJOIN_MITER_VARIABLE );
+	state.DefineClassConst ( klass, "STROKER_JOIN_STYLE_MITER",				( u32 )FT_STROKER_LINEJOIN_MITER );
+	state.DefineClassConst ( klass, "STROKER_JOIN_STYLE_MITER_FIXED",		( u32 )FT_STROKER_LINEJOIN_MITER_FIXED );
 	
-	luaL_Reg regTable [] = {
-		{ "extractSystemFont",		_extractSystemFont },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "extractSystemFont", _extractSystemFont, MRB_ARGS_NONE () );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIFreeTypeFontReader::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIFontReader::RegisterLuaFuncs ( state );
+void MOAIFreeTypeFontReader::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIFontReader::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "enableAntiAliasing",		_enableAntiAliasing },
-		{ "setPenColor",			_setPenColor },
-		{ "strokeGlyph",			_strokeGlyph },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "enableAntiAliasing", _enableAntiAliasing, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setPenColor", _setPenColor, MRB_ARGS_ARG ( 0, 4 ) );
+	state.DefineInstanceMethod ( klass, "strokeGlyph", _strokeGlyph, MRB_ARGS_ARG ( 1, 6 ) );
+
 }
 
 //----------------------------------------------------------------//
@@ -383,12 +374,12 @@ int MOAIFreeTypeFontReader::SelectGlyph ( u32 c ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIFreeTypeFontReader::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIFreeTypeFontReader::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	MOAIFontReader::SerializeIn ( state, serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIFreeTypeFontReader::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIFreeTypeFontReader::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	MOAIFontReader::SerializeOut ( state, serializer );
 }
 

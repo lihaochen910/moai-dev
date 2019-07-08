@@ -23,77 +23,91 @@
 //================================================================//
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_autoTimestamp ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
+mrb_value MOAIInputMgr::_autoTimestamp ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
 	
-	self->SetAutotimestamp ( state.GetValue < bool >( 1, true ));
+	self->SetAutotimestamp ( state.GetParamValue < bool >( 1, true ));
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_deferEvents ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
+mrb_value MOAIInputMgr::_deferEvents ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
 
-	bool defer = state.GetValue < bool >( 1, false );
+	bool defer = state.GetParamValue < bool >( 1, false );
 	self->DeferEvents ( defer );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_discardEvents ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
+mrb_value MOAIInputMgr::_discardEvents ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
 	
 	self->DiscardAll ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_playback ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
-	
-	self->mPlayback = state.GetValue < bool >( 1, true );
-	
-	return 0;
+mrb_value MOAIInputMgr::_getDevices ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
+
+	return self->mDevicesHash;
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_setAutosuspend ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
-	
-	self->mAutosuspend = state.GetValue < double >( 1, 0 );
-	
-	return 0;
+mrb_value MOAIInputMgr::_methodMissing ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
+
+	return mrb_hash_get ( M, self->mDevicesHash, mrb_sym2str ( M, mrb_symbol ( state.GetParamValue ( 1 ) )));
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_setEventCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
+mrb_value MOAIInputMgr::_playback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
 	
-	self->mEventCallback.SetRef ( state, 1 );
+	self->mPlayback = state.GetParamValue < bool >( 1, true );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_setRecorder ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
+mrb_value MOAIInputMgr::_setAutosuspend ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
 	
-	self->mRecorder.Set ( *self, state.GetLuaObject < MOAIStream >( 1, true ));
+	self->mAutosuspend = state.GetParamValue < double >( 1, 0 );
 	
-	return 0;
+	return context;
+}
+
+//----------------------------------------------------------------//
+mrb_value MOAIInputMgr::_setEventCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
+	
+	self->mEventCallback.SetRef ( state.GetParamValue ( 1 ) );
+	
+	return context;
+}
+
+//----------------------------------------------------------------//
+mrb_value MOAIInputMgr::_setRecorder ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
+	
+	self->mRecorder.Set ( *self, state.GetRubyObject < MOAIStream >( 1, true ));
+	
+	return context;
 
 }
 
 //----------------------------------------------------------------//
-int MOAIInputMgr::_suspendEvents ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIInputMgr, "" )
+mrb_value MOAIInputMgr::_suspendEvents ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIInputMgr, "" )
 	
-	self->SuspendEvents ( state.GetValue ( 1, false ));
+	self->SuspendEvents ( state.GetParamValue ( 1, false ));
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -187,10 +201,13 @@ void MOAIInputMgr::InvokeCallback ( u32 event, double timestamp ) {
 
 	if ( this->mEventCallback ) {
 		
-		MOAIScopedLuaState state = this->mEventCallback.GetSelf ();
-		lua_pushnumber ( state, event );
-		lua_pushnumber ( state, timestamp );
-		state.DebugCall ( 2, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 2 ];
+		argv [ 0 ] = state.ToRValue ( event );
+		argv [ 1 ] = state.ToRValue ( timestamp );
+
+		state.FuncCall ( this->mEventCallback, "call", 2, argv );
 	}
 }
 
@@ -214,6 +231,8 @@ MOAIInputMgr::MOAIInputMgr () :
 	RTTI_SINGLE ( MOAIAction )
 	
 	this->SetChunkSize ( CHUNK_SIZE );
+
+	this->mDevicesHash.SetRef ( mrb_hash_new ( MOAIRubyRuntime::Get ().State ()));
 }
 
 //----------------------------------------------------------------//
@@ -224,7 +243,7 @@ MOAIInputMgr::~MOAIInputMgr () {
 	}
 
 	for ( u32 i = 0; i < this->mDevices.Size (); ++i ) {
-		this->LuaRelease ( this->mDevices [ i ]);
+		this->RubyRelease ( this->mDevices [ i ]);
 	}
 	this->mRecorder.Set ( *this, 0 );
 }
@@ -277,30 +296,28 @@ void MOAIInputMgr::Record ( size_t size ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIInputMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIInputMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "INPUT_EVENT",			( u32 )INPUT_EVENT );
-	state.SetField ( -1, "FINISHED_UPDATE",		( u32 )FINISHED_UPDATE );
+	state.DefineClassConst ( klass, "INPUT_EVENT",			( u32 )INPUT_EVENT );
+	state.DefineClassConst ( klass, "FINISHED_UPDATE",		( u32 )FINISHED_UPDATE );
 
+	state.DefineStaticMethod ( klass, "autoTimestamp", _autoTimestamp, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "deferEvents", _deferEvents, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "discardEvents", _discardEvents, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getDevices", _getDevices, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "method_missing", _methodMissing, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "playback", _playback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setAutosuspend", _setAutosuspend, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setEventCallback", _setEventCallback, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "setRecorder", _setRecorder, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "suspendEvents", _suspendEvents, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_Reg regTable [] = {
-		{ "autoTimestamp",		_autoTimestamp },
-		{ "deferEvents",		_deferEvents },
-		{ "discardEvents",		_discardEvents },
-		{ "playback",			_playback },
-		{ "setAutosuspend",		_setAutosuspend },
-		{ "setEventCallback",	_setEventCallback },
-		{ "setRecorder",		_setRecorder },
-		{ "suspendEvents",		_suspendEvents },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIInputMgr::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIInputMgr::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
@@ -347,10 +364,10 @@ void MOAIInputMgr::SetAutotimestamp ( bool autotimestamp ) {
 //----------------------------------------------------------------//
 void MOAIInputMgr::SetConfigurationName ( cc8* name ) {
 
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	this->PushLuaClassTable ( state );
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+	//this->PushRubyClassTable ( state );
 	
-	state.SetField ( -1, LUAVAR_CONFIGURATION, name );
+	state.SetClassField ( this->GetRubyClass ()->GetRClass (), LUAVAR_CONFIGURATION, state.ToRValue ( name ) );
 }
 
 //----------------------------------------------------------------//
@@ -358,20 +375,26 @@ void MOAIInputMgr::SetDevice ( u8 deviceID, cc8* name ) {
 
 	if ( !( deviceID < this->mDevices.Size ())) return;
 
-	this->LuaRelease ( this->mDevices [ deviceID ]);
+	this->RubyRelease ( this->mDevices [ deviceID ]);
+
+	MOAIRubyState& state = MOAIRubyRuntime::Get ().GetMainState ();
 	
-	MOAIInputDevice* device = new MOAIInputDevice ();
+	MOAIInputDevice* device = state.CreateClassInstance < MOAIInputDevice >();
 	this->mDevices [ deviceID ] = device;
-	this->LuaRetain ( device );
+	this->RubyRetain ( device );
 	
 	if ( name ) {
 	
 		device->SetName ( name );
 	
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+		/*MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 		this->PushMemberTable ( state );
-		device->PushLuaUserdata ( state );
-		lua_setfield ( state, -2, name );
+		device->PushRubyUserdata ( state );
+		lua_setfield ( state, -2, name );*/
+
+		mrb_hash_set ( state, this->mDevicesHash, state.ToRValue ( name ), state.ToRValue < MOAIRubyObject* >( device ));
+
+		//state.SetClassField ( this->GetRubyClass ()->GetRClass (), name, state.ToRValue < MOAIRubyObject* >( device ) );
 	}
 }
 

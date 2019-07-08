@@ -19,16 +19,16 @@
 	@opt	number magnitude		Strength of the attractor.
 	@out	nil
 */
-int MOAIParticleForce::_initAttractor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleForce, "UNN" )
+mrb_value MOAIParticleForce::_initAttractor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleForce, "UNN" )
 
 	self->mShape	= ATTRACTOR;
-	self->mRadius	= state.GetValue < float >( 2, 0.0f );
-	self->mPull		= state.GetValue < float >( 3, 0.0f );
+	self->mRadius	= state.GetParamValue < float >( 1, 0.0f );
+	self->mPull		= state.GetParamValue < float >( 2, 0.0f );
 	
 	self->ScheduleUpdate ();
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -41,16 +41,16 @@ int MOAIParticleForce::_initAttractor ( lua_State* L ) {
 	@opt	number magnitude			Strength of the attractor.
 	@out	nil
 */
-int MOAIParticleForce::_initBasin ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleForce, "UNN" )
+mrb_value MOAIParticleForce::_initBasin ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleForce, "UNN" )
 
 	self->mShape	= BASIN;
-	self->mRadius	= state.GetValue < float >( 2, 0.0f );
-	self->mPull		= state.GetValue < float >( 3, 0.0f );
+	self->mRadius	= state.GetParamValue < float >( 1, 0.0f );
+	self->mPull		= state.GetParamValue < float >( 2, 0.0f );
 
 	self->ScheduleUpdate ();
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -62,16 +62,16 @@ int MOAIParticleForce::_initBasin ( lua_State* L ) {
 	@opt	number y
 	@out	nil
 */
-int MOAIParticleForce::_initLinear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleForce, "UNN" )
+mrb_value MOAIParticleForce::_initLinear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleForce, "UNN" )
 
 	self->mShape = LINEAR;
-	self->mVec.mX = state.GetValue < float >( 2, 0.0f );
-	self->mVec.mY = state.GetValue < float >( 3, 0.0f );
+	self->mVec.mX = state.GetParamValue < float >( 1, 0.0f );
+	self->mVec.mY = state.GetParamValue < float >( 2, 0.0f );
 
 	self->ScheduleUpdate ();
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -82,15 +82,15 @@ int MOAIParticleForce::_initLinear ( lua_State* L ) {
 	@in		number magnitude
 	@out	nil
 */
-int MOAIParticleForce::_initRadial ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleForce, "UN" )
+mrb_value MOAIParticleForce::_initRadial ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleForce, "UN" )
 
 	self->mShape = RADIAL;
-	self->mPull = state.GetValue < float >( 2, 0.0f );
+	self->mPull = state.GetParamValue < float >( 1, 0.0f );
 
 	self->ScheduleUpdate ();
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -102,12 +102,12 @@ int MOAIParticleForce::_initRadial ( lua_State* L ) {
 	@in		number type				One of MOAIParticleForce.FORCE, MOAIParticleForce.GRAVITY, MOAIParticleForce.OFFSET
 	@out	nil
 */
-int MOAIParticleForce::_setType ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIParticleForce, "UN" )
+mrb_value MOAIParticleForce::_setType ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIParticleForce, "UN" )
 
-	self->mType = state.GetValue < u32 >( 2, self->mType );
+	self->mType = state.GetParamValue < u32 >( 1, self->mType );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -204,30 +204,25 @@ MOAIParticleForce::~MOAIParticleForce () {
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleForce::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIParticleForce::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	this->MOAITransform::RegisterLuaClass ( state );
+	MOAITransform::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "FORCE", ( u32 )FORCE );
-	state.SetField ( -1, "GRAVITY", ( u32 )GRAVITY );
-	state.SetField ( -1, "OFFSET", ( u32 )OFFSET );
+	state.DefineClassConst ( klass, "FORCE", ( u32 )FORCE );
+	state.DefineClassConst ( klass, "GRAVITY", ( u32 )GRAVITY );
+	state.DefineClassConst ( klass, "OFFSET", ( u32 )OFFSET );
 }
 
 //----------------------------------------------------------------//
-void MOAIParticleForce::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIParticleForce::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	this->MOAITransform::RegisterLuaFuncs ( state );
+	MOAITransform::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "initAttractor",		_initAttractor },
-		{ "initBasin",			_initBasin },
-		{ "initLinear",			_initLinear },
-		{ "initRadial",			_initRadial },
-		{ "setType",			_setType },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "initAttractor",	_initAttractor, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "initBasin",		_initBasin, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "initLinear",		_initLinear, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "initRadial",		_initRadial, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setType",			_setType, MRB_ARGS_REQ ( 1 ) );
 }
 
 //================================================================//

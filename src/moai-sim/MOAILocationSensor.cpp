@@ -21,17 +21,18 @@
 	@out	number vaccuracy		The vertical (altitude) accuracy.
 	@out	number speed
 */
-int MOAILocationSensor::_getLocation ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILocationSensor, "U" )
+mrb_value MOAILocationSensor::_getLocation ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILocationSensor, "U" )
 	
-	lua_pushnumber ( state, self->mLongitude );
-	lua_pushnumber ( state, self->mLatitude );
-	lua_pushnumber ( state, self->mHAccuracy );
-	lua_pushnumber ( state, self->mAltitude );
-	lua_pushnumber ( state, self->mVAccuracy );
-	lua_pushnumber ( state, self->mSpeed );
+	mrb_value argv [ 6 ];
+	argv [ 0 ] = state.ToRValue ( self->mLongitude );
+	argv [ 1 ] = state.ToRValue ( self->mLatitude );
+	argv [ 2 ] = state.ToRValue ( self->mHAccuracy );
+	argv [ 3 ] = state.ToRValue ( self->mAltitude );
+	argv [ 4 ] = state.ToRValue ( self->mVAccuracy );
+	argv [ 5 ] = state.ToRValue ( self->mSpeed );
 	
-	return 6;
+	return mrb_ary_new_from_values ( state, 6, argv );
 }
 
 //----------------------------------------------------------------//
@@ -42,12 +43,11 @@ int MOAILocationSensor::_getLocation ( lua_State* L ) {
 	@opt	function callback			Default value is nil.
 	@out	nil
 */
-int MOAILocationSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAILocationSensor, "U" )
+mrb_value MOAILocationSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAILocationSensor, "U" )
 	
-	self->mCallback.SetRef ( state, 2 );
-	
-	return 0;
+	self->mCallback.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -95,33 +95,32 @@ void MOAILocationSensor::ParseEvent ( ZLStream& eventStream ) {
 	this->mSpeed		= eventStream.Read < float >( 0.0f );
 	
 	if ( this->mCallback ) {
-		MOAIScopedLuaState state = this->mCallback.GetSelf ();
-		lua_pushnumber ( state, this->mLongitude );
-		lua_pushnumber ( state, this->mLatitude );
-		lua_pushnumber ( state, this->mHAccuracy );
-		lua_pushnumber ( state, this->mAltitude );
-		lua_pushnumber ( state, this->mVAccuracy );
-		lua_pushnumber ( state, this->mSpeed );
-		state.DebugCall ( 6, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 6 ];
+		argv [ 0 ] = state.ToRValue ( this->mLongitude );
+		argv [ 1 ] = state.ToRValue ( this->mLatitude );
+		argv [ 2 ] = state.ToRValue ( this->mHAccuracy );
+		argv [ 3 ] = state.ToRValue ( this->mAltitude );
+		argv [ 4 ] = state.ToRValue ( this->mVAccuracy );
+		argv [ 5 ] = state.ToRValue ( this->mSpeed );
+
+		state.FuncCall ( this->mCallback, "call", 6, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAILocationSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAILocationSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAILocationSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAILocationSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getLocation",		_getLocation },
-		{ "setCallback",		_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getLocation", _getLocation, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

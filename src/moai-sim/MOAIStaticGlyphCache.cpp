@@ -18,7 +18,7 @@
 void MOAIStaticGlyphCache::ClearTextures () {
 
 	for ( u32 i = 0; i < this->mTextures.Size (); ++i ) {
-		this->LuaRelease ( this->mTextures [ i ]); // TODO: ref counting?
+		this->RubyRelease ( this->mTextures [ i ]); // TODO: ref counting?
 	}
 	this->mTextures.Clear ();
 }
@@ -69,13 +69,13 @@ MOAIStaticGlyphCache::~MOAIStaticGlyphCache () {
 }
 
 //----------------------------------------------------------------//
-void MOAIStaticGlyphCache::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIGlyphCache::RegisterLuaClass ( state );
+void MOAIStaticGlyphCache::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGlyphCache::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIStaticGlyphCache::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIGlyphCache::RegisterLuaFuncs ( state );
+void MOAIStaticGlyphCache::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIGlyphCache::RegisterRubyFuncs ( state, klass );
 }
 
 //----------------------------------------------------------------//
@@ -87,19 +87,20 @@ void MOAIStaticGlyphCache::ReserveTextures ( u32 total ) {
 
 
 //----------------------------------------------------------------//
-void MOAIStaticGlyphCache::SerializeIn ( MOAILuaState& state, MOAIDeserializer& serializer ) {
+void MOAIStaticGlyphCache::SerializeIn ( MOAIRubyState& state, MOAIDeserializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
-void MOAIStaticGlyphCache::SerializeOut ( MOAILuaState& state, MOAISerializer& serializer ) {
+void MOAIStaticGlyphCache::SerializeOut ( MOAIRubyState& state, MOAISerializer& serializer ) {
 	UNUSED ( state );
 	UNUSED ( serializer );
 }
 
 //----------------------------------------------------------------//
 int MOAIStaticGlyphCache::SetImage ( MOAIFont& font, MOAIImage& image ) {
+	MOAIRubyState& state = MOAIRubyRuntime::Get ().GetMainState ();
 
 	this->ClearTextures ();
 
@@ -114,7 +115,7 @@ int MOAIStaticGlyphCache::SetImage ( MOAIFont& font, MOAIImage& image ) {
 	u32 y = 0;
 	for ( u32 i = 0; i < totalTextures; ++i ) {
 		
-		MOAITexture* texture = new MOAITexture ();
+		MOAITexture* texture = state.CreateClassInstance < MOAITexture >();
 		
 		u32 textureHeight = height - y;
 		textureHeight = textureHeight > width ? width : textureHeight;
@@ -131,6 +132,6 @@ int MOAIStaticGlyphCache::SetImage ( MOAIFont& font, MOAIImage& image ) {
 
 //----------------------------------------------------------------//
 void MOAIStaticGlyphCache::SetTexture ( int id, MOAITexture* texture ) {
-	this->LuaRetain ( texture ); // TODO: ref counting?
+	this->RubyRetain ( texture ); // TODO: ref counting?
 	this->mTextures [ id ] = texture;
 }

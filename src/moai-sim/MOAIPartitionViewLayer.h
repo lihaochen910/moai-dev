@@ -43,12 +43,12 @@ private:
 	bool		mPartitionCull2D;
 
 	//----------------------------------------------------------------//
-	static int		_getPropViewList		( lua_State* L );
-	static int		_getSortMode			( lua_State* L );
-	static int		_getSortScale			( lua_State* L );
-	static int		_setPartitionCull2D		( lua_State* L );
-	static int		_setSortMode			( lua_State* L );
-	static int		_setSortScale			( lua_State* L );
+	static mrb_value		_getPropViewList		( mrb_state* M, mrb_value context );
+	static mrb_value		_getSortMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_getSortScale			( mrb_state* M, mrb_value context );
+	static mrb_value		_setPartitionCull2D		( mrb_state* M, mrb_value context );
+	static mrb_value		_setSortMode			( mrb_state* M, mrb_value context );
+	static mrb_value		_setSortScale			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			DrawPartition			( MOAIPartition& partition );
@@ -60,15 +60,15 @@ private:
 
 public:
 		
-	DECL_LUA_FACTORY ( MOAIPartitionViewLayer )
+	DECL_RUBY_FACTORY ( MOAIPartitionViewLayer, MOAILayer )
 	
 	//----------------------------------------------------------------//
 					MOAIPartitionViewLayer		();
 					~MOAIPartitionViewLayer		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
-	void			SerializeIn					( MOAILuaState& state, MOAIDeserializer& serializer );
-	void			SerializeOut				( MOAILuaState& state, MOAISerializer& serializer );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
+	void			SerializeIn					( MOAIRubyState& state, MOAIDeserializer& serializer );
+	void			SerializeOut				( MOAIRubyState& state, MOAISerializer& serializer );
 };
 
 #endif

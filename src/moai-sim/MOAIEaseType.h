@@ -45,13 +45,13 @@
 	@const	BACK_SMOOTH		
 */
 class MOAIEaseType :
-	public ZLContextClass < MOAIEaseType, MOAILuaObject > {
+	public ZLContextClass < MOAIEaseType, MOAIRubyObject > {
 public:
 	
-	DECL_LUA_SINGLETON ( MOAIEaseType )
+	DECL_RUBY_SINGLETON ( MOAIEaseType )
 	
 	//----------------------------------------------------------------//
-	void				RegisterLuaClass		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

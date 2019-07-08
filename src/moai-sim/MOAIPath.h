@@ -9,7 +9,7 @@
 //================================================================//
 // TODO: doxygen
 class MOAIPath :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	ZLLeanArray < ZLVec2D >				mControlPoints;
@@ -21,18 +21,18 @@ private:
 	float			mLength;
 
 	//----------------------------------------------------------------//
-	static int		_bless				( lua_State* L );
-	static int		_evaluate			( lua_State* L );
-	static int		_getLength			( lua_State* L );
-	static int		_reserve			( lua_State* L );
-	static int		_setPoint			( lua_State* L );
-	static int		_setThresholds		( lua_State* L );
+	static mrb_value		_bless				( mrb_state* M, mrb_value context );
+	static mrb_value		_evaluate			( mrb_state* M, mrb_value context );
+	static mrb_value		_getLength			( mrb_state* M, mrb_value context );
+	static mrb_value		_reserve			( mrb_state* M, mrb_value context );
+	static mrb_value		_setPoint			( mrb_state* M, mrb_value context );
+	static mrb_value		_setThresholds		( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIPath )
+	DECL_RUBY_FACTORY ( MOAIPath, MOAIRubyObject )
 	
 	GET_SET ( float, Flatness, mFlatness )
 	GET_SET ( float, Angle, mAngle )
@@ -47,8 +47,8 @@ public:
 	ZLCubicBezier2D		GetSegmentForTime		( float t, float* st = 0 );
 						MOAIPath				();
 						~MOAIPath				();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void				Reserve					( size_t size );
 	void				SetPoint				( size_t idx, float x, float y );
 };

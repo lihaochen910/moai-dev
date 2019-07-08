@@ -25,11 +25,10 @@ public:
 	@in		MOAIButtonSensor self
 	@out	boolean wasPressed
 */
-int MOAIButtonSensor::_down ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIButtonSensor, "U" )
+mrb_value MOAIButtonSensor::_down ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIButtonSensor, "U" )
 	
-	lua_pushboolean ( state, self->ButtonDown ());
-	return 1;
+	return state.ToRValue ( self->ButtonDown () );
 }
 
 //----------------------------------------------------------------//
@@ -39,11 +38,10 @@ int MOAIButtonSensor::_down ( lua_State* L ) {
 	@in		MOAIButtonSensor self
 	@out	boolean isDown
 */
-int MOAIButtonSensor::_isDown ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIButtonSensor, "U" )
+mrb_value MOAIButtonSensor::_isDown ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIButtonSensor, "U" )
 	
-	lua_pushboolean ( state, self->ButtonIsDown ());
-	return 1;
+	return state.ToRValue ( self->ButtonIsDown () );
 }
 
 //----------------------------------------------------------------//
@@ -53,11 +51,10 @@ int MOAIButtonSensor::_isDown ( lua_State* L ) {
 	@in		MOAIButtonSensor self
 	@out	boolean isUp
 */
-int MOAIButtonSensor::_isUp ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIButtonSensor, "U" )
+mrb_value MOAIButtonSensor::_isUp ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIButtonSensor, "U" )
 	
-	lua_pushboolean ( state, self->ButtonIsUp ());
-	return 1;
+	return state.ToRValue ( self->ButtonIsUp () );
 }
 
 //----------------------------------------------------------------//
@@ -67,11 +64,10 @@ int MOAIButtonSensor::_isUp ( lua_State* L ) {
 	@in		MOAIButtonSensor self
 	@out	boolean wasReleased
 */
-int MOAIButtonSensor::_up ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIButtonSensor, "U" )
+mrb_value MOAIButtonSensor::_up ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIButtonSensor, "U" )
 	
-	lua_pushboolean ( state, self->ButtonUp ());
-	return 1;
+	return state.ToRValue ( self->ButtonUp () );
 }
 
 //----------------------------------------------------------------//
@@ -82,11 +78,11 @@ int MOAIButtonSensor::_up ( lua_State* L ) {
 	@opt	function callback		Default value is nil.
 	@out	nil
 */
-int MOAIButtonSensor::_setCallback ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIButtonSensor, "U" )
+mrb_value MOAIButtonSensor::_setCallback ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIButtonSensor, "U" )
 	
-	self->mOnButton.SetRef ( state, 2 );
-	return 0;
+	self->mOnButton.SetRef ( state.GetParamValue ( 1 ) );
+	return context;
 }
 
 //================================================================//
@@ -155,35 +151,36 @@ void MOAIButtonSensor::ParseEvent ( ZLStream& eventStream ) {
 		this->mState &= ~IS_DOWN;
 		this->mState |= UP;
 	}
+
+	//printf ( "MOAIButtonSensor::ParseEvent() %d\n", down );
 	
 	if ( this->mOnButton ) {
-		MOAIScopedLuaState state = this->mOnButton.GetSelf ();
-		lua_pushboolean ( state, down );
-		state.DebugCall ( 1, 0 );
+		MOAIRubyState& state = MOAIRubyRuntime::Get ().State ();
+
+		mrb_value argv [ 1 ];
+		argv [ 0 ] = state.ToRValue ( down );
+
+		state.FuncCall ( this->mOnButton, "call", 1, argv );
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIButtonSensor::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIButtonSensor::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaClass ( state );
+	MOAISensor::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIButtonSensor::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIButtonSensor::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAISensor::RegisterLuaFuncs ( state );
+	MOAISensor::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "down",				_down },
-		{ "isDown",				_isDown },
-		{ "isUp",				_isUp },
-		{ "up",					_up },
-		{ "setCallback",		_setCallback },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "down", _down, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isDown", _isDown, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isUp", _isUp, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "up", _up, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCallback", _setCallback, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

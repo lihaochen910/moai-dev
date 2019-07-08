@@ -110,12 +110,12 @@
 	@const	OEM_102				This is either the [<] key or the [\] key on the RT 102-key keyboard.
 */
 class MOAIKeyCode :
-	public ZLContextClass < MOAIKeyCode, MOAILuaObject > {
+	public ZLContextClass < MOAIKeyCode, MOAIRubyObject > {
 public:
 	
-	DECL_LUA_SINGLETON ( MOAIKeyCode )
+	DECL_RUBY_SINGLETON ( MOAIKeyCode )
 	
 	//----------------------------------------------------------------//
-	void				RegisterLuaClass		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
 };
 #endif
