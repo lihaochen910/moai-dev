@@ -17,21 +17,21 @@ class MOAIBox2DPulleyJoint :
 private:
 
 	//----------------------------------------------------------------//
-	static int		_getGroundAnchorA		( lua_State* L );
-	static int		_getGroundAnchorB		( lua_State* L );
-	static int		_getLength1				( lua_State* L );
-	static int		_getLength2				( lua_State* L );
-	static int		_getRatio				( lua_State* L );
+	static mrb_value		_getGroundAnchorA		( mrb_state* M, mrb_value context );
+	static mrb_value		_getGroundAnchorB		( mrb_state* M, mrb_value context );
+	static mrb_value		_getLength1				( mrb_state* M, mrb_value context );
+	static mrb_value		_getLength2				( mrb_state* M, mrb_value context );
+	static mrb_value		_getRatio				( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DPulleyJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DPulleyJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DPulleyJoint	();
 					~MOAIBox2DPulleyJoint	();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

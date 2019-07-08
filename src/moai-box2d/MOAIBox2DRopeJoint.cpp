@@ -23,18 +23,17 @@ MOAIBox2DRopeJoint::MOAIBox2DRopeJoint () {
  @in		MOAIBox2DRopeJoint self
  @out	number limitState	one of the "LimitState" codes
  */
-int MOAIBox2DRopeJoint::_getLimitState ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRopeJoint, "U" )
+mrb_value MOAIBox2DRopeJoint::_getLimitState ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRopeJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2RopeJoint* joint = ( b2RopeJoint* )self->mJoint;
-	state.Push ( joint->GetLimitState() );
 	
-	return 1;
+	return state.ToRValue ( ( u32 )joint->GetLimitState () );
 }
 
 //----------------------------------------------------------------//
@@ -44,20 +43,19 @@ int MOAIBox2DRopeJoint::_getLimitState ( lua_State* L ) {
 	@in		MOAIBox2DRopeJoint self
 	@out	number maxLength			in units, converted from meters.
  */
-int MOAIBox2DRopeJoint::_getMaxLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRopeJoint, "U" )
+mrb_value MOAIBox2DRopeJoint::_getMaxLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRopeJoint, "U" )
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2RopeJoint* joint = ( b2RopeJoint* )self->mJoint;
-	state.Push ( joint->GetMaxLength() / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMaxLength() / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -68,21 +66,21 @@ int MOAIBox2DRopeJoint::_getMaxLength ( lua_State* L ) {
 	@in		number maxLength			in units, converted to meters. Default is 0.
 	@out	nil
  */
-int MOAIBox2DRopeJoint::_setMaxLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRopeJoint, "U" )
+mrb_value MOAIBox2DRopeJoint::_setMaxLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRopeJoint, "U" )
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float length = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
+	float length = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
 	b2RopeJoint* joint = ( b2RopeJoint* )self->mJoint;
 	joint->SetMaxLength ( length );
 	
-	return 1;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -91,19 +89,16 @@ MOAIBox2DRopeJoint::~MOAIBox2DRopeJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DRopeJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DRopeJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DRopeJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
-	luaL_Reg regTable [] = {
-		{ "getLimitState",			_getLimitState },
-		{ "getMaxLength",			_getMaxLength },
-		{ "setMaxLength",			_setMaxLength },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+void MOAIBox2DRopeJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getLimitState",			_getLimitState, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMaxLength",			_getMaxLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setMaxLength",			_setMaxLength, MRB_ARGS_REQ ( 1 ) );
+
 }

@@ -20,13 +20,13 @@
 	@in		MOAIBox2DJoint self
 	@out	nil
 */
-int MOAIBox2DJoint::_destroy ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_destroy ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	
 	if ( self->mWorld ) {
 		self->mWorld->ScheduleDestruction ( *self );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -37,20 +37,22 @@ int MOAIBox2DJoint::_destroy ( lua_State* L ) {
 	@out	number anchorX		in units, in world coordinates, converted to meters
 	@out	number anchorY		in units, in world coordinates, converted to meters
 */
-int MOAIBox2DJoint::_getAnchorA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_getAnchorA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 anchor = self->mJoint->GetAnchorA ();
-	lua_pushnumber ( state, anchor.x / unitsToMeters );
-	lua_pushnumber ( state, anchor.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( anchor.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( anchor.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -61,20 +63,22 @@ int MOAIBox2DJoint::_getAnchorA ( lua_State* L ) {
 	@out	number anchorX		in units, in world coordinates, converted from meters
 	@out	number anchorY		in units, in world coordinates, converted from meters
 */
-int MOAIBox2DJoint::_getAnchorB ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_getAnchorB ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 anchor = self->mJoint->GetAnchorB ();
-	lua_pushnumber ( state, anchor.x / unitsToMeters );
-	lua_pushnumber ( state, anchor.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( anchor.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( anchor.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -84,18 +88,16 @@ int MOAIBox2DJoint::_getAnchorB ( lua_State* L ) {
 	@in		MOAIBox2DJoint self
 	@out	MOAIBox2DBody body
 */
-int MOAIBox2DJoint::_getBodyA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_getBodyA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	MOAIBox2DBody* body = ( MOAIBox2DBody* )self->mJoint->GetBodyA ()->GetUserData ();
-	body->PushLuaUserdata ( state );
-	
-	return 1;
+	return body->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -105,18 +107,16 @@ int MOAIBox2DJoint::_getBodyA ( lua_State* L ) {
 	@in		MOAIBox2DJoint self
 	@out	MOAIBox2DBody body
 */
-int MOAIBox2DJoint::_getBodyB ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_getBodyB ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	MOAIBox2DBody* body = ( MOAIBox2DBody* )self->mJoint->GetBodyB ()->GetUserData ();
-	body->PushLuaUserdata ( state );
-	
-	return 1;
+	return body->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -127,22 +127,24 @@ int MOAIBox2DJoint::_getBodyB ( lua_State* L ) {
 	@out	number forceX	in kg * units / s^2 converted from N [kg * m / s^2]
 	@out	number forceY	in kg * units / s^2 converted from N [kg * m / s^2]
 */
-int MOAIBox2DJoint::_getReactionForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_getReactionForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float step = ( float )( 1.0 / MOAISim::Get ().GetStep ());
 	
 	b2Vec2 force = self->mJoint->GetReactionForce ( step );
-	lua_pushnumber ( state, force.x / unitsToMeters );
-	lua_pushnumber ( state, force.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( force.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( force.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -152,12 +154,12 @@ int MOAIBox2DJoint::_getReactionForce ( lua_State* L ) {
 	@in		MOAIBox2DJoint self
 	@out	number reactionTorque	in (kg * units / s^2) * units, converted from N-m.
 */
-int MOAIBox2DJoint::_getReactionTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DJoint, "U" )
+mrb_value MOAIBox2DJoint::_getReactionTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float step = ( float )( 1.0 / MOAISim::Get ().GetStep ());
@@ -165,9 +167,8 @@ int MOAIBox2DJoint::_getReactionTorque ( lua_State* L ) {
 	/* Convert from N-m (kg m / s^2) * m to (kg unit / s^2) * unit */
 	float unitsToMeters = self->GetUnitsToMeters();
 	float torque = self->mJoint->GetReactionTorque ( step );
-	lua_pushnumber ( state, torque / ( unitsToMeters * unitsToMeters ) );
 	
-	return 1;
+	return state.ToRValue ( torque / ( unitsToMeters * unitsToMeters ) );
 }
 
 //================================================================//
@@ -185,14 +186,14 @@ void MOAIBox2DJoint::Clear () {
 		if ( b2BodyA ) {
 			MOAIBox2DBody* bodyA = ( MOAIBox2DBody* )b2BodyA->GetUserData ();
 			if ( bodyA ) {
-				this->LuaRelease ( bodyA );
+				this->RubyRelease ( bodyA );
 			}
 		}
 		
 		if ( b2BodyB ) {
 			MOAIBox2DBody* bodyB = ( MOAIBox2DBody* )b2BodyB->GetUserData ();
 			if ( bodyB ) {
-				this->LuaRelease ( bodyB );
+				this->RubyRelease ( bodyB );
 			}
 		}
 		
@@ -216,7 +217,7 @@ MOAIBox2DJoint::MOAIBox2DJoint () :
 	mJoint ( 0 ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -225,26 +226,21 @@ MOAIBox2DJoint::~MOAIBox2DJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DPrim::RegisterLuaClass ( state );
+void MOAIBox2DJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DPrim::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DPrim::RegisterLuaFuncs ( state );
+void MOAIBox2DJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DPrim::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "destroy",				_destroy },
-		{ "getAnchorA",				_getAnchorA },
-		{ "getAnchorB",				_getAnchorB },
-		{ "getBodyA",				_getBodyA },
-		{ "getBodyB",				_getBodyB },
-		{ "getReactionForce",		_getReactionForce },
-		{ "getReactionTorque",		_getReactionTorque },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "destroy",				_destroy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAnchorA",				_getAnchorA, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAnchorB",				_getAnchorB, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getBodyA",				_getBodyA, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getBodyB",				_getBodyB, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getReactionForce",		_getReactionForce, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getReactionTorque",		_getReactionTorque, MRB_ARGS_NONE () );
 }
 
 //----------------------------------------------------------------//

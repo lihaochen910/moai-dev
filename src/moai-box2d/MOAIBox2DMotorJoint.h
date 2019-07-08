@@ -17,30 +17,30 @@ class MOAIBox2DMotorJoint :
 private:
 
 	//----------------------------------------------------------------//
-	static int		_setLinearOffset			( lua_State* L );
-	static int		_getLinearOffset			( lua_State* L );
+	static mrb_value		_setLinearOffset			( mrb_state* M, mrb_value context );
+	static mrb_value		_getLinearOffset			( mrb_state* M, mrb_value context );
 
-	static int		_setAngularOffset			( lua_State* L );
-	static int		_getAngularOffset			( lua_State* L );
+	static mrb_value		_setAngularOffset			( mrb_state* M, mrb_value context );
+	static mrb_value		_getAngularOffset			( mrb_state* M, mrb_value context );
 
-	static int		_setMaxForce				( lua_State* L );
-	static int		_getMaxForce				( lua_State* L );
+	static mrb_value		_setMaxForce				( mrb_state* M, mrb_value context );
+	static mrb_value		_getMaxForce				( mrb_state* M, mrb_value context );
 
-	static int		_setMaxTorque				( lua_State* L );
-	static int		_getMaxTorque				( lua_State* L );
+	static mrb_value		_setMaxTorque				( mrb_state* M, mrb_value context );
+	static mrb_value		_getMaxTorque				( mrb_state* M, mrb_value context );
 
-	static int		_setCorrectionFactor		( lua_State* L );
-	static int		_getCorrectionFactor		( lua_State* L );
+	static mrb_value		_setCorrectionFactor		( mrb_state* M, mrb_value context );
+	static mrb_value		_getCorrectionFactor		( mrb_state* M, mrb_value context );
 	 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DMotorJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DMotorJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DMotorJoint		();
 					~MOAIBox2DMotorJoint		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

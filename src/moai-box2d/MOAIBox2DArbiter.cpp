@@ -20,13 +20,14 @@
  @out	number normal.x
  @out	number normal.y
  */
-int MOAIBox2DArbiter::_getContactNormal ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DArbiter, "U" )
+mrb_value MOAIBox2DArbiter::_getContactNormal ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DArbiter, "U" )
 	
 	self->AffirmContactData ();
-	state.Push ( self->mContactNormal.x );
-	state.Push ( self->mContactNormal.y );
-	return 2;
+	mrb_value ary = mrb_ary_new ( M );
+	mrb_ary_push ( M, ary, state.ToRValue ( self->mContactNormal.x ));
+	mrb_ary_push ( M, ary, state.ToRValue ( self->mContactNormal.y ));
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -39,20 +40,19 @@ int MOAIBox2DArbiter::_getContactNormal ( lua_State* L ) {
 	@out	number p2.x
 	@out	number p2.y
 */
-int MOAIBox2DArbiter::_getContactPoints ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DArbiter, "U" )
+mrb_value MOAIBox2DArbiter::_getContactPoints ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DArbiter, "U" )
 	
 	self->AffirmContactData ();
 
 	float u2m = self->GetUnitsToMeters();
-	u32 count = 0;
+	mrb_value ary = mrb_ary_new ( M );
+
 	for ( u32 i = 0; i < self->mTotalPoints; ++i ) {
-		state.Push ( self->mContactPoints [ i ].x / u2m );
-		state.Push ( self->mContactPoints [ i ].y / u2m );
-		count += 2;
+		mrb_ary_push ( M, ary, state.ToRValue ( self->mContactPoints [ i ].x / u2m ));
+		mrb_ary_push ( M, ary, state.ToRValue ( self->mContactPoints [ i ].y / u2m ));
 	}
-	
-	return count;
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -62,16 +62,15 @@ int MOAIBox2DArbiter::_getContactPoints ( lua_State* L ) {
 	@in		MOAIBox2DArbiter self
 	@out	number impulse			Impulse in kg * units / s converted from kg * m / s
 */
-int MOAIBox2DArbiter::_getNormalImpulse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DArbiter, "U" )
+mrb_value MOAIBox2DArbiter::_getNormalImpulse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DArbiter, "U" )
 
 	self->AffirmContactData ();
 	float impulse = self->mNormalImpulse;
 	const float metersToUnits = 1 / self->GetUnitsToMeters();
 	impulse = impulse * metersToUnits;
 
-	state.Push ( impulse );
-	return 1;
+	return state.ToRValue ( impulse );
 }
 
 //----------------------------------------------------------------//
@@ -81,16 +80,15 @@ int MOAIBox2DArbiter::_getNormalImpulse ( lua_State* L ) {
 	@in		MOAIBox2DArbiter self
 	@out	number impulse			Impulse in kg * units / s converted from kg * m / s
 */
-int MOAIBox2DArbiter::_getTangentImpulse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DArbiter, "U" )
+mrb_value MOAIBox2DArbiter::_getTangentImpulse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DArbiter, "U" )
 
 	self->AffirmContactData ();
 	float impulse = self->mTangentImpulse;
 	const float metersToUnits = 1 / self->GetUnitsToMeters();
 	impulse = impulse * metersToUnits;
 
-	state.Push ( impulse );
-	return 1;
+	return state.ToRValue ( impulse );
 }
 
 //----------------------------------------------------------------//
@@ -101,13 +99,13 @@ int MOAIBox2DArbiter::_getTangentImpulse ( lua_State* L ) {
 	@in		boolean enabled
 	@out	nil
 */
-int MOAIBox2DArbiter::_setContactEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DArbiter, "U" )
+mrb_value MOAIBox2DArbiter::_setContactEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DArbiter, "U" )
 	
-	bool enabled = state.GetValue < bool >( 2, false );
+	bool enabled = state.GetParamValue < bool >( 1, false );
 	self->mContact->SetEnabled ( enabled );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -202,7 +200,7 @@ MOAIBox2DArbiter::MOAIBox2DArbiter ( ) :
 	mWorld ( NULL ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -213,7 +211,7 @@ MOAIBox2DArbiter::MOAIBox2DArbiter ( const MOAIBox2DWorld& world ) :
 	mWorld ( &world ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -257,34 +255,29 @@ void MOAIBox2DArbiter::PreSolve ( b2Contact* contact, const b2Manifold* oldManif
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DArbiter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIBox2DArbiter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "ALL", ( u32 )ALL );
-	state.SetField ( -1, "BEGIN", ( u32 )BEGIN );
-	state.SetField ( -1, "END", ( u32 )END );
-	state.SetField ( -1, "PRE_SOLVE", ( u32 )PRE_SOLVE );
-	state.SetField ( -1, "POST_SOLVE", ( u32 )POST_SOLVE );
-	
-	luaL_Reg regTable [] = {
-		{ "new",							MOAILuaObject::_alertNewIsUnsupported },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineClassConst ( klass, "ALL", ( u32 )ALL );
+	state.DefineClassConst ( klass, "BEGIN", ( u32 )BEGIN );
+	state.DefineClassConst ( klass, "END", ( u32 )END );
+	state.DefineClassConst ( klass, "PRE_SOLVE", ( u32 )PRE_SOLVE );
+	state.DefineClassConst ( klass, "POST_SOLVE", ( u32 )POST_SOLVE );
+
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DArbiter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIBox2DArbiter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getContactNormal",			_getContactNormal },
-		{ "getContactPoints",			_getContactPoints },
-		{ "getNormalImpulse",			_getNormalImpulse },
-		{ "getTangentImpulse",			_getTangentImpulse },
-		{ "setContactEnabled",			_setContactEnabled },
-		{ "new",						MOAILuaObject::_alertNewIsUnsupported },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getContactNormal", _getContactNormal, MRB_ARGS_NONE ());
+	state.DefineInstanceMethod ( klass, "getContactPoints", _getContactPoints, MRB_ARGS_NONE ());
+	state.DefineInstanceMethod ( klass, "getNormalImpulse", _getNormalImpulse, MRB_ARGS_NONE ());
+	state.DefineInstanceMethod ( klass, "getTangentImpulse", _getTangentImpulse, MRB_ARGS_NONE ());
+	state.DefineInstanceMethod ( klass, "setContactEnabled", _setContactEnabled, MRB_ARGS_REQ ( 1 ));
 	
-	luaL_register ( state, 0, regTable );
+}
+
+//----------------------------------------------------------------//
+void MOAIBox2DArbiter::SetWorld ( const MOAIBox2DWorld& world ) {
+	
+	this->mWorld = &world;
 }

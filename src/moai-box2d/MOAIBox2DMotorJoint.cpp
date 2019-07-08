@@ -22,24 +22,24 @@
 	@opt	number y	target linear offset, in frame A, in meters
 	@out	nil	
 */
-int MOAIBox2DMotorJoint::_setLinearOffset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value MOAIBox2DMotorJoint::_setLinearOffset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters();
 
-	float x = state.GetValue < float >( 2, 0.0f );
-	float y = state.GetValue < float >( 3, 0.0f );
+	float x = state.GetParamValue < float >( 1, 0.0f );
+	float y = state.GetParamValue < float >( 2, 0.0f );
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	b2Vec2 offset( x * unitsToMeters, y * unitsToMeters );
 	joint->SetLinearOffset( offset );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -51,12 +51,12 @@ int MOAIBox2DMotorJoint::_setLinearOffset ( lua_State* L ) {
 	@out	number y	target linear offset, in frame A, in meters
 */
 
-int MOAIBox2DMotorJoint::_getLinearOffset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value MOAIBox2DMotorJoint::_getLinearOffset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters();
@@ -64,10 +64,11 @@ int MOAIBox2DMotorJoint::_getLinearOffset ( lua_State* L ) {
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	const b2Vec2& offset = joint->GetLinearOffset();
 	
-	state.Push ( offset.x / unitsToMeters );
-	state.Push ( offset.y / unitsToMeters );
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( offset.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( offset.y / unitsToMeters );
 
-	return 2;
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -78,20 +79,20 @@ int MOAIBox2DMotorJoint::_getLinearOffset ( lua_State* L ) {
 	@opt	number angle	in degrees
 	@out	nil	
 */
-int	MOAIBox2DMotorJoint::_setAngularOffset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value	MOAIBox2DMotorJoint::_setAngularOffset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float angle = state.GetValue < float >( 2, 0.0f );
+	float angle = state.GetParamValue < float >( 1, 0.0f );
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	joint->SetAngularOffset( angle * ( float )D2R );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -101,18 +102,17 @@ int	MOAIBox2DMotorJoint::_setAngularOffset ( lua_State* L ) {
 	@in		MOAIBox2DMotorJoint self
 	@out	number angle	in degrees, converted from radians
 */
-int	MOAIBox2DMotorJoint::_getAngularOffset ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value	MOAIBox2DMotorJoint::_getAngularOffset ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
-	state.Push ( joint->GetAngularOffset () * ( float )R2D );
 	
-	return 1;	
+	return state.ToRValue ( joint->GetAngularOffset () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -123,21 +123,21 @@ int	MOAIBox2DMotorJoint::_getAngularOffset ( lua_State* L ) {
 	@opt	number force	maximum friction force in kg * units / s^2, converted to N [kg * m / s^2]
 	@out	nil
 */
-int	MOAIBox2DMotorJoint::_setMaxForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value	MOAIBox2DMotorJoint::_setMaxForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters();
-	float force = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
+	float force = state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	joint->SetMaxForce( force );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -147,20 +147,19 @@ int	MOAIBox2DMotorJoint::_setMaxForce ( lua_State* L ) {
 	@in		MOAIBox2DMotorJoint self
 	@out	number force	maximum friction force in kg * units / s^2, converted from N [kg * m / s^2].
 */
-int	MOAIBox2DMotorJoint::_getMaxForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value	MOAIBox2DMotorJoint::_getMaxForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
-	state.Push ( joint->GetMaxForce() / unitsToMeters );
 	
-	return 1;	
+	return state.ToRValue ( joint->GetMaxForce () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -171,22 +170,22 @@ int	MOAIBox2DMotorJoint::_getMaxForce ( lua_State* L ) {
     @opt	number	torque	maximum friction torque in kg * units / s^2 * units, converted to N-m [kg * m / s^2 * m].		
 	@out	nil
 */
-int	MOAIBox2DMotorJoint::_setMaxTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value	MOAIBox2DMotorJoint::_setMaxTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters();
 	/* Convert to/from N-m (kg m / s^2) * m from/to (kg unit / s^2) * unit */
-	float torque = state.GetValue < float >( 2, 0.0f ) * unitsToMeters * unitsToMeters;
+	float torque = state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters * unitsToMeters;
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	joint->SetMaxTorque( torque );
 
-	return 0;
+	return mrb_nil_value ();
 }
  
 //----------------------------------------------------------------//
@@ -196,20 +195,19 @@ int	MOAIBox2DMotorJoint::_setMaxTorque ( lua_State* L ) {
 	@in		MOAIBox2DMotorJoint self
     @out	number	torque	maximum friction torque in (kg * units / s^2) * units, converted from N-m.		
 */
-int MOAIBox2DMotorJoint::_getMaxTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value MOAIBox2DMotorJoint::_getMaxTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	float unitsToMeters = self->GetUnitsToMeters();
 	/* Convert to/from N-m (kg m / s^2) * m from/to (kg unit / s^2) * unit */
-	state.Push ( joint->GetMaxTorque() / ( unitsToMeters * unitsToMeters ) );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMaxTorque () / ( unitsToMeters * unitsToMeters ) );
 }
 
 //----------------------------------------------------------------//
@@ -220,20 +218,20 @@ int MOAIBox2DMotorJoint::_getMaxTorque ( lua_State* L ) {
     @opt	number	factor		position correction factor in the range [0,1]
 	@out	nil
 */
-int MOAIBox2DMotorJoint::_setCorrectionFactor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value MOAIBox2DMotorJoint::_setCorrectionFactor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float factor = state.GetValue < float >( 2, 0.0f );
+	float factor = state.GetParamValue < float >( 2, 0.0f );
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
 	joint->SetCorrectionFactor( factor );
 		
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -243,18 +241,17 @@ int MOAIBox2DMotorJoint::_setCorrectionFactor ( lua_State* L ) {
 	@in		MOAIBox2DMotorJoint self
     @out	number	factor		position correction factor in the range [0,1]
 */
-int MOAIBox2DMotorJoint::_getCorrectionFactor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMotorJoint, "U" )
+mrb_value MOAIBox2DMotorJoint::_getCorrectionFactor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMotorJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MotorJoint* joint = ( b2MotorJoint* )self->mJoint;
-	state.Push ( joint->GetCorrectionFactor() );
 	
-	return 1;	
+	return state.ToRValue ( joint->GetCorrectionFactor () );
 }
 
 //================================================================//
@@ -274,27 +271,23 @@ MOAIBox2DMotorJoint::~MOAIBox2DMotorJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DMotorJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DMotorJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DMotorJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DMotorJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "setLinearOffset", 		_setLinearOffset },
-		{ "getLinearOffset", 		_getLinearOffset },
-		{ "setAngularOffset", 		_setAngularOffset },
-		{ "getAngularOffset", 		_getAngularOffset },
-		{ "setMaxForce", 			_setMaxForce },
-		{ "getMaxForce", 			_getMaxForce },
-		{ "setMaxTorque", 			_setMaxTorque },
-		{ "getMaxTorque", 			_getMaxTorque },
-		{ "setCorrectionFactor",	_setCorrectionFactor },
-		{ "getCorrectionFactor", 	_getCorrectionFactor },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "setLinearOffset", 		_setLinearOffset, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "getLinearOffset", 		_getLinearOffset, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setAngularOffset", 		_setAngularOffset, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getAngularOffset", 		_getAngularOffset, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setMaxForce", 			_setMaxForce, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getMaxForce", 			_getMaxForce, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setMaxTorque", 			_setMaxTorque, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getMaxTorque", 			_getMaxTorque, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCorrectionFactor",	_setCorrectionFactor, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getCorrectionFactor", 	_getCorrectionFactor, MRB_ARGS_NONE () );
+
 }

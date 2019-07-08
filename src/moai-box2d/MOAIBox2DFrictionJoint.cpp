@@ -20,19 +20,18 @@
 	@in		MOAIBox2DFrictionJoint self
 	@out	number maxForce					in kg * units / s^2, converted from N [kg * m / s^2].
 */
-int MOAIBox2DFrictionJoint::_getMaxForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFrictionJoint, "U" )
+mrb_value MOAIBox2DFrictionJoint::_getMaxForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFrictionJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2FrictionJoint* joint = ( b2FrictionJoint* )self->mJoint;
-	state.Push ( joint->GetMaxForce () / unitsToMeters );
 
-	return 1;
+	return state.ToRValue ( joint->GetMaxForce () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -42,20 +41,19 @@ int MOAIBox2DFrictionJoint::_getMaxForce ( lua_State* L ) {
 	@in		MOAIBox2DFrictionJoint self
 	@out	number maxTorque		in (kg * units / s^2) * units, converted from N-m.
 */
-int MOAIBox2DFrictionJoint::_getMaxTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFrictionJoint, "U" )
+mrb_value MOAIBox2DFrictionJoint::_getMaxTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFrictionJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2FrictionJoint* joint = ( b2FrictionJoint* )self->mJoint;
 	float unitsToMeters = self->GetUnitsToMeters();
 	/* Convert to/from N-m (kg m / s^2) * m from/to (kg unit / s^2) * unit */
-	state.Push ( joint->GetMaxTorque () / ( unitsToMeters * unitsToMeters ) );
 
-	return 1;
+	return state.ToRValue ( joint->GetMaxTorque () / ( unitsToMeters * unitsToMeters ) );
 }
 
 //----------------------------------------------------------------//
@@ -66,21 +64,21 @@ int MOAIBox2DFrictionJoint::_getMaxTorque ( lua_State* L ) {
 	@opt	number maxForce		in kg * units / s^2, converted to N [kg * m / s^2]. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DFrictionJoint::_setMaxForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFrictionJoint, "U" )
+mrb_value MOAIBox2DFrictionJoint::_setMaxForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFrictionJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float maxForce = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
+	float maxForce = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
 
 	b2FrictionJoint* joint = ( b2FrictionJoint* )self->mJoint;
 	joint->SetMaxForce ( maxForce );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -91,22 +89,22 @@ int MOAIBox2DFrictionJoint::_setMaxForce ( lua_State* L ) {
 	@opt	number maxTorque		in (kg * units / s^2) * units, converted to N-m. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DFrictionJoint::_setMaxTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFrictionJoint, "U" )
+mrb_value MOAIBox2DFrictionJoint::_setMaxTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFrictionJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters();
 	/* Convert to/from N-m (kg m / s^2) * m from/to (kg unit / s^2) * unit */
-	float maxTorque = state.GetValue < float >( 2, 0.0f ) * unitsToMeters * unitsToMeters;
+	float maxTorque = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters * unitsToMeters;
 
 	b2FrictionJoint* joint = ( b2FrictionJoint* )self->mJoint;
 	joint->SetMaxTorque ( maxTorque );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -126,21 +124,17 @@ MOAIBox2DFrictionJoint::~MOAIBox2DFrictionJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DFrictionJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DFrictionJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DFrictionJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DFrictionJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getMaxForce",			_getMaxForce },
-		{ "getMaxTorque",			_getMaxTorque },
-		{ "setMaxForce",			_setMaxForce },
-		{ "setMaxTorque",			_setMaxTorque },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getMaxForce",			_getMaxForce, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMaxTorque",			_getMaxTorque, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setMaxForce",			_setMaxForce, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMaxTorque",			_setMaxTorque, MRB_ARGS_ARG ( 0, 1 ) );
 	
-	luaL_register ( state, 0, regTable );
 }

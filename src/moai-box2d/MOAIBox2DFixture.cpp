@@ -20,13 +20,13 @@
 	@in		MOAIBox2DFixture self
 	@out	nil
 */
-int MOAIBox2DFixture::_destroy ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "U" )
+mrb_value MOAIBox2DFixture::_destroy ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "U" )
 	
 	if ( self->mWorld ) {
 		self->mWorld->ScheduleDestruction ( *self );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -36,20 +36,19 @@ int MOAIBox2DFixture::_destroy ( lua_State* L ) {
 	@in		MOAIBox2DFixture self
 	@out	MOAIBox2DBody body
 */
-int MOAIBox2DFixture::_getBody ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "U" )
+mrb_value MOAIBox2DFixture::_getBody ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "U" )
 	
-	if ( !self->mFixture ) return 0;
+	if ( !self->mFixture ) return mrb_nil_value ();
 	
 	b2Body* body = self->mFixture->GetBody ();
 	if ( body ) {
 		MOAIBox2DBody* moaiBody = ( MOAIBox2DBody* )body->GetUserData ();
 		if ( moaiBody ) {
-			moaiBody->PushLuaUserdata ( state );
-			return 1;
+			return moaiBody->PushRubyUserdata ( state );
 		}
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -61,22 +60,24 @@ int MOAIBox2DFixture::_getBody ( lua_State* L ) {
 	@out	number maskBits
 	@out	number groupIndex
 */
-int MOAIBox2DFixture::_getFilter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "U" )
+mrb_value MOAIBox2DFixture::_getFilter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "U" )
 	
-	if ( !self->mFixture ) return 0;
+	if ( !self->mFixture ) return mrb_nil_value ();
 	
 	const b2Filter& filterData = self->mFixture->GetFilterData ();
-	lua_pushnumber ( state, filterData.categoryBits );
-	lua_pushnumber ( state, filterData.maskBits );
-	lua_pushnumber ( state, filterData.groupIndex );
 
-	return 3;
+	mrb_value ret [ 3 ];
+	ret [ 0 ] = state.ToRValue ( filterData.categoryBits );
+	ret [ 1 ] = state.ToRValue ( filterData.maskBits );
+	ret [ 2 ] = state.ToRValue ( filterData.groupIndex );
+
+	return mrb_ary_new_from_values ( state, 3, ret );
 }
 
 //----------------------------------------------------------------//
 /**	@lua	setCollisionHandler
-	@text	Sets a Lua function to call when collisions occur. The handler should
+	@text	Sets a Ruby function to call when collisions occur. The handler should
 			accept the following parameters: ( phase, fixtureA, fixtureB, arbiter ). 'phase' will
 			be one of the phase masks. 'fixtureA' will be the fixture receiving the collision.
 			'fixtureB' will be the other fixture in the collision. 'arbiter' will be the
@@ -91,14 +92,14 @@ int MOAIBox2DFixture::_getFilter ( lua_State* L ) {
 	@opt	number categoryMask		Check against opposing fixture's category bits and generate collision events if match.
 	@out	nil
 */
-int MOAIBox2DFixture::_setCollisionHandler ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "UF" )
+mrb_value MOAIBox2DFixture::_setCollisionHandler ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "UF" )
 	
-	self->mCollisionHandler.SetRef ( *self, state, 2 );
-	self->mCollisionPhaseMask = state.GetValue < u32 >( 3, MOAIBox2DArbiter::ALL );
-	self->mCollisionCategoryMask = state.GetValue < u32 >( 4, 0xffffffff );
+	self->mCollisionHandler.SetRef ( state.GetParamValue ( 1 ) );
+	self->mCollisionPhaseMask = state.GetParamValue < u32 >( 2, MOAIBox2DArbiter::ALL );
+	self->mCollisionCategoryMask = state.GetParamValue < u32 >( 3, 0xffffffff );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -109,19 +110,19 @@ int MOAIBox2DFixture::_setCollisionHandler ( lua_State* L ) {
 	@in		number density			In kg/units^2, converted to kg/m^2
 	@out	nil
 */
-int MOAIBox2DFixture::_setDensity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "UN" )
+mrb_value MOAIBox2DFixture::_setDensity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "UN" )
 	
 	if ( !self->mFixture ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DFixture_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float unitsToMeters = self->GetUnitsToMeters();
-	float density = state.GetValue < float >( 2, 0.0f ) / (unitsToMeters * unitsToMeters);
+	float density = state.GetParamValue < float >( 1, 0.0f ) / (unitsToMeters * unitsToMeters);
 	self->mFixture->SetDensity ( density );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -134,22 +135,22 @@ int MOAIBox2DFixture::_setDensity ( lua_State* L ) {
 	@opt	number groupIndex
 	@out	nil
 */
-int MOAIBox2DFixture::_setFilter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "UN" )
+mrb_value MOAIBox2DFixture::_setFilter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "UN" )
 	
 	if ( !self->mFixture ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DFixture_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Filter filter = self->mFixture->GetFilterData ();
 	
-	filter.categoryBits		= ( uint16 )state.GetValue < u32 >( 2, 0 );
-	filter.maskBits			= ( uint16 )state.GetValue < u32 >( 3, 0xffffffff );
-	filter.groupIndex		= ( int16 )state.GetValue < int >( 4, ( int )filter.groupIndex );
+	filter.categoryBits		= ( uint16 )state.GetParamValue < u32 >( 1, 0 );
+	filter.maskBits			= ( uint16 )state.GetParamValue < u32 >( 2, 0xffffffff );
+	filter.groupIndex		= ( int16 )state.GetParamValue < int >( 3, ( int )filter.groupIndex );
 	
 	self->mFixture->SetFilterData ( filter );
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -160,18 +161,18 @@ int MOAIBox2DFixture::_setFilter ( lua_State* L ) {
 	@in		number friction
 	@out	nil
 */
-int MOAIBox2DFixture::_setFriction ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "UN" )
+mrb_value MOAIBox2DFixture::_setFriction ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "UN" )
 	
 	if ( !self->mFixture ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DFixture_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float friction = state.GetValue < float >( 2, 0.0f );
+	float friction = state.GetParamValue < float >( 1, 0.0f );
 	self->mFixture->SetFriction ( friction );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -182,18 +183,18 @@ int MOAIBox2DFixture::_setFriction ( lua_State* L ) {
 	@in		number restitution
 	@out	nil
 */
-int MOAIBox2DFixture::_setRestitution ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "UN" )
+mrb_value MOAIBox2DFixture::_setRestitution ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "UN" )
 	
 	if ( !self->mFixture ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DFixture_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float restitution = state.GetValue < float >( 2, 0.0f );
+	float restitution = state.GetParamValue < float >( 1, 0.0f );
 	self->mFixture->SetRestitution ( restitution );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -204,18 +205,18 @@ int MOAIBox2DFixture::_setRestitution ( lua_State* L ) {
 	@opt	boolean isSensor		Default value is 'true'
 	@out	nil
 */
-int MOAIBox2DFixture::_setSensor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DFixture, "U" )
+mrb_value MOAIBox2DFixture::_setSensor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DFixture, "U" )
 	
 	if ( !self->mFixture ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DFixture_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool isSensor = state.GetValue < bool >( 2, true );
+	bool isSensor = state.GetParamValue < bool >( 1, true );
 	self->mFixture->SetSensor ( isSensor );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -252,15 +253,16 @@ void MOAIBox2DFixture::HandleCollision ( u32 eventType, MOAIBox2DFixture* other,
 		
 			if ( this->mCollisionHandler ) {
 			
-				MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-				if ( this->mCollisionHandler.PushRef ( state )) {
+				MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+				if ( this->mCollisionHandler ) {
+
+					mrb_value argv [ 4 ];
+					argv [ 0 ] = state.ToRValue ( eventType );
+					argv [ 1 ] = this->PushRubyUserdata ( state );
+					argv [ 2 ] = other->PushRubyUserdata ( state );
+					argv [ 3 ] = arbiter->PushRubyUserdata ( state );
 					
-					state.Push ( eventType );
-					this->PushLuaUserdata ( state );
-					other->PushLuaUserdata ( state );
-					arbiter->PushLuaUserdata ( state );
-					
-					state.DebugCall ( 4, 0 );
+					state.FuncCall ( this->mCollisionHandler, "call", 4, argv );
 				}
 			}
 		}
@@ -268,25 +270,26 @@ void MOAIBox2DFixture::HandleCollision ( u32 eventType, MOAIBox2DFixture* other,
 }
 
 //----------------------------------------------------------------//
-u32 MOAIBox2DFixture::LoadVerts ( MOAILuaState& state, int idx, b2Vec2* verts, u32 max, float unitsToMeters  ) {
+u32 MOAIBox2DFixture::LoadVerts ( MOAIRubyState& state, int idx, b2Vec2* verts, u32 max, float unitsToMeters  ) {
 	
-	int itr = state.PushTableItr ( idx );
-	idx = 0;
-	
-	u32 total = 0;
-	for ( ; state.TableItrNext ( itr ) && ( total < max ); ++idx ) {
-		
-		float val = state.GetValue < float >( -1, 0 ); // TODO: add error checking
-		
-		if ( idx & 0x01 ) {
-			verts [ total ].y = val * unitsToMeters;
-			total++;
-		}
-		else {
-			verts [ total ].x = val * unitsToMeters;
-		}
-	}
-	return total;
+	//int itr = state.PushTableItr ( idx );
+	//idx = 0;
+	//
+	//u32 total = 0;
+	//for ( ; state.TableItrNext ( itr ) && ( total < max ); ++idx ) {
+	//	
+	//	float val = state.GetParamValue < float >( -1, 0 ); // TODO: add error checking
+	//	
+	//	if ( idx & 0x01 ) {
+	//		verts [ total ].y = val * unitsToMeters;
+	//		total++;
+	//	}
+	//	else {
+	//		verts [ total ].x = val * unitsToMeters;
+	//	}
+	//}
+	//return total;
+	return 0;
 }
 
 //----------------------------------------------------------------//
@@ -296,7 +299,7 @@ MOAIBox2DFixture::MOAIBox2DFixture () :
 	mCollisionCategoryMask ( 0 ) {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -305,27 +308,22 @@ MOAIBox2DFixture::~MOAIBox2DFixture () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DFixture::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIBox2DFixture::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DFixture::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIBox2DFixture::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	luaL_Reg regTable [] = {
-		{ "destroy",				_destroy },
-		{ "getBody",				_getBody },
-		{ "getFilter",				_getFilter},
-		{ "setCollisionHandler",	_setCollisionHandler },
-		{ "setDensity",				_setDensity },
-		{ "setFilter",				_setFilter },
-		{ "setFriction",			_setFriction },
-		{ "setRestitution",			_setRestitution },
-		{ "setSensor",				_setSensor },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "destroy",				_destroy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getBody",				_getBody, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFilter",				_getFilter, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setCollisionHandler",	_setCollisionHandler, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDensity",				_setDensity, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setFilter",				_setFilter, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setFriction",			_setFriction, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setRestitution",			_setRestitution, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setSensor",				_setSensor, MRB_ARGS_NONE () );
 }
 
 //----------------------------------------------------------------//

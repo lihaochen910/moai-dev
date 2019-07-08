@@ -19,7 +19,7 @@ class MOAIBox2DRayCastCallback;
 // MOAIBox2DPrim
 //================================================================//
 class MOAIBox2DPrim :
-	public virtual MOAILuaObject  {
+	public virtual MOAIRubyObject  {
 protected:
 
 	MOAIBox2DWorld*		mWorld;
@@ -70,7 +70,7 @@ private:
 	b2World*					mWorld;
 	MOAIBox2DDebugDraw*			mDebugDraw;
 	
-	MOAILuaSharedPtr < MOAIBox2DArbiter > mArbiter;
+	MOAIRubySharedPtr < MOAIBox2DArbiter > mArbiter;
 
 	u32		mVelocityIterations;
 	u32		mPositionIterations;
@@ -82,35 +82,35 @@ private:
 	MOAIBox2DPrim*		mDestroyJoints;
 
 	//----------------------------------------------------------------//
-	static int		_addBody					( lua_State* L );
-	static int		_addDistanceJoint			( lua_State* L );
-	static int		_addFrictionJoint			( lua_State* L );
-	static int		_addGearJoint				( lua_State* L );
-	static int 		_addMotorJoint				( lua_State* L );
-	static int		_addMouseJoint				( lua_State* L );
-	static int		_addPrismaticJoint			( lua_State* L );
-	static int		_addPulleyJoint				( lua_State* L );
-	static int		_addRevoluteJoint			( lua_State* L );
-	static int		_addRevoluteJointLocal		( lua_State* L );
-	static int		_addRopeJoint				( lua_State* L );
-	static int		_addWeldJoint				( lua_State* L );
-	static int		_addWheelJoint				( lua_State* L );
-	static int		_getAngularSleepTolerance	( lua_State* L );
-	static int		_getAutoClearForces			( lua_State* L );
-	static int		_getGravity					( lua_State* L );
-	static int		_getLinearSleepTolerance	( lua_State* L );
-	static int		_getPerformance				( lua_State* L );
-	static int		_getRayCast					( lua_State* L );
-	static int		_getTimeToSleep				( lua_State* L );
-	static int		_setAngularSleepTolerance	( lua_State* L );
-	static int		_setAutoClearForces			( lua_State* L );
-	static int		_setDebugDrawEnabled		( lua_State* L );
-	static int		_setDebugDrawFlags			( lua_State* L );
-	static int		_setGravity					( lua_State* L );
-	static int		_setIterations				( lua_State* L );
-	static int		_setLinearSleepTolerance	( lua_State* L );
-	static int		_setTimeToSleep				( lua_State* L );
-	static int		_setUnitsToMeters			( lua_State* L );
+	static mrb_value		_addBody					( mrb_state* M, mrb_value context );
+	static mrb_value		_addDistanceJoint			( mrb_state* M, mrb_value context );
+	static mrb_value		_addFrictionJoint			( mrb_state* M, mrb_value context );
+	static mrb_value		_addGearJoint				( mrb_state* M, mrb_value context );
+	static mrb_value 		_addMotorJoint				( mrb_state* M, mrb_value context );
+	static mrb_value		_addMouseJoint				( mrb_state* M, mrb_value context );
+	static mrb_value		_addPrismaticJoint			( mrb_state* M, mrb_value context );
+	static mrb_value		_addPulleyJoint				( mrb_state* M, mrb_value context );
+	static mrb_value		_addRevoluteJoint			( mrb_state* M, mrb_value context );
+	static mrb_value		_addRevoluteJointLocal		( mrb_state* M, mrb_value context );
+	static mrb_value		_addRopeJoint				( mrb_state* M, mrb_value context );
+	static mrb_value		_addWeldJoint				( mrb_state* M, mrb_value context );
+	static mrb_value		_addWheelJoint				( mrb_state* M, mrb_value context );
+	static mrb_value		_getAngularSleepTolerance	( mrb_state* M, mrb_value context );
+	static mrb_value		_getAutoClearForces			( mrb_state* M, mrb_value context );
+	static mrb_value		_getGravity					( mrb_state* M, mrb_value context );
+	static mrb_value		_getLinearSleepTolerance	( mrb_state* M, mrb_value context );
+	static mrb_value		_getPerformance				( mrb_state* M, mrb_value context );
+	static mrb_value		_getRayCast					( mrb_state* M, mrb_value context );
+	static mrb_value		_getTimeToSleep				( mrb_state* M, mrb_value context );
+	static mrb_value		_setAngularSleepTolerance	( mrb_state* M, mrb_value context );
+	static mrb_value		_setAutoClearForces			( mrb_state* M, mrb_value context );
+	static mrb_value		_setDebugDrawEnabled		( mrb_state* M, mrb_value context );
+	static mrb_value		_setDebugDrawFlags			( mrb_state* M, mrb_value context );
+	static mrb_value		_setGravity					( mrb_state* M, mrb_value context );
+	static mrb_value		_setIterations				( mrb_state* M, mrb_value context );
+	static mrb_value		_setLinearSleepTolerance	( mrb_state* M, mrb_value context );
+	static mrb_value		_setTimeToSleep				( mrb_state* M, mrb_value context );
+	static mrb_value		_setUnitsToMeters			( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			Destroy					();
@@ -131,7 +131,7 @@ public:
 	friend class MOAIBox2DFixture;
 	friend class MOAIBox2DJoint;
 	
-	DECL_LUA_FACTORY ( MOAIBox2DWorld )
+	DECL_RUBY_FACTORY ( MOAIBox2DWorld, MOAIAction )
 	
 	GET_SET ( float, UnitsToMeters, mUnitsToMeters )
 	GET_CONST ( float, UnitsToMeters, mUnitsToMeters )
@@ -149,8 +149,8 @@ public:
 	bool			IsLocked				();
 					MOAIBox2DWorld			();
 					~MOAIBox2DWorld			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

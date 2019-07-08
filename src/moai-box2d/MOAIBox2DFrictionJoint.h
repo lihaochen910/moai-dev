@@ -19,20 +19,20 @@ class MOAIBox2DFrictionJoint :
 private:
 
 	//----------------------------------------------------------------//
-	static int		_getMaxForce			( lua_State* L );
-	static int		_getMaxTorque			( lua_State* L );
-	static int		_setMaxForce			( lua_State* L );
-	static int		_setMaxTorque			( lua_State* L );
+	static mrb_value		_getMaxForce			( mrb_state* M, mrb_value context );
+	static mrb_value		_getMaxTorque			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMaxForce			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMaxTorque			( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DFrictionJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DFrictionJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DFrictionJoint		();
 					~MOAIBox2DFrictionJoint		();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

@@ -20,18 +20,17 @@
 	@in		MOAIBox2DMouseJoint self
 	@out	number dampingRatio
 */
-int MOAIBox2DMouseJoint::_getDampingRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_getDampingRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
-	state.Push ( joint->GetDampingRatio ());
 	
-	return 1;
+	return state.ToRValue ( joint->GetDampingRatio () );
 }
 
 //----------------------------------------------------------------//
@@ -41,18 +40,17 @@ int MOAIBox2DMouseJoint::_getDampingRatio ( lua_State* L ) {
 	@in		MOAIBox2DMouseJoint self
 	@out	number frequency			in Hz
 */
-int MOAIBox2DMouseJoint::_getFrequency ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_getFrequency ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
-	state.Push ( joint->GetFrequency ());
 	
-	return 1;
+	return state.ToRValue ( joint->GetFrequency () );
 }
 
 //----------------------------------------------------------------//
@@ -62,19 +60,18 @@ int MOAIBox2DMouseJoint::_getFrequency ( lua_State* L ) {
 	@in		MOAIBox2DMouseJoint self
 	@out	number maxForce				in kg * units / s^2 converted from N [kg * m / s^2]
 */
-int MOAIBox2DMouseJoint::_getMaxForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_getMaxForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
-	state.Push ( joint->GetMaxForce () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMaxForce () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -85,23 +82,24 @@ int MOAIBox2DMouseJoint::_getMaxForce ( lua_State* L ) {
 	@out	number x					in units, world coordinates, converted from meters
 	@out	number y					in units, world coordinates, converted from meters
 */
-int MOAIBox2DMouseJoint::_getTarget ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_getTarget ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
 	
 	b2Vec2 target = joint->GetTarget ();
 	
-	state.Push ( target.x / unitsToMeters );
-	state.Push ( target.y / unitsToMeters );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( target.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( target.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -112,20 +110,20 @@ int MOAIBox2DMouseJoint::_getTarget ( lua_State* L ) {
 	@opt	number dampingRatio		Default value is 0.
 	@out	nil
 */
-int MOAIBox2DMouseJoint::_setDampingRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_setDampingRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float dampingRatio = state.GetValue < float >( 2, 0.0f );
+	float dampingRatio = state.GetParamValue < float >( 1, 0.0f );
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
 	joint->SetDampingRatio ( dampingRatio );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -136,20 +134,20 @@ int MOAIBox2DMouseJoint::_setDampingRatio ( lua_State* L ) {
 	@opt	number frequency		in Hz. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DMouseJoint::_setFrequency ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_setFrequency ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float frequency = state.GetValue < float >( 2, 0.0f );
+	float frequency = state.GetParamValue < float >( 1, 0.0f );
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
 	joint->SetFrequency ( frequency );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -160,21 +158,21 @@ int MOAIBox2DMouseJoint::_setFrequency ( lua_State* L ) {
 	@opt	number maxForce		in kg * units / s^2 converted to N [kg * m / s^2]. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DMouseJoint::_setMaxForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_setMaxForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float maxForce = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
+	float maxForce = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
 	joint->SetMaxForce ( maxForce );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -186,24 +184,24 @@ int MOAIBox2DMouseJoint::_setMaxForce ( lua_State* L ) {
 	@opt	number y		in units, world coordinates, converted to meters. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DMouseJoint::_setTarget ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DMouseJoint, "U" )
+mrb_value MOAIBox2DMouseJoint::_setTarget ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DMouseJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2Vec2 target;
 	
-	target.x = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
-	target.y = state.GetValue < float >( 3, 0.0f ) * unitsToMeters;
+	target.x = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
+	target.y = state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
 
 	b2MouseJoint* joint = ( b2MouseJoint* )self->mJoint;
 	joint->SetTarget ( target );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -223,25 +221,21 @@ MOAIBox2DMouseJoint::~MOAIBox2DMouseJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DMouseJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DMouseJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DMouseJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DMouseJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getDampingRatio",		_getDampingRatio },
-		{ "getFrequency",			_getFrequency },
-		{ "getMaxForce",			_getMaxForce },
-		{ "getTarget",				_getTarget },
-		{ "setDampingRatio",		_setDampingRatio },
-		{ "setFrequency",			_setFrequency },
-		{ "setMaxForce",			_setMaxForce },
-		{ "setTarget",				_setTarget },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getDampingRatio",		_getDampingRatio, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFrequency",			_getFrequency, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMaxForce",			_getMaxForce, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getTarget",				_getTarget, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDampingRatio",		_setDampingRatio, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFrequency",			_setFrequency, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMaxForce",			_setMaxForce, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTarget",				_setTarget, MRB_ARGS_ARG ( 0, 2 ) );
+
 }

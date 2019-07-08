@@ -34,19 +34,18 @@ MOAIBox2DWheelJoint::MOAIBox2DWheelJoint () {
 	@in		MOAIBox2DWheelJoint self
 	@out	number jointTranslation		in units, converted from meters
  */
-int MOAIBox2DWheelJoint::_getJointTranslation ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getJointTranslation ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
-	state.Push ( joint->GetJointTranslation () / unitsToMeters );
 	
-	return 0;
+	return state.ToRValue ( joint->GetJointTranslation () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -56,19 +55,18 @@ int MOAIBox2DWheelJoint::_getJointTranslation ( lua_State* L ) {
 	@in		MOAIBox2DWheelJoint self
 	@out	number jointSpeed			in units / s, converted from m/s
  */
-int MOAIBox2DWheelJoint::_getJointSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getJointSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
-	state.Push ( joint->GetJointSpeed () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetJointSpeed () / unitsToMeters );
 }
 //----------------------------------------------------------------//
 /**	@lua	isMotorEnabled
@@ -77,18 +75,17 @@ int MOAIBox2DWheelJoint::_getJointSpeed ( lua_State* L ) {
  @in		MOAIBox2DWheelJoint self
  @out	boolean motorEnabled
  */
-int MOAIBox2DWheelJoint::_isMotorEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_isMotorEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
-	state.Push ( joint->IsMotorEnabled ());
 	
-	return 1;
+	return state.ToRValue ( joint->IsMotorEnabled () );
 }
 
 //----------------------------------------------------------------//
@@ -98,18 +95,17 @@ int MOAIBox2DWheelJoint::_isMotorEnabled ( lua_State* L ) {
 	@in		MOAIBox2DWheelJoint self
 	@out	number motorSpeed			in degrees/s, converted from radians/s
  */
-int MOAIBox2DWheelJoint::_getMotorSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getMotorSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
-	state.Push ( joint->GetMotorSpeed () * ( float ) R2D );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMotorSpeed () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -119,18 +115,17 @@ int MOAIBox2DWheelJoint::_getMotorSpeed ( lua_State* L ) {
 	@in		MOAIBox2DWheelJoint self
 	@out	number dampingRatio
  */
-int MOAIBox2DWheelJoint::_getSpringDampingRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getSpringDampingRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
-	state.Push ( joint->GetSpringDampingRatio() );
 	
-	return 1;
+	return state.ToRValue ( joint->GetSpringDampingRatio () );
 }
 
 //----------------------------------------------------------------//
@@ -140,20 +135,19 @@ int MOAIBox2DWheelJoint::_getSpringDampingRatio ( lua_State* L ) {
  @in		MOAIBox2DWheelJoint self
  @out	number maxMotorTorque		in (kg * units / s^2) * units, converted from N-m.
  */
-int MOAIBox2DWheelJoint::_getMaxMotorTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getMaxMotorTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	/* Convert from N-m (kg m / s^2) * m to (kg unit / s^2) * unit */
-	state.Push ( joint->GetMaxMotorTorque () / ( unitsToMeters * unitsToMeters ) );
-	
-	return 1;
+
+	return state.ToRValue ( joint->GetMaxMotorTorque () / ( unitsToMeters * unitsToMeters ) );
 }
 
 //----------------------------------------------------------------//
@@ -163,22 +157,21 @@ int MOAIBox2DWheelJoint::_getMaxMotorTorque ( lua_State* L ) {
  @in		MOAIBox2DWheelJoint self
  @out	number torque		in (kg * units / s^2) * units, converted from N-m.
  */
-int MOAIBox2DWheelJoint::_getMotorTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getMotorTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 
 	float step = ( float )( 1.0 / MOAISim::Get ().GetStep ());
 	/* Convert from N-m (kg m / s^2) * m => (kg unit / s^2) * unit */
-	state.Push ( joint->GetMotorTorque (step) / ( unitsToMeters * unitsToMeters ) );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMotorTorque (step) / ( unitsToMeters * unitsToMeters ) );
 }
 
 //----------------------------------------------------------------//
@@ -188,18 +181,17 @@ int MOAIBox2DWheelJoint::_getMotorTorque ( lua_State* L ) {
 	@in		MOAIBox2DWheelJoint self
 	@out	number springFrequency			in Hz
  */
-int MOAIBox2DWheelJoint::_getSpringFrequencyHz ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_getSpringFrequencyHz ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
-	state.Push ( joint->GetSpringFrequencyHz() );
 	
-	return 1;
+	return state.ToRValue ( joint->GetSpringFrequencyHz () );
 }
 
 //----------------------------------------------------------------//
@@ -213,18 +205,18 @@ int MOAIBox2DWheelJoint::_getSpringFrequencyHz ( lua_State* L ) {
 	@opt	boolean forceEnable		Default value is false.
 	@out	nil
 */
-int MOAIBox2DWheelJoint::_setMotor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_setMotor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
-	float speed	= state.GetValue < float >( 2, 0.0f );
-	float max	= state.GetValue < float >( 3, 0.0f );
-	bool forceEnable = state.GetValue < bool >( 4, false );
+	float speed	= state.GetParamValue < float >( 1, 0.0f );
+	float max	= state.GetParamValue < float >( 2, 0.0f );
+	bool forceEnable = state.GetParamValue < bool >( 3, false );
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	joint->SetMotorSpeed ( speed * ( float )D2R );
@@ -232,8 +224,7 @@ int MOAIBox2DWheelJoint::_setMotor ( lua_State* L ) {
 	joint->SetMaxMotorTorque ( max * unitsToMeters * unitsToMeters );
 	joint->EnableMotor ( forceEnable ? true : ( speed != 0.0f ) );
 	
-	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -245,20 +236,20 @@ int MOAIBox2DWheelJoint::_setMotor ( lua_State* L ) {
 	@out	nil
 
  */
-int MOAIBox2DWheelJoint::_setMotorSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_setMotorSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float speed = state.GetValue < float >( 2, 0.0f ) * ( float )D2R;
+	float speed = state.GetParamValue < float >( 1, 0.0f ) * ( float )D2R;
 
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	joint->SetMotorSpeed ( speed );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -269,20 +260,20 @@ int MOAIBox2DWheelJoint::_setMotorSpeed ( lua_State* L ) {
  @opt	boolean enabled			Default value is 'true'
  @out	nil
  */
-int MOAIBox2DWheelJoint::_setMotorEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_setMotorEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool enabled = state.GetValue < bool >( 2, true );
+	bool enabled = state.GetParamValue < bool >( 1, true );
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	joint->EnableMotor ( enabled );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -293,22 +284,22 @@ int MOAIBox2DWheelJoint::_setMotorEnabled ( lua_State* L ) {
  @opt	number maxMotorTorque		in (kg * units / s^2) * units, converted to N-m. Default value is 0.
  @out	nil
  */
-int MOAIBox2DWheelJoint::_setMaxMotorTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_setMaxMotorTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	/* Convert to N-m (kg m / s^2) * m from (kg unit / s^2) * unit */
-	float maxMotorTorque = state.GetValue < float >( 2, 0.0f ) * unitsToMeters * unitsToMeters;
+	float maxMotorTorque = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters * unitsToMeters;
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	joint->SetMaxMotorTorque ( maxMotorTorque );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -319,20 +310,20 @@ int MOAIBox2DWheelJoint::_setMaxMotorTorque ( lua_State* L ) {
  @opt	number dampingRatio		Default value is 0.
  @out	nil
  */
-int MOAIBox2DWheelJoint::_setSpringDampingRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_setSpringDampingRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float dampingRatio = state.GetValue < float >( 2, 0.0f );
+	float dampingRatio = state.GetParamValue < float >( 1, 0.0f );
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	joint->SetSpringDampingRatio( dampingRatio );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -343,20 +334,20 @@ int MOAIBox2DWheelJoint::_setSpringDampingRatio ( lua_State* L ) {
  @opt	number springFrequencyHz		in Hz. Default value is 0.
  @out	nil
  */
-int MOAIBox2DWheelJoint::_setSpringFrequencyHz ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWheelJoint, "U" )
+mrb_value MOAIBox2DWheelJoint::_setSpringFrequencyHz ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWheelJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float springFrequencyHz = state.GetValue < float >( 2, 0.0f );
+	float springFrequencyHz = state.GetParamValue < float >( 1, 0.0f );
 	
 	b2WheelJoint* joint = ( b2WheelJoint* )self->mJoint;
 	joint->SetSpringFrequencyHz( springFrequencyHz );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -364,30 +355,27 @@ MOAIBox2DWheelJoint::~MOAIBox2DWheelJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DWheelJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DWheelJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DWheelJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
-	luaL_Reg regTable [] = {
-		{ "getJointTranslation",		_getJointTranslation },
-		{ "getJointSpeed",				_getJointSpeed },
-		{ "isMotorEnabled",				_isMotorEnabled },
-		{ "getMotorSpeed",				_getMotorSpeed },
-		{ "getSpringDampingRatio",		_getSpringDampingRatio },
-		{ "getMaxMotorTorque",			_getMaxMotorTorque },
-		{ "getMotorTorque",				_getMotorTorque },
-		{ "getSpringFrequencyHz",		_getSpringFrequencyHz },
-		{ "setMotor",					_setMotor },
-		{ "setMotorEnabled",			_setMotorEnabled },
-		{ "setMotorSpeed",				_setMotorSpeed },
-		{ "setMaxMotorTorque",			_setMaxMotorTorque },
-		{ "setSpringDampingRatio",		_setSpringDampingRatio },
-		{ "setSpringFrequencyHz",		_setSpringFrequencyHz },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+void MOAIBox2DWheelJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "getJointTranslation",		_getJointTranslation, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getJointSpeed",				_getJointSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isMotorEnabled",				_isMotorEnabled, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMotorSpeed",				_getMotorSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getSpringDampingRatio",		_getSpringDampingRatio, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMaxMotorTorque",			_getMaxMotorTorque, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMotorTorque",				_getMotorTorque, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getSpringFrequencyHz",		_getSpringFrequencyHz, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setMotor",					_setMotor, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setMotorEnabled",			_setMotorEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMotorSpeed",				_setMotorSpeed, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMaxMotorTorque",			_setMaxMotorTorque, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setSpringDampingRatio",		_setSpringDampingRatio, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setSpringFrequencyHz",		_setSpringFrequencyHz, MRB_ARGS_ARG ( 0, 1 ) );
+
 }

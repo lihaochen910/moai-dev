@@ -17,19 +17,19 @@ public MOAIBox2DJoint {
 private:
 	
 	//----------------------------------------------------------------//
-	static int _getLimitState			( lua_State* L );
-	static int _getMaxLength			( lua_State* L );
-	static int _setMaxLength			( lua_State* L );
+	static mrb_value _getLimitState			( mrb_state* M, mrb_value context );
+	static mrb_value _getMaxLength			( mrb_state* M, mrb_value context );
+	static mrb_value _setMaxLength			( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DRopeJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DRopeJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DRopeJoint		();
 					~MOAIBox2DRopeJoint		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

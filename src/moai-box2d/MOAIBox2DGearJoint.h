@@ -18,24 +18,24 @@ private:
 
 	friend class MOAIBox2DWorld;
 
-	MOAILuaSharedPtr < MOAIBox2DJoint > mJointA;
-	MOAILuaSharedPtr < MOAIBox2DJoint > mJointB;
+	MOAIRubySharedPtr < MOAIBox2DJoint > mJointA;
+	MOAIRubySharedPtr < MOAIBox2DJoint > mJointB;
 
 	//----------------------------------------------------------------//
-	static int		_getJointA				( lua_State* L );
-	static int		_getJointB				( lua_State* L );
-	static int		_getRatio				( lua_State* L );
-	static int		_setRatio				( lua_State* L );
+	static mrb_value		_getJointA				( mrb_state* M, mrb_value context );
+	static mrb_value		_getJointB				( mrb_state* M, mrb_value context );
+	static mrb_value		_getRatio				( mrb_state* M, mrb_value context );
+	static mrb_value		_setRatio				( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DGearJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DGearJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DGearJoint		();
 					~MOAIBox2DGearJoint		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

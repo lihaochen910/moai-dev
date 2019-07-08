@@ -17,30 +17,30 @@ class MOAIBox2DPrismaticJoint :
 private:
 
 	//----------------------------------------------------------------//
-	static int		_getJointSpeed			( lua_State* L );
-	static int		_getJointTranslation	( lua_State* L );
-	static int		_getLowerLimit			( lua_State* L );
-	static int		_getMotorForce			( lua_State* L );
-	static int		_getMotorSpeed			( lua_State* L );
-	static int		_getUpperLimit			( lua_State* L );
-	static int		_isLimitEnabled			( lua_State* L );
-	static int		_isMotorEnabled			( lua_State* L );
-	static int		_setLimit				( lua_State* L );
-	static int		_setLimitEnabled		( lua_State* L );
-	static int		_setMaxMotorForce		( lua_State* L );
-	static int		_setMotor				( lua_State* L );
-	static int		_setMotorSpeed			( lua_State* L );
-	static int		_setMotorEnabled		( lua_State* L );
+	static mrb_value		_getJointSpeed			( mrb_state* M, mrb_value context );
+	static mrb_value		_getJointTranslation	( mrb_state* M, mrb_value context );
+	static mrb_value		_getLowerLimit			( mrb_state* M, mrb_value context );
+	static mrb_value		_getMotorForce			( mrb_state* M, mrb_value context );
+	static mrb_value		_getMotorSpeed			( mrb_state* M, mrb_value context );
+	static mrb_value		_getUpperLimit			( mrb_state* M, mrb_value context );
+	static mrb_value		_isLimitEnabled			( mrb_state* M, mrb_value context );
+	static mrb_value		_isMotorEnabled			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLimit				( mrb_state* M, mrb_value context );
+	static mrb_value		_setLimitEnabled		( mrb_state* M, mrb_value context );
+	static mrb_value		_setMaxMotorForce		( mrb_state* M, mrb_value context );
+	static mrb_value		_setMotor				( mrb_state* M, mrb_value context );
+	static mrb_value		_setMotorSpeed			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMotorEnabled		( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DPrismaticJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DPrismaticJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DPrismaticJoint		();
 					~MOAIBox2DPrismaticJoint	();
-	void			RegisterLuaClass			( MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	void			RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

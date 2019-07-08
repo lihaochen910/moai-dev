@@ -21,13 +21,13 @@ protected:
 	b2Joint*	mJoint;
 
 	//----------------------------------------------------------------//
-	static int			_destroy				( lua_State* L );
-	static int			_getAnchorA				( lua_State* L );
-	static int			_getAnchorB				( lua_State* L );
-	static int			_getBodyA				( lua_State* L );
-	static int			_getBodyB				( lua_State* L );
-	static int			_getReactionForce		( lua_State* L );
-	static int			_getReactionTorque		( lua_State* L );
+	static mrb_value			_destroy				( mrb_state* M, mrb_value context );
+	static mrb_value			_getAnchorA				( mrb_state* M, mrb_value context );
+	static mrb_value			_getAnchorB				( mrb_state* M, mrb_value context );
+	static mrb_value			_getBodyA				( mrb_state* M, mrb_value context );
+	static mrb_value			_getBodyB				( mrb_state* M, mrb_value context );
+	static mrb_value			_getReactionForce		( mrb_state* M, mrb_value context );
+	static mrb_value			_getReactionTorque		( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void				Clear					();
@@ -41,8 +41,8 @@ public:
 	void				Destroy					();
 						MOAIBox2DJoint			();
 						~MOAIBox2DJoint			();
-	void				RegisterLuaClass		( MOAILuaState& state );
-	void				RegisterLuaFuncs		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

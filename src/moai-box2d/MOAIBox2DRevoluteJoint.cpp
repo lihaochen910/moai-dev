@@ -20,18 +20,17 @@
 	@in		MOAIBox2DRevoluteJoint self
 	@out	number angle					in degrees, converted from radians
 */
-int MOAIBox2DRevoluteJoint::_getJointAngle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_getJointAngle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->GetJointAngle () * ( float )R2D );
 	
-	return 1;
+	return state.ToRValue ( joint->GetJointAngle () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -41,18 +40,17 @@ int MOAIBox2DRevoluteJoint::_getJointAngle ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	number jointSpeed	in degrees/s, converted from radians/s
 */
-int MOAIBox2DRevoluteJoint::_getJointSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_getJointSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->GetJointSpeed () * ( float )R2D );
 	
-	return 1;
+	return state.ToRValue ( joint->GetJointSpeed () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -62,18 +60,17 @@ int MOAIBox2DRevoluteJoint::_getJointSpeed ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	number lowerLimit	in degrees, converted from radians
 */
-int MOAIBox2DRevoluteJoint::_getLowerLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_getLowerLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->GetLowerLimit () * ( float )R2D );
 	
-	return 1;
+	return state.ToRValue ( joint->GetLowerLimit () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -83,18 +80,17 @@ int MOAIBox2DRevoluteJoint::_getLowerLimit ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	number motorSpeed	in degrees/s, converted from radians/s
 */
-int MOAIBox2DRevoluteJoint::_getMotorSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_getMotorSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->GetMotorSpeed () * ( float )R2D );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMotorSpeed () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -104,21 +100,20 @@ int MOAIBox2DRevoluteJoint::_getMotorSpeed ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	number motorTorque		in (kg * units / s^2) * units, converted from N-m..
 */
-int MOAIBox2DRevoluteJoint::_getMotorTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_getMotorTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters ();
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	float step = ( float )( 1.0 / MOAISim::Get ().GetStep ());
 	/* Convert from N-m (kg m / s^2) * m => (kg unit / s^2) * unit */
-	state.Push ( joint->GetMotorTorque (step) / (unitsToMeters * unitsToMeters));
-	
-	return 1;
+
+	return state.ToRValue ( joint->GetMotorTorque (step) / (unitsToMeters * unitsToMeters) );
 }
 
 //----------------------------------------------------------------//
@@ -128,18 +123,17 @@ int MOAIBox2DRevoluteJoint::_getMotorTorque ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	number upperLimit	in degrees, converted from radians
 */
-int MOAIBox2DRevoluteJoint::_getUpperLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_getUpperLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->GetUpperLimit () * ( float )R2D );
 	
-	return 1;
+	return state.ToRValue ( joint->GetUpperLimit () * ( float )R2D );
 }
 
 //----------------------------------------------------------------//
@@ -149,18 +143,17 @@ int MOAIBox2DRevoluteJoint::_getUpperLimit ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	boolean limitEnabled
 */
-int MOAIBox2DRevoluteJoint::_isLimitEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_isLimitEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->IsLimitEnabled ());
 	
-	return 1;
+	return state.ToRValue ( joint->IsLimitEnabled () );
 }
 
 //----------------------------------------------------------------//
@@ -170,18 +163,17 @@ int MOAIBox2DRevoluteJoint::_isLimitEnabled ( lua_State* L ) {
 	@in		MOAIBox2DRevoluteJoint self
 	@out	boolean motorEnabled
 */
-int MOAIBox2DRevoluteJoint::_isMotorEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_isMotorEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
-	state.Push ( joint->IsMotorEnabled ());
 	
-	return 1;
+	return state.ToRValue ( joint->IsMotorEnabled () );
 }
 
 //----------------------------------------------------------------//
@@ -193,22 +185,22 @@ int MOAIBox2DRevoluteJoint::_isMotorEnabled ( lua_State* L ) {
 	@opt	number upper			in degrees, converted to radians. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DRevoluteJoint::_setLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_setLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float lower	= state.GetValue < float >( 2, 0.0f );
-	float upper	= state.GetValue < float >( 3, 0.0f );
+	float lower	= state.GetParamValue < float >( 1, 0.0f );
+	float upper	= state.GetParamValue < float >( 2, 0.0f );
 	
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	joint->SetLimits ( lower * ( float )D2R, upper * ( float )D2R );
 	joint->EnableLimit ( true );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -219,20 +211,20 @@ int MOAIBox2DRevoluteJoint::_setLimit ( lua_State* L ) {
 	@opt	boolean enabled			Default value is 'true'
 	@out	nil
 */
-int MOAIBox2DRevoluteJoint::_setLimitEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_setLimitEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool enabled = state.GetValue < bool >( 2, true );
+	bool enabled = state.GetParamValue < bool >( 1, true );
 	
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	joint->EnableLimit ( enabled );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -243,22 +235,22 @@ int MOAIBox2DRevoluteJoint::_setLimitEnabled ( lua_State* L ) {
 	@opt	number maxMotorTorque		in (kg * units / s^2) * units, converted to N-m. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DRevoluteJoint::_setMaxMotorTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_setMaxMotorTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters ();
 	/* Convert to N-m (kg m / s^2) * m from (kg unit / s^2) * unit */
-	float maxMotorTorque = state.GetValue < float >( 2, 0.0f ) * unitsToMeters * unitsToMeters;
+	float maxMotorTorque = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters * unitsToMeters;
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	joint->SetMaxMotorTorque ( maxMotorTorque );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -272,18 +264,18 @@ int MOAIBox2DRevoluteJoint::_setMaxMotorTorque ( lua_State* L ) {
 	@opt	boolean forceEnable		Default value is false.
 	@out	nil
 */
-int MOAIBox2DRevoluteJoint::_setMotor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_setMotor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
-	float speed	= state.GetValue < float >( 2, 0.0f );
-	float max	= state.GetValue < float >( 3, 0.0f );
-	bool forceEnable = state.GetValue < bool >( 4, false );
+	float speed	= state.GetParamValue < float >( 1, 0.0f );
+	float max	= state.GetParamValue < float >( 2, 0.0f );
+	bool forceEnable = state.GetParamValue < bool >( 3, false );
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	joint->SetMotorSpeed ( speed * ( float )D2R );
@@ -291,7 +283,7 @@ int MOAIBox2DRevoluteJoint::_setMotor ( lua_State* L ) {
 	joint->SetMaxMotorTorque ( max * unitsToMeters * unitsToMeters );
 	joint->EnableMotor ( forceEnable ? true : ( speed != 0.0f ) );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -303,20 +295,20 @@ int MOAIBox2DRevoluteJoint::_setMotor ( lua_State* L ) {
 	@out	nil
 
  */
-int MOAIBox2DRevoluteJoint::_setMotorSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_setMotorSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float speed = state.GetValue < float >( 2, 0.0f ) * ( float )D2R;
+	float speed = state.GetParamValue < float >( 1, 0.0f ) * ( float )D2R;
 
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	joint->SetMotorSpeed ( speed );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -327,20 +319,20 @@ int MOAIBox2DRevoluteJoint::_setMotorSpeed ( lua_State* L ) {
 	@opt	boolean enabled			Default value is 'true'
 	@out	nil
 */
-int MOAIBox2DRevoluteJoint::_setMotorEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DRevoluteJoint, "U" )
+mrb_value MOAIBox2DRevoluteJoint::_setMotorEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DRevoluteJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool enabled = state.GetValue < bool >( 2, true );
+	bool enabled = state.GetParamValue < bool >( 1, true );
 	
 	b2RevoluteJoint* joint = ( b2RevoluteJoint* )self->mJoint;
 	joint->EnableMotor ( enabled );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -360,31 +352,27 @@ MOAIBox2DRevoluteJoint::~MOAIBox2DRevoluteJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DRevoluteJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DRevoluteJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DRevoluteJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DRevoluteJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getJointAngle",				_getJointAngle },
-		{ "getJointSpeed",				_getJointSpeed },
-		{ "getLowerLimit",				_getLowerLimit },
-		{ "getMotorSpeed",				_getMotorSpeed },
-		{ "getMotorTorque",				_getMotorTorque },
-		{ "getUpperLimit",				_getUpperLimit },
-		{ "isLimitEnabled",				_isLimitEnabled },
-		{ "isMotorEnabled",				_isMotorEnabled },
-		{ "setLimit",					_setLimit },
-		{ "setLimitEnabled",			_setLimitEnabled },
-		{ "setMaxMotorTorque",			_setMaxMotorTorque },
-		{ "setMotor",					_setMotor },
-		{ "setMotorSpeed",				_setMotorSpeed },
-		{ "setMotorEnabled",			_setMotorEnabled },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getJointAngle",				_getJointAngle, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getJointSpeed",				_getJointSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLowerLimit",				_getLowerLimit, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMotorSpeed",				_getMotorSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMotorTorque",				_getMotorTorque, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getUpperLimit",				_getUpperLimit, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isLimitEnabled",				_isLimitEnabled, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isMotorEnabled",				_isMotorEnabled, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setLimit",					_setLimit, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setLimitEnabled",			_setLimitEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMaxMotorTorque",			_setMaxMotorTorque, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMotor",					_setMotor, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setMotorSpeed",				_setMotorSpeed, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMotorEnabled",			_setMotorEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+
 }

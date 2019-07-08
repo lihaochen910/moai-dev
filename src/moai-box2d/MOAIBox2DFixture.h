@@ -21,25 +21,25 @@ private:
 
 	b2Fixture*			mFixture;
 
-	MOAILuaMemberRef	mCollisionHandler;
+	MOAIRubyStrongRef	mCollisionHandler;
 	u32					mCollisionPhaseMask;
 	u32					mCollisionCategoryMask;
 
 	//----------------------------------------------------------------//
-	static int	_destroy				( lua_State* L );
-	static int	_getBody				( lua_State* L );
-	static int  _getFilter				( lua_State* L );
-	static int	_setCollisionHandler	( lua_State* L );
-	static int	_setDensity				( lua_State* L );
-	static int	_setFilter				( lua_State* L );
-	static int	_setFriction			( lua_State* L );
-	static int	_setRestitution			( lua_State* L );
-	static int	_setSensor				( lua_State* L );
+	static mrb_value	_destroy				( mrb_state* M, mrb_value context );
+	static mrb_value	_getBody				( mrb_state* M, mrb_value context );
+	static mrb_value	_getFilter				( mrb_state* M, mrb_value context );
+	static mrb_value	_setCollisionHandler	( mrb_state* M, mrb_value context );
+	static mrb_value	_setDensity				( mrb_state* M, mrb_value context );
+	static mrb_value	_setFilter				( mrb_state* M, mrb_value context );
+	static mrb_value	_setFriction			( mrb_state* M, mrb_value context );
+	static mrb_value	_setRestitution			( mrb_state* M, mrb_value context );
+	static mrb_value	_setSensor				( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			Clear				();
 	void			HandleCollision		( u32 eventType, MOAIBox2DFixture* other, MOAIBox2DArbiter* arbiter );
-	static u32		LoadVerts			( MOAILuaState& state, int idx, b2Vec2* verts, u32 max, float unitsToMeters  );
+	static u32		LoadVerts			( MOAIRubyState& state, int idx, b2Vec2* verts, u32 max, float unitsToMeters  );
 	void			SetFixture			( b2Fixture* fixture );
 
 
@@ -49,14 +49,14 @@ public:
 	friend class MOAIBox2DBody;
 	friend class MOAIBox2DWorld;
 	
-	DECL_LUA_FACTORY ( MOAIBox2DFixture )
+	DECL_RUBY_FACTORY ( MOAIBox2DFixture, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 	void			Destroy					();
 					MOAIBox2DFixture		();
 					~MOAIBox2DFixture		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

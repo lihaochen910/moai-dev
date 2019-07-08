@@ -22,7 +22,7 @@ class MOAIBox2DWorld;
 	@flag	ALL
 */
 class MOAIBox2DArbiter :
-	public virtual MOAILuaObject,
+	public virtual MOAIRubyObject,
 	public b2ContactListener {
 private:
 
@@ -40,11 +40,11 @@ private:
 	const MOAIBox2DWorld*       mWorld;
 
 	//----------------------------------------------------------------//
-	static int		_getContactNormal		( lua_State* L );
-	static int		_getContactPoints		( lua_State* L );
-	static int		_getNormalImpulse		( lua_State* L );
-	static int		_getTangentImpulse		( lua_State* L );
-	static int		_setContactEnabled		( lua_State* L );
+	static mrb_value		_getContactNormal		( mrb_state* M, mrb_value context );
+	static mrb_value		_getContactPoints		( mrb_state* M, mrb_value context );
+	static mrb_value		_getNormalImpulse		( mrb_state* M, mrb_value context );
+	static mrb_value		_getTangentImpulse		( mrb_state* M, mrb_value context );
+	static mrb_value		_setContactEnabled		( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void	AffirmContactData ();
@@ -58,7 +58,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DArbiter )
+	DECL_RUBY_FACTORY ( MOAIBox2DArbiter, MOAIRubyObject )
 	
 	enum {
 		BEGIN			= 0x00000001,
@@ -72,8 +72,9 @@ public:
 					MOAIBox2DArbiter		();
 					MOAIBox2DArbiter        ( const MOAIBox2DWorld &world );
 					~MOAIBox2DArbiter		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
+	void			SetWorld				( const MOAIBox2DWorld& world );
 };
 
 #endif

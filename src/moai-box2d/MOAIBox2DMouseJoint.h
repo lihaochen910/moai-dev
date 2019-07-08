@@ -17,24 +17,24 @@ class MOAIBox2DMouseJoint :
 private:
 
 	//----------------------------------------------------------------//
-	static int		_getDampingRatio		( lua_State* L );
-	static int		_getFrequency			( lua_State* L );
-	static int		_getMaxForce			( lua_State* L );
-	static int		_getTarget				( lua_State* L );
-	static int		_setDampingRatio		( lua_State* L );
-	static int		_setFrequency			( lua_State* L );
-	static int		_setMaxForce			( lua_State* L );
-	static int		_setTarget				( lua_State* L );
+	static mrb_value		_getDampingRatio		( mrb_state* M, mrb_value context );
+	static mrb_value		_getFrequency			( mrb_state* M, mrb_value context );
+	static mrb_value		_getMaxForce			( mrb_state* M, mrb_value context );
+	static mrb_value		_getTarget				( mrb_state* M, mrb_value context );
+	static mrb_value		_setDampingRatio		( mrb_state* M, mrb_value context );
+	static mrb_value		_setFrequency			( mrb_state* M, mrb_value context );
+	static mrb_value		_setMaxForce			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTarget				( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIBox2DMouseJoint )
+	DECL_RUBY_FACTORY ( MOAIBox2DMouseJoint, MOAIRubyObject )
 	
 	//----------------------------------------------------------------//
 					MOAIBox2DMouseJoint		();
 					~MOAIBox2DMouseJoint	();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

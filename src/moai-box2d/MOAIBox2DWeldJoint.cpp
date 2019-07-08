@@ -20,18 +20,17 @@
 	@in		MOAIBox2DDistanceJoint self
 	@out	number 	dampingRatio
  */
-int MOAIBox2DWeldJoint::_getDampingRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWeldJoint, "U" )
+mrb_value MOAIBox2DWeldJoint::_getDampingRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWeldJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2WeldJoint* joint = ( b2WeldJoint* )self->mJoint;
-	state.Push ( joint->GetDampingRatio ());
 
-	return 1;
+	return state.ToRValue ( joint->GetDampingRatio () );
 }
 
 //----------------------------------------------------------------//
@@ -41,18 +40,17 @@ int MOAIBox2DWeldJoint::_getDampingRatio ( lua_State* L ) {
 	@in		MOAIBox2DDistanceJoint 		self
 	@out	number 	frequency			In Hz.
  */
-int MOAIBox2DWeldJoint::_getFrequency ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWeldJoint, "U" )
+mrb_value MOAIBox2DWeldJoint::_getFrequency ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWeldJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2WeldJoint* joint = ( b2WeldJoint* )self->mJoint;
-	state.Push ( joint->GetFrequency ());
 
-	return 1;
+	return state.ToRValue ( joint->GetFrequency () );
 }
 
 //----------------------------------------------------------------//
@@ -63,20 +61,20 @@ int MOAIBox2DWeldJoint::_getFrequency ( lua_State* L ) {
 	@opt	number dampingRatio 		Default value is 0.
 	@out	nil
  */
-int MOAIBox2DWeldJoint::_setDampingRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWeldJoint, "U" )
+mrb_value MOAIBox2DWeldJoint::_setDampingRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWeldJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float dampingRatio = state.GetValue < float >( 2, 0.0f );
+	float dampingRatio = state.GetParamValue < float >( 1, 0.0f );
 
 	b2WeldJoint* joint = ( b2WeldJoint* )self->mJoint;
 	joint->SetDampingRatio ( dampingRatio );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -87,20 +85,20 @@ int MOAIBox2DWeldJoint::_setDampingRatio ( lua_State* L ) {
 	@opt	number frequency		In Hz. Default value is 0.
 	@out	nil
  */
-int MOAIBox2DWeldJoint::_setFrequency ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWeldJoint, "U" )
+mrb_value MOAIBox2DWeldJoint::_setFrequency ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWeldJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float frequency = state.GetValue < float >( 2, 0.0f );
+	float frequency = state.GetParamValue < float >( 1, 0.0f );
 
 	b2WeldJoint* joint = ( b2WeldJoint* )self->mJoint;
 	joint->SetFrequency ( frequency );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -120,21 +118,17 @@ MOAIBox2DWeldJoint::~MOAIBox2DWeldJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DWeldJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DWeldJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DWeldJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DWeldJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getDampingRatio",		_getDampingRatio },
-		{ "getFrequency",			_getFrequency },
-		{ "setDampingRatio",		_setDampingRatio },
-		{ "setFrequency",			_setFrequency },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getDampingRatio",		_getDampingRatio, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getFrequency",			_getFrequency, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setDampingRatio",		_setDampingRatio, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFrequency",			_setFrequency, MRB_ARGS_ARG ( 0, 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }

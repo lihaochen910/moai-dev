@@ -21,23 +21,24 @@
 	@out	number x					in units, world coordinates, converted from meters
 	@out	number y					in units, world coordinates, converted from meters
 */
-int MOAIBox2DPulleyJoint::_getGroundAnchorA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPulleyJoint, "U" )
+mrb_value MOAIBox2DPulleyJoint::_getGroundAnchorA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPulleyJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PulleyJoint* joint = ( b2PulleyJoint* )self->mJoint;
 	
 	b2Vec2 groundAnchorA = joint->GetGroundAnchorA ();
 	
-	state.Push ( groundAnchorA.x / unitsToMeters );
-	state.Push ( groundAnchorA.y / unitsToMeters );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( groundAnchorA.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( groundAnchorA.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -48,23 +49,24 @@ int MOAIBox2DPulleyJoint::_getGroundAnchorA ( lua_State* L ) {
 	@out	number x					in units, world coordinates, converted from meters
 	@out	number y					in units, world coordinates, converted from meters
 */
-int MOAIBox2DPulleyJoint::_getGroundAnchorB ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPulleyJoint, "U" )
+mrb_value MOAIBox2DPulleyJoint::_getGroundAnchorB ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPulleyJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PulleyJoint* joint = ( b2PulleyJoint* )self->mJoint;
 	
 	b2Vec2 groundAnchorB = joint->GetGroundAnchorB ();
 	
-	state.Push ( groundAnchorB.x / unitsToMeters );
-	state.Push ( groundAnchorB.y / unitsToMeters );
-	
-	return 2;
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( groundAnchorB.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( groundAnchorB.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -74,20 +76,18 @@ int MOAIBox2DPulleyJoint::_getGroundAnchorB ( lua_State* L ) {
 	@in		MOAIBox2DPulleyJoint self
 	@out	number length1				in units, converted from meters.
 */
-int MOAIBox2DPulleyJoint::_getLength1 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPulleyJoint, "U" )
+mrb_value MOAIBox2DPulleyJoint::_getLength1 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPulleyJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PulleyJoint* joint = ( b2PulleyJoint* )self->mJoint;
 
-	state.Push ( joint->GetLengthA () / unitsToMeters );
-	
-	return 1;
+	return state.ToRValue ( joint->GetLengthA () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -97,19 +97,18 @@ int MOAIBox2DPulleyJoint::_getLength1 ( lua_State* L ) {
 	@in		MOAIBox2DPulleyJoint self
 	@out	number length2				in units, converted from meters.
 */
-int MOAIBox2DPulleyJoint::_getLength2 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPulleyJoint, "U" )
+mrb_value MOAIBox2DPulleyJoint::_getLength2 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPulleyJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PulleyJoint* joint = ( b2PulleyJoint* )self->mJoint;
-	state.Push ( joint->GetLengthB () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetLengthB () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -119,18 +118,17 @@ int MOAIBox2DPulleyJoint::_getLength2 ( lua_State* L ) {
 	@in		MOAIBox2DPulleyJoint self
 	@out	number ratio
 */
-int MOAIBox2DPulleyJoint::_getRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPulleyJoint, "U" )
+mrb_value MOAIBox2DPulleyJoint::_getRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPulleyJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PulleyJoint* joint = ( b2PulleyJoint* )self->mJoint;
-	state.Push ( joint->GetRatio ());
 	
-	return 1;
+	return state.ToRValue ( joint->GetRatio () );
 }
 
 //================================================================//
@@ -150,22 +148,18 @@ MOAIBox2DPulleyJoint::~MOAIBox2DPulleyJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DPulleyJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DPulleyJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DPulleyJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DPulleyJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getGroundAnchorA",		_getGroundAnchorA },
-		{ "getGroundAnchorB",		_getGroundAnchorB },
-		{ "getLength1",				_getLength1 },
-		{ "getLength2",				_getLength2 },
-		{ "getRatio",				_getRatio },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getGroundAnchorA",		_getGroundAnchorA, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getGroundAnchorB",		_getGroundAnchorB, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLength1",				_getLength1, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLength2",				_getLength2, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getRatio",				_getRatio, MRB_ARGS_NONE () );
+
 }

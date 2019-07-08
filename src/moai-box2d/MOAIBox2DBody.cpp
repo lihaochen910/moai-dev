@@ -21,26 +21,26 @@
 	@opt	boolean closeChain			Default value is false.
 	@out	MOAIBox2DFixture fixture	Returns nil on failure.
 */
-int MOAIBox2DBody::_addChain ( lua_State* L ) {
-    MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_addChain ( mrb_state* M, mrb_value context ) {
+    MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
  
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
  
 	float unitsToMeters = self->GetUnitsToMeters ();
-	u32 totalCoords = ( u32 )lua_objlen ( state, 2 );
+	u32 totalCoords = ( u32 )RARRAY_LEN ( state.GetParamValue ( 1 ) );
 	if( totalCoords < 4 || totalCoords % 2 != 0 ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_InvalidVertexCount_D, totalCoords );
-		return 0;
+		return mrb_nil_value ();
 	}
  
 	u32 totalVerts = totalCoords / 2;                       
-	b2Vec2 * verts = (b2Vec2 *)alloca(sizeof(b2Vec2) * totalVerts);
-	int numVerts = MOAIBox2DFixture::LoadVerts( state, 2, verts, totalVerts, unitsToMeters );       
+	b2Vec2* verts = ( b2Vec2* )alloca ( sizeof ( b2Vec2 ) * totalVerts );
+	int numVerts = MOAIBox2DFixture::LoadVerts ( state, 1, verts, totalVerts, unitsToMeters );
 	if ( numVerts ) {
-		bool closeChain = state.GetValue < bool >( 3, false );
+		bool closeChain = state.GetParamValue < bool >( 2, false );
  
 		b2ChainShape chainShape;                               
 		if( closeChain ) {
@@ -51,14 +51,13 @@ int MOAIBox2DBody::_addChain ( lua_State* L ) {
 		}
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &chainShape;
-		MOAIBox2DFixture* fixture = new MOAIBox2DFixture ();
+		MOAIBox2DFixture* fixture = state.CreateClassInstance < MOAIBox2DFixture >();
 		fixture->SetFixture ( self->mBody->CreateFixture ( &fixtureDef ));
 		fixture->SetWorld ( self->mWorld );
-		self->mWorld->LuaRetain ( fixture );
-		fixture->PushLuaUserdata ( state );
-		return 1;           
-	}       
-	return 0;
+		self->mWorld->RubyRetain ( fixture );
+		return fixture->PushRubyUserdata ( state );
+	}
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -71,31 +70,30 @@ int MOAIBox2DBody::_addChain ( lua_State* L ) {
 	@in		number radius	in units, converted to meters
 	@out	MOAIBox2DFixture fixture
 */
-int MOAIBox2DBody::_addCircle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UNNN" )
+mrb_value MOAIBox2DBody::_addCircle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UNNN" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2CircleShape circleShape;
 
-	circleShape.m_p.x		= state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
-	circleShape.m_p.y		= state.GetValue < float >( 3, 0.0f ) * unitsToMeters;
-	circleShape.m_radius	= state.GetValue < float >( 4, 1.0f ) * unitsToMeters;
+	circleShape.m_p.x		= state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
+	circleShape.m_p.y		= state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
+	circleShape.m_radius	= state.GetParamValue < float >( 3, 1.0f ) * unitsToMeters;
 	
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &circleShape;
 	
-	MOAIBox2DFixture* fixture = new MOAIBox2DFixture ();
+	MOAIBox2DFixture* fixture = state.CreateClassInstance < MOAIBox2DFixture >();
 	fixture->SetFixture ( self->mBody->CreateFixture ( &fixtureDef ));
 	fixture->SetWorld ( self->mWorld );
-	self->mWorld->LuaRetain ( fixture );
+	self->mWorld->RubyRetain ( fixture );
 
-	fixture->PushLuaUserdata ( state );
-	return 1;
+	return fixture->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -106,45 +104,46 @@ int MOAIBox2DBody::_addCircle ( lua_State* L ) {
  @in		table verts				Array containing vertex coordinate components in units, world coordinates, converted to meters ( t[1] = x0, t[2] = y0, t[3] = x1, t[4] = y1... )
  @out	    table fixtures			Array containing MOAIBox2DFixture fixtures. Returns nil on failure.
  */
-int MOAIBox2DBody::_addEdges ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_addEdges ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
-	u32 totalVerts = ( u32 )lua_objlen ( state, 2 ) / 2;
+	u32 totalVerts = ( u32 )RARRAY_LEN ( state.GetParamValue ( 1 )) / 2;
 	
 	if (totalVerts) {
 		
-		b2Vec2 * verts = (b2Vec2 *)alloca(sizeof(b2Vec2) * totalVerts);
-		int numVerts = MOAIBox2DFixture::LoadVerts( state, 2, verts, totalVerts, unitsToMeters );
+		b2Vec2* verts = ( b2Vec2* )alloca ( sizeof ( b2Vec2 ) * totalVerts );
+		int numVerts = MOAIBox2DFixture::LoadVerts ( state, 2, verts, totalVerts, unitsToMeters );
 		
 		if ( numVerts ) {
-			MOAILuaState retstate ( L );
-			lua_createtable ( retstate, numVerts, 0 );
-			int idx = 1;
+			MOAIRubyState retstate ( M );
+
+			mrb_value ary = mrb_ary_new ( M );
+			mrb_ary_resize ( M, ary, numVerts );
+
 			b2EdgeShape edgeShape;
 			for ( u32 i = 0; i < totalVerts; i+=2) {
 				edgeShape.Set(verts[i], verts[i+1]);
 				b2FixtureDef fixtureDef;
 				fixtureDef.shape = &edgeShape;
-				MOAIBox2DFixture* fixture = new MOAIBox2DFixture ();
+				MOAIBox2DFixture* fixture = state.CreateClassInstance < MOAIBox2DFixture >();
 				fixture->SetFixture ( self->mBody->CreateFixture ( &fixtureDef ));
 				fixture->SetWorld ( self->mWorld );
-				self->mWorld->LuaRetain ( fixture );
-				lua_pushnumber ( retstate, idx );
-				fixture->PushLuaUserdata ( retstate );				
-				lua_settable ( retstate, -3 );
-				idx++;
+				self->mWorld->RubyRetain ( fixture );
+				//lua_pushnumber ( retstate, idx );
+				mrb_ary_push ( M, ary, fixture->PushRubyUserdata ( retstate ));
+				//lua_settable ( retstate, -3 );
 			}
 			
-			return 1;
+			return ary;
 		}
 	}	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -155,12 +154,12 @@ int MOAIBox2DBody::_addEdges ( lua_State* L ) {
 	@in		table verts					Array containing vertex coordinate components in units, world coordinates, converted to meters. ( t[1] = x0, t[2] = y0, t[3] = x1, t[4] = y1... )
 	@out	MOAIBox2DFixture fixture	Returns nil on failure.
 */
-int MOAIBox2DBody::_addPolygon ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_addPolygon ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters ();
@@ -168,11 +167,11 @@ int MOAIBox2DBody::_addPolygon ( lua_State* L ) {
 	b2Vec2 verts [ b2_maxPolygonVertices ];
 	
 	// TODO: add error checking
-	int numVerts = MOAIBox2DFixture::LoadVerts ( state, 2, verts, b2_maxPolygonVertices, unitsToMeters );
+	int numVerts = MOAIBox2DFixture::LoadVerts ( state, 1, verts, b2_maxPolygonVertices, unitsToMeters );
 	
 	if (( numVerts < 3 ) || ( numVerts > b2_maxPolygonVertices )) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_InvalidVertexCount_D, numVerts );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	if ( numVerts ) {
@@ -183,15 +182,14 @@ int MOAIBox2DBody::_addPolygon ( lua_State* L ) {
 		b2FixtureDef fixtureDef;
 		fixtureDef.shape = &polyShape;
 		
-		MOAIBox2DFixture* fixture = new MOAIBox2DFixture ();
+		MOAIBox2DFixture* fixture = state.CreateClassInstance < MOAIBox2DFixture >();
 		fixture->SetFixture ( self->mBody->CreateFixture ( &fixtureDef ));
 		fixture->SetWorld ( self->mWorld );
-		self->mWorld->LuaRetain ( fixture );
+		self->mWorld->RubyRetain ( fixture );
 
-		fixture->PushLuaUserdata ( state );
-		return 1;
+		return fixture->PushRubyUserdata ( state );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -206,19 +204,19 @@ int MOAIBox2DBody::_addPolygon ( lua_State* L ) {
 	@in		number angle
 	@out	MOAIBox2DFixture fixture
 */
-int MOAIBox2DBody::_addRect ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UNNNN" )
+mrb_value MOAIBox2DBody::_addRect ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UNNNN" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	ZLRect rect = state.GetRect < float >( 2 );
+	ZLRect rect = state.GetRect < float >( 1 );
 	rect.Bless ();
 	
-	float angle = state.GetValue < float >( 6, 0.0f );
+	float angle = state.GetParamValue < float >( 4, 0.0f );
 	
 	float hx = rect.Width () * 0.5f * unitsToMeters;
 	float hy = rect.Height () * 0.5f * unitsToMeters;
@@ -233,13 +231,12 @@ int MOAIBox2DBody::_addRect ( lua_State* L ) {
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &polygonShape;
 	
-	MOAIBox2DFixture* fixture = new MOAIBox2DFixture ();
+	MOAIBox2DFixture* fixture = state.CreateClassInstance < MOAIBox2DFixture >();
 	fixture->SetFixture ( self->mBody->CreateFixture ( &fixtureDef ));
 	fixture->SetWorld ( self->mWorld );
-	self->mWorld->LuaRetain ( fixture );
+	self->mWorld->RubyRetain ( fixture );
 
-	fixture->PushLuaUserdata ( state );
-	return 1;
+	return fixture->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -251,20 +248,20 @@ int MOAIBox2DBody::_addRect ( lua_State* L ) {
 	@opt	boolean wake			wake this body. Default is true
 	@out	nil
 */
-int MOAIBox2DBody::_applyAngularImpulse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UN" )
+mrb_value MOAIBox2DBody::_applyAngularImpulse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UN" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float impulse = state.GetValue < float >( 2, 0.0f ) * self->GetUnitsToMeters();	
-	bool wake = state.GetValue < bool >( 3, true );
+	float impulse = state.GetParamValue < float >( 1, 0.0f ) * self->GetUnitsToMeters();	
+	bool wake = state.GetParamValue < bool >( 2, true );
 	
 	self->mBody->ApplyAngularImpulse ( impulse, wake );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -279,28 +276,28 @@ int MOAIBox2DBody::_applyAngularImpulse ( lua_State* L ) {
 	@opt	boolean wake	wake this body. Default is true
 	@out	nil
 */
-int MOAIBox2DBody::_applyForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UNN" )
+mrb_value MOAIBox2DBody::_applyForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UNN" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 force;
-	force.x = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
-	force.y = state.GetValue < float >( 3, 0.0f ) * unitsToMeters;
+	force.x = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
+	force.y = state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
 	
 	b2Vec2 point;
-	point.x = state.GetValue < float >( 4, 0.0f ) * unitsToMeters;
-	point.y = state.GetValue < float >( 5, 0.0f ) * unitsToMeters;	
+	point.x = state.GetParamValue < float >( 3, 0.0f ) * unitsToMeters;
+	point.y = state.GetParamValue < float >( 4, 0.0f ) * unitsToMeters;	
 	
-	bool wake = state.GetValue < bool >( 6, true );
+	bool wake = state.GetParamValue < bool >( 5, true );
 	
 	self->mBody->ApplyForce ( force, point, wake );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -315,27 +312,27 @@ int MOAIBox2DBody::_applyForce ( lua_State* L ) {
 	@opt	boolean wake	wake this body. Default is true
 	@out	nil
 */
-int MOAIBox2DBody::_applyLinearImpulse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UNN" )
+mrb_value MOAIBox2DBody::_applyLinearImpulse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UNN" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 impulse;
-	impulse.x = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
-	impulse.y = state.GetValue < float >( 3, 0.0f ) * unitsToMeters;
+	impulse.x = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
+	impulse.y = state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
 	
 	b2Vec2 point;
-	point.x = state.GetValue < float >( 4, 0.0f ) * unitsToMeters;
-	point.y = state.GetValue < float >( 5, 0.0f ) * unitsToMeters;
-	bool wake = state.GetValue < bool >( 6, true );
+	point.x = state.GetParamValue < float >( 3, 0.0f ) * unitsToMeters;
+	point.y = state.GetParamValue < float >( 4, 0.0f ) * unitsToMeters;
+	bool wake = state.GetParamValue < bool >( 5, true );
 	
 	self->mBody->ApplyLinearImpulse ( impulse, point, wake );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -347,21 +344,21 @@ int MOAIBox2DBody::_applyLinearImpulse ( lua_State* L ) {
 	@opt	boolean wake	wake this body. Default is true
 	@out	nil
 */
-int MOAIBox2DBody::_applyTorque ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_applyTorque ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	float unitsToMeters = self->GetUnitsToMeters();
 	/* Convert from N-m (kg m / s^2) * m => (kg unit / s^2) * unit */
-	float torque = state.GetValue < float >( 2, 0.0f ) * unitsToMeters * unitsToMeters;
-	bool wake = state.GetValue < bool >( 3, true );
+	float torque = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters * unitsToMeters;
+	bool wake = state.GetParamValue < bool >( 2, true );
 
 	self->mBody->ApplyTorque ( torque, wake );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -371,18 +368,18 @@ int MOAIBox2DBody::_applyTorque ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	nil
 */
-int MOAIBox2DBody::_destroy ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_destroy ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	if ( self->mWorld ) {
 		self->mWorld->ScheduleDestruction ( *self );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -392,17 +389,16 @@ int MOAIBox2DBody::_destroy ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	number angle		Angle in degrees, converted from radians
 */
-int MOAIBox2DBody::_getAngle ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getAngle ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float angle = self->mBody->GetAngle () * ( float )R2D;
-	lua_pushnumber ( state, angle );
-	return 1;
+	return state.ToRValue ( angle );
 }
 
 //----------------------------------------------------------------//
@@ -412,17 +408,16 @@ int MOAIBox2DBody::_getAngle ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	number omega		Angular velocity in degrees/s, converted from radians/s
 */
-int MOAIBox2DBody::_getAngularVelocity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getAngularVelocity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float omega = self->mBody->GetAngularVelocity () * ( float )R2D;
-	lua_pushnumber ( state, omega );
-	return 1;
+	return state.ToRValue ( omega );
 }
 
 //----------------------------------------------------------------//
@@ -433,31 +428,29 @@ int MOAIBox2DBody::_getAngularVelocity ( lua_State* L ) {
 	@in 	boolean	touching
 	@out	... bodies
 */
-int MOAIBox2DBody::_getContactList ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getContactList ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	b2Body* body = self->mBody;
 	if ( !body ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool touching = state.GetValue < bool >( 2, false );
+	bool touching = state.GetParamValue < bool >( 2, false );
 
-	u32 total = 0;
+	mrb_value ary = mrb_ary_new ( M );
 	for ( b2ContactEdge* ce = body->GetContactList (); ce != NULL; ce = ce->next ) {
 
 		if ( !touching || ce->contact->IsTouching () ) {
 			MOAIBox2DBody* moaiBody = ( MOAIBox2DBody* )ce->other->GetUserData ();
 			if ( moaiBody ) {
-				lua_checkstack ( L, 2 );
-				total++;
-				moaiBody->PushLuaUserdata ( state );
+				mrb_ary_push ( M, ary, moaiBody->PushRubyUserdata ( state ));
 			}
 		}
 	}
 
-	return total;
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -467,20 +460,19 @@ int MOAIBox2DBody::_getContactList ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	number inertia			Calculated inertia (based on last call to resetMassData()). In kg * unit/s^s, converted from kg*m/s^2.
 */
-int MOAIBox2DBody::_getInertia ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getInertia ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters();
 	float inertia = self->mBody->GetInertia();
 	inertia /= unitsToMeters;
 	
-	lua_pushnumber ( L, inertia);
-	return 1;
+	return state.ToRValue ( inertia );
 }
 
 //----------------------------------------------------------------//
@@ -490,19 +482,17 @@ int MOAIBox2DBody::_getInertia ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	number gravityScale
 */
-int MOAIBox2DBody::_getGravityScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getGravityScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	float scale = self->mBody->GetGravityScale ();
 
-	lua_pushnumber ( state, scale );
-	
-	return 1;
+	return state.ToRValue ( scale );
 }
 
 //----------------------------------------------------------------//
@@ -513,20 +503,22 @@ int MOAIBox2DBody::_getGravityScale ( lua_State* L ) {
 	@out	number velocityX	in unit/s, converted from m/s
 	@out	number velocityY	in unit/s, converted from m/s
 */
-int MOAIBox2DBody::_getLinearVelocity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getLinearVelocity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 velocity = self->mBody->GetLinearVelocity ();
-	lua_pushnumber ( state, velocity.x / unitsToMeters );
-	lua_pushnumber ( state, velocity.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( velocity.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( velocity.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -537,20 +529,22 @@ int MOAIBox2DBody::_getLinearVelocity ( lua_State* L ) {
 	@out	number centerX	in units, local coordinates, converted from meters
 	@out	number centerY	in units, local coordinates, converted from meters
 */
-int MOAIBox2DBody::_getLocalCenter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getLocalCenter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 center = self->mBody->GetLocalCenter ();
-	lua_pushnumber ( state, center.x / unitsToMeters );
-	lua_pushnumber ( state, center.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( center.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( center.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -560,16 +554,15 @@ int MOAIBox2DBody::_getLocalCenter ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	number mass				Calculated mass in kg (based on last call to resetMassData()).
 */
-int MOAIBox2DBody::_getMass ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getMass ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	lua_pushnumber ( L, self->mBody->GetMass ());
-	return 1;
+	return state.ToRValue ( self->mBody->GetMass () );
 }
 
 //----------------------------------------------------------------//
@@ -580,20 +573,22 @@ int MOAIBox2DBody::_getMass ( lua_State* L ) {
 	@out	number positionX	in units, world coordinates, converted from meters
 	@out	number positionY	in units, world coordinates, converted from meters
 */
-int MOAIBox2DBody::_getPosition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getPosition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 position = self->mBody->GetPosition ();
-	lua_pushnumber ( state, position.x / unitsToMeters );
-	lua_pushnumber ( state, position.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( position.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( position.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -604,20 +599,22 @@ int MOAIBox2DBody::_getPosition ( lua_State* L ) {
 	@out	number worldX	in units, world coordinates, converted from meters
 	@out	number worldY	in units, world coordinates, converted from meters
 */
-int MOAIBox2DBody::_getWorldCenter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_getWorldCenter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 center = self->mBody->GetWorldCenter ();
-	lua_pushnumber ( state, center.x / unitsToMeters );
-	lua_pushnumber ( state, center.y / unitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( center.x / unitsToMeters );
+	ret [ 1 ] = state.ToRValue ( center.y / unitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -627,18 +624,17 @@ int MOAIBox2DBody::_getWorldCenter ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	boolean isActive
 */
-int MOAIBox2DBody::_isActive ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_isActive ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	bool isActive = self->mBody->IsActive ();
-	lua_pushboolean ( state, isActive );
 	
-	return 1;
+	return state.ToRValue ( isActive );
 }
 
 //----------------------------------------------------------------//
@@ -648,18 +644,17 @@ int MOAIBox2DBody::_isActive ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	boolean isAwake
 */
-int MOAIBox2DBody::_isAwake ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_isAwake ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	bool isAwake = self->mBody->IsAwake ();
-	lua_pushboolean ( state, isAwake );
 	
-	return 1;
+	return state.ToRValue ( isAwake );
 }
 
 //----------------------------------------------------------------//
@@ -669,18 +664,17 @@ int MOAIBox2DBody::_isAwake ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	boolean isBullet
 */
-int MOAIBox2DBody::_isBullet ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_isBullet ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	bool isBullet = self->mBody->IsBullet ();
-	lua_pushboolean ( state, isBullet );
 	
-	return 1;
+	return state.ToRValue ( isBullet );
 }
 
 //----------------------------------------------------------------//
@@ -690,18 +684,17 @@ int MOAIBox2DBody::_isBullet ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	boolean isFixedRotation
 */
-int MOAIBox2DBody::_isFixedRotation ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_isFixedRotation ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	bool isFixedRotation = self->mBody->IsFixedRotation ();
-	lua_pushboolean ( state, isFixedRotation );
 	
-	return 1;
+	return state.ToRValue ( isFixedRotation );
 }
 
 //----------------------------------------------------------------//
@@ -711,17 +704,17 @@ int MOAIBox2DBody::_isFixedRotation ( lua_State* L ) {
 	@in		MOAIBox2DBody self
 	@out	nil
 */
-int MOAIBox2DBody::_resetMassData ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_resetMassData ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	self->mBody->ResetMassData ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -732,18 +725,18 @@ int MOAIBox2DBody::_resetMassData ( lua_State* L ) {
 	@opt	boolean active			Default value is false.
 	@out	nil
 */
-int MOAIBox2DBody::_setActive ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setActive ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	bool active = state.GetValue < bool >( 2, false );
+	bool active = state.GetParamValue < bool >( 1, false );
 	self->mBody->SetActive ( active );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -754,18 +747,18 @@ int MOAIBox2DBody::_setActive ( lua_State* L ) {
 	@in		number damping
 	@out	nil
 */
-int MOAIBox2DBody::_setAngularDamping ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UN" )
+mrb_value MOAIBox2DBody::_setAngularDamping ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UN" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float damping = state.GetValue < float >( 2, 0.0f );
+	float damping = state.GetParamValue < float >( 2, 0.0f );
 	self->mBody->SetAngularDamping ( damping );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -776,18 +769,18 @@ int MOAIBox2DBody::_setAngularDamping ( lua_State* L ) {
 	@opt	number omega		Angular velocity in degrees/s, converted to radians/s. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DBody::_setAngularVelocity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setAngularVelocity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float omega = state.GetValue < float >( 2, 0.0f ) * ( float )D2R;
+	float omega = state.GetParamValue < float >( 2, 0.0f ) * ( float )D2R;
 	self->mBody->SetAngularVelocity ( omega );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -798,18 +791,18 @@ int MOAIBox2DBody::_setAngularVelocity ( lua_State* L ) {
 	@opt	boolean awake		Default value is true.
 	@out	nil
 */
-int MOAIBox2DBody::_setAwake ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setAwake ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool awake = state.GetValue < bool >( 2, true );
+	bool awake = state.GetParamValue < bool >( 2, true );
 	self->mBody->SetAwake ( awake );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -820,18 +813,18 @@ int MOAIBox2DBody::_setAwake ( lua_State* L ) {
 	@opt	boolean bullet		Default value is true.
 	@out	nil
 */
-int MOAIBox2DBody::_setBullet ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setBullet ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool bullet = state.GetValue < bool >( 2, true );
+	bool bullet = state.GetParamValue < bool >( 2, true );
 	self->mBody->SetBullet ( bullet );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -842,18 +835,18 @@ int MOAIBox2DBody::_setBullet ( lua_State* L ) {
 	@opt	boolean fixedRotation		Default value is true.
 	@out	nil
 */
-int MOAIBox2DBody::_setFixedRotation ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setFixedRotation ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool fixedRotation = state.GetValue < bool >( 2, true );
+	bool fixedRotation = state.GetParamValue < bool >( 2, true );
 	self->mBody->SetFixedRotation ( fixedRotation );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -864,18 +857,18 @@ int MOAIBox2DBody::_setFixedRotation ( lua_State* L ) {
 	@opt	number gravityScale.
 	@out	nil
 */
-int MOAIBox2DBody::_setGravityScale ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UN" );
+mrb_value MOAIBox2DBody::_setGravityScale ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UN" );
 
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float scale = state.GetValue < float >( 2, 0.0f );
+	float scale = state.GetParamValue < float >( 2, 0.0f );
 	self->mBody->SetGravityScale ( scale );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -886,18 +879,18 @@ int MOAIBox2DBody::_setGravityScale ( lua_State* L ) {
 	@opt	number damping
 	@out	nil
 */
-int MOAIBox2DBody::_setLinearDamping ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UN" )
+mrb_value MOAIBox2DBody::_setLinearDamping ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UN" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float damping = state.GetValue < float >( 2, 0.0f );
+	float damping = state.GetParamValue < float >( 2, 0.0f );
 	self->mBody->SetLinearDamping ( damping );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -909,22 +902,22 @@ int MOAIBox2DBody::_setLinearDamping ( lua_State* L ) {
 	@opt	number velocityY	in unit/s, converted to m/s. Default is 0.
 	@out	nil
 */
-int MOAIBox2DBody::_setLinearVelocity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setLinearVelocity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 v;
-	v.x		= state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
-	v.y		= state.GetValue < float >( 3, 0.0f ) * unitsToMeters;
+	v.x		= state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
+	v.y		= state.GetParamValue < float >( 3, 0.0f ) * unitsToMeters;
 	
 	self->mBody->SetLinearVelocity ( v );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -938,31 +931,31 @@ int MOAIBox2DBody::_setLinearVelocity ( lua_State* L ) {
 	@opt	number centerY		in units, local coordinates, converted to meters. Default is previous value for centerY.
 	@out	nil
 */
-int MOAIBox2DBody::_setMassData ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UN" )
+mrb_value MOAIBox2DBody::_setMassData ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UN" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	if ( self->mWorld->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2MassData massData;
 	self->mBody->GetMassData ( &massData );
 	
-	massData.mass		= state.GetValue < float >( 2, massData.mass );
-	massData.I			= state.GetValue < float >( 3, massData.I ) * unitsToMeters * unitsToMeters;
-	massData.center.x	= state.GetValue < float >( 4, massData.center.x ) * unitsToMeters;
-	massData.center.y	= state.GetValue < float >( 5, massData.center.y ) * unitsToMeters;
+	massData.mass		= state.GetParamValue < float >( 2, massData.mass );
+	massData.I			= state.GetParamValue < float >( 3, massData.I ) * unitsToMeters * unitsToMeters;
+	massData.center.x	= state.GetParamValue < float >( 4, massData.center.x ) * unitsToMeters;
+	massData.center.y	= state.GetParamValue < float >( 5, massData.center.y ) * unitsToMeters;
 	
 	self->mBody->SetMassData ( &massData );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -975,29 +968,29 @@ int MOAIBox2DBody::_setMassData ( lua_State* L ) {
 	@opt	number angle			In degrees, converted to radians. Default is 0.
 	@out	nil
 */
-int MOAIBox2DBody::_setTransform ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "U" )
+mrb_value MOAIBox2DBody::_setTransform ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	if ( self->mWorld->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
 	b2Vec2 position;
-	position.x		= state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
-	position.y		= state.GetValue < float >( 3, 0.0f ) * unitsToMeters;
-	float angle		= state.GetValue < float >( 4, 0.0f ) * ( float )D2R;
+	position.x		= state.GetParamValue < float >( 2, 0.0f ) * unitsToMeters;
+	position.y		= state.GetParamValue < float >( 3, 0.0f ) * unitsToMeters;
+	float angle		= state.GetParamValue < float >( 4, 0.0f ) * ( float )D2R;
 	
 	self->mBody->SetTransform ( position, angle );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 
@@ -1009,25 +1002,25 @@ int MOAIBox2DBody::_setTransform ( lua_State* L ) {
 	@in		number type		One of MOAIBox2DBody.DYNAMIC, MOAIBox2DBody.KINEMATIC, MOAIBox2DBody.STATIC
 	@out	nil
 */
-int MOAIBox2DBody::_setType ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DBody, "UN" )
+mrb_value MOAIBox2DBody::_setType ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DBody, "UN" )
 	
 	if ( !self->mBody ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DBody_MissingInstance );
-		return 0;
+		return context;
 	}
 	
 	if ( self->mWorld->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return context;
 	}
 	
-	u32 type	= state.GetValue < u32 >( 2, 0 );
+	u32 type	= state.GetParamValue < u32 >( 1, 0 );
 	
 	self->mBody->SetType ( ( b2BodyType ) type );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -1056,62 +1049,58 @@ MOAIBox2DBody::~MOAIBox2DBody () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DBody::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIBox2DBody::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAITransformBase::RegisterLuaClass ( state );
+	MOAITransformBase::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "DYNAMIC",		( u32 )b2_dynamicBody );
-	state.SetField ( -1, "KINEMATIC",	( u32 )b2_kinematicBody );
-	state.SetField ( -1, "STATIC",		( u32 )b2_staticBody );
+	state.DefineClassConst ( klass, "DYNAMIC",		( u32 )b2_dynamicBody );
+	state.DefineClassConst ( klass, "KINEMATIC",	( u32 )b2_kinematicBody );
+	state.DefineClassConst ( klass, "STATIC",		( u32 )b2_staticBody );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DBody::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIBox2DBody::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAITransformBase::RegisterLuaFuncs ( state );
-	
-	luaL_Reg regTable [] = {
-		{ "addChain",				_addChain },
-		{ "addCircle",				_addCircle },
-		{ "addEdges",               _addEdges },
-		{ "addPolygon",				_addPolygon },
-		{ "addRect",				_addRect },
-		{ "applyAngularImpulse",	_applyAngularImpulse },
-		{ "applyForce",				_applyForce },
-		{ "applyLinearImpulse",		_applyLinearImpulse },
-		{ "applyTorque",			_applyTorque },
-		{ "destroy",				_destroy },
-		{ "getAngle",				_getAngle },
-		{ "getAngularVelocity",		_getAngularVelocity },
-		{ "getContactList",			_getContactList },
-		{ "getInertia",				_getInertia },
-		{ "getGravityScale",		_getGravityScale },
-		{ "getLinearVelocity",		_getLinearVelocity },
-		{ "getLocalCenter",			_getLocalCenter },
-		{ "getMass",				_getMass },
-		{ "getPosition",			_getPosition },
-		{ "getWorldCenter",			_getWorldCenter },
-		{ "isActive",				_isActive },
-		{ "isAwake",				_isAwake },
-		{ "isBullet",				_isBullet },
-		{ "isFixedRotation",		_isFixedRotation },
-		{ "resetMassData",			_resetMassData },
-		{ "setActive",				_setActive },
-		{ "setAngularDamping",		_setAngularDamping },
-		{ "setAngularVelocity",		_setAngularVelocity },
-		{ "setAwake",				_setAwake },
-		{ "setBullet",				_setBullet },
-		{ "setFixedRotation",		_setFixedRotation },
-		{ "setGravityScale",		_setGravityScale },
-		{ "setLinearDamping",		_setLinearDamping },
-		{ "setLinearVelocity",		_setLinearVelocity },
-		{ "setMassData",			_setMassData },
-		{ "setTransform",			_setTransform },
-		{ "setType",				_setType },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	MOAITransformBase::RegisterRubyFuncs ( state, klass );
+
+	state.DefineInstanceMethod ( klass, "addChain",				_addChain, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "addCircle",				_addCircle, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "addEdges",               _addEdges, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "addPolygon",				_addPolygon, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "addRect",				_addRect, MRB_ARGS_REQ ( 5 ) );
+	state.DefineInstanceMethod ( klass, "applyAngularImpulse",	_applyAngularImpulse, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "applyForce",				_applyForce, MRB_ARGS_ARG ( 2, 3 ) );
+	state.DefineInstanceMethod ( klass, "applyLinearImpulse",		_applyLinearImpulse, MRB_ARGS_ARG ( 2, 3 ) );
+	state.DefineInstanceMethod ( klass, "applyTorque",			_applyTorque, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "destroy",				_destroy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAngle",				_getAngle, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAngularVelocity",		_getAngularVelocity, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getContactList",			_getContactList, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "getInertia",				_getInertia, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getGravityScale",		_getGravityScale, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLinearVelocity",		_getLinearVelocity, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLocalCenter",			_getLocalCenter, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMass",				_getMass, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPosition",			_getPosition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorldCenter",			_getWorldCenter, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isActive",				_isActive, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isAwake",				_isAwake, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isBullet",				_isBullet, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isFixedRotation",		_isFixedRotation, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "resetMassData",			_resetMassData, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setActive",				_setActive, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setAngularDamping",		_setAngularDamping, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setAngularVelocity",		_setAngularVelocity, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setAwake",				_setAwake, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setBullet",				_setBullet, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setFixedRotation",		_setFixedRotation, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setGravityScale",		_setGravityScale, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLinearDamping",		_setLinearDamping, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLinearVelocity",		_setLinearVelocity, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setMassData",			_setMassData, MRB_ARGS_ARG ( 1, 3 ) );
+	state.DefineInstanceMethod ( klass, "setTransform",			_setTransform, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setType",				_setType, MRB_ARGS_REQ ( 1 ) );
+
 }
 
 //----------------------------------------------------------------//

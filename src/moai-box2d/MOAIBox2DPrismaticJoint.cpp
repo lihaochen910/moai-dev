@@ -20,19 +20,18 @@
 	@in		MOAIBox2DPrismaticJoint self
 	@out	number jointSpeed				in units/s, converted from m/s
 */
-int MOAIBox2DPrismaticJoint::_getJointSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_getJointSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->GetJointSpeed () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetJointSpeed () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -42,19 +41,18 @@ int MOAIBox2DPrismaticJoint::_getJointSpeed ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	number jointTranslation			in units, converted from meters.
 */
-int MOAIBox2DPrismaticJoint::_getJointTranslation ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_getJointTranslation ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->GetJointTranslation () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetJointTranslation () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -64,19 +62,18 @@ int MOAIBox2DPrismaticJoint::_getJointTranslation ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	number lowerLimit				in units, converted from meters.
 */
-int MOAIBox2DPrismaticJoint::_getLowerLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_getLowerLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->GetLowerLimit () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetLowerLimit () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -86,21 +83,20 @@ int MOAIBox2DPrismaticJoint::_getLowerLimit ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	number motorForce				in kg * units / s^2, converted from N [kg * m / s^2]
 */
-int MOAIBox2DPrismaticJoint::_getMotorForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_getMotorForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
 
 	float step = ( float )( 1.0 / MOAISim::Get ().GetStep ());
-	state.Push ( joint->GetMotorForce (step) / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMotorForce (step) / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -110,19 +106,18 @@ int MOAIBox2DPrismaticJoint::_getMotorForce ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	number motorSpeed				in units/s, converted from m/s
 */
-int MOAIBox2DPrismaticJoint::_getMotorSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_getMotorSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->GetMotorSpeed () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetMotorSpeed () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -132,19 +127,18 @@ int MOAIBox2DPrismaticJoint::_getMotorSpeed ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	number upperLimit				in units, converted from meters.
 */
-int MOAIBox2DPrismaticJoint::_getUpperLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_getUpperLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->GetUpperLimit () / unitsToMeters );
 	
-	return 1;
+	return state.ToRValue ( joint->GetUpperLimit () / unitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -154,18 +148,17 @@ int MOAIBox2DPrismaticJoint::_getUpperLimit ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	boolean limitEnabled
 */
-int MOAIBox2DPrismaticJoint::_isLimitEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_isLimitEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->IsLimitEnabled ());
 	
-	return 1;
+	return state.ToRValue ( joint->IsLimitEnabled () );
 }
 
 //----------------------------------------------------------------//
@@ -175,18 +168,17 @@ int MOAIBox2DPrismaticJoint::_isLimitEnabled ( lua_State* L ) {
 	@in		MOAIBox2DPrismaticJoint self
 	@out	boolean motorEnabled
 */
-int MOAIBox2DPrismaticJoint::_isMotorEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_isMotorEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
-	state.Push ( joint->IsMotorEnabled ());
 	
-	return 1;
+	return state.ToRValue ( joint->IsMotorEnabled () );
 }
 
 //----------------------------------------------------------------//
@@ -198,16 +190,16 @@ int MOAIBox2DPrismaticJoint::_isMotorEnabled ( lua_State* L ) {
 	@opt	number upper			in units, converted to meters. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DPrismaticJoint::_setLimit ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_setLimit ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float lower	= state.GetValue < float >( 2, 0.0f );
-	float upper	= state.GetValue < float >( 3, 0.0f );
+	float lower	= state.GetParamValue < float >( 1, 0.0f );
+	float upper	= state.GetParamValue < float >( 2, 0.0f );
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
@@ -215,7 +207,7 @@ int MOAIBox2DPrismaticJoint::_setLimit ( lua_State* L ) {
 	joint->SetLimits ( lower * unitsToMeters, upper * unitsToMeters );
 	joint->EnableLimit ( true );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -226,20 +218,20 @@ int MOAIBox2DPrismaticJoint::_setLimit ( lua_State* L ) {
 	@opt	boolean enabled			Default value is 'true'
 	@out	nil
 */
-int MOAIBox2DPrismaticJoint::_setLimitEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_setLimitEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool enabled = state.GetValue < bool >( 2, true );
+	bool enabled = state.GetParamValue < bool >( 1, true );
 	
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
 	joint->EnableLimit ( enabled );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -250,21 +242,21 @@ int MOAIBox2DPrismaticJoint::_setLimitEnabled ( lua_State* L ) {
 	@opt	number maxMotorForce		in kg * units / s^2, converted to N [kg * m / s^2]. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DPrismaticJoint::_setMaxMotorForce ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_setMaxMotorForce ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	float unitsToMeters = self->GetUnitsToMeters ();
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float maxMotorForce = state.GetValue < float >( 2, 0.0f );
+	float maxMotorForce = state.GetParamValue < float >( 1, 0.0f );
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
 	joint->SetMaxMotorForce ( maxMotorForce * unitsToMeters );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -278,17 +270,17 @@ int MOAIBox2DPrismaticJoint::_setMaxMotorForce ( lua_State* L ) {
 	@opt	boolean forceEnable		Default value is false.
 	@out	nil
 */
-int MOAIBox2DPrismaticJoint::_setMotor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_setMotor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	float speed	= state.GetValue < float >( 2, 0.0f );
-	float max	= state.GetValue < float >( 3, 0.0f );
-	bool forceEnable = state.GetValue < bool >( 4, false );
+	float speed	= state.GetParamValue < float >( 1, 0.0f );
+	float max	= state.GetParamValue < float >( 2, 0.0f );
+	bool forceEnable = state.GetParamValue < bool >( 3, false );
 	
 	float unitsToMeters = self->GetUnitsToMeters ();
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
@@ -297,7 +289,7 @@ int MOAIBox2DPrismaticJoint::_setMotor ( lua_State* L ) {
 	joint->SetMaxMotorForce ( max * unitsToMeters );
 	joint->EnableMotor ( forceEnable ? true : ( speed != 0.0f ) );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -308,20 +300,20 @@ int MOAIBox2DPrismaticJoint::_setMotor ( lua_State* L ) {
 	@opt	boolean enabled			Default value is 'true'
 	@out	nil
 */
-int MOAIBox2DPrismaticJoint::_setMotorEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_setMotorEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 	
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	bool enabled = state.GetValue < bool >( 2, true );
+	bool enabled = state.GetParamValue < bool >( 1, true );
 	
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
 	joint->EnableMotor ( enabled );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -333,21 +325,21 @@ int MOAIBox2DPrismaticJoint::_setMotorEnabled ( lua_State* L ) {
 	@out	nil
 
  */
-int MOAIBox2DPrismaticJoint::_setMotorSpeed ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DPrismaticJoint, "U" )
+mrb_value MOAIBox2DPrismaticJoint::_setMotorSpeed ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DPrismaticJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	float unitsToMeters = self->GetUnitsToMeters ();
-	float speed = state.GetValue < float >( 2, 0.0f ) * unitsToMeters;
+	float speed = state.GetParamValue < float >( 1, 0.0f ) * unitsToMeters;
 
 	b2PrismaticJoint* joint = ( b2PrismaticJoint* )self->mJoint;
 	joint->SetMotorSpeed ( speed );
 
-	return 0;
+	return mrb_nil_value ();
 }
 
 
@@ -368,31 +360,27 @@ MOAIBox2DPrismaticJoint::~MOAIBox2DPrismaticJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DPrismaticJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DPrismaticJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DPrismaticJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DPrismaticJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getJointSpeed",				_getJointSpeed },
-		{ "getJointTranslation",		_getJointTranslation },
-		{ "getLowerLimit",				_getLowerLimit },
-		{ "getMotorForce",				_getMotorForce },
-		{ "getMotorSpeed",				_getMotorSpeed },
-		{ "getUpperLimit",				_getUpperLimit },
-		{ "isLimitEnabled",				_isLimitEnabled },
-		{ "isMotorEnabled",				_isMotorEnabled },
-		{ "setLimit",					_setLimit },
-		{ "setLimitEnabled",			_setLimitEnabled },
-		{ "setMaxMotorForce",			_setMaxMotorForce },
-		{ "setMotor",					_setMotor },
-		{ "setMotorSpeed",				_setMotorSpeed },
-		{ "setMotorEnabled",			_setMotorEnabled },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getJointSpeed",				_getJointSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getJointTranslation",		_getJointTranslation, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLowerLimit",				_getLowerLimit, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMotorForce",				_getMotorForce, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getMotorSpeed",				_getMotorSpeed, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getUpperLimit",				_getUpperLimit, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isLimitEnabled",				_isLimitEnabled, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isMotorEnabled",				_isMotorEnabled, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setLimit",					_setLimit, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setLimitEnabled",			_setLimitEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMaxMotorForce",			_setMaxMotorForce, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMotor",					_setMotor, MRB_ARGS_ARG ( 0, 3 ) );
+	state.DefineInstanceMethod ( klass, "setMotorSpeed",				_setMotorSpeed, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setMotorEnabled",			_setMotorEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+
 }

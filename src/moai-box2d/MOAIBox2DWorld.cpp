@@ -87,29 +87,28 @@ MOAIBox2DPrim::MOAIBox2DPrim () :
 	@opt	number y	in units, in world coordinates, converted to meters
 	@out	MOAIBox2DBody joint
 */
-int MOAIBox2DWorld::_addBody ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UN" )
+mrb_value MOAIBox2DWorld::_addBody ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	u32 type	= state.GetValue < u32 >( 2, 0 );
-	float x		= state.GetValue < float >( 3, 0.0f ) * self->mUnitsToMeters;
-	float y		= state.GetValue < float >( 4, 0.0f ) * self->mUnitsToMeters;
+	u32 type	= state.GetParamValue < u32 >( 1, 0 );
+	float x		= state.GetParamValue < float >( 2, 0.0f ) * self->mUnitsToMeters;
+	float y		= state.GetParamValue < float >( 3, 0.0f ) * self->mUnitsToMeters;
 	
 	b2BodyDef groundBodyDef;
 	groundBodyDef.type = ( b2BodyType )type;
 	groundBodyDef.position.Set ( x, y );
 	
-	MOAIBox2DBody* body = new MOAIBox2DBody ();
+	MOAIBox2DBody* body = state.CreateClassInstance < MOAIBox2DBody >();
 	body->SetBody ( self->mWorld->CreateBody ( &groundBodyDef ));
 	body->SetWorld ( self );
-	self->LuaRetain ( body );
+	self->RubyRetain ( body );
 	
-	body->PushLuaUserdata ( state );
-	return 1;
+	return body->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -128,43 +127,42 @@ int MOAIBox2DWorld::_addBody ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addDistanceJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
+mrb_value	MOAIBox2DWorld::_addDistanceJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 anchorA;
-	anchorA.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	anchorA.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchorA.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	anchorA.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2Vec2 anchorB;
-	anchorB.x	= state.GetValue < float >( 6, 0 ) * self->mUnitsToMeters;
-	anchorB.y	= state.GetValue < float >( 7, 0 ) * self->mUnitsToMeters;
+	anchorB.x	= state.GetParamValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchorB.y	= state.GetParamValue < float >( 6, 0 ) * self->mUnitsToMeters;
 	
 	b2DistanceJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, anchorA, anchorB );
 	
-	jointDef.frequencyHz	= state.GetValue < float >( 8, jointDef.frequencyHz );
-	jointDef.dampingRatio	= state.GetValue < float >( 9, jointDef.dampingRatio );
-	jointDef.collideConnected = state.GetValue < bool >( 10, false );
+	jointDef.frequencyHz	= state.GetParamValue < float >( 7, jointDef.frequencyHz );
+	jointDef.dampingRatio	= state.GetParamValue < float >( 8, jointDef.dampingRatio );
+	jointDef.collideConnected = state.GetParamValue < bool >( 9, false );
 	
-	MOAIBox2DDistanceJoint* joint = new MOAIBox2DDistanceJoint ();
+	MOAIBox2DDistanceJoint* joint = state.CreateClassInstance < MOAIBox2DDistanceJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -181,43 +179,42 @@ int	MOAIBox2DWorld::_addDistanceJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addFrictionJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNN" )
+mrb_value	MOAIBox2DWorld::_addFrictionJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 anchor;
-	anchor.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	anchor.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchor.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	anchor.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2FrictionJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, anchor );
 
 	float unitsToMeters = self->GetUnitsToMeters();
 
-	jointDef.maxForce	= state.GetValue < float >( 6, jointDef.maxForce / unitsToMeters ) * unitsToMeters;
+	jointDef.maxForce	= state.GetParamValue < float >( 5, jointDef.maxForce / unitsToMeters ) * unitsToMeters;
 	/* Convert to/from N-m (kg m / s^2) * m from/to (kg unit / s^2) * unit */
-	jointDef.maxTorque	= state.GetValue < float >( 7, jointDef.maxTorque / ( unitsToMeters * unitsToMeters ) ) * unitsToMeters * unitsToMeters;
+	jointDef.maxTorque	= state.GetParamValue < float >( 6, jointDef.maxTorque / ( unitsToMeters * unitsToMeters ) ) * unitsToMeters * unitsToMeters;
 	
-	jointDef.collideConnected = state.GetValue < bool >( 8, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 7, false );
 	
-	MOAIBox2DFrictionJoint* joint = new MOAIBox2DFrictionJoint ();
+	MOAIBox2DFrictionJoint* joint = state.CreateClassInstance < MOAIBox2DFrictionJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -231,18 +228,18 @@ int	MOAIBox2DWorld::_addFrictionJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addGearJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUN" )
+mrb_value	MOAIBox2DWorld::_addGearJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DJoint* jointA = state.GetLuaObject < MOAIBox2DJoint >( 2, true );
-	MOAIBox2DJoint* jointB = state.GetLuaObject < MOAIBox2DJoint >( 3, true );
+	MOAIBox2DJoint* jointA = state.GetRubyObject < MOAIBox2DJoint >( 1, true );
+	MOAIBox2DJoint* jointB = state.GetRubyObject < MOAIBox2DJoint >( 2, true );
 	
-	if ( !( jointA && jointB )) return 0;
+	if ( !( jointA && jointB )) return mrb_nil_value ();
 	
 	b2GearJointDef jointDef;
 	
@@ -250,19 +247,18 @@ int	MOAIBox2DWorld::_addGearJoint ( lua_State* L ) {
 	jointDef.bodyB				= jointB->mJoint->GetBodyB ();
 	jointDef.joint1				= jointA->mJoint;
 	jointDef.joint2				= jointB->mJoint;
-	jointDef.ratio				= state.GetValue < float >( 4, 0.0f );
-	jointDef.collideConnected	= state.GetValue < bool >( 5, false );
+	jointDef.ratio				= state.GetParamValue < float >( 3, 0.0f );
+	jointDef.collideConnected	= state.GetParamValue < bool >( 4, false );
 	
-	MOAIBox2DGearJoint* joint = new MOAIBox2DGearJoint ();
+	MOAIBox2DGearJoint* joint = state.CreateClassInstance < MOAIBox2DGearJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	self->LuaRetain ( joint );
+	self->RubyRetain ( joint );
 	
 	joint->mJointA.Set ( *self, jointA );
 	joint->mJointB.Set ( *self, jointB );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -275,33 +271,32 @@ int	MOAIBox2DWorld::_addGearJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int MOAIBox2DWorld::_addMotorJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUU" )
+mrb_value MOAIBox2DWorld::_addMotorJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUU" )
 
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2MotorJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody );
 	
-	jointDef.collideConnected = state.GetValue < bool >( 4, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 3, false );
 	
-	MOAIBox2DMotorJoint* joint = new MOAIBox2DMotorJoint ();
+	MOAIBox2DMotorJoint* joint = state.CreateClassInstance < MOAIBox2DMotorJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -319,41 +314,40 @@ int MOAIBox2DWorld::_addMotorJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addMouseJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNNN" )
+mrb_value	MOAIBox2DWorld::_addMouseJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 target;
-	target.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	target.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	target.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	target.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2MouseJointDef jointDef;
 	jointDef.bodyA				= bodyA->mBody;
 	jointDef.bodyB				= bodyB->mBody;
 	jointDef.target				= target;
-	jointDef.maxForce			= state.GetValue < float >( 6, 0.0f ) * self->mUnitsToMeters;
-	jointDef.frequencyHz		= state.GetValue < float >( 7, jointDef.frequencyHz );
-	jointDef.dampingRatio		= state.GetValue < float >( 8, jointDef.dampingRatio );
-	jointDef.collideConnected	= state.GetValue < bool >( 9, false );
+	jointDef.maxForce			= state.GetParamValue < float >( 5, 0.0f ) * self->mUnitsToMeters;
+	jointDef.frequencyHz		= state.GetParamValue < float >( 6, jointDef.frequencyHz );
+	jointDef.dampingRatio		= state.GetParamValue < float >( 7, jointDef.dampingRatio );
+	jointDef.collideConnected	= state.GetParamValue < bool >( 8, false );
 	
-	MOAIBox2DMouseJoint* joint = new MOAIBox2DMouseJoint ();
+	MOAIBox2DMouseJoint* joint = state.CreateClassInstance < MOAIBox2DMouseJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -370,41 +364,40 @@ int	MOAIBox2DWorld::_addMouseJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addPrismaticJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
+mrb_value	MOAIBox2DWorld::_addPrismaticJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 anchor;
-	anchor.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	anchor.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchor.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	anchor.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2Vec2 axis;
-	axis.x		= state.GetValue < float >( 6, 0 );
-	axis.y		= state.GetValue < float >( 7, 0 );
+	axis.x		= state.GetParamValue < float >( 5, 0 );
+	axis.y		= state.GetParamValue < float >( 6, 0 );
 	
 	b2PrismaticJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, anchor, axis );
 	
-	jointDef.collideConnected = state.GetValue < bool >( 8, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 7, false );
 	
-	MOAIBox2DPrismaticJoint* joint = new MOAIBox2DPrismaticJoint ();
+	MOAIBox2DPrismaticJoint* joint = state.CreateClassInstance < MOAIBox2DPrismaticJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -428,54 +421,53 @@ int	MOAIBox2DWorld::_addPrismaticJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addPulleyJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNNNNNNNNNNN" )
+mrb_value	MOAIBox2DWorld::_addPulleyJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNNNNNNNNNNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 groundAnchorA;
-	groundAnchorA.x		= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	groundAnchorA.y		= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	groundAnchorA.x		= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	groundAnchorA.y		= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2Vec2 groundAnchorB;
-	groundAnchorB.x		= state.GetValue < float >( 6, 0 ) * self->mUnitsToMeters;
-	groundAnchorB.y		= state.GetValue < float >( 7, 0 ) * self->mUnitsToMeters;
+	groundAnchorB.x		= state.GetParamValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	groundAnchorB.y		= state.GetParamValue < float >( 6, 0 ) * self->mUnitsToMeters;
 	
 	b2Vec2 anchorA;
-	anchorA.x			= state.GetValue < float >( 8, 0 ) * self->mUnitsToMeters;
-	anchorA.y			= state.GetValue < float >( 9, 0 ) * self->mUnitsToMeters;
+	anchorA.x			= state.GetParamValue < float >( 7, 0 ) * self->mUnitsToMeters;
+	anchorA.y			= state.GetParamValue < float >( 8, 0 ) * self->mUnitsToMeters;
 	
 	b2Vec2 anchorB;
-	anchorB.x			= state.GetValue < float >( 10, 0 ) * self->mUnitsToMeters;
-	anchorB.y			= state.GetValue < float >( 11, 0 ) * self->mUnitsToMeters;
+	anchorB.x			= state.GetParamValue < float >( 9, 0 ) * self->mUnitsToMeters;
+	anchorB.y			= state.GetParamValue < float >( 10, 0 ) * self->mUnitsToMeters;
 	
-	float ratio			= state.GetValue < float >( 12, 0 );
+	float ratio			= state.GetParamValue < float >( 11, 0 );
 	
 	b2PulleyJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, groundAnchorA, groundAnchorB, anchorA, anchorB, ratio );
 	
-	jointDef.lengthA	= state.GetValue < float >( 13, 0 ) * self->mUnitsToMeters;
-	jointDef.lengthB	= state.GetValue < float >( 14, 0 ) * self->mUnitsToMeters;
+	jointDef.lengthA	= state.GetParamValue < float >( 12, 0 ) * self->mUnitsToMeters;
+	jointDef.lengthB	= state.GetParamValue < float >( 13, 0 ) * self->mUnitsToMeters;
 	
-	jointDef.collideConnected = state.GetValue < bool >( 15, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 15, false );
 	
-	MOAIBox2DPulleyJoint* joint = new MOAIBox2DPulleyJoint ();
+	MOAIBox2DPulleyJoint* joint = state.CreateClassInstance < MOAIBox2DPulleyJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -490,37 +482,36 @@ int	MOAIBox2DWorld::_addPulleyJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addRevoluteJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNN" )
+mrb_value	MOAIBox2DWorld::_addRevoluteJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 anchor;
-	anchor.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	anchor.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchor.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	anchor.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2RevoluteJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, anchor );
 	
-	jointDef.collideConnected = state.GetValue < bool >( 6, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 5, false );
 	
-	MOAIBox2DRevoluteJoint* joint = new MOAIBox2DRevoluteJoint ();
+	MOAIBox2DRevoluteJoint* joint = state.CreateClassInstance < MOAIBox2DRevoluteJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -536,42 +527,41 @@ int	MOAIBox2DWorld::_addRevoluteJoint ( lua_State* L ) {
 	@in		number anchorB_Y	in units, in world coordinates, converted to meters
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addRevoluteJointLocal( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
+mrb_value	MOAIBox2DWorld::_addRevoluteJointLocal( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 		
 	b2RevoluteJointDef jointDef;
 	jointDef.bodyA = bodyA->mBody;
 	jointDef.bodyB = bodyB->mBody;
 	
 	jointDef.localAnchorA.Set(
-		state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters, 
-		state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters
+		state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters, 
+		state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters
 	);
 		
 	jointDef.localAnchorB.Set(
-		state.GetValue < float >( 6, 0 ) * self->mUnitsToMeters, 
-		state.GetValue < float >( 7, 0 ) * self->mUnitsToMeters
+		state.GetParamValue < float >( 5, 0 ) * self->mUnitsToMeters, 
+		state.GetParamValue < float >( 6, 0 ) * self->mUnitsToMeters
 	);
 		
-	MOAIBox2DRevoluteJoint* joint = new MOAIBox2DRevoluteJoint ();
+	MOAIBox2DRevoluteJoint* joint = state.CreateClassInstance < MOAIBox2DRevoluteJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -589,30 +579,30 @@ int	MOAIBox2DWorld::_addRevoluteJointLocal( lua_State* L ) {
 	@opt	boolean collideConnected		Default value is false
 	@out	MOAIBox2DJoint joint
  */
-int	MOAIBox2DWorld::_addRopeJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUU" )
+mrb_value	MOAIBox2DWorld::_addRopeJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUU" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
-	float maxLength = state.GetValue < float >( 4, 1 ) * self->mUnitsToMeters;
+	float maxLength = state.GetParamValue < float >( 3, 1 ) * self->mUnitsToMeters;
 	
 	b2Vec2 anchorA;
-	anchorA.x	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
-	anchorA.y	= state.GetValue < float >( 6, 0 ) * self->mUnitsToMeters;
+	anchorA.x	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
+	anchorA.y	= state.GetParamValue < float >( 5, 0 ) * self->mUnitsToMeters;
 
 	b2Vec2 anchorB;
-	anchorB.x	= state.GetValue < float >( 7, 0 ) * self->mUnitsToMeters;
-	anchorB.y	= state.GetValue < float >( 8, 0 ) * self->mUnitsToMeters;
+	anchorB.x	= state.GetParamValue < float >( 6, 0 ) * self->mUnitsToMeters;
+	anchorB.y	= state.GetParamValue < float >( 7, 0 ) * self->mUnitsToMeters;
 
-	bool collideConnected = state.GetValue < bool >( 9, false );
+	bool collideConnected = state.GetParamValue < bool >( 8, false );
 	
 	b2RopeJointDef jointDef;
 	jointDef.bodyA = bodyA->mBody;
@@ -622,15 +612,14 @@ int	MOAIBox2DWorld::_addRopeJoint ( lua_State* L ) {
 	jointDef.localAnchorB = bodyB->mBody->GetLocalPoint(anchorB);
 	jointDef.maxLength = maxLength;
 	
-	MOAIBox2DRopeJoint* joint = new MOAIBox2DRopeJoint ();
+	MOAIBox2DRopeJoint* joint = state.CreateClassInstance < MOAIBox2DRopeJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 
@@ -646,37 +635,36 @@ int	MOAIBox2DWorld::_addRopeJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
 */
-int	MOAIBox2DWorld::_addWeldJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNN" )
+mrb_value	MOAIBox2DWorld::_addWeldJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 anchor;
-	anchor.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	anchor.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchor.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	anchor.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2WeldJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, anchor );
 	
-	jointDef.collideConnected = state.GetValue < bool >( 6, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 5, false );
 	
-	MOAIBox2DWeldJoint* joint = new MOAIBox2DWeldJoint ();
+	MOAIBox2DWeldJoint* joint = state.CreateClassInstance < MOAIBox2DWeldJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -693,41 +681,40 @@ int	MOAIBox2DWorld::_addWeldJoint ( lua_State* L ) {
 	@opt	boolean collideConnected	Default value is false
 	@out	MOAIBox2DJoint joint
  */
-int	MOAIBox2DWorld::_addWheelJoint ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
+mrb_value	MOAIBox2DWorld::_addWheelJoint ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "UUUNNNN" )
 	
 	if ( self->IsLocked ()) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DWorld_IsLocked );
-		return 0;
+		return mrb_nil_value ();
 	}
 	
-	MOAIBox2DBody* bodyA = state.GetLuaObject < MOAIBox2DBody >( 2, true );
-	MOAIBox2DBody* bodyB = state.GetLuaObject < MOAIBox2DBody >( 3, true );
+	MOAIBox2DBody* bodyA = state.GetRubyObject < MOAIBox2DBody >( 1, true );
+	MOAIBox2DBody* bodyB = state.GetRubyObject < MOAIBox2DBody >( 2, true );
 	
-	if ( !( bodyA && bodyB )) return 0;
+	if ( !( bodyA && bodyB )) return mrb_nil_value ();
 	
 	b2Vec2 anchor;
-	anchor.x	= state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	anchor.y	= state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+	anchor.x	= state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	anchor.y	= state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
 	
 	b2Vec2 axis;
-	axis.x		= state.GetValue < float >( 6, 0 );
-	axis.y      = state.GetValue < float >( 7, 0 );
+	axis.x		= state.GetParamValue < float >( 5, 0 );
+	axis.y      = state.GetParamValue < float >( 6, 0 );
 	
 	b2WheelJointDef jointDef;
 	jointDef.Initialize ( bodyA->mBody, bodyB->mBody, anchor, axis );
 	
-	jointDef.collideConnected = state.GetValue < bool >( 8, false );
+	jointDef.collideConnected = state.GetParamValue < bool >( 7, false );
 	
-	MOAIBox2DWheelJoint* joint = new MOAIBox2DWheelJoint ();
+	MOAIBox2DWheelJoint* joint = state.CreateClassInstance < MOAIBox2DWheelJoint >();
 	joint->SetJoint ( self->mWorld->CreateJoint ( &jointDef ));
 	joint->SetWorld ( self );
-	joint->LuaRetain ( bodyA );
-	joint->LuaRetain ( bodyB );
-	self->LuaRetain ( joint );
+	joint->RubyRetain ( bodyA );
+	joint->RubyRetain ( bodyB );
+	self->RubyRetain ( joint );
 	
-	joint->PushLuaUserdata ( state );
-	return 1;
+	return joint->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -737,13 +724,12 @@ int	MOAIBox2DWorld::_addWheelJoint ( lua_State* L ) {
 	@in		MOAIBox2DWorld self
 	@out	number angularSleepTolerance	in degrees/s, converted from radians/s
 */
-int MOAIBox2DWorld::_getAngularSleepTolerance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_getAngularSleepTolerance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
 	float tolerance = self->mWorld->GetAngularSleepTolerance();
 	tolerance *= ( float )R2D;
-	lua_pushnumber ( state, tolerance);
-	return 0;
+	return state.ToRValue ( tolerance );
 }
 
 //----------------------------------------------------------------//
@@ -753,13 +739,12 @@ int MOAIBox2DWorld::_getAngularSleepTolerance ( lua_State* L ) {
 	@in		MOAIBox2DWorld self
 	@out	boolean autoClearForces
 */
-int MOAIBox2DWorld::_getAutoClearForces ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_getAutoClearForces ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
 	bool autoClearForces = self->mWorld->GetAutoClearForces ();
-	lua_pushboolean ( L, autoClearForces );
 	
-	return 1;
+	return state.ToRValue ( autoClearForces );
 }
 
 //----------------------------------------------------------------//
@@ -770,15 +755,16 @@ int MOAIBox2DWorld::_getAutoClearForces ( lua_State* L ) {
 	@out	number gravityX		in units/s^2, converted from m/s^2
 	@out	number gravityY		in units/s^2, converted from m/s^2
 */
-int MOAIBox2DWorld::_getGravity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_getGravity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
 	b2Vec2 gravity = self->mWorld->GetGravity ();
-	
-	lua_pushnumber ( L, gravity.x / self->mUnitsToMeters );
-	lua_pushnumber ( L, gravity.y / self->mUnitsToMeters );
-	
-	return 2;
+
+	mrb_value ret [ 2 ];
+	ret [ 0 ] = state.ToRValue ( gravity.x / self->mUnitsToMeters );
+	ret [ 1 ] = state.ToRValue ( gravity.y / self->mUnitsToMeters );
+
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -788,11 +774,10 @@ int MOAIBox2DWorld::_getGravity ( lua_State* L ) {
 	@in		MOAIBox2DWorld self
 	@out	number linearSleepTolerance	in units/s, converted from m/s
 */
-int MOAIBox2DWorld::_getLinearSleepTolerance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_getLinearSleepTolerance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	lua_pushnumber ( state, self->mWorld->GetLinearSleepTolerance () / self->mUnitsToMeters );
-	return 0;
+	return state.ToRValue ( self->mWorld->GetLinearSleepTolerance () / self->mUnitsToMeters );
 }
 
 //----------------------------------------------------------------//
@@ -809,21 +794,22 @@ int MOAIBox2DWorld::_getLinearSleepTolerance ( lua_State* L ) {
 	@out	number	broadphase
 	@out	number	solveTOI
 */
-int MOAIBox2DWorld::_getPerformance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_getPerformance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 
 	b2Profile p = self->mWorld->GetProfile ();
 
-	state.Push ( p.step );
-	state.Push ( p.collide );
-	state.Push ( p.solve );
-	state.Push ( p.solveInit );
-	state.Push ( p.solveVelocity );
-	state.Push ( p.solvePosition );
-	state.Push ( p.broadphase );
-	state.Push ( p.solveTOI );
+	mrb_value ret [ 8 ];
+	ret [ 0 ] = state.ToRValue ( p.step );
+	ret [ 1 ] = state.ToRValue ( p.collide );
+	ret [ 2 ] = state.ToRValue ( p.solve );
+	ret [ 3 ] = state.ToRValue ( p.solveInit );
+	ret [ 4 ] = state.ToRValue ( p.solveVelocity );
+	ret [ 5 ] = state.ToRValue ( p.solvePosition );
+	ret [ 6 ] = state.ToRValue ( p.broadphase );
+	ret [ 7 ] = state.ToRValue ( p.solveTOI );
 
-	return 8;
+	return mrb_ary_new_from_values ( state, 8, ret );
 }
 
 //----------------------------------------------------------------//
@@ -840,12 +826,12 @@ int MOAIBox2DWorld::_getPerformance ( lua_State* L ) {
 	@out	number hitpointX
 	@out	number hitpointY
 */
-int MOAIBox2DWorld::_getRayCast ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
-	float p1x=state.GetValue < float >( 2, 0 ) * self->mUnitsToMeters;
-	float p1y=state.GetValue < float >( 3, 0 ) * self->mUnitsToMeters;
-	float p2x=state.GetValue < float >( 4, 0 ) * self->mUnitsToMeters;
-	float p2y=state.GetValue < float >( 5, 0 ) * self->mUnitsToMeters;
+mrb_value MOAIBox2DWorld::_getRayCast ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
+	float p1x=state.GetParamValue < float >( 1, 0 ) * self->mUnitsToMeters;
+	float p1y=state.GetParamValue < float >( 2, 0 ) * self->mUnitsToMeters;
+	float p2x=state.GetParamValue < float >( 3, 0 ) * self->mUnitsToMeters;
+	float p2y=state.GetParamValue < float >( 4, 0 ) * self->mUnitsToMeters;
  
 	b2Vec2 p1(p1x,p1y);
 	b2Vec2 p2(p2x,p2y);
@@ -856,24 +842,24 @@ int MOAIBox2DWorld::_getRayCast ( lua_State* L ) {
 	if (NULL != callback.m_fixture) {
 		b2Vec2 hitpoint = callback.m_point;
 
-		lua_pushboolean ( state, true );
-		lua_pushnumber ( state, hitpoint.x / self->mUnitsToMeters );
-		lua_pushnumber ( state, hitpoint.y / self->mUnitsToMeters );
+		mrb_value ary = mrb_ary_new ( M );
+		mrb_ary_push ( M, ary, state.ToRValue ( true ));
+		mrb_ary_push ( M, ary, state.ToRValue ( hitpoint.x / self->mUnitsToMeters ));
+		mrb_ary_push ( M, ary, state.ToRValue ( hitpoint.y / self->mUnitsToMeters ));
 
 		// Raycast hit a fixture
 		MOAIBox2DFixture* moaiFixture = ( MOAIBox2DFixture* ) callback.m_fixture->GetUserData ();
 		if ( moaiFixture ) {
-			moaiFixture->PushLuaUserdata ( state );
-			return 4;
+			mrb_ary_push ( M, ary, moaiFixture->PushRubyUserdata ( state ));
+			return ary;
 		} else {
-			return 3;
+			return ary;
 		}
 
 	} else {
 
 		// Raycast did not hit a fixture
-		lua_pushboolean( state, false );
-		return 1;
+		return state.ToRValue ( false );
 	}
 }
 
@@ -884,11 +870,10 @@ int MOAIBox2DWorld::_getRayCast ( lua_State* L ) {
 	@in		MOAIBox2DWorld self
 	@out	number timeToSleep
 */
-int MOAIBox2DWorld::_getTimeToSleep ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_getTimeToSleep ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	lua_pushnumber ( state, self->mWorld->GetTimeToSleep ());
-	return 0;
+	return state.ToRValue ( self->mWorld->GetTimeToSleep ());
 }
 
 //----------------------------------------------------------------//
@@ -899,13 +884,13 @@ int MOAIBox2DWorld::_getTimeToSleep ( lua_State* L ) {
 	@opt	number angularSleepTolerance		in degrees/s, converted to radians/s. Default value is 0.0f.
 	@out	nil
 */
-int MOAIBox2DWorld::_setAngularSleepTolerance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setAngularSleepTolerance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	float tolerance = state.GetValue< float >( 2, 0.0f );
+	float tolerance = state.GetParamValue< float >( 1, 0.0f );
 	tolerance *= ( float )R2D;
 	self->mWorld->SetAngularSleepTolerance ( tolerance );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -916,14 +901,14 @@ int MOAIBox2DWorld::_setAngularSleepTolerance ( lua_State* L ) {
 	@opt	boolean autoClearForces		Default value is 'true'
 	@out	nil
 */
-int MOAIBox2DWorld::_setAutoClearForces ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setAutoClearForces ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	bool autoClearForces = state.GetValue < bool >( 2, true );
+	bool autoClearForces = state.GetParamValue < bool >( 1, true );
 	
 	self->mWorld->SetAutoClearForces ( autoClearForces );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -934,10 +919,10 @@ int MOAIBox2DWorld::_setAutoClearForces ( lua_State* L ) {
 	@in		boolean enable
 	@out	nil
 */
-int MOAIBox2DWorld::_setDebugDrawEnabled ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setDebugDrawEnabled ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
  
-	bool enabled = state.GetValue < bool >( 2, false );
+	bool enabled = state.GetParamValue < bool >( 1, false );
  
 	if(enabled)
 	{
@@ -953,7 +938,7 @@ int MOAIBox2DWorld::_setDebugDrawEnabled ( lua_State* L ) {
 		self->mDebugDraw->SetFlags(0);
 	}
  
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -966,14 +951,14 @@ int MOAIBox2DWorld::_setDebugDrawEnabled ( lua_State* L ) {
 								MOAIBox2DWorld.DEBUG_DRAW_CENTERS. Default value is MOAIBox2DWorld.DEBUG_DRAW_DEFAULT.
 	@out	nil
 */
-int MOAIBox2DWorld::_setDebugDrawFlags ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setDebugDrawFlags ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	u32 flags = state.GetValue < u32 >( 2, DEBUG_DRAW_DEFAULT );
+	u32 flags = state.GetParamValue < u32 >( 1, DEBUG_DRAW_DEFAULT );
 	if ( self->mDebugDraw ) {
 		self->mDebugDraw->SetFlags ( flags );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -985,17 +970,17 @@ int MOAIBox2DWorld::_setDebugDrawFlags ( lua_State* L ) {
 	@opt	number gravityY			in units/s^2, converted to m/s^2. Default value is 0.
 	@out	nil
 */
-int MOAIBox2DWorld::_setGravity ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setGravity ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
 	b2Vec2 gravity;
 	
-	gravity.x	= state.GetValue < float >( 2, 0.0f ) * self->mUnitsToMeters;
-	gravity.y	= state.GetValue < float >( 3, 0.0f ) * self->mUnitsToMeters;
+	gravity.x	= state.GetParamValue < float >( 1, 0.0f ) * self->mUnitsToMeters;
+	gravity.y	= state.GetParamValue < float >( 2, 0.0f ) * self->mUnitsToMeters;
 	
 	self->mWorld->SetGravity ( gravity );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1007,13 +992,13 @@ int MOAIBox2DWorld::_setGravity ( lua_State* L ) {
 	@opt	number positionIterations		Default value is current value of positions iterations.
 	@out	nil
 */
-int MOAIBox2DWorld::_setIterations ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setIterations ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	self->mVelocityIterations = state.GetValue < u32 >( 2, self->mVelocityIterations );
-	self->mPositionIterations = state.GetValue < u32 >( 3, self->mPositionIterations );
+	self->mVelocityIterations = state.GetParamValue < u32 >( 1, self->mVelocityIterations );
+	self->mPositionIterations = state.GetParamValue < u32 >( 2, self->mPositionIterations );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1024,11 +1009,11 @@ int MOAIBox2DWorld::_setIterations ( lua_State* L ) {
 	@opt	number linearSleepTolerance		in units/s, converted to m/s. Default value is 0.0f.
 	@out	nil
 */
-int MOAIBox2DWorld::_setLinearSleepTolerance ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setLinearSleepTolerance ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	self->mWorld->SetLinearSleepTolerance ( state.GetValue < float >( 2, 0.0f ) * self->mUnitsToMeters );
-	return 0;
+	self->mWorld->SetLinearSleepTolerance ( state.GetParamValue < float >( 1, 0.0f ) * self->mUnitsToMeters );
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1039,11 +1024,11 @@ int MOAIBox2DWorld::_setLinearSleepTolerance ( lua_State* L ) {
 	@opt	number timeToSleep				Default value is 0.0f.
 	@out	nil
 */
-int MOAIBox2DWorld::_setTimeToSleep ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setTimeToSleep ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	self->mWorld->SetTimeToSleep ( state.GetValue < float >( 2, 0.0f ));
-	return 0;
+	self->mWorld->SetTimeToSleep ( state.GetParamValue < float >( 1, 0.0f ));
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -1054,12 +1039,12 @@ int MOAIBox2DWorld::_setTimeToSleep ( lua_State* L ) {
 	@opt	number unitsToMeters			Default value is 1.
 	@out	nil
 */
-int MOAIBox2DWorld::_setUnitsToMeters ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DWorld, "U" )
+mrb_value MOAIBox2DWorld::_setUnitsToMeters ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DWorld, "U" )
 	
-	self->mUnitsToMeters = state.GetValue ( 2, 1.0f );
+	self->mUnitsToMeters = state.GetParamValue ( 1, 1.0f );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -1077,7 +1062,7 @@ void MOAIBox2DWorld::Destroy () {
 		this->mDestroyFixtures = this->mDestroyFixtures->mDestroyNext;
 		if ( prim->IsValid ()) {
 			prim->Destroy ();
-			this->LuaRelease ( prim );
+			this->RubyRelease ( prim );
 		}
 	}
 	
@@ -1086,7 +1071,7 @@ void MOAIBox2DWorld::Destroy () {
 		this->mDestroyJoints = this->mDestroyJoints->mDestroyNext;
 		if ( prim->IsValid ()) {
 			prim->Destroy ();
-			this->LuaRelease ( prim );
+			this->RubyRelease ( prim );
 		}
 	}
 	
@@ -1094,7 +1079,7 @@ void MOAIBox2DWorld::Destroy () {
 		MOAIBox2DPrim* prim = this->mDestroyBodies;
 		this->mDestroyBodies = this->mDestroyBodies->mDestroyNext;
 		prim->Destroy ();
-		this->LuaRelease ( prim );
+		this->RubyRelease ( prim );
 	}
 	
 	this->mLock = false;
@@ -1123,8 +1108,11 @@ MOAIBox2DWorld::MOAIBox2DWorld () :
 		RTTI_EXTEND ( MOAIAction )
 		RTTI_EXTEND ( MOAIDrawable )
 	RTTI_END
+
+	MOAIBox2DArbiter* arbiter = MOAIRubyRuntime::Get ().State ().CreateClassInstance < MOAIBox2DArbiter >();
+	arbiter->SetWorld ( *this );
 	
-	this->mArbiter.Set ( *this, new MOAIBox2DArbiter ( *this ));
+	this->mArbiter.Set ( *this, arbiter );
 	
 	b2Vec2 gravity ( 0.0f, 0.0f );
 	this->mWorld = new b2World ( gravity );
@@ -1145,7 +1133,7 @@ MOAIBox2DWorld::~MOAIBox2DWorld () {
 	while ( b2Body* body = this->mWorld->GetBodyList ()) {
 		MOAIBox2DBody* moaiBody = ( MOAIBox2DBody* )body->GetUserData ();
 		moaiBody->Destroy ();
-		this->LuaRelease ( moaiBody );
+		this->RubyRelease ( moaiBody );
 	}
 	
 	this->mArbiter.Set ( *this, 0 );
@@ -1155,57 +1143,52 @@ MOAIBox2DWorld::~MOAIBox2DWorld () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DWorld::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIBox2DWorld::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIAction::RegisterLuaClass ( state );
+	MOAIAction::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "DEBUG_DRAW_SHAPES", ( u32 )DEBUG_DRAW_SHAPES );
-	state.SetField ( -1, "DEBUG_DRAW_JOINTS", ( u32 )DEBUG_DRAW_JOINTS );
-	state.SetField ( -1, "DEBUG_DRAW_BOUNDS", ( u32 )DEBUG_DRAW_BOUNDS );
-	state.SetField ( -1, "DEBUG_DRAW_PAIRS", ( u32 )DEBUG_DRAW_PAIRS );
-	state.SetField ( -1, "DEBUG_DRAW_CENTERS", ( u32 )DEBUG_DRAW_CENTERS );
+	state.DefineClassConst ( klass, "DEBUG_DRAW_SHAPES", ( u32 )DEBUG_DRAW_SHAPES );
+	state.DefineClassConst ( klass, "DEBUG_DRAW_JOINTS", ( u32 )DEBUG_DRAW_JOINTS );
+	state.DefineClassConst ( klass, "DEBUG_DRAW_BOUNDS", ( u32 )DEBUG_DRAW_BOUNDS );
+	state.DefineClassConst ( klass, "DEBUG_DRAW_PAIRS", ( u32 )DEBUG_DRAW_PAIRS );
+	state.DefineClassConst ( klass, "DEBUG_DRAW_CENTERS", ( u32 )DEBUG_DRAW_CENTERS );
 	
-	state.SetField ( -1, "DEBUG_DRAW_DEFAULT", ( u32 )DEBUG_DRAW_DEFAULT );
+	state.DefineClassConst ( klass, "DEBUG_DRAW_DEFAULT", ( u32 )DEBUG_DRAW_DEFAULT );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DWorld::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIBox2DWorld::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	
-	MOAIAction::RegisterLuaFuncs ( state );
+	MOAIAction::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "addBody",					_addBody },
-		{ "addDistanceJoint",			_addDistanceJoint },
-		{ "addFrictionJoint",			_addFrictionJoint },
-		{ "addGearJoint",				_addGearJoint },
-		{ "addMotorJoint", 				_addMotorJoint },
-		{ "addMouseJoint",				_addMouseJoint },
-		{ "addPrismaticJoint",			_addPrismaticJoint },
-		{ "addPulleyJoint",				_addPulleyJoint },
-		{ "addRevoluteJoint",			_addRevoluteJoint },
-		{ "addRevoluteJointLocal",		_addRevoluteJointLocal },
-		{ "addRopeJoint",				_addRopeJoint },
-		{ "addWeldJoint",				_addWeldJoint },
-		{ "addWheelJoint",				_addWheelJoint },
-		{ "getAngularSleepTolerance",	_getAngularSleepTolerance },
-		{ "getAutoClearForces",			_getAutoClearForces },
-		{ "getGravity",					_getGravity },
-		{ "getLinearSleepTolerance",	_getLinearSleepTolerance },
-		{ "getRayCast",					_getRayCast },
-		{ "getTimeToSleep",				_getTimeToSleep },
-		{ "setAngularSleepTolerance",	_setAngularSleepTolerance },
-		{ "setAutoClearForces",			_setAutoClearForces },
-		{ "setDebugDrawEnabled",		_setDebugDrawEnabled },
-		{ "setDebugDrawFlags",			_setDebugDrawFlags },
-		{ "setGravity",					_setGravity },
-		{ "setIterations",				_setIterations },
-		{ "setLinearSleepTolerance",	_setLinearSleepTolerance },
-		{ "setTimeToSleep",				_setTimeToSleep },
-		{ "setUnitsToMeters",			_setUnitsToMeters },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "addBody", _addBody, MRB_ARGS_ARG ( 1, 2 ) );
+	state.DefineInstanceMethod ( klass, "addDistanceJoint", _addDistanceJoint, MRB_ARGS_ARG ( 6, 3 ) );
+	state.DefineInstanceMethod ( klass, "addFrictionJoint", _addFrictionJoint, MRB_ARGS_ARG ( 4, 3 ) );
+	state.DefineInstanceMethod ( klass, "addGearJoint", _addGearJoint, MRB_ARGS_ARG ( 3, 1 ) );
+	state.DefineInstanceMethod ( klass, "addMotorJoint", _addMotorJoint, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "addMouseJoint", _addMouseJoint, MRB_ARGS_ARG ( 5, 3 ) );
+	state.DefineInstanceMethod ( klass, "addPrismaticJoint", _addPrismaticJoint, MRB_ARGS_ARG ( 6, 1 ) );
+	state.DefineInstanceMethod ( klass, "addPulleyJoint", _addPulleyJoint, MRB_ARGS_ARG ( 13, 1 ) );
+	state.DefineInstanceMethod ( klass, "addRevoluteJoint", _addRevoluteJoint, MRB_ARGS_ARG ( 4, 1 ) );
+	state.DefineInstanceMethod ( klass, "addRevoluteJointLocal", _addRevoluteJointLocal, MRB_ARGS_REQ ( 6 ) );
+	state.DefineInstanceMethod ( klass, "addRopeJoint", _addRopeJoint, MRB_ARGS_ARG ( 3, 5 ) );
+	state.DefineInstanceMethod ( klass, "addWeldJoint", _addWeldJoint, MRB_ARGS_ARG ( 4, 1 ) );
+	state.DefineInstanceMethod ( klass, "addWheelJoint", _addWheelJoint, MRB_ARGS_ARG ( 6, 1 ) );
+	state.DefineInstanceMethod ( klass, "getAngularSleepTolerance", _getAngularSleepTolerance, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAutoClearForces", _getAutoClearForces, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getGravity", _getGravity, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLinearSleepTolerance", _getLinearSleepTolerance, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getRayCast", _getRayCast, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "getTimeToSleep", _getTimeToSleep, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setAngularSleepTolerance", _setAngularSleepTolerance, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDebugDrawEnabled", _setDebugDrawEnabled, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setDebugDrawFlags", _setDebugDrawFlags, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setGravity", _setGravity, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setIterations", _setIterations, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "setLinearSleepTolerance", _setLinearSleepTolerance, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setTimeToSleep", _setTimeToSleep, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setUnitsToMeters", _setUnitsToMeters, MRB_ARGS_ARG ( 0, 1 ) );
+
 }
 
 //----------------------------------------------------------------//
@@ -1214,7 +1197,7 @@ void MOAIBox2DWorld::SayGoodbye ( b2Fixture* fixture ) {
 	MOAIBox2DFixture* moaiFixture = ( MOAIBox2DFixture* )fixture->GetUserData ();
 	if ( moaiFixture->IsValid ()) {
 		moaiFixture->Clear ();
-		this->LuaRelease ( moaiFixture );
+		this->RubyRelease ( moaiFixture );
 	}
 }
 
@@ -1224,7 +1207,7 @@ void MOAIBox2DWorld::SayGoodbye ( b2Joint* joint ) {
 	MOAIBox2DJoint* moaiJoint = ( MOAIBox2DJoint* )joint->GetUserData ();
 	if ( moaiJoint->IsValid ()) {
 		moaiJoint->Clear ();
-		this->LuaRelease ( moaiJoint );
+		this->RubyRelease ( moaiJoint );
 	}
 }
 

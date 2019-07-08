@@ -20,12 +20,10 @@
 	@in		MOAIBox2DGearJoint self
 	@out	MOAIBox2DJoint jointA
 */
-int MOAIBox2DGearJoint::_getJointA ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DGearJoint, "U" )
+mrb_value MOAIBox2DGearJoint::_getJointA ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DGearJoint, "U" )
 
-	self->mJointA->PushLuaUserdata ( state );
-	
-	return 1;
+	return self->mJointA->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -35,12 +33,10 @@ int MOAIBox2DGearJoint::_getJointA ( lua_State* L ) {
 	@in		MOAIBox2DGearJoint self
 	@out	MOAIBox2DJoint jointB
 */
-int MOAIBox2DGearJoint::_getJointB ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DGearJoint, "U" )
+mrb_value MOAIBox2DGearJoint::_getJointB ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DGearJoint, "U" )
 
-	self->mJointB->PushLuaUserdata ( state );
-	
-	return 1;
+	return self->mJointB->PushRubyUserdata ( state );
 }
 
 //----------------------------------------------------------------//
@@ -50,18 +46,17 @@ int MOAIBox2DGearJoint::_getJointB ( lua_State* L ) {
 	@in		MOAIBox2DGearJoint self
 	@out	number ratio
 */
-int MOAIBox2DGearJoint::_getRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DGearJoint, "U" )
+mrb_value MOAIBox2DGearJoint::_getRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DGearJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
 	b2GearJoint* joint = ( b2GearJoint* )self->mJoint;
-	state.Push ( joint->GetRatio ());
 	
-	return 1;
+	return state.ToRValue ( joint->GetRatio ());
 }
 
 //----------------------------------------------------------------//
@@ -72,20 +67,20 @@ int MOAIBox2DGearJoint::_getRatio ( lua_State* L ) {
 	@opt	number ratio		Default value is 0.
 	@out	nil
 */
-int MOAIBox2DGearJoint::_setRatio ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIBox2DGearJoint, "U" )
+mrb_value MOAIBox2DGearJoint::_setRatio ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIBox2DGearJoint, "U" )
 
 	if ( !self->mJoint ) {
 		MOAILogF ( state, ZLLog::LOG_ERROR, MOAISTRING_MOAIBox2DJoint_MissingInstance );
-		return 0;
+		return mrb_nil_value ();
 	}
 
-	float ratio = state.GetValue < float >( 2, 0.0f );
+	float ratio = state.GetParamValue < float >( 2, 0.0f );
 
 	b2GearJoint* joint = ( b2GearJoint* )self->mJoint;
 	joint->SetRatio ( ratio );
 	
-	return 0;
+	return mrb_nil_value ();
 }
 
 //================================================================//
@@ -108,21 +103,17 @@ MOAIBox2DGearJoint::~MOAIBox2DGearJoint () {
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DGearJoint::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaClass ( state );
+void MOAIBox2DGearJoint::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIBox2DGearJoint::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAIBox2DJoint::RegisterLuaFuncs ( state );
+void MOAIBox2DGearJoint::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAIBox2DJoint::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getJointA",				_getJointA },
-		{ "getJointB",				_getJointB },
-		{ "getRatio",				_getRatio },
-		{ "setRatio",				_setRatio },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getJointA",				_getJointA, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getJointB",				_getJointB, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getRatio",				_getRatio, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setRatio",				_setRatio, MRB_ARGS_ARG ( 0, 1 ) );
 	
-	luaL_register ( state, 0, regTable );
 }

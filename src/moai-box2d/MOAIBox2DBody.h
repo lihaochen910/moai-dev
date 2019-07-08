@@ -27,43 +27,43 @@ private:
 	b2Body*			mBody;
 
 	//----------------------------------------------------------------//
-	static int		_addChain				( lua_State* L );
-	static int		_addCircle				( lua_State* L );
-	static int      _addEdges               ( lua_State* L );
-	static int		_addPolygon				( lua_State* L );
-	static int		_addRect				( lua_State* L );
-	static int		_applyAngularImpulse	( lua_State* L );
-	static int		_applyForce				( lua_State* L );
-	static int		_applyLinearImpulse		( lua_State* L );
-	static int		_applyTorque			( lua_State* L );
-	static int		_destroy				( lua_State* L );
-	static int		_getAngle				( lua_State* L );
-	static int		_getAngularVelocity		( lua_State* L );
-	static int 		_getContactList			( lua_State* L );
-	static int		_getInertia				( lua_State* L );
-	static int		_getGravityScale		( lua_State* L );
-	static int		_getLinearVelocity		( lua_State* L );
-	static int		_getLocalCenter			( lua_State* L );
-	static int		_getMass				( lua_State* L );
-	static int		_getPosition			( lua_State* L );
-	static int		_getWorldCenter			( lua_State* L );
-	static int		_isActive				( lua_State* L );
-	static int		_isAwake				( lua_State* L );
-	static int		_isBullet				( lua_State* L );
-	static int		_isFixedRotation		( lua_State* L );
-	static int		_resetMassData			( lua_State* L );
-	static int		_setActive				( lua_State* L );
-	static int		_setAngularDamping		( lua_State* L );
-	static int		_setAngularVelocity		( lua_State* L );
-	static int		_setAwake				( lua_State* L );
-	static int		_setBullet				( lua_State* L );
-	static int		_setFixedRotation		( lua_State* L );
-	static int		_setGravityScale		( lua_State* L );
-	static int		_setLinearDamping		( lua_State* L );
-	static int		_setLinearVelocity		( lua_State* L );
-	static int		_setMassData			( lua_State* L );
-	static int		_setTransform			( lua_State* L );
-	static int		_setType				( lua_State* L );
+	static mrb_value		_addChain				( mrb_state* M, mrb_value context );
+	static mrb_value		_addCircle				( mrb_state* M, mrb_value context );
+	static mrb_value		_addEdges               ( mrb_state* M, mrb_value context );
+	static mrb_value		_addPolygon				( mrb_state* M, mrb_value context );
+	static mrb_value		_addRect				( mrb_state* M, mrb_value context );
+	static mrb_value		_applyAngularImpulse	( mrb_state* M, mrb_value context );
+	static mrb_value		_applyForce				( mrb_state* M, mrb_value context );
+	static mrb_value		_applyLinearImpulse		( mrb_state* M, mrb_value context );
+	static mrb_value		_applyTorque			( mrb_state* M, mrb_value context );
+	static mrb_value		_destroy				( mrb_state* M, mrb_value context );
+	static mrb_value		_getAngle				( mrb_state* M, mrb_value context );
+	static mrb_value		_getAngularVelocity		( mrb_state* M, mrb_value context );
+	static mrb_value 		_getContactList			( mrb_state* M, mrb_value context );
+	static mrb_value		_getInertia				( mrb_state* M, mrb_value context );
+	static mrb_value		_getGravityScale		( mrb_state* M, mrb_value context );
+	static mrb_value		_getLinearVelocity		( mrb_state* M, mrb_value context );
+	static mrb_value		_getLocalCenter			( mrb_state* M, mrb_value context );
+	static mrb_value		_getMass				( mrb_state* M, mrb_value context );
+	static mrb_value		_getPosition			( mrb_state* M, mrb_value context );
+	static mrb_value		_getWorldCenter			( mrb_state* M, mrb_value context );
+	static mrb_value		_isActive				( mrb_state* M, mrb_value context );
+	static mrb_value		_isAwake				( mrb_state* M, mrb_value context );
+	static mrb_value		_isBullet				( mrb_state* M, mrb_value context );
+	static mrb_value		_isFixedRotation		( mrb_state* M, mrb_value context );
+	static mrb_value		_resetMassData			( mrb_state* M, mrb_value context );
+	static mrb_value		_setActive				( mrb_state* M, mrb_value context );
+	static mrb_value		_setAngularDamping		( mrb_state* M, mrb_value context );
+	static mrb_value		_setAngularVelocity		( mrb_state* M, mrb_value context );
+	static mrb_value		_setAwake				( mrb_state* M, mrb_value context );
+	static mrb_value		_setBullet				( mrb_state* M, mrb_value context );
+	static mrb_value		_setFixedRotation		( mrb_state* M, mrb_value context );
+	static mrb_value		_setGravityScale		( mrb_state* M, mrb_value context );
+	static mrb_value		_setLinearDamping		( mrb_state* M, mrb_value context );
+	static mrb_value		_setLinearVelocity		( mrb_state* M, mrb_value context );
+	static mrb_value		_setMassData			( mrb_state* M, mrb_value context );
+	static mrb_value		_setTransform			( mrb_state* M, mrb_value context );
+	static mrb_value		_setType				( mrb_state* M, mrb_value context );
 	
 	//----------------------------------------------------------------//
 	void			Clear					();
@@ -78,14 +78,14 @@ public:
 	
 	friend class MOAIBox2DWorld;
 	
-	DECL_LUA_FACTORY ( MOAIBox2DBody )
+	DECL_RUBY_FACTORY ( MOAIBox2DBody, MOAINode )
 
 	//----------------------------------------------------------------//
 	void			Destroy					();
 					MOAIBox2DBody			();
 					~MOAIBox2DBody			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif
