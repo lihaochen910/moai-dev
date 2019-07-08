@@ -27,30 +27,30 @@ private:
 	bool mInMemory;
 
 	//----------------------------------------------------------------//
-	static int		_getLength			( lua_State* L );
-	static int		_getPosition		( lua_State* L );
-	static int		_getVolume			( lua_State* L );
-	static int		_getFilename		( lua_State* L );
-	static int		_isLooping			( lua_State* L );
-	static int		_isPaused			( lua_State* L );
-	static int		_isPlaying			( lua_State* L );
-	static int		_load				( lua_State* L );
-	static int		_moveVolume			( lua_State* L );
-	static int		_pause				( lua_State* L );
-	static int		_play				( lua_State* L );
-	static int		_seekVolume			( lua_State* L );
-	static int		_setLooping			( lua_State* L );
-	static int		_setLoopPoints		( lua_State* L );
-	static int		_setPosition		( lua_State* L );
-	static int		_setVolume			( lua_State* L );
-	static int		_stop				( lua_State* L );
+	static mrb_value		_getLength			( mrb_state* M, mrb_value context );
+	static mrb_value		_getPosition		( mrb_state* M, mrb_value context );
+	static mrb_value		_getVolume			( mrb_state* M, mrb_value context );
+	static mrb_value		_getFilename		( mrb_state* M, mrb_value context );
+	static mrb_value		_isLooping			( mrb_state* M, mrb_value context );
+	static mrb_value		_isPaused			( mrb_state* M, mrb_value context );
+	static mrb_value		_isPlaying			( mrb_state* M, mrb_value context );
+	static mrb_value		_load				( mrb_state* M, mrb_value context );
+	static mrb_value		_moveVolume			( mrb_state* M, mrb_value context );
+	static mrb_value		_pause				( mrb_state* M, mrb_value context );
+	static mrb_value		_play				( mrb_state* M, mrb_value context );
+	static mrb_value		_seekVolume			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLooping			( mrb_state* M, mrb_value context );
+	static mrb_value		_setLoopPoints		( mrb_state* M, mrb_value context );
+	static mrb_value		_setPosition		( mrb_state* M, mrb_value context );
+	static mrb_value		_setVolume			( mrb_state* M, mrb_value context );
+	static mrb_value		_stop				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			MOAINode_ApplyAttrOp	( u32 attrID, MOAIAttribute& attr, u32 op );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIUntzSound )
+	DECL_RUBY_FACTORY ( MOAIUntzSound, MOAINode )
 	DECL_ATTR_HELPER ( MOAIUntzSound )
 
 	enum {
@@ -61,8 +61,8 @@ public:
 	//----------------------------------------------------------------//
 					MOAIUntzSound		();
 					~MOAIUntzSound		();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );		
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );		
 };
 
 #endif

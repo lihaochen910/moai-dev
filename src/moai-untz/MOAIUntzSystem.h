@@ -14,7 +14,7 @@
 	@text	Untz system singleton.
 */
 class MOAIUntzSystem :
-	public ZLContextClass < MOAIUntzSystem, MOAILuaObject > {
+	public ZLContextClass < MOAIUntzSystem, MOAIRubyObject > {
 private:
 
 	static const u32 DEFAULT_SAMPLE_RATE		= 44100;
@@ -22,27 +22,27 @@ private:
 	static const u32 DEFAULT_OPTIONS			= 0;
 
 	//----------------------------------------------------------------//
-	static int		_getDeviceCount			( lua_State* L );
-	static int		_getDeviceInfo			( lua_State* L );
-	static int		_getOptions				( lua_State* L );
-	static int		_getSampleRate			( lua_State* L );
-	static int		_getSupportedFormats	( lua_State* L );
-	static int		_initialize				( lua_State* L );
-	static int		_setInputDevice			( lua_State* L );
-	static int		_setOptions				( lua_State* L );
-	static int		_setOutputDevice		( lua_State* L );
-	static int		_setSampleRate			( lua_State* L );
-	static int		_setVolume				( lua_State* L );
-	static int		_getVolume				( lua_State* L );
+	static mrb_value		_getDeviceCount			( mrb_state* M, mrb_value context );
+	static mrb_value		_getDeviceInfo			( mrb_state* M, mrb_value context );
+	static mrb_value		_getOptions				( mrb_state* M, mrb_value context );
+	static mrb_value		_getSampleRate			( mrb_state* M, mrb_value context );
+	static mrb_value		_getSupportedFormats	( mrb_state* M, mrb_value context );
+	static mrb_value		_initialize				( mrb_state* M, mrb_value context );
+	static mrb_value		_setInputDevice			( mrb_state* M, mrb_value context );
+	static mrb_value		_setOptions				( mrb_state* M, mrb_value context );
+	static mrb_value		_setOutputDevice		( mrb_state* M, mrb_value context );
+	static mrb_value		_setSampleRate			( mrb_state* M, mrb_value context );
+	static mrb_value		_setVolume				( mrb_state* M, mrb_value context );
+	static mrb_value		_getVolume				( mrb_state* M, mrb_value context );
 public:
 
-	DECL_LUA_SINGLETON ( MOAIUntzSystem )
+	DECL_RUBY_SINGLETON ( MOAIUntzSystem )
 
 	//----------------------------------------------------------------//
 					MOAIUntzSystem		();
 					~MOAIUntzSystem		();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	void			Resume				();
 	void			Suspend				();
 };

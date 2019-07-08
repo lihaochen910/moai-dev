@@ -15,14 +15,13 @@
 	@in		MOAIUntzSound self
 	@out	number length
 */
-int MOAIUntzSound::_getLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_getLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
                
 	if ( self->mSound ) {
-		lua_pushnumber ( state, self->mSound->getInfo().mLength );
-		return 1;
+		return state.ToRValue ( self->mSound->getInfo ().mLength );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -32,14 +31,13 @@ int MOAIUntzSound::_getLength ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	number position
 */
-int MOAIUntzSound::_getPosition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_getPosition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		lua_pushnumber ( state, self->mSound->getPosition ());
-		return 1; 
+		return state.ToRValue ( self->mSound->getPosition ());
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -49,14 +47,13 @@ int MOAIUntzSound::_getPosition ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	number volume
 */
-int MOAIUntzSound::_getVolume ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_getVolume ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		lua_pushnumber ( state, self->mSound->getVolume ());
-		return 1; 
+		return state.ToRValue ( self->mSound->getVolume ());
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -66,14 +63,13 @@ int MOAIUntzSound::_getVolume ( lua_State* L ) {
  @in	MOAIUntzSound self
  @out	string filename
  */
-int MOAIUntzSound::_getFilename ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_getFilename ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		lua_pushstring( state, self->mFilename.str() );
-		return 1;
+		return state.ToRValue ( self->mFilename.str () );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -83,14 +79,13 @@ int MOAIUntzSound::_getFilename ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	boolean looping
 */
-int MOAIUntzSound::_isLooping ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_isLooping ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		lua_pushboolean ( state, self->mSound->isLooping ());
-		return 1; 
+		return state.ToRValue ( self->mSound->isLooping ());
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -100,14 +95,13 @@ int MOAIUntzSound::_isLooping ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	boolean paused
 */
-int MOAIUntzSound::_isPaused ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_isPaused ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		lua_pushboolean ( state, self->mSound->isPaused ());
-		return 1; 
+		return state.ToRValue ( self->mSound->isPaused ());
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -117,14 +111,13 @@ int MOAIUntzSound::_isPaused ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	boolean playing
 */
-int MOAIUntzSound::_isPlaying ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_isPlaying ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		lua_pushboolean ( state, self->mSound->isPlaying ());
-		return 1; 
+		return state.ToRValue ( self->mSound->isPlaying ());
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -135,24 +128,24 @@ int MOAIUntzSound::_isPlaying ( lua_State* L ) {
 	@in		string filename
 	@out	nil
 */
-int MOAIUntzSound::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 
 	if ( self->mSound ) {
 		UNTZ::Sound::dispose ( self->mSound );
 		self->mSound = 0;
 	}
 
-	MOAIUntzSampleBuffer* data = state.GetLuaObject < MOAIUntzSampleBuffer >( 2, false );
+	MOAIUntzSampleBuffer* data = state.GetRubyObject < MOAIUntzSampleBuffer >( 1, false );
 	if ( data ) {
 	
-		self->mSound = UNTZ::Sound::create(data->GetSoundInfo (), data->GetSampleBuffer ());
+		self->mSound = UNTZ::Sound::create ( data->GetSoundInfo (), data->GetSampleBuffer ());
 		self->mInMemory = true;
 	}
-	else if ( state.IsType( 2, LUA_TSTRING )) {
+	else if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
 	
-		cc8* filename = state.GetValue < cc8* >( 2, "" );
-		bool loadIntoMemory = state.GetValue < bool >( 3, true );	
+		cc8* filename = state.GetParamValue < cc8* >( 1, "" );
+		bool loadIntoMemory = state.GetParamValue < bool >( 2, true );	
 
 		self->mFilename = filename;
 		self->mInMemory = loadIntoMemory;
@@ -165,7 +158,7 @@ int MOAIUntzSound::_load ( lua_State* L ) {
 		}
 	}
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -180,32 +173,30 @@ int MOAIUntzSound::_load ( lua_State* L ) {
 
 	@out	MOAIEaseDriver easeDriver
 */
-int MOAIUntzSound::_moveVolume ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "UNN" )
+mrb_value MOAIUntzSound::_moveVolume ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "UNN" )
 	
-	float volume	= state.GetValue < float >( 2, 0.0f );
-	float delay		= state.GetValue < float >( 3, 0.0f );
+	float volume	= state.GetParamValue < float >( 1, 0.0f );
+	float delay		= state.GetParamValue < float >( 2, 0.0f );
 	
 	if ( delay > 0.0f ) {
 	
-		u32 mode = state.GetValue < u32 >( 4, ZLInterpolate::kSmooth );
+		u32 mode = state.GetParamValue < u32 >( 3, ZLInterpolate::kSmooth );
 		
-		MOAIEaseDriver* action = new MOAIEaseDriver ();
+		MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 		action->ReserveLinks ( 1 );
 		
 		action->SetLink ( 0, self, MOAIUntzSoundAttr::Pack ( ATTR_VOLUME ), volume, mode );
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
-
-		return 1;
+		return action->PushRubyUserdata ( state );
 	}
 	
 	self->mSound->setVolume ( self->mSound->getVolume () + volume );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -215,13 +206,13 @@ int MOAIUntzSound::_moveVolume ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	nil
 */
-int MOAIUntzSound::_pause ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_pause ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
 		self->mSound->pause ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -231,13 +222,13 @@ int MOAIUntzSound::_pause ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	nil
 */
-int MOAIUntzSound::_play ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_play ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
 		self->mSound->play ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -252,32 +243,30 @@ int MOAIUntzSound::_play ( lua_State* L ) {
 
 	@out	MOAIEaseDriver easeDriver
 */
-int MOAIUntzSound::_seekVolume ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "UNN" )
+mrb_value MOAIUntzSound::_seekVolume ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "UNN" )
 
-	float volume	= state.GetValue < float >( 2, 0.0f );
-	float delay		= state.GetValue < float >( 3, 0.0f );
+	float volume	= state.GetParamValue < float >( 1, 0.0f );
+	float delay		= state.GetParamValue < float >( 2, 0.0f );
 	
 	if ( delay > 0.0f ) {
 	
-		u32 mode = state.GetValue < u32 >( 4, ZLInterpolate::kSmooth );
+		u32 mode = state.GetParamValue < u32 >( 3, ZLInterpolate::kSmooth );
 		
-		MOAIEaseDriver* action = new MOAIEaseDriver ();
+		MOAIEaseDriver* action = state.CreateClassInstance < MOAIEaseDriver >();
 		action->ReserveLinks ( 1 );
 		
 		action->SetLink ( 0, self, MOAIUntzSoundAttr::Pack ( ATTR_VOLUME ), volume - self->mSound->getVolume (), mode );
 		
 		action->SetSpan ( delay );
 		action->Start ( 0, false );
-		action->PushLuaUserdata ( state );
-
-		return 1;
+		return action->PushRubyUserdata ( state );
 	}
 	
 	self->mSound->setVolume ( volume );
 	self->ScheduleUpdate ();
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -288,14 +277,14 @@ int MOAIUntzSound::_seekVolume ( lua_State* L ) {
 	@opt	boolean looping		Default value is 'false.'
 	@out	nil
 */
-int MOAIUntzSound::_setLooping ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_setLooping ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		bool loop = state.GetValue < bool >( 2, false );
+		bool loop = state.GetParamValue < bool >( 1, false );
 		self->mSound->setLooping ( loop );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -308,15 +297,15 @@ int MOAIUntzSound::_setLooping ( lua_State* L ) {
 	
 	@out	nil
 */
-int MOAIUntzSound::_setLoopPoints ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_setLoopPoints ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		double startTime = state.GetValue < double >( 2, 0.0 );
-		double endTime = state.GetValue < double >( 3, 0.0 );
+		double startTime = state.GetParamValue < double >( 1, 0.0 );
+		double endTime = state.GetParamValue < double >( 2, 0.0 );
 		self->mSound->setLoopPoints ( startTime, endTime );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -327,14 +316,14 @@ int MOAIUntzSound::_setLoopPoints ( lua_State* L ) {
 	@opt	boolean position		Default value is 0.
 	@out	nil
 */
-int MOAIUntzSound::_setPosition ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_setPosition ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		double position = state.GetValue < double >( 2, 0.0 );
+		double position = state.GetParamValue < double >( 1, 0.0 );
 		self->mSound->setPosition ( position );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -345,14 +334,14 @@ int MOAIUntzSound::_setPosition ( lua_State* L ) {
 	@opt	boolean volume			Default value is 0.
 	@out	nil
 */
-int MOAIUntzSound::_setVolume ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_setVolume ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
-		float volume = state.GetValue < float >( 2, 0.0f );
+		float volume = state.GetParamValue < float >( 1, 0.0f );
 		self->mSound->setVolume ( volume );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -362,13 +351,13 @@ int MOAIUntzSound::_setVolume ( lua_State* L ) {
 	@in		MOAIUntzSound self
 	@out	nil
 */
-int MOAIUntzSound::_stop ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSound, "U" )
+mrb_value MOAIUntzSound::_stop ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSound, "U" )
 	
 	if ( self->mSound ) {
 		self->mSound->stop ();
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -395,39 +384,35 @@ MOAIUntzSound::~MOAIUntzSound () {
 	}
 }
 //----------------------------------------------------------------//
-void MOAIUntzSound::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIUntzSound::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaClass ( state );
+	MOAINode::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "ATTR_VOLUME", MOAIUntzSoundAttr::Pack ( ATTR_VOLUME ));
+	state.DefineClassConst ( klass, "ATTR_VOLUME", MOAIUntzSoundAttr::Pack ( ATTR_VOLUME ));
 }
 
 //----------------------------------------------------------------//
-void MOAIUntzSound::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIUntzSound::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAINode::RegisterLuaFuncs ( state );
+	MOAINode::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "getLength",			_getLength },
-		{ "getPosition",		_getPosition },
-		{ "getVolume",			_getVolume },
-		{ "isLooping",			_isLooping },
-		{ "isPaused",			_isPaused },
-		{ "isPlaying",			_isPlaying },
-		{ "load",				_load },
-		{ "moveVolume",			_moveVolume },
-		{ "pause",				_pause },
-		{ "play",				_play },
-		{ "seekVolume",			_seekVolume },
-		{ "setLooping",			_setLooping },
-		{ "setLoopPoints",		_setLoopPoints },
-		{ "setPosition",		_setPosition },
-		{ "setVolume",			_setVolume },
-		{ "stop",				_stop },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "getLength", _getLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getPosition", _getPosition, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getVolume", _getVolume, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isLooping", _isLooping, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isPaused", _isPaused, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "isPlaying", _isPlaying, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "moveVolume", _moveVolume, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "pause", _pause, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "play", _play, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "seekVolume", _seekVolume, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLooping", _setLooping, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setLoopPoints", _setLoopPoints, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setPosition", _setPosition, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "setVolume", _setVolume, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "stop", _stop, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //================================================================//

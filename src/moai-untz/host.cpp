@@ -24,9 +24,9 @@ void AKUUntzContextInitialize () {
 
 	MOAIUntzSystem::Affirm ();
 	
-	REGISTER_LUA_CLASS ( MOAIUntzSampleBuffer )
-	REGISTER_LUA_CLASS ( MOAIUntzSound )
-	REGISTER_LUA_CLASS ( MOAIUntzSystem )
+	REGISTER_RUBY_CLASS ( MOAIUntzSampleBuffer )
+	REGISTER_RUBY_CLASS ( MOAIUntzSound )
+	REGISTER_RUBY_CLASS ( MOAIUntzSystem )
 }
 
 //----------------------------------------------------------------//

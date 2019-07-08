@@ -18,16 +18,15 @@
 	@in		MOAIUntzSampleBuffer self
 	@out	table data					array of sample data number ( -1 ~ 1 as sample level)
 */
-int MOAIUntzSampleBuffer::_getData ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSampleBuffer, "U" )
+mrb_value MOAIUntzSampleBuffer::_getData ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSampleBuffer, "U" )
 	
 	u32 arynum = self->mInfo.mTotalFrames * self->mInfo.mChannels;
-	lua_createtable ( L, arynum, 0 );
+	mrb_value ary = mrb_ary_new ( M );
 	for ( u32 i = 0; i < arynum; i++ ) {
-		lua_pushnumber ( L, self->mBuffer [ i ]);
-		lua_rawseti ( L, -2, i + 1 );
+		mrb_ary_push ( M, ary, state.ToRValue ( self->mBuffer [ i ] ) );
 	}
-	return 1;
+	return ary;
 }
 
 //----------------------------------------------------------------//
@@ -41,16 +40,17 @@ int MOAIUntzSampleBuffer::_getData ( lua_State* L ) {
 	@out	number sampleRate			sample rate (44100, 22050, etc.)
 	@out	number length				sound length in seconds
 */
-int MOAIUntzSampleBuffer::_getInfo ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSampleBuffer, "U" )
+mrb_value MOAIUntzSampleBuffer::_getInfo ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSampleBuffer, "U" )
 
-	lua_pushnumber ( L, self->mInfo.mBitsPerSample );
-	lua_pushnumber ( L, self->mInfo.mChannels );
-	lua_pushnumber ( L, self->mInfo.mTotalFrames );
-	lua_pushnumber ( L, self->mInfo.mSampleRate );
-	lua_pushnumber ( L, self->mInfo.mLength );
-	
-	return 5;			
+	mrb_value ret [ 5 ];
+	ret [ 0 ] = state.ToRValue ( self->mInfo.mBitsPerSample );
+	ret [ 1 ] = state.ToRValue ( self->mInfo.mChannels );
+	ret [ 2 ] = state.ToRValue ( self->mInfo.mTotalFrames );
+	ret [ 3 ] = state.ToRValue ( self->mInfo.mSampleRate );
+	ret [ 4 ] = state.ToRValue ( self->mInfo.mLength );
+
+	return mrb_ary_new_from_values ( state, 5, ret );
 }
 
 //----------------------------------------------------------------//
@@ -61,15 +61,15 @@ int MOAIUntzSampleBuffer::_getInfo ( lua_State* L ) {
 	@in		string filename
 	@out	nil
 */
-int MOAIUntzSampleBuffer::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSampleBuffer, "US" )
+mrb_value MOAIUntzSampleBuffer::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSampleBuffer, "US" )
 	
-	cc8* filename = state.GetValue < cc8* >( 2, "" );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
 
-	if ( !UNTZ::Sound::decode ( filename, self->mInfo, ( float** )&self->mBuffer )) {
+	if ( !UNTZ::Sound::decode ( filename, self->mInfo, (float** )& self->mBuffer ) ) {
 		printf ( "error creating sample buffer\n" );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -82,13 +82,13 @@ int MOAIUntzSampleBuffer::_load ( lua_State* L ) {
 	@in		number sampleRate			sample rate in Hz (44100 or else)
 	@out	nil
 */
-int MOAIUntzSampleBuffer::_prepareBuffer( lua_State* L ) {
-	MOAI_LUA_SETUP(MOAIUntzSampleBuffer, "UNNN" )
+mrb_value MOAIUntzSampleBuffer::_prepareBuffer( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSampleBuffer, "UNNN" )
 	
 	u32 bitsPerSample	= 32;
-	u32 channels		= state.GetValue < u32 >( 2, 1 );
-	u32 totalFrames		= state.GetValue < u32 >( 3, 0 );
-	u32 sampleRate		= state.GetValue < u32 >( 4, 44100 );
+	u32 channels		= state.GetParamValue < u32 >( 1, 1 );
+	u32 totalFrames		= state.GetParamValue < u32 >( 2, 0 );
+	u32 sampleRate		= state.GetParamValue < u32 >( 3, 44100 );
 	
 	double length		= ( double )totalFrames / sampleRate;
 	size_t memSize		= totalFrames * channels * 4;
@@ -103,7 +103,7 @@ int MOAIUntzSampleBuffer::_prepareBuffer( lua_State* L ) {
 	self->mInfo.mSampleRate		= sampleRate;
 	self->mInfo.mLength			= length;
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -115,23 +115,23 @@ int MOAIUntzSampleBuffer::_prepareBuffer( lua_State* L ) {
 	@in		number startIndex			index of sample buffer to start copying from (1 for the first sample)
 	@out	nil
 */
-int MOAIUntzSampleBuffer::_setData ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIUntzSampleBuffer, "UTN" )
+mrb_value MOAIUntzSampleBuffer::_setData ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIUntzSampleBuffer, "UTN" )
 	
-	u32 startDataIndex = state.GetValue<u32>(3,1);
-	int itr = state.PushTableItr(2);
-	int idx = 0;
-	//u32 total = 0;
-	int maxindex = self->mInfo.mChannels * self->mInfo.mTotalFrames;
-
-	idx = startDataIndex - 1;
-	
-	for ( ; state.TableItrNext ( itr ) && idx < maxindex; ++idx ) {
-		float val = state.GetValue < float> ( -1, 0 );
-		self->mBuffer[idx] = val;		
-//		fprintf(stderr, "value %d: %f\n", idx, val );
-	}
-	return 0;
+//	u32 startDataIndex = state.GetParamValue<u32>( 2,1 );
+//	int itr = state.PushTableItr(2);
+//	int idx = 0;
+//	//u32 total = 0;
+//	int maxindex = self->mInfo.mChannels * self->mInfo.mTotalFrames;
+//
+//	idx = startDataIndex - 1;
+//	
+//	for ( ; state.TableItrNext ( itr ) && idx < maxindex; ++idx ) {
+//		float val = state.GetParamValue < float> ( -1, 0 );
+//		self->mBuffer[idx] = val;		
+////		fprintf(stderr, "value %d: %f\n", idx, val );
+//	}
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -144,17 +144,17 @@ int MOAIUntzSampleBuffer::_setData ( lua_State* L ) {
 	@in		number index of sample buffer start copying from (1 for the first sample)
 	@out	nil
 */
-int MOAIUntzSampleBuffer::_setRawData ( lua_State* L ) {
-	MOAI_LUA_SETUP( MOAIUntzSampleBuffer, "USNN" )
+mrb_value MOAIUntzSampleBuffer::_setRawData ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP( MOAIUntzSampleBuffer, "USNN" )
 	
-	cc8* s					= state.GetValue < cc8* >( 2, "" );
+	cc8* s					= state.GetParamValue < cc8* >( 1, "" );
 	short* buf				= ( short* )s;
-	u32 l					= state.GetValue < u32 >( 3, 0 );
+	u32 l					= state.GetParamValue < u32 >( 2, 0 );
 	
 	u32 elemnum				= l >> 1;
 	int maxindex			= self->mInfo.mChannels * self->mInfo.mTotalFrames;
 	
-	u32 startDataIndex		= state.GetValue < u32 >( 4 , 1 ) - 1;
+	u32 startDataIndex		= state.GetParamValue < u32 >( 3 , 1 ) - 1;
 	
 	for ( int idx = 0; ( idx + ( int )startDataIndex ) < maxindex && idx < ( int )elemnum; ++idx ) {
 	
@@ -164,7 +164,7 @@ int MOAIUntzSampleBuffer::_setRawData ( lua_State* L ) {
 		
 		self->mBuffer [ idx ] = val;
 	}	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -172,33 +172,31 @@ int MOAIUntzSampleBuffer::_setRawData ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-MOAIUntzSampleBuffer::MOAIUntzSampleBuffer () : mBuffer(0) {
+MOAIUntzSampleBuffer::MOAIUntzSampleBuffer () 
+	: mBuffer ( 0 ) {
 
 	RTTI_SINGLE ( MOAINode )
 }
 
 //----------------------------------------------------------------//
 MOAIUntzSampleBuffer::~MOAIUntzSampleBuffer () {
-	if(mBuffer)
+	if ( mBuffer )
 		delete [] mBuffer;
 }
 //----------------------------------------------------------------//
-void MOAIUntzSampleBuffer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIUntzSampleBuffer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIUntzSampleBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIUntzSampleBuffer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "getData",			_getData },
-		{ "getInfo",			_getInfo },
-		{ "load",				_load },
-		{ "prepareBuffer",		_prepareBuffer },
-		{ "setData",			_setData },
-		{ "setRawData",			_setRawData },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "getData", _getData, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getInfo", _getInfo, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "prepareBuffer", _prepareBuffer, MRB_ARGS_REQ ( 3 ) );
+	state.DefineInstanceMethod ( klass, "setData", _setData, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "setRawData", _setRawData, MRB_ARGS_REQ ( 3 ) );
+
 }

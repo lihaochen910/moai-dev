@@ -15,23 +15,23 @@
 			multiple MOAIUntzSound objects.
 */
 class MOAIUntzSampleBuffer :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	float*				mBuffer;
 	UNTZ::SoundInfo		mInfo;
 
 	//----------------------------------------------------------------//
-	static int		_getData					( lua_State* L );
-	static int		_getInfo					( lua_State* L );
-	static int		_load						( lua_State* L );
-	static int		_prepareBuffer				( lua_State* L );
-	static int		_setData					( lua_State* L );
-	static int		_setRawData					( lua_State* L );
+	static mrb_value		_getData					( mrb_state* M, mrb_value context );
+	static mrb_value		_getInfo					( mrb_state* M, mrb_value context );
+	static mrb_value		_load						( mrb_state* M, mrb_value context );
+	static mrb_value		_prepareBuffer				( mrb_state* M, mrb_value context );
+	static mrb_value		_setData					( mrb_state* M, mrb_value context );
+	static mrb_value		_setRawData					( mrb_state* M, mrb_value context );
 
 public:
 
-	DECL_LUA_FACTORY ( MOAIUntzSampleBuffer )
+	DECL_RUBY_FACTORY ( MOAIUntzSampleBuffer, MOAIRubyObject )
 
 	GET ( UNTZ::SoundInfo, SoundInfo, mInfo )
 	GET ( float*, SampleBuffer, mBuffer )
@@ -39,8 +39,8 @@ public:
 	//----------------------------------------------------------------//
 						MOAIUntzSampleBuffer		();
 						~MOAIUntzSampleBuffer		();
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif
