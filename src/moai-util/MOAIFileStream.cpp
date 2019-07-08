@@ -15,11 +15,11 @@
 	@in		MOAIFileStream self
 	@out	nil
 */
-int MOAIFileStream::_close ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFileStream, "U" );
+mrb_value MOAIFileStream::_close ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFileStream, "U" );
 	
 	self->Close ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -32,16 +32,15 @@ int MOAIFileStream::_close ( lua_State* L ) {
 								MOAIFileStream.READ_WRITE_NEW, MOAIFileStream.WRITE. Default value is MOAIFileStream.READ.
 	@out	boolean success
 */
-int MOAIFileStream::_open ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFileStream, "US" );
+mrb_value MOAIFileStream::_open ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFileStream, "US" );
 	
-	cc8* filename	= state.GetValue < cc8* >( 2, "" );
-	u32 mode		= state.GetValue < u32 >( 3, ZLFileStream::READ );
+	cc8* filename	= state.GetParamValue < cc8* >( 1, "" );
+	u32 mode		= state.GetParamValue < u32 >( 2, ZLFileStream::READ );
 	
 	bool result = self->Open ( filename, mode );
 	
-	state.Push ( result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //================================================================//
@@ -62,29 +61,25 @@ MOAIFileStream::~MOAIFileStream () {
 }
 
 //----------------------------------------------------------------//
-void MOAIFileStream::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFileStream::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaClass ( state );
+	MOAIStream::RegisterRubyClass ( state, klass );
 
-	state.SetField ( -1, "APPEND",				( u32 )ZLFileStream::APPEND );
-	state.SetField ( -1, "READ",				( u32 )ZLFileStream::READ );
-	state.SetField ( -1, "READ_WRITE",			( u32 )ZLFileStream::READ_WRITE );
-	state.SetField ( -1, "READ_WRITE_AFFIRM",	( u32 )ZLFileStream::READ_WRITE_AFFIRM );
-	state.SetField ( -1, "READ_WRITE_NEW",		( u32 )ZLFileStream::READ_WRITE_NEW );
-	state.SetField ( -1, "WRITE",				( u32 )ZLFileStream::WRITE );
+	state.DefineClassConst ( klass, "APPEND",				( u32 )ZLFileStream::APPEND );
+	state.DefineClassConst ( klass, "READ",					( u32 )ZLFileStream::READ );
+	state.DefineClassConst ( klass, "READ_WRITE",			( u32 )ZLFileStream::READ_WRITE );
+	state.DefineClassConst ( klass, "READ_WRITE_AFFIRM",	( u32 )ZLFileStream::READ_WRITE_AFFIRM );
+	state.DefineClassConst ( klass, "READ_WRITE_NEW",		( u32 )ZLFileStream::READ_WRITE_NEW );
+	state.DefineClassConst ( klass, "WRITE",				( u32 )ZLFileStream::WRITE );
 }
 
 //----------------------------------------------------------------//
-void MOAIFileStream::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIFileStream::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaFuncs ( state );
+	MOAIStream::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "close",				_close },
-		{ "open",				_open },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "close", _close, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "open", _open, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

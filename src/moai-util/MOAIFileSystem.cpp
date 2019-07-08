@@ -28,13 +28,13 @@
 	@in		string path
 	@out	nil
 */
-int MOAIFileSystem::_affirmPath ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_affirmPath ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path = state.GetValue < cc8* >( 1, "" );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
 	ZLFileSys::AffirmPath ( path );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -44,14 +44,13 @@ int MOAIFileSystem::_affirmPath ( lua_State* L ) {
 	@in		string filename
 	@out	boolean exists
 */
-int MOAIFileSystem::_checkFileExists ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_checkFileExists ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* filename = state.GetValue < cc8* >( 1, "" );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
 	bool result = ZLFileSys::CheckFileExists ( filename );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -61,14 +60,13 @@ int MOAIFileSystem::_checkFileExists ( lua_State* L ) {
 	@in		string path
 	@out	boolean exists
 */
-int MOAIFileSystem::_checkPathExists ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_checkPathExists ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path = state.GetValue < cc8* >( 1, "" );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
 	bool result = ZLFileSys::CheckPathExists ( path );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -79,16 +77,15 @@ int MOAIFileSystem::_checkPathExists ( lua_State* L ) {
 	@in		string destPath
 	@out	boolean result
 */
-int MOAIFileSystem::_copy ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_copy ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* srcPath	= state.GetValue < cc8* >( 1, "" );
-	cc8* destPath	= state.GetValue < cc8* >( 2, "" );
+	cc8* srcPath	= state.GetParamValue < cc8* >( 1, "" );
+	cc8* destPath	= state.GetParamValue < cc8* >( 2, "" );
 	
 	bool result = ZLFileSys::Copy ( srcPath, destPath );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -100,15 +97,14 @@ int MOAIFileSystem::_copy ( lua_State* L ) {
 									Otherwise, the directory will only be removed if empty.
 	@out	boolean success
 */
-int MOAIFileSystem::_deleteDirectory ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_deleteDirectory ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path = state.GetValue < cc8* >( 1, "" );
-	bool recursive = state.GetValue < bool >( 2, false );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
+	bool recursive = state.GetParamValue < bool >( 2, false );
 	bool result = ZLFileSys::DeleteDirectory ( path, recursive, recursive );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -118,14 +114,13 @@ int MOAIFileSystem::_deleteDirectory ( lua_State* L ) {
 	@in		string filename
 	@out	boolean success
 */
-int MOAIFileSystem::_deleteFile ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_deleteFile ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* filename = state.GetValue < cc8* >( 1, "" );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
 	bool result = ZLFileSys::DeleteFile ( filename );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -135,14 +130,13 @@ int MOAIFileSystem::_deleteFile ( lua_State* L ) {
 	@in		string path
 	@out	string absolute
 */
-int MOAIFileSystem::_getAbsoluteDirectoryPath ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_getAbsoluteDirectoryPath ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path = state.GetValue < cc8* >( 1, "" );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
 	STLString result = ZLFileSys::GetAbsoluteDirPath ( path );
 	
-	lua_pushstring ( state, result );
-	return 1;
+	return state.ToRValue ( result.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -153,14 +147,13 @@ int MOAIFileSystem::_getAbsoluteDirectoryPath ( lua_State* L ) {
 	@in		string filename
 	@out	string absolute
 */
-int MOAIFileSystem::_getAbsoluteFilePath ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_getAbsoluteFilePath ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* filename = state.GetValue < cc8* >( 1, "" );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
 	STLString result = ZLFileSys::GetAbsoluteFilePath ( filename );
 	
-	lua_pushstring ( state, result );
-	return 1;
+	return state.ToRValue ( result.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -173,16 +166,15 @@ int MOAIFileSystem::_getAbsoluteFilePath ( lua_State* L ) {
 	@opt	string base
 	@out	string path
 */
-int MOAIFileSystem::_getRelativePath ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_getRelativePath ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path = state.GetValue < cc8* >( 1, "" );
-	cc8* base = state.GetValue < cc8* >( 2, 0 );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
+	cc8* base = state.GetParamValue < cc8* >( 2, 0 );
 	
 	STLString result = ZLFileSys::GetRelativePath ( path, base );
 	
-	lua_pushstring ( state, result );
-	return 1;
+	return state.ToRValue ( result.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -191,13 +183,12 @@ int MOAIFileSystem::_getRelativePath ( lua_State* L ) {
 
 	@out	string path
 */
-int MOAIFileSystem::_getWorkingDirectory ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_getWorkingDirectory ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
 	STLString result = ZLFileSys::GetCurrentPath ();
 	
-	lua_pushstring ( state, result );
-	return 1;
+	return state.ToRValue ( result.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -213,14 +204,14 @@ int MOAIFileSystem::_getWorkingDirectory ( lua_State* L ) {
 	@opt	number uncompressedSize		Uncompressed size of the file or nil if not a file path.
 	@opt	number compressedSize		Compressed size of the file or nil if not compressed or not a file path.
 */
-int MOAIFileSystem::_getVirtualPathInfo ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_getVirtualPathInfo ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	cc8* path = state.GetValue < cc8* >( 1, "" );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
 
 	ZLVfsVirtualPathInfo info = ZLVfsFileSystem::Get ().GetVirtualPathInfo ( path );
 
-	int top = state.GetTop ();
+	/*int top = state.GetTop ();
 
 	if ( info.mIsVirtual ) {
 	
@@ -236,7 +227,8 @@ int MOAIFileSystem::_getVirtualPathInfo ( lua_State* L ) {
 			}
 		}
 	}
-	return state.GetTop () - top;
+	return state.GetTop () - top;*/
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -247,40 +239,41 @@ int MOAIFileSystem::_getVirtualPathInfo ( lua_State* L ) {
 	@opt	string path				Path to search. Default is current directory.
 	@out	table directories		A table of directory names (or nil if the path is invalid)
 */
-int MOAIFileSystem::_listDirectories ( lua_State* L ) {
-	UNUSED ( L );
+mrb_value MOAIFileSystem::_listDirectories ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
 	
-	STLString oldPath = ZLFileSys::GetCurrentPath ();
-	
-	if ( lua_type ( L, 1 ) == LUA_TSTRING ) {
-		cc8* dir = lua_tostring ( L, 1 );
-		if ( !ZLFileSys::SetCurrentPath ( dir )) {
-			return 0;
-		}
-	}
-	
-	STLSet < STLString > sortedSet;
-	
-	ZLDirectoryItr dirItr;
-	dirItr.Start ();
-	while ( dirItr.NextDirectory ()) {
-		sortedSet.insert ( dirItr.Current ());
-	}
-	ZLFileSys::SetCurrentPath ( oldPath );
-	
-	lua_newtable ( L );
-	
-	STLSet < STLString >::iterator sortedSetIt = sortedSet.begin ();
-	for ( int n = 1; sortedSetIt != sortedSet.end (); ++sortedSetIt, ++n ) {
-	
-		lua_pushstring ( L, sortedSetIt->c_str ());
-		#ifdef luaL_setn
-			luaL_setn ( L, -2, n );  // new size
-		#endif
-		lua_rawseti ( L, -2, n );  // t[pos] = v
-	}
-	
-	return 1;
+	//STLString oldPath = ZLFileSys::GetCurrentPath ();
+	//
+	//if ( lua_type ( L, 1 ) == LUA_TSTRING ) {
+	//	cc8* dir = lua_tostring ( L, 1 );
+	//	if ( !ZLFileSys::SetCurrentPath ( dir )) {
+	//		return context;
+	//	}
+	//}
+	//
+	//STLSet < STLString > sortedSet;
+	//
+	//ZLDirectoryItr dirItr;
+	//dirItr.Start ();
+	//while ( dirItr.NextDirectory ()) {
+	//	sortedSet.insert ( dirItr.Current ());
+	//}
+	//ZLFileSys::SetCurrentPath ( oldPath );
+	//
+	//lua_newtable ( M );
+	//
+	//STLSet < STLString >::iterator sortedSetIt = sortedSet.begin ();
+	//for ( int n = 1; sortedSetIt != sortedSet.end (); ++sortedSetIt, ++n ) {
+	//
+	//	lua_pushstring ( L, sortedSetIt->c_str ());
+	//	#ifdef luaL_setn
+	//		luaL_setn ( L, -2, n );  // new size
+	//	#endif
+	//	lua_rawseti ( L, -2, n );  // t[pos] = v
+	//}
+	//
+	//return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -290,40 +283,41 @@ int MOAIFileSystem::_listDirectories ( lua_State* L ) {
 	@opt	string path		Path to search. Default is current directory.
 	@out	table files		A table of filenames (or nil if the path is invalid)
 */
-int MOAIFileSystem::_listFiles ( lua_State* L ) {
-	UNUSED ( L );
+mrb_value MOAIFileSystem::_listFiles ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
 	
-	STLString oldPath = ZLFileSys::GetCurrentPath ();
-	
-	if ( lua_type ( L, 1 ) == LUA_TSTRING ) {
-		cc8* dir = lua_tostring ( L, 1 );
-		if( !ZLFileSys::SetCurrentPath ( dir )) {
-			return 0;
-		}
-	}
+	//STLString oldPath = ZLFileSys::GetCurrentPath ();
+	//
+	//if ( lua_type ( L, 1 ) == LUA_TSTRING ) {
+	//	cc8* dir = lua_tostring ( L, 1 );
+	//	if( !ZLFileSys::SetCurrentPath ( dir )) {
+	//		return context;
+	//	}
+	//}
 
-	STLSet < STLString > sortedSet;
-	
-	ZLDirectoryItr dirItr;
-	dirItr.Start ();
-	while ( dirItr.NextFile ()) {
-		sortedSet.insert ( dirItr.Current ());
-	}
-	ZLFileSys::SetCurrentPath ( oldPath );
-	
-	lua_newtable ( L );
-	
-	STLSet < STLString >::iterator sortedSetIt = sortedSet.begin ();
-	for ( int n = 1; sortedSetIt != sortedSet.end (); ++sortedSetIt, ++n ) {
-	
-		lua_pushstring ( L, sortedSetIt->c_str ());
-		#ifdef luaL_setn
-			luaL_setn ( L, -2, n );  // new size
-		#endif
-		lua_rawseti ( L, -2, n );  // t[pos] = v
-	}
-	
-	return 1;
+	//STLSet < STLString > sortedSet;
+	//
+	//ZLDirectoryItr dirItr;
+	//dirItr.Start ();
+	//while ( dirItr.NextFile ()) {
+	//	sortedSet.insert ( dirItr.Current ());
+	//}
+	//ZLFileSys::SetCurrentPath ( oldPath );
+	//
+	//lua_newtable ( M );
+	//
+	//STLSet < STLString >::iterator sortedSetIt = sortedSet.begin ();
+	//for ( int n = 1; sortedSetIt != sortedSet.end (); ++sortedSetIt, ++n ) {
+	//
+	//	lua_pushstring ( L, sortedSetIt->c_str ());
+	//	#ifdef luaL_setn
+	//		luaL_setn ( L, -2, n );  // new size
+	//	#endif
+	//	lua_rawseti ( L, -2, n );  // t[pos] = v
+	//}
+	//
+	//return 1;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -333,10 +327,10 @@ int MOAIFileSystem::_listFiles ( lua_State* L ) {
 	@in		string filename
 	@out	string contents		Returns empty string if file length is 0. Returns nil is no such file.
 */
-int MOAIFileSystem::_loadFile ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIFileSystem, "S" )
+mrb_value MOAIFileSystem::_loadFile ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIFileSystem, "S" )
 
-	cc8* filename = state.GetValue < cc8* >( 1, 0 );
+	/*cc8* filename = state.GetParamValue < cc8* >( 1, 0 );
 
 	if ( filename && ZLFileSys::CheckFileExists ( filename )) {
 	
@@ -357,8 +351,8 @@ int MOAIFileSystem::_loadFile ( lua_State* L ) {
 			stream.Close ();
 			return 1;
 		}
-	}
-	return 0;
+	}*/
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -369,36 +363,33 @@ int MOAIFileSystem::_loadFile ( lua_State* L ) {
 	@opt	string archive		Name of archive file to mount. Default value is nil.
 	@out	boolean success
 */
-int MOAIFileSystem::_mountVirtualDirectory ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_mountVirtualDirectory ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path		= state.GetValue < cc8* >( 1, "" );
-	cc8* archive	= state.GetValue < cc8* >( 2, 0 );
+	cc8* path		= state.GetParamValue < cc8* >( 1, "" );
+	cc8* archive	= state.GetParamValue < cc8* >( 2, 0 );
 	
 	bool result = ZLFileSys::MountVirtualDirectory ( path, archive );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
 // TODO: deprecate
-int MOAIFileSystem::_pathFromRef ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_pathFromRef ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	cc8* ref = state.GetValue < cc8* >( 1, "" );
-	state.Push ( ZLFileSys::PathFromRef ( ref ).c_str ());
-	return 1;
+	cc8* ref = state.GetParamValue < cc8* >( 1, "" );
+	return state.ToRValue ( ZLFileSys::PathFromRef ( ref ).c_str () );
 }
 
 //----------------------------------------------------------------//
 // TODO: deprecate
-int MOAIFileSystem::_pathToRef ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_pathToRef ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	cc8* ref = state.GetValue < cc8* >( 1, "" );
-	state.Push ( ZLFileSys::PathToRef ( ref ).c_str ());
-	return 1;
+	cc8* ref = state.GetParamValue < cc8* >( 1, "" );
+	return state.ToRValue ( ZLFileSys::PathToRef ( ref ).c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -409,16 +400,15 @@ int MOAIFileSystem::_pathToRef ( lua_State* L ) {
 	@in		string newPath
 	@out	boolean success
 */
-int MOAIFileSystem::_rename ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_rename ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* oldPath = state.GetValue < cc8* >( 1, "" );
-	cc8* newPath = state.GetValue < cc8* >( 2, "" );
+	cc8* oldPath = state.GetParamValue < cc8* >( 1, "" );
+	cc8* newPath = state.GetParamValue < cc8* >( 2, "" );
 	
 	bool result = ZLFileSys::Rename ( oldPath, newPath );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -429,10 +419,10 @@ int MOAIFileSystem::_rename ( lua_State* L ) {
 	@opt	string contents
 	@out	nil
 */
-int MOAIFileSystem::_saveFile ( lua_State* L ) {
-	MOAI_LUA_SETUP_SINGLE ( MOAIFileSystem, "S" )
+mrb_value MOAIFileSystem::_saveFile ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP_SINGLE ( MOAIFileSystem, "S" )
 
-	cc8* filename = state.GetValue < cc8* >( 1, 0 );
+	/*cc8* filename = state.GetParamValue < cc8* >( 1, 0 );
 	
 	ZLFileStream stream;
 	if ( filename && stream.Open ( filename, ZLFileStream::READ_WRITE_NEW )) {
@@ -443,21 +433,21 @@ int MOAIFileSystem::_saveFile ( lua_State* L ) {
 			stream.WriteBytes ( str, len );
 		}
 		stream.Close ();
-	}
-	return 0;
+	}*/
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: deprecate
-int MOAIFileSystem::_setPathRef ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_setPathRef ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	cc8* ref = state.GetValue < cc8* >( 1, "" );
-	cc8* path = state.GetValue < cc8* >( 2, 0 );
+	cc8* ref = state.GetParamValue < cc8* >( 1, "" );
+	cc8* path = state.GetParamValue < cc8* >( 2, 0 );
 	
 	ZLFileSys::SetPathRef ( ref, path );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -467,14 +457,13 @@ int MOAIFileSystem::_setPathRef ( lua_State* L ) {
 	@in		string path
 	@out	boolean success
 */
-int MOAIFileSystem::_setWorkingDirectory ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_setWorkingDirectory ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* path = state.GetValue < cc8* >( 1, "" );
+	cc8* path = state.GetParamValue < cc8* >( 1, "" );
 	bool result = ZLFileSys::SetCurrentPath ( path );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //----------------------------------------------------------------//
@@ -489,15 +478,14 @@ int MOAIFileSystem::_setWorkingDirectory ( lua_State* L ) {
 	@in		string outfilename
 	@out	boolean success
 */
-int MOAIFileSystem::_stripPKZipTimestamps ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIFileSystem::_stripPKZipTimestamps ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	cc8* infilename = state.GetValue < cc8* >( 1, "" );
-	cc8* outfilename = state.GetValue < cc8* >( 2, "" );
+	cc8* infilename = state.GetParamValue < cc8* >( 1, "" );
+	cc8* outfilename = state.GetParamValue < cc8* >( 2, "" );
 	bool result = ZLFileSys::StripPKZipTimestamps ( infilename, outfilename );
 	
-	lua_pushboolean ( state, result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //================================================================//
@@ -505,33 +493,29 @@ int MOAIFileSystem::_stripPKZipTimestamps ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-void MOAIFileSystem::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFileSystem::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "affirmPath",					_affirmPath },
-		{ "checkFileExists",			_checkFileExists },
-		{ "checkPathExists",			_checkPathExists },
-		{ "copy",						_copy },
-		{ "deleteDirectory",			_deleteDirectory },
-		{ "deleteFile",					_deleteFile },
-		{ "getAbsoluteFilePath",		_getAbsoluteFilePath },
-		{ "getAbsoluteDirectoryPath",	_getAbsoluteDirectoryPath },
-		{ "getRelativePath",			_getRelativePath },
-		{ "getWorkingDirectory",		_getWorkingDirectory },
-		{ "getVirtualPathInfo",			_getVirtualPathInfo },
-		{ "listDirectories",			_listDirectories },
-		{ "listFiles",					_listFiles },
-		{ "loadFile",					_loadFile },
-		{ "mountVirtualDirectory",		_mountVirtualDirectory },
-		{ "pathFromRef",				_pathFromRef },
-		{ "pathToRef",					_pathToRef },
-		{ "rename",						_rename },
-		{ "saveFile",					_saveFile },
-		{ "setPathRef",					_setPathRef },
-		{ "setWorkingDirectory",		_setWorkingDirectory },
-		{ "stripPKZipTimestamps",		_stripPKZipTimestamps },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "affirmPath", _affirmPath, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "checkFileExists", _checkFileExists, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "checkPathExists", _checkPathExists, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "copy", _copy, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "deleteDirectory", _deleteDirectory, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "deleteFile", _deleteFile, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAbsoluteFilePath", _getAbsoluteFilePath, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getAbsoluteDirectoryPath", _getAbsoluteDirectoryPath, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getRelativePath", _getRelativePath, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getWorkingDirectory", _getWorkingDirectory, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getVirtualPathInfo", _getVirtualPathInfo, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "listDirectories", _listDirectories, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "listFiles", _listFiles, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "loadFile", _loadFile, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "mountVirtualDirectory", _mountVirtualDirectory, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pathFromRef", _pathFromRef, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "pathToRef", _pathToRef, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "rename", _rename, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "saveFile", _saveFile, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setPathRef", _setPathRef, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "setWorkingDirectory", _setWorkingDirectory, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "stripPKZipTimestamps", _stripPKZipTimestamps, MRB_ARGS_NONE () );
 
-	luaL_register ( state, 0, regTable );
 }

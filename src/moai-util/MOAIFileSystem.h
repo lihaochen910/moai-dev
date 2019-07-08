@@ -11,39 +11,39 @@
 	@text	Functions for manipulating the file system.
 */
 class MOAIFileSystem :
-	public ZLContextClass < MOAIFileSystem, MOAILuaObject > {
+	public ZLContextClass < MOAIFileSystem, MOAIRubyObject > {
 private:
 
 	//----------------------------------------------------------------//
-	static int		_affirmPath					( lua_State* L );
-	static int		_checkFileExists			( lua_State* L );
-	static int		_checkPathExists			( lua_State* L );
-	static int		_copy						( lua_State* L );
-	static int		_deleteDirectory			( lua_State* L );
-	static int		_deleteFile					( lua_State* L );
-	static int		_getAbsoluteDirectoryPath	( lua_State* L );
-	static int		_getAbsoluteFilePath		( lua_State* L );
-	static int		_getRelativePath			( lua_State* L );
-	static int		_getWorkingDirectory		( lua_State* L );
-	static int		_getVirtualPathInfo			( lua_State* L );
-	static int		_listDirectories			( lua_State* L );
-	static int		_listFiles					( lua_State* L );
-	static int		_loadFile					( lua_State* L );
-	static int		_mountVirtualDirectory		( lua_State* L );
-	static int		_pathFromRef				( lua_State* L );
-	static int		_pathToRef					( lua_State* L );
-	static int		_rename						( lua_State* L );
-	static int		_saveFile					( lua_State* L );
-	static int		_setPathRef					( lua_State* L );
-	static int		_setWorkingDirectory		( lua_State* L );
-	static int		_stripPKZipTimestamps		( lua_State* L );
+	static mrb_value		_affirmPath					( mrb_state* M, mrb_value context );
+	static mrb_value		_checkFileExists			( mrb_state* M, mrb_value context );
+	static mrb_value		_checkPathExists			( mrb_state* M, mrb_value context );
+	static mrb_value		_copy						( mrb_state* M, mrb_value context );
+	static mrb_value		_deleteDirectory			( mrb_state* M, mrb_value context );
+	static mrb_value		_deleteFile					( mrb_state* M, mrb_value context );
+	static mrb_value		_getAbsoluteDirectoryPath	( mrb_state* M, mrb_value context );
+	static mrb_value		_getAbsoluteFilePath		( mrb_state* M, mrb_value context );
+	static mrb_value		_getRelativePath			( mrb_state* M, mrb_value context );
+	static mrb_value		_getWorkingDirectory		( mrb_state* M, mrb_value context );
+	static mrb_value		_getVirtualPathInfo			( mrb_state* M, mrb_value context );
+	static mrb_value		_listDirectories			( mrb_state* M, mrb_value context );
+	static mrb_value		_listFiles					( mrb_state* M, mrb_value context );
+	static mrb_value		_loadFile					( mrb_state* M, mrb_value context );
+	static mrb_value		_mountVirtualDirectory		( mrb_state* M, mrb_value context );
+	static mrb_value		_pathFromRef				( mrb_state* M, mrb_value context );
+	static mrb_value		_pathToRef					( mrb_state* M, mrb_value context );
+	static mrb_value		_rename						( mrb_state* M, mrb_value context );
+	static mrb_value		_saveFile					( mrb_state* M, mrb_value context );
+	static mrb_value		_setPathRef					( mrb_state* M, mrb_value context );
+	static mrb_value		_setWorkingDirectory		( mrb_state* M, mrb_value context );
+	static mrb_value		_stripPKZipTimestamps		( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_SINGLETON ( MOAIFileSystem )
+	DECL_RUBY_SINGLETON ( MOAIFileSystem )
 	
 	//----------------------------------------------------------------//
-	void				RegisterLuaClass		( MOAILuaState& state );
+	void				RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

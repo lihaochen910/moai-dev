@@ -31,7 +31,7 @@ void MOAIDataIOTask::Init ( cc8* filename, MOAIDataBuffer& target, u32 action ) 
 	this->mAction = action;
 	this->mData = &target;
 	
-	this->mData->LuaRetain ( this->mData );
+	this->mData->RubyRetain ( this->mData );
 }
 
 //----------------------------------------------------------------//
@@ -46,7 +46,7 @@ MOAIDataIOTask::MOAIDataIOTask () :
 //----------------------------------------------------------------//
 MOAIDataIOTask::~MOAIDataIOTask () {
 
-	this->mData->LuaRelease ( this->mData );
+	this->mData->RubyRelease ( this->mData );
 	this->mData = 0;
 }
 
@@ -58,29 +58,29 @@ void MOAIDataIOTask::Publish () {
 	}
 
 	if ( this->mOnFinish ) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		if ( this->mOnFinish.PushRef ( state )) {
-			this->mData->PushLuaUserdata ( state );
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+		/*if ( this->mOnFinish.PushRef ( state ) ) {
+			this->mData->PushRubyUserdata ( state );
 			state.DebugCall ( 1, 0 );
-		}
+		}*/
 	}
 }
 
 //----------------------------------------------------------------//
-void MOAIDataIOTask::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAITask::RegisterLuaClass ( state );
+void MOAIDataIOTask::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+	MOAITask::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDataIOTask::RegisterLuaFuncs ( MOAILuaState& state ) {
-	MOAITask::RegisterLuaFuncs ( state );
+void MOAIDataIOTask::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
+	MOAITask::RegisterRubyFuncs ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDataIOTask::SetCallback ( lua_State* L, int idx ) {
+void MOAIDataIOTask::SetCallback ( mrb_state* M, mrb_value callback ) {
 
-	MOAILuaState state ( L );
-	this->mOnFinish.SetRef ( state, idx );
+	MOAIRubyState state ( M );
+	//this->mOnFinish.SetRef ( state, idx );
 }
 
 //----------------------------------------------------------------//

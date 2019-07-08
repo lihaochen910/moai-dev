@@ -16,7 +16,7 @@
 */
 class MOAIStream :
 	public virtual ZLStream,
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
 	enum {
@@ -34,76 +34,77 @@ private:
 	};
 	
 	//----------------------------------------------------------------//
-	static int		_collapse			( lua_State* L );
-	static int		_compact			( lua_State* L );
-	static int		_flush				( lua_State* L );
-	static int		_getCursor			( lua_State* L );
-	static int		_getLength			( lua_State* L );
-	static int		_read				( lua_State* L );
-	static int		_read8				( lua_State* L );
-	static int		_read16				( lua_State* L );
-	static int		_read32				( lua_State* L );
-	static int		_readBoolean		( lua_State* L );
-	static int		_readDouble			( lua_State* L );
-	static int		_readFloat			( lua_State* L );
-	static int		_readFormat			( lua_State* L );
-	static int		_readString			( lua_State* L );
-	static int		_readU8				( lua_State* L );
-	static int		_readU16			( lua_State* L );
-	static int		_readU32			( lua_State* L );
-	static int		_sample				( lua_State* L );
-	static int		_seek				( lua_State* L );
-	static int		_write				( lua_State* L );
-	static int		_write8				( lua_State* L );
-	static int		_write16			( lua_State* L );
-	static int		_write32			( lua_State* L );
-	static int		_writeBoolean		( lua_State* L );
-	static int		_writeColor32		( lua_State* L );
-	static int		_writeDouble		( lua_State* L );
-	static int		_writeFloat			( lua_State* L );
-	static int		_writeFormat		( lua_State* L );
-	static int		_writeStream		( lua_State* L );
-	static int		_writeString		( lua_State* L );
-	static int		_writeU8			( lua_State* L );
-	static int		_writeU16			( lua_State* L );
-	static int		_writeU32			( lua_State* L );
+	static mrb_value		_collapse			( mrb_state* M, mrb_value context );
+	static mrb_value		_compact			( mrb_state* M, mrb_value context );
+	static mrb_value		_flush				( mrb_state* M, mrb_value context );
+	static mrb_value		_getCursor			( mrb_state* M, mrb_value context );
+	static mrb_value		_getLength			( mrb_state* M, mrb_value context );
+	static mrb_value		_read				( mrb_state* M, mrb_value context );
+	static mrb_value		_read8				( mrb_state* M, mrb_value context );
+	static mrb_value		_read16				( mrb_state* M, mrb_value context );
+	static mrb_value		_read32				( mrb_state* M, mrb_value context );
+	static mrb_value		_readBoolean		( mrb_state* M, mrb_value context );
+	static mrb_value		_readDouble			( mrb_state* M, mrb_value context );
+	static mrb_value		_readFloat			( mrb_state* M, mrb_value context );
+	static mrb_value		_readFormat			( mrb_state* M, mrb_value context );
+	static mrb_value		_readString			( mrb_state* M, mrb_value context );
+	static mrb_value		_readU8				( mrb_state* M, mrb_value context );
+	static mrb_value		_readU16			( mrb_state* M, mrb_value context );
+	static mrb_value		_readU32			( mrb_state* M, mrb_value context );
+	static mrb_value		_sample				( mrb_state* M, mrb_value context );
+	static mrb_value		_seek				( mrb_state* M, mrb_value context );
+	static mrb_value		_write				( mrb_state* M, mrb_value context );
+	static mrb_value		_write8				( mrb_state* M, mrb_value context );
+	static mrb_value		_write16			( mrb_state* M, mrb_value context );
+	static mrb_value		_write32			( mrb_state* M, mrb_value context );
+	static mrb_value		_writeBoolean		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeColor32		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeDouble		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeFloat			( mrb_state* M, mrb_value context );
+	static mrb_value		_writeFormat		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeStream		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeString		( mrb_state* M, mrb_value context );
+	static mrb_value		_writeU8			( mrb_state* M, mrb_value context );
+	static mrb_value		_writeU16			( mrb_state* M, mrb_value context );
+	static mrb_value		_writeU32			( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	static cc8*		ParseTypeToken		( cc8* format, u32& type );
-	int				ReadFormat			( MOAILuaState& state, int idx );
-	int				WriteFormat			( MOAILuaState& state, int idx );
+	int				ReadFormat			( MOAIRubyState& state, int idx );
+	int				WriteFormat			( MOAIRubyState& state, int idx );
 
 	//----------------------------------------------------------------//
 	template < typename TYPE >
-	size_t ReadValue ( MOAILuaState& state ) {
+	size_t ReadValue ( MOAIRubyState& state ) {
 		
 		TYPE value;
 		size_t size = sizeof ( TYPE );
 		size_t bytes = this->ReadBytes ( &value, size );
 		if ( bytes == size ) {
-			state.Push ( value );
+			//state.Push ( value );
 		}
 		else {
-			state.Push ();
+			//state.Push ();
 		}
 		return bytes;
 	}
 
 	//----------------------------------------------------------------//
 	template < typename TYPE >
-	int ReadValues ( MOAILuaState& state, int idx ) {
+	mrb_value ReadValues ( MOAIRubyState& state, int idx ) {
 		
 		size_t base = this->GetCursor ();
 		
-		u32 total = state.GetValue < u32 >( idx, 1 );
+		u32 total = state.GetParamValue < u32 >( idx, 1 );
 		u32 count = 0;
+		mrb_value ary = mrb_ary_new ( state );
 		
 		for ( u32 i = 0; i < total; ++i ) {
 		
 			ZLResult < TYPE > result = this->Read < TYPE >();
 			
 			if ( result.mCode == ZL_OK ) {
-				state.Push ( result.mValue );
+				mrb_ary_push ( state, ary, state.ToRValue ( result.mValue ) );
 				count++;
 			}
 			else {
@@ -111,22 +112,22 @@ private:
 				break;
 			} 
 		}
-		state.Push (( u32 )( this->GetCursor () - base )); // TODO: overflow?
-		return count + 1;
+		//state.Push (( u32 )( this->GetCursor () - base )); // TODO: overflow?
+		//return count + 1;
+		return ary;
 	}
 	
 	//----------------------------------------------------------------//
 	template < typename TYPE >
-	int WriteValues ( MOAILuaState& state, int idx ) {
+	int WriteValues ( MOAIRubyState& state, int idx ) {
 		
 		size_t base = this->GetCursor ();
 		
-		idx = state.AbsIndex ( idx );
-		u32 total = ( state.GetTop () - idx ) + 1;
+		u32 total = state.GetParamsCount ();
 		
 		for ( u32 i = 0; i < total; ++i ) {
 		
-			TYPE value = state.GetValue < TYPE >( idx + i, 0 );
+			TYPE value = state.GetParamValue < TYPE >( idx + i, 0 );
 			ZLSizeResult result = this->Write < TYPE >( value );
 
 			if ( result.mCode != ZL_OK ) {
@@ -134,8 +135,7 @@ private:
 				break;
 			}
 		}
-		state.Push (( u32 )( this->GetCursor () - base )); // TODO: overflow?
-		return 1;
+		return ( u32 )( this->GetCursor () - base );
 	}
 
 public:
@@ -143,8 +143,8 @@ public:
 	//----------------------------------------------------------------//
 					MOAIStream			();
 					~MOAIStream			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

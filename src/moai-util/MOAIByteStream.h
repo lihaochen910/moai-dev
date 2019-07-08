@@ -20,12 +20,12 @@ private:
 	void*			mData;
 	
 	//----------------------------------------------------------------//
-	static int		_close				( lua_State* L );
-	static int		_open				( lua_State* L );
+	static mrb_value		_close				( mrb_state* M, mrb_value context );
+	static mrb_value		_open				( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIByteStream )
+	DECL_RUBY_FACTORY ( MOAIByteStream, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	void			Close				();
@@ -33,8 +33,8 @@ public:
 					~MOAIByteStream		();
 	void			Open				( size_t size );
 	void			Open				( void* data, size_t size );
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+	void			RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

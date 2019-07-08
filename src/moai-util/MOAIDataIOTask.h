@@ -17,7 +17,7 @@ private:
 
 	STLString						mFilename;
 	MOAIDataBuffer*					mData;
-	MOAILuaStrongRef				mOnFinish;
+	MOAIRubyStrongRef				mOnFinish;
 	u32								mAction;
 	
 	bool							mInflateOnLoad;
@@ -40,10 +40,10 @@ public:
 	void		Init				( cc8* filename, MOAIDataBuffer& target, u32 action );
 				MOAIDataIOTask		();
 				~MOAIDataIOTask		();
-	void		RegisterLuaClass	( MOAILuaState& state );
-	void		RegisterLuaFuncs	( MOAILuaState& state );
+	void		RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void		RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 	void		SaveData			( cc8* filename, MOAIDataBuffer& target );
-	void		SetCallback			( lua_State* L, int idx );
+	void		SetCallback			( mrb_state* M, mrb_value callback );
 	void		SetInflateOnLoad	( bool inflateOnLoad, bool inflateOnTaskThread, int windowBits );
 };
 

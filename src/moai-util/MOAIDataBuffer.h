@@ -15,31 +15,31 @@ class MOAIDataIOTask;
 /**	@lua	MOAIDataBuffer
 	@text	Buffer for loading and holding data. Data operations may be
 			performed without additional penalty of marshalling buffers
-			between Lua and C.
+			between Ruby and C.
 */
 class MOAIDataBuffer :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
 	MOAIMutex			mMutex;
 	ZLLeanArray < u8 >	mBytes;
 	
 	//----------------------------------------------------------------//
-	static int		_base64Decode		( lua_State* L );
-	static int		_base64Encode		( lua_State* L );
-	static int		_clear				( lua_State* L );
-	static int		_deflate			( lua_State* L );
-	static int		_getSize			( lua_State* L );
-	static int		_getString			( lua_State* L );
-	static int		_hexDecode			( lua_State* L );
-	static int		_hexEncode			( lua_State* L );
-	static int		_inflate			( lua_State* L );
-	static int		_load				( lua_State* L );
-	static int		_loadAsync			( lua_State* L );
-	static int		_save				( lua_State* L );
-	static int		_saveAsync			( lua_State* L );
-	static int		_setString			( lua_State* L );
-	static int		_toCppHeader		( lua_State* L );
+	static mrb_value		_base64Decode		( mrb_state* M, mrb_value context );
+	static mrb_value		_base64Encode		( mrb_state* M, mrb_value context );
+	static mrb_value		_clear				( mrb_state* M, mrb_value context );
+	static mrb_value		_deflate			( mrb_state* M, mrb_value context );
+	static mrb_value		_getSize			( mrb_state* M, mrb_value context );
+	static mrb_value		_getString			( mrb_state* M, mrb_value context );
+	static mrb_value		_hexDecode			( mrb_state* M, mrb_value context );
+	static mrb_value		_hexEncode			( mrb_state* M, mrb_value context );
+	static mrb_value		_inflate			( mrb_state* M, mrb_value context );
+	static mrb_value		_load				( mrb_state* M, mrb_value context );
+	static mrb_value		_loadAsync			( mrb_state* M, mrb_value context );
+	static mrb_value		_save				( mrb_state* M, mrb_value context );
+	static mrb_value		_saveAsync			( mrb_state* M, mrb_value context );
+	static mrb_value		_setString			( mrb_state* M, mrb_value context );
+	static mrb_value		_toCppHeader		( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
 	bool			Decode				( ZLStreamAdapter& reader );
@@ -48,7 +48,7 @@ private:
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIDataBuffer )
+	DECL_RUBY_FACTORY ( MOAIDataBuffer, MOAIRubyObject )
 
 	enum {
 		NO_INFLATE,
@@ -67,14 +67,14 @@ public:
 	bool			Inflate					( int windowBits = ZLDeflateWriter::DEFAULT_WBITS );
 	bool			Load					( cc8* filename );
 	void			Load					( void* bytes, size_t size );
-	void			Load					( MOAILuaState& state, int idx );
+	void			Load					( MOAIRubyState& state, int idx );
 	void			Lock					( void** bytes, size_t* size );
 					MOAIDataBuffer			();
 					~MOAIDataBuffer			();
-	void			PushString				( MOAILuaState& state );
+	mrb_value		PushString				( MOAIRubyState& state );
 	size_t			Read					( void* buffer, size_t size );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	size_t			Size					();
 	bool			Save					( cc8* filename );
 	void			Unlock					();

@@ -15,73 +15,73 @@
 	@in		MOAIMemStream self
 	@out	nil
 */
-int MOAIMemStream::_close ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMemStream, "U" );
+mrb_value MOAIMemStream::_close ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMemStream, "U" );
 	
 	self->Clear ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMemStream::_discardAll ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMemStream, "U" );
+mrb_value MOAIMemStream::_discardAll ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMemStream, "U" );
 	
 	self->DiscardAll ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMemStream::_discardBack ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMemStream, "U" );
+mrb_value MOAIMemStream::_discardBack ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMemStream, "U" );
 	
-	self->DiscardBack ( state.GetValue ( 2, self->GetCursor ()));
-	return 0;
+	self->DiscardBack ( state.GetParamValue ( 1, self->GetCursor ()));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMemStream::_discardFront ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMemStream, "U" );
+mrb_value MOAIMemStream::_discardFront ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMemStream, "U" );
 	
-	self->DiscardFront ( state.GetValue < u32 >( 2, ( u32 )self->GetCursor ()));
-	return 0;
+	self->DiscardFront ( state.GetParamValue < u32 >( 1, ( u32 )self->GetCursor ()));
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIMemStream::_getString ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMemStream, "U" );
+mrb_value MOAIMemStream::_getString ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMemStream, "U" );
 
 	size_t size = self->GetLength ();
 	
 	if ( size ) {
 		
-		size_t cursor = self->GetCursor ();
-		
+		/*size_t cursor = self->GetCursor ();
+
 		self->Seek ( 0, SEEK_SET );
 		void* str = 0;
-		
+
 		if ( size > ALLOCA_MAX ) {
 			str = malloc ( size );
 		}
 		else {
 			str = alloca ( size );
 		}
-		
+
 		assert ( str );
 		self->ReadBytes ( str, size );
 		lua_pushlstring ( state, ( cc8* )str, size );
-		
+
 		if ( size > ALLOCA_MAX ) {
 			free ( str );
 		}
-		
+
 		self->Seek (( long )cursor, SEEK_SET );
-		return 1;
+		return 1;*/
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -95,13 +95,13 @@ int MOAIMemStream::_getString ( lua_State* L ) {
 	@opt	number chunkSize		Default value is MOAIMemStream.DEFAULT_CHUNK_SIZE (2048 bytes).
 	@out	boolean success
 */
-int MOAIMemStream::_open ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIMemStream, "U" );
+mrb_value MOAIMemStream::_open ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIMemStream, "U" );
 	
 	self->Clear ();
 	
-	u32 reserve			= state.GetValue < u32 >( 2, 0 );
-	u32 chunkSize		= state.GetValue < u32 >( 3, ZLMemStream::DEFAULT_CHUNK_SIZE );
+	u32 reserve			= state.GetParamValue < u32 >( 1, 0 );
+	u32 chunkSize		= state.GetParamValue < u32 >( 2, ZLMemStream::DEFAULT_CHUNK_SIZE );
 	
 	bool result = false;
 
@@ -111,8 +111,7 @@ int MOAIMemStream::_open ( lua_State* L ) {
 		result = true;
 	}
 	
-	state.Push ( result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //================================================================//
@@ -132,28 +131,24 @@ MOAIMemStream::~MOAIMemStream () {
 }
 
 //----------------------------------------------------------------//
-void MOAIMemStream::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIMemStream::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaClass ( state );
+	MOAIStream::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "DEFAULT_CHUNK_SIZE", ( u32 )ZLMemStream::DEFAULT_CHUNK_SIZE );
+	state.DefineClassConst ( klass, "DEFAULT_CHUNK_SIZE", ( u32 )ZLMemStream::DEFAULT_CHUNK_SIZE );
 }
 
 //----------------------------------------------------------------//
-void MOAIMemStream::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIMemStream::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaFuncs ( state );
+	MOAIStream::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "close",				_close },
-		{ "discardAll",			_discardAll },
-		{ "discardBack",		_discardBack },
-		{ "discardFront",		_discardFront },
-		{ "getString",			_getString },
-		{ "open",				_open },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "close", _close, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "discardAll", _discardAll, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "discardBack", _discardBack, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "discardFront", _discardFront, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "getString", _getString, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "open", _open, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

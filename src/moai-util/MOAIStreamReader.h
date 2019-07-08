@@ -16,13 +16,13 @@ class MOAIStreamReader :
 	public virtual MOAIStreamAdapter {
 public:
 	
-	DECL_LUA_FACTORY ( MOAIStreamReader )
+	DECL_RUBY_FACTORY ( MOAIStreamReader, MOAIStreamAdapter )
 
 	//----------------------------------------------------------------//
 					MOAIStreamReader		();
 					~MOAIStreamReader		();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

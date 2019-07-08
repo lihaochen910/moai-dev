@@ -17,11 +17,11 @@
 	@in		MOAIStreamWriter self
 	@out	nil
 */
-int MOAIStreamAdapter::_close ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_close ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
 	self->Close ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -33,8 +33,8 @@ int MOAIStreamAdapter::_close ( lua_State* L ) {
 	@in		MOAIStream target
 	@out	boolean success
 */
-int MOAIStreamAdapter::_openBase64Reader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_openBase64Reader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
 	return self->Open ( state, 2, new ZLBase64Reader ());
 }
@@ -48,8 +48,8 @@ int MOAIStreamAdapter::_openBase64Reader ( lua_State* L ) {
 	@in		MOAIStream target
 	@out	boolean success
 */
-int MOAIStreamAdapter::_openBase64Writer ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_openBase64Writer ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
 	return self->Open ( state, 2, new ZLBase64Writer ());
 }
@@ -64,15 +64,15 @@ int MOAIStreamAdapter::_openBase64Writer ( lua_State* L ) {
 	@opt	number windowBits		The window bits used in the DEFLATE algorithm.
 	@out	boolean success
 */
-int MOAIStreamAdapter::_openDeflateReader ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_openDeflateReader ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
 	self->Close ();
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
-	if ( !stream ) return 0;
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 2, true );
+	if ( !stream ) return mrb_nil_value ();
 	
-	int windowBits	= state.GetValue < int >( 3, ZLDeflateWriter::DEFAULT_WBITS );
+	int windowBits	= state.GetParamValue < int >( 3, ZLDeflateWriter::DEFAULT_WBITS );
 	
 	ZLDeflateReader* reader = new ZLDeflateReader ();
 	
@@ -80,8 +80,7 @@ int MOAIStreamAdapter::_openDeflateReader ( lua_State* L ) {
 	
 	ZLResultCode result = self->Open ( reader, stream );
 	
-	state.Push ( result == ZL_OK );
-	return 1;
+	return state.ToRValue ( result == ZL_OK );
 }
 
 //----------------------------------------------------------------//
@@ -95,16 +94,16 @@ int MOAIStreamAdapter::_openDeflateReader ( lua_State* L ) {
 	@opt	number windowBits		The window bits used in the DEFLATE algorithm.
 	@out	boolean success
 */
-int MOAIStreamAdapter::_openDeflateWriter ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_openDeflateWriter ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
 	self->Close ();
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
-	if ( !stream ) return 0;
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 2, true );
+	if ( !stream ) return mrb_false_value ();
 	
-	int level		= state.GetValue < int >( 3, ZLDeflateWriter::DEFAULT_LEVEL );
-	int windowBits	= state.GetValue < int >( 4, ZLDeflateWriter::DEFAULT_WBITS );
+	int level		= state.GetParamValue < int >( 3, ZLDeflateWriter::DEFAULT_LEVEL );
+	int windowBits	= state.GetParamValue < int >( 4, ZLDeflateWriter::DEFAULT_WBITS );
 	
 	ZLDeflateWriter* writer = new ZLDeflateWriter ();
 	
@@ -113,8 +112,7 @@ int MOAIStreamAdapter::_openDeflateWriter ( lua_State* L ) {
 	
 	ZLResultCode result = self->Open ( writer, stream );
 	
-	state.Push ( result == ZL_OK );
-	return 1;
+	return state.ToRValue ( result == ZL_OK );
 }
 
 //----------------------------------------------------------------//
@@ -126,19 +124,19 @@ int MOAIStreamAdapter::_openDeflateWriter ( lua_State* L ) {
 	@in		MOAIStream target
 	@out	boolean success
 */
-int MOAIStreamAdapter::_openHex ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_openHex ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
 	return self->Open ( state, 2, new ZLHexAdapter ());
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIStreamAdapter::_openRing ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStreamAdapter, "U" );
+mrb_value MOAIStreamAdapter::_openRing ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStreamAdapter, "U" );
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
-	u32 size = state.GetValue < u32 >( 3, ( u32 )stream->GetLength ());
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
+	u32 size = state.GetParamValue < u32 >( 2, ( u32 )stream->GetLength ());
 	
 	if ( size > 0 ) {
 	
@@ -147,11 +145,10 @@ int MOAIStreamAdapter::_openRing ( lua_State* L ) {
 		
 		if ( result == ZL_OK ) {
 			adapter->SetLength ( size );
-			state.Push ( result );
-			return 1;
+			return state.ToRValue ( result );
 		}
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -212,40 +209,35 @@ ZLResultCode MOAIStreamAdapter::Open ( ZLStreamAdapter* adapter, MOAIStream* str
 }
 
 //----------------------------------------------------------------//
-int MOAIStreamAdapter::Open ( MOAILuaState& state, int idx, ZLStreamAdapter* adapter) {
+mrb_value MOAIStreamAdapter::Open ( MOAIRubyState& state, int idx, ZLStreamAdapter* adapter) {
 
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( idx, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( idx, true );
 
 	ZLResultCode result = this->Open ( adapter, stream );
-	state.Push ( result == ZL_OK );
-	return 1;
+	return state.ToRValue ( result == ZL_OK );
 }
 
 //----------------------------------------------------------------//
-void MOAIStreamAdapter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIStreamAdapter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaClass ( state );
+	MOAIStream::RegisterRubyClass ( state, klass );
 	
-	state.SetField ( -1, "DEFAULT_LEVEL", ZLDeflateWriter::DEFAULT_LEVEL );
-	state.SetField ( -1, "DEFAULT_WBITS", ZLDeflateWriter::DEFAULT_WBITS );
+	state.DefineClassConst ( klass, "DEFAULT_LEVEL", ZLDeflateWriter::DEFAULT_LEVEL );
+	state.DefineClassConst ( klass, "DEFAULT_WBITS", ZLDeflateWriter::DEFAULT_WBITS );
 }
 
 //----------------------------------------------------------------//
-void MOAIStreamAdapter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIStreamAdapter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaFuncs ( state );
+	MOAIStream::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "close",					_close },
-		{ "openBase64Reader",		_openBase64Reader },
-		{ "openBase64Writer",		_openBase64Writer },
-		{ "openDeflateReader",		_openDeflateReader },
-		{ "openDeflateWriter",		_openDeflateWriter },
-		{ "openHex",				_openHex },
-		{ "openRing",				_openRing },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "close", _close, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "openBase64Reader", _openBase64Reader, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "openBase64Writer", _openBase64Writer, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "openDeflateReader", _openDeflateReader, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "openDeflateWriter", _openDeflateWriter, MRB_ARGS_ARG ( 1, 2 ) );
+	state.DefineInstanceMethod ( klass, "openHex", _openHex, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "openRing", _openRing, MRB_ARGS_REQ ( 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

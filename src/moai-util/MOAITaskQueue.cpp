@@ -110,12 +110,12 @@ void MOAITaskQueue::PushTask ( MOAITask& task ) {
 }
 
 //----------------------------------------------------------------//
-void MOAITaskQueue::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAITaskQueue::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 
 //----------------------------------------------------------------//
-void MOAITaskQueue::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITaskQueue::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 

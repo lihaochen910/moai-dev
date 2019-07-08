@@ -20,23 +20,23 @@ class MOAIDataBufferStream :
 	public virtual MOAIStream {
 private:
 	
-	MOAILuaSharedPtr < MOAIDataBuffer > mDataBuffer;
+	MOAIRubySharedPtr < MOAIDataBuffer > mDataBuffer;
 	
 	//----------------------------------------------------------------//
-	static int			_close		( lua_State* L );
-	static int			_open		( lua_State* L );
+	static mrb_value	_close		( mrb_state* M, mrb_value context );
+	static mrb_value	_open		( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIDataBufferStream )
+	DECL_RUBY_FACTORY ( MOAIDataBufferStream, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	void				Close						();
 						MOAIDataBufferStream		();
 						~MOAIDataBufferStream		();
 	bool				Open						( MOAIDataBuffer* buffer );
-	void				RegisterLuaClass			( MOAILuaState& state );
-	void				RegisterLuaFuncs			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

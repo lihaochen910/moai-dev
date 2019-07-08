@@ -16,11 +16,11 @@
 	@in		MOAIDataBufferStream self
 	@out	nil
 */
-int MOAIDataBufferStream::_close ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBufferStream, "U" );
+mrb_value MOAIDataBufferStream::_close ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBufferStream, "U" );
 	
 	self->Close ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -33,18 +33,17 @@ int MOAIDataBufferStream::_close ( lua_State* L ) {
 	@in		MOAIDataBuffer buffer
 	@out	boolean success
 */
-int MOAIDataBufferStream::_open ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBufferStream, "UU" );
+mrb_value MOAIDataBufferStream::_open ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBufferStream, "UU" );
 	
 	self->Close ();
 	
-	MOAIDataBuffer* buffer = state.GetLuaObject < MOAIDataBuffer >( 2, true );
-	if ( !buffer ) return 0;
+	MOAIDataBuffer* buffer = state.GetRubyObject < MOAIDataBuffer >( 1, true );
+	if ( !buffer ) return mrb_nil_value ();
 	
 	bool result = self->Open ( buffer );
 	
-	state.Push ( result );
-	return 1;
+	return state.ToRValue ( result );
 }
 
 //================================================================//
@@ -95,22 +94,18 @@ bool MOAIDataBufferStream::Open ( MOAIDataBuffer* buffer ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIDataBufferStream::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDataBufferStream::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaClass ( state );
+	MOAIStream::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIDataBufferStream::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDataBufferStream::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaFuncs ( state );
+	MOAIStream::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "close",				_close },
-		{ "open",				_open },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "close", _close, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "open", _open, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

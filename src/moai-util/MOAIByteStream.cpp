@@ -15,11 +15,11 @@
 	@in		MOAIByteStream self
 	@out	nil
 */
-int MOAIByteStream::_close ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIByteStream, "U" );
+mrb_value MOAIByteStream::_close ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIByteStream, "U" );
 	
 	self->Close ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -38,21 +38,21 @@ int MOAIByteStream::_close ( lua_State* L ) {
 		@in		number size				Initialize the stream with a buffer of the given size. Buffer will be filled with zero.
 		@out	nil
 */
-int MOAIByteStream::_open ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIByteStream, "U" );
+mrb_value MOAIByteStream::_open ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIByteStream, "U" );
 	
-	if ( state.IsType ( 2, LUA_TSTRING )) {
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
 		void* data;
-		size_t size;
-		data = ( void* )lua_tolstring ( state, 2, &size );
+		size_t size = RSTRING_LEN ( state.GetParamValue ( 1 ) );
+		data = ( void* )state.GetParamValue < cc8* > ( 1, "" );
 		self->Open ( data, size );
 	}
 	
-	if ( state.IsType ( 2, LUA_TNUMBER )) {
-		u32 size = state.GetValue < u32 >( 2, 0 );
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM )) {
+		u32 size = state.GetParamValue < u32 >( 2, 0 );
 		self->Open ( size );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -106,22 +106,18 @@ void MOAIByteStream::Open ( void* data, size_t size ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIByteStream::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIByteStream::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaClass ( state );
+	MOAIStream::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIByteStream::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIByteStream::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStream::RegisterLuaFuncs ( state );
+	MOAIStream::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "close",				_close },
-		{ "open",				_open },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "close", _close, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "open", _open, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

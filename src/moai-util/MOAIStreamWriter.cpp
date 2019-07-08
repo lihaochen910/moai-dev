@@ -25,22 +25,18 @@ MOAIStreamWriter::~MOAIStreamWriter () {
 }
 
 //----------------------------------------------------------------//
-void MOAIStreamWriter::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIStreamWriter::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStreamAdapter::RegisterLuaClass ( state );
+	MOAIStreamAdapter::RegisterRubyClass ( state, klass );
 }
 
 //----------------------------------------------------------------//
-void MOAIStreamWriter::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIStreamWriter::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	MOAIStreamAdapter::RegisterLuaFuncs ( state );
+	MOAIStreamAdapter::RegisterRubyFuncs ( state, klass );
 
-	luaL_Reg regTable [] = {
-		{ "openBase64",			MOAIStreamAdapter::_openBase64Writer },
-		{ "openDeflate",		MOAIStreamAdapter::_openDeflateWriter },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "openBase64", MOAIStreamAdapter::_openBase64Writer, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "openDeflate", MOAIStreamAdapter::_openDeflateWriter, MRB_ARGS_ARG ( 1, 2 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 

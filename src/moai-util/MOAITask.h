@@ -22,8 +22,8 @@ private:
 	u32						mPriority;
 	MOAITaskQueue*			mQueue;
 	MOAITaskSubscriber*		mSubscriber;
-	//MOAILuaMemberRef		mOnFinish;
-	//MOAILuaStrongRef		mLatch;
+	//MOAIRubyMemberRef		mOnFinish;
+	//MOAIRubyStrongRef		mLatch;
 
 	ZLLeanLink < MOAITask* >	mLink;
 
@@ -58,8 +58,8 @@ public:
 	//void			LatchRetain				();
 					MOAITask				();
 	virtual			~MOAITask				();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			Start					( MOAITaskQueue& queue, MOAITaskSubscriber& subscriber );
 };
 

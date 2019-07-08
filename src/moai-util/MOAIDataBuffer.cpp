@@ -18,23 +18,23 @@
 	@opt	string data				The string data to decode.  You must either provide either a MOAIDataBuffer (via a :base64Decode type call) or string data (via a .base64Decode type call), but not both.
 	@out	string output			If passed a string, returns either a string or nil depending on whether it could be decoded.  Otherwise the decoding occurs inline on the existing data buffer in this object, and nil is returned.
 */
-int MOAIDataBuffer::_base64Decode ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_base64Decode ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-		return state.Base64Decode ( 1 ) ? 1 : 0;
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
+		//return state.Base64Decode ( 1 ) ? 1 : 0;
 	}
 	
-	MOAIDataBuffer* self = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* self = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( self ) {
-		if ( state.IsType ( 2, LUA_TSTRING )) {
-			size_t len;
-			cc8* str = lua_tolstring ( state, 2, &len );
+		if ( state.ParamIsType ( 2, MRB_TT_STRING )) {
+			size_t len = RSTRING_LEN ( state.GetParamValue ( 2 ) );
+			cc8* str = state.GetParamValue < cc8* > ( 2, "" );
 			self->Load (( void* )str, len );
 		}
 		self->Base64Decode ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -45,23 +45,23 @@ int MOAIDataBuffer::_base64Decode ( lua_State* L ) {
 	@opt	string data				The string data to encode.  You must either provide either a MOAIDataBuffer (via a :base64Encode type call) or string data (via a .base64Encode type call), but not both.
 	@out	string output			If passed a string, returns either a string or nil depending on whether it could be encoded.  Otherwise the encoding occurs inline on the existing data buffer in this object, and nil is returned.
 */
-int MOAIDataBuffer::_base64Encode ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_base64Encode ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-		return state.Base64Encode ( 1 ) ? 1 : 0;
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
+		//return state.Base64Encode ( 1 ) ? 1 : 0;
 	}
 	
-	MOAIDataBuffer* self = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* self = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( self ) {
-		if ( state.IsType ( 2, LUA_TSTRING )) {
-			size_t len;
-			cc8* str = lua_tolstring ( state, 2, &len );
+		if ( state.ParamIsType ( 2, MRB_TT_STRING )) {
+			size_t len = RSTRING_LEN ( state.GetParamValue ( 2 ) );
+			cc8* str = state.GetParamValue < cc8* > ( 2, "" );
 			self->Load (( void* )str, len );
 		}
 		self->Base64Encode ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -71,10 +71,10 @@ int MOAIDataBuffer::_base64Encode ( lua_State* L ) {
 	@in		MOAIDataBuffer self
 	@out	nil
 */
-int MOAIDataBuffer::_clear ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "U" );
+mrb_value MOAIDataBuffer::_clear ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "U" );
 	self->Clear ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -93,21 +93,21 @@ int MOAIDataBuffer::_clear ( lua_State* L ) {
 	@opt	number windowBits		The window bits used in the DEFLATE algorithm.
 	@out	string output			If passed a string, returns either a string or nil depending on whether it could be compressed.  Otherwise the compression occurs inline on the existing data buffer in this object, and nil is returned.
 */
-int MOAIDataBuffer::_deflate ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_deflate ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	int level = state.GetValue < int >( 2, ZLDeflateWriter::DEFAULT_LEVEL );
-	int windowBits = state.GetValue < int >( 3, ZLDeflateWriter::DEFAULT_WBITS );
+	int level = state.GetParamValue < int >( 2, ZLDeflateWriter::DEFAULT_LEVEL );
+	int windowBits = state.GetParamValue < int >( 3, ZLDeflateWriter::DEFAULT_WBITS );
 
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-		return state.Deflate ( 1, level, windowBits ) ? 1 : 0;
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
+		//return state.Deflate ( 1, level, windowBits ) ? 1 : 0;
 	}
 	
-	MOAIDataBuffer* self = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* self = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( self ) {
 		self->Deflate ( level, windowBits );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -117,18 +117,16 @@ int MOAIDataBuffer::_deflate ( lua_State* L ) {
 	@in		MOAIDataBuffer self
 	@out	number size				The number of bytes in this data buffer object.
 */
-int MOAIDataBuffer::_getSize ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "U" );
+mrb_value MOAIDataBuffer::_getSize ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "U" );
 
 	void* bytes;
 	size_t size;
 	self->Lock ( &bytes, &size );
 	
-	lua_pushnumber ( state, ( lua_Number )size );
-
 	self->Unlock ();
 
-	return 1;
+	return state.ToRValue ( size );
 }
 
 //----------------------------------------------------------------//
@@ -138,12 +136,10 @@ int MOAIDataBuffer::_getSize ( lua_State* L ) {
 	@in		MOAIDataBuffer self
 	@out	string data				The data buffer object as a string.
 */
-int MOAIDataBuffer::_getString ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "U" );
+mrb_value MOAIDataBuffer::_getString ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "U" );
 
-	self->PushString ( state );
-	
-	return 1;
+	return self->PushString ( state );
 }
 
 //----------------------------------------------------------------//
@@ -154,23 +150,23 @@ int MOAIDataBuffer::_getString ( lua_State* L ) {
 	@opt	string data				The string data to decode.  You must either provide either a MOAIDataBuffer (via a :hexDecode type call) or string data (via a .hexDecode type call), but not both.
 	@out	string output			If passed a string, returns either a string or nil depending on whether it could be decoded.  Otherwise the decoding occurs inline on the existing data buffer in this object, and nil is returned.
 */
-int MOAIDataBuffer::_hexDecode ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_hexDecode ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-		return state.HexDecode ( 1 ) ? 1 : 0;
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
+		//return state.HexDecode ( 1 ) ? 1 : 0;
 	}
 	
-	MOAIDataBuffer* self = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* self = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( self ) {
-		if ( state.IsType ( 2, LUA_TSTRING )) {
-			size_t len;
-			cc8* str = lua_tolstring ( state, 2, &len );
+		if ( state.ParamIsType ( 2, MRB_TT_STRING )) {
+			size_t len = RSTRING_LEN ( state.GetParamValue ( 2 ) );
+			cc8* str = state.GetParamValue < cc8* > ( 2, "" );
 			self->Load (( void* )str, len );
 		}
 		self->HexDecode ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -181,23 +177,23 @@ int MOAIDataBuffer::_hexDecode ( lua_State* L ) {
 	@opt	string data				The string data to encode.  You must either provide either a MOAIDataBuffer (via a :hexEncode type call) or string data (via a .hexEncode type call), but not both.
 	@out	string output			If passed a string, returns either a string or nil depending on whether it could be encoded.  Otherwise the encoding occurs inline on the existing data buffer in this object, and nil is returned.
 */
-int MOAIDataBuffer::_hexEncode ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_hexEncode ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-		return state.HexEncode ( 1 ) ? 1 : 0;
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
+		//return state.HexEncode ( 1 ) ? 1 : 0;
 	}
 	
-	MOAIDataBuffer* self = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* self = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( self ) {
-		if ( state.IsType ( 2, LUA_TSTRING )) {
-			size_t len;
-			cc8* str = lua_tolstring ( state, 2, &len );
+		if ( state.ParamIsType ( 2, MRB_TT_STRING )) {
+			size_t len = RSTRING_LEN ( state.GetParamValue ( 2 ) );
+			cc8* str = state.GetParamValue < cc8* > ( 2, "" );
 			self->Load (( void* )str, len );
 		}
 		self->HexEncode ();
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -214,20 +210,20 @@ int MOAIDataBuffer::_hexEncode ( lua_State* L ) {
 	@opt	number windowBits		The window bits used in the DEFLATE algorithm.
 	@out	string output			If passed a string, returns either a string or nil depending on whether it could be decompressed.  Otherwise the decompression occurs inline on the existing data buffer in this object, and nil is returned.
 */
-int MOAIDataBuffer::_inflate ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_inflate ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 
-	int windowBits = state.GetValue < int >( 2, ZLDeflateWriter::DEFAULT_WBITS );
+	int windowBits = state.GetParamValue < int >( 2, ZLDeflateWriter::DEFAULT_WBITS );
 
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-		return state.Inflate ( 1, windowBits ) ? 1 : 0;
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
+		//return state.Inflate ( 1, windowBits ) ? 1 : 0;
 	}
 	
-	MOAIDataBuffer* self = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* self = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( self ) {
 		self->Inflate ( windowBits );
 	}
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -240,12 +236,12 @@ int MOAIDataBuffer::_inflate ( lua_State* L ) {
 	@opt	number windowBits		The window bits used in the DEFLATE algorithm.  Pass nil to use the default value.
 	@out	boolean success			Whether the file could be loaded into the object.
 */
-int MOAIDataBuffer::_load ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "US" );
+mrb_value MOAIDataBuffer::_load ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "US" );
 
-	cc8* filename	= state.GetValue < cc8* >( 2, "" );
-	u32 detectZip	= state.GetValue < u32 >( 3, NO_INFLATE );
-	int windowBits	= state.GetValue < int >( 4, ZLDeflateWriter::DEFAULT_WBITS );
+	cc8* filename	= state.GetParamValue < cc8* >( 2, "" );
+	u32 detectZip	= state.GetParamValue < u32 >( 3, NO_INFLATE );
+	int windowBits	= state.GetParamValue < int >( 4, ZLDeflateWriter::DEFAULT_WBITS );
 
 	bool success = self->Load ( filename );
 	
@@ -255,8 +251,7 @@ int MOAIDataBuffer::_load ( lua_State* L ) {
 		}
 	}
 	
-	lua_pushboolean ( state, success );
-	return 1;
+	return state.ToRValue ( success );
 }
 
 //----------------------------------------------------------------//
@@ -273,29 +268,29 @@ int MOAIDataBuffer::_load ( lua_State* L ) {
 	@opt	number windowBits		The window bits used in the DEFLATE algorithm.  Pass nil to use the default value.
 	@out	nil
 */
-int MOAIDataBuffer::_loadAsync ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "USU" );
+mrb_value MOAIDataBuffer::_loadAsync ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "USU" );
 
-	cc8* filename			= state.GetValue < cc8* >( 2, "" );
-	MOAITaskQueue* queue	= state.GetLuaObject < MOAITaskQueue >( 3, true );
-	u32 detectZip			= state.GetValue < u32 >( 5, NO_INFLATE );
-	bool inflateAsync		= state.GetValue < bool >( 6, false );
-	int windowBits			= state.GetValue < int >( 7, ZLDeflateWriter::DEFAULT_WBITS );
+	//cc8* filename			= state.GetParamValue < cc8* >( 1, "" );
+	//MOAITaskQueue* queue	= state.GetRubyObject < MOAITaskQueue >( 2, true );
+	//u32 detectZip			= state.GetParamValue < u32 >( 4, NO_INFLATE );
+	//bool inflateAsync		= state.GetParamValue < bool >( 5, false );
+	//int windowBits			= state.GetParamValue < int >( 6, ZLDeflateWriter::DEFAULT_WBITS );
 
-	if ( !queue ) return 0;
+	//if ( !queue ) return context;
 
-	MOAIDataIOTask* task = new MOAIDataIOTask ();
-	//task->PushLuaUserdata ( state );
-	task->Init ( filename, *self, MOAIDataIOTask::LOAD_ACTION );
-	task->SetCallback ( L, 4 );
-	
-	if (( detectZip != NO_INFLATE ) && (( detectZip == FORCE_INFLATE ) || ( MOAIDataBuffer::IsZipFilename ( filename )))) {
-		task->SetInflateOnLoad ( true, inflateAsync, windowBits );
-	}
-	
-	task->Start ( *queue, MOAIMainThreadTaskSubscriber::Get ());
+	//MOAIDataIOTask* task = new MOAIDataIOTask ();
+	////task->PushRubyUserdata ( state );
+	//task->Init ( filename, *self, MOAIDataIOTask::LOAD_ACTION );
+	////task->SetCallback ( L, 4 );
+	//
+	//if (( detectZip != NO_INFLATE ) && (( detectZip == FORCE_INFLATE ) || ( MOAIDataBuffer::IsZipFilename ( filename )))) {
+	//	task->SetInflateOnLoad ( true, inflateAsync, windowBits );
+	//}
+	//
+	//task->Start ( *queue, MOAIMainThreadTaskSubscriber::Get ());
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -306,15 +301,12 @@ int MOAIDataBuffer::_loadAsync ( lua_State* L ) {
 	@in		string filename			The path to the file that the data should be saved to.
 	@out	boolean success			Whether the data could be saved to the file.
 */
-int MOAIDataBuffer::_save ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "US" );
+mrb_value MOAIDataBuffer::_save ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "US" );
 
-	cc8* filename = lua_tostring ( state, 2 );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
 
-	bool success = self->Save ( filename );
-	lua_pushboolean ( state, success );
-
-	return 1;
+	return state.ToRValue ( self->Save ( filename ) );
 }
 
 //----------------------------------------------------------------//
@@ -328,21 +320,21 @@ int MOAIDataBuffer::_save ( lua_State* L ) {
 	@opt	function callback		The function to be called when the asynchronous operation is complete. The MOAIDataBuffer is passed as the first parameter.
 	@out	nil
 */
-int MOAIDataBuffer::_saveAsync ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "USU" );
+mrb_value MOAIDataBuffer::_saveAsync ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "USU" );
 
-	cc8* filename			= state.GetValue < cc8* >( 2, "" );
-	MOAITaskQueue* queue	= state.GetLuaObject < MOAITaskQueue >( 3, true );
+	/*cc8* filename			= state.GetParamValue < cc8* >( 2, "" );
+	MOAITaskQueue* queue	= state.GetRubyObject < MOAITaskQueue >( 3, true );
 
-	if ( !queue ) return 0;
+	if ( !queue ) return context;
 
 	MOAIDataIOTask* task = new MOAIDataIOTask ();
 	task->Init ( filename, *self, MOAIDataIOTask::SAVE_ACTION );
-	task->SetCallback ( L, 4 );
-	
-	task->Start ( *queue, MOAIMainThreadTaskSubscriber::Get ());
+	task->SetCallback ( M, 4 );
 
-	return 0;
+	task->Start ( *queue, MOAIMainThreadTaskSubscriber::Get ());*/
+
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -353,12 +345,12 @@ int MOAIDataBuffer::_saveAsync ( lua_State* L ) {
 	@in		string data				The string data to replace the contents of this object with.
 	@out	nil
 */
-int MOAIDataBuffer::_setString ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIDataBuffer, "US" );
+mrb_value MOAIDataBuffer::_setString ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIDataBuffer, "US" );
 	
 	self->Load ( state, 2 );
 
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -379,24 +371,24 @@ int MOAIDataBuffer::_setString ( lua_State* L ) {
 		@opt	number columns			Default value is 12
 		@out	string output
 */
-int MOAIDataBuffer::_toCppHeader ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAIDataBuffer::_toCppHeader ( mrb_state* M, mrb_value context ) {
+	MOAIRubyState state ( M );
 	
-	cc8* name		= state.GetValue < cc8* >( 2, "" );
-	u32 columns		= state.GetValue < u32 >( 3, 12 );
+	cc8* name		= state.GetParamValue < cc8* >( 2, "" );
+	u32 columns		= state.GetParamValue < u32 >( 3, 12 );
 	
-	if ( !strlen ( name )) return 0;
+	if ( !strlen ( name )) return context;
 	
 	ZLMemStream memStream;
 	
-	if ( state.IsType ( 1, LUA_TSTRING )) {
+	if ( state.ParamIsType ( 1, MRB_TT_STRING )) {
 		
-		size_t size;
-		const void* bytes = lua_tolstring ( state, 1, &size );
+		size_t size = RSTRING_LEN ( state.GetParamValue ( 1 ) );
+		const void* bytes = state.GetParamValue < cc8* >( 1, "" );
 		ZLHexDump::DumpAsCPPHeader ( memStream, name, bytes, size, columns );
 	}
 	
-	MOAIDataBuffer* dataBuffer = state.GetLuaObject < MOAIDataBuffer >( 1, true );
+	MOAIDataBuffer* dataBuffer = state.GetRubyObject < MOAIDataBuffer >( 1, true );
 	if ( dataBuffer ) {
 		
 		size_t size;
@@ -410,10 +402,9 @@ int MOAIDataBuffer::_toCppHeader ( lua_State* L ) {
 		memStream.Seek ( 0, SEEK_SET );
 		STLString result = memStream.ReadString ( memStream.GetLength ());
 		
-		lua_pushstring ( state, result );
-		return 1;
+		return state.ToRValue ( result.c_str () );
 	}
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -579,10 +570,11 @@ void MOAIDataBuffer::Load ( void* bytes, size_t size ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIDataBuffer::Load ( MOAILuaState& state, int idx ) {
+void MOAIDataBuffer::Load ( MOAIRubyState& state, int idx ) {
 
-	size_t len;
-	cc8* str = lua_tolstring ( state, idx, &len );
+	size_t len = RSTRING_LEN ( state.GetParamValue ( 1 ) );
+	//cc8* str = lua_tolstring ( state, idx, &len );
+	cc8* str = state.GetParamValue < cc8* > ( 1, "" );
 	
 	this->Load (( void* )str, len );
 }
@@ -598,7 +590,7 @@ void MOAIDataBuffer::Lock ( void** bytes, size_t* size ) {
 //----------------------------------------------------------------//
 MOAIDataBuffer::MOAIDataBuffer () {
 	
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -608,14 +600,16 @@ MOAIDataBuffer::~MOAIDataBuffer () {
 }
 
 //----------------------------------------------------------------//
-void MOAIDataBuffer::PushString ( MOAILuaState& state ) {
+mrb_value MOAIDataBuffer::PushString ( MOAIRubyState& state ) {
 
 	size_t size;
 	void* buffer;
 	
 	this->Lock ( &buffer, &size );
-	lua_pushlstring ( state, ( cc8* )buffer, size );
+	//lua_pushlstring ( state, ( cc8* )buffer, size );
 	this->Unlock ();
+
+	return mrb_str_new ( state, ( cc8* )buffer, size );
 }
 
 //----------------------------------------------------------------//
@@ -633,48 +627,40 @@ size_t MOAIDataBuffer::Read ( void* buffer, size_t size ) {
 }
 
 //----------------------------------------------------------------//
-void MOAIDataBuffer::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIDataBuffer::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "NO_INFLATE",		( u32 )NO_INFLATE );
-	state.SetField ( -1, "FORCE_INFLATE",	( u32 )FORCE_INFLATE );
-	state.SetField ( -1, "INFLATE_ON_EXT",	( u32 )INFLATE_ON_EXT );
+	state.DefineClassConst ( klass, "NO_INFLATE",		( u32 )NO_INFLATE );
+	state.DefineClassConst ( klass, "FORCE_INFLATE",	( u32 )FORCE_INFLATE );
+	state.DefineClassConst ( klass, "INFLATE_ON_EXT",	( u32 )INFLATE_ON_EXT );
 
-	luaL_Reg regTable [] = {
-		{ "base64Decode",	_base64Decode },
-		{ "base64Encode",	_base64Encode },
-		{ "deflate",		_deflate },
-		{ "hexDecode",		_hexDecode },
-		{ "hexEncode",		_hexEncode },
-		{ "inflate",		_inflate },
-		{ "toCppHeader",	_toCppHeader },
-		{ NULL, NULL }
-	};
+	state.DefineStaticMethod ( klass, "base64Decode", _base64Decode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "base64Encode", _base64Encode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "deflate", _deflate, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "hexDecode", _hexDecode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "hexEncode", _hexEncode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineStaticMethod ( klass, "inflate", _inflate, MRB_ARGS_ANY () );
+	state.DefineStaticMethod ( klass, "toCppHeader", _toCppHeader, MRB_ARGS_ANY () );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-void MOAIDataBuffer::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIDataBuffer::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "base64Decode",	_base64Decode },
-		{ "base64Encode",	_base64Encode },
-		{ "clear",			_clear },
-		{ "deflate",		_deflate },
-		{ "getSize",		_getSize },
-		{ "getString",		_getString },
-		{ "hexDecode",		_hexDecode },
-		{ "hexEncode",		_hexEncode },
-		{ "inflate",		_inflate },
-		{ "load",			_load },
-		{ "loadAsync",		_loadAsync },
-		{ "save",			_save },
-		{ "saveAsync",		_saveAsync },
-		{ "setString",		_setString },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "base64Decode", _base64Decode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "base64Encode", _base64Encode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "clear", _clear, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "deflate", _deflate, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "getSize", _getSize, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getString", _getString, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "hexDecode", _hexDecode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "hexEncode", _hexEncode, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "inflate", _inflate, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "load", _load, MRB_ARGS_ARG ( 1, 2 ) );
+	state.DefineInstanceMethod ( klass, "loadAsync", _loadAsync, MRB_ARGS_ARG ( 2, 4 ) );
+	state.DefineInstanceMethod ( klass, "save", _save, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "saveAsync", _saveAsync, MRB_ARGS_ARG ( 2, 1 ) );
+	state.DefineInstanceMethod ( klass, "setString", _setString, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//

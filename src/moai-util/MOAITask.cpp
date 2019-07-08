@@ -40,18 +40,13 @@ void MOAITask::Publish () {
 }
 
 //----------------------------------------------------------------//
-void MOAITask::RegisterLuaClass ( MOAILuaState& state ) {
-	
-	luaL_Reg regTable [] = {
-		{ "new",							MOAILuaObject::_alertNewIsUnsupported },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+void MOAITask::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+
+	state.DefineStaticMethod ( klass, "new", MOAIRubyObject::_alertNewIsUnsupported, MRB_ARGS_NONE () );
 }
 
 //----------------------------------------------------------------//
-void MOAITask::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAITask::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
 }
 

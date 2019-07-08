@@ -14,7 +14,7 @@ class MOAITaskSubscriber;
 // MOAITaskQueue
 //================================================================//
 class MOAITaskQueue :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 
 	friend class MOAITask;
@@ -37,13 +37,13 @@ public:
 
 	friend class MOAITaskBase;
 
-	DECL_LUA_FACTORY ( MOAITaskQueue )
+	DECL_RUBY_FACTORY ( MOAITaskQueue, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 					MOAITaskQueue			();
 					~MOAITaskQueue			();
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 	void			Stop					();
 };
 

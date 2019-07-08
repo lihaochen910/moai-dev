@@ -25,27 +25,26 @@
 	@opt	boolean invert		Inverts the clip. Default value is false.
 	@out	number result		The new size in bytes of the collapsed section of the stream.
 */
-int MOAIStream::_collapse ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_collapse ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, false );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, false );
 	
-	int idx = 3;
+	int idx = 2;
 	if ( !stream ) {
-		idx = 2;
+		idx = 1;
 		stream = self;
 	}
 	
-	u32 clipBase		= state.GetValue < u32 >( idx++, 0 );
-	u32 clipSize		= state.GetValue < u32 >( idx++, 0 );
-	u32 chunkSize		= state.GetValue < u32 >( idx++, 0 );
-	u32 size			= state.GetValue < u32 >( idx++, ( u32 )( stream->GetLength () - stream->GetCursor ()));
-	bool invert			= state.GetValue < bool >( idx++, false );
+	u32 clipBase		= state.GetParamValue < u32 >( idx++, 0 );
+	u32 clipSize		= state.GetParamValue < u32 >( idx++, 0 );
+	u32 chunkSize		= state.GetParamValue < u32 >( idx++, 0 );
+	u32 size			= state.GetParamValue < u32 >( idx++, ( u32 )( stream->GetLength () - stream->GetCursor ()));
+	bool invert			= state.GetParamValue < bool >( idx++, false );
 	
 	size_t result = self->Collapse ( *stream, clipBase, clipSize, chunkSize, size, invert );
 	
-	state.Push (( u32 ) result );
-	return 1;
+	return state.ToRValue ( ( u32 ) result );
 }
 
 //----------------------------------------------------------------//
@@ -61,10 +60,10 @@ int MOAIStream::_collapse ( lua_State* L ) {
 	@in		MOAIStream self
 	@out	number
 */
-int MOAIStream::_compact ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_compact ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 	self->Compact ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -74,10 +73,10 @@ int MOAIStream::_compact ( lua_State* L ) {
 	@in		MOAIStream self
 	@out	nil
 */
-int MOAIStream::_flush ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_flush ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 	self->Flush ();
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -87,11 +86,10 @@ int MOAIStream::_flush ( lua_State* L ) {
 	@in		MOAIStream self
 	@out	number cursor
 */
-int MOAIStream::_getCursor ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_getCursor ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 	size_t cursor = self->GetCursor ();
-	state.Push (( u32 )cursor ); // TODO: overflow?
-	return 1;
+	return state.ToRValue ( ( u32 )cursor );
 }
 
 //----------------------------------------------------------------//
@@ -101,11 +99,10 @@ int MOAIStream::_getCursor ( lua_State* L ) {
 	@in		MOAIStream self
 	@out	number length
 */
-int MOAIStream::_getLength ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_getLength ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 	size_t length = self->GetLength ();
-	state.Push (( u32 )length ); // TODO: overflow?
-	return 1;
+	return state.ToRValue ( ( u32 )length );
 }
 
 //----------------------------------------------------------------//
@@ -117,15 +114,16 @@ int MOAIStream::_getLength ( lua_State* L ) {
 	@out	string bytes			Data read from the stream.
 	@out	number actualByteCount	Size of data successfully read.
 */
-int MOAIStream::_read ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_read ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 
-	size_t len = state.GetValue < u32 >( 2, ( u32 )self->GetLength ());
+	size_t len = state.GetParamValue < u32 >( 1, ( u32 )self->GetLength ());
 	
 	if ( !len ) {
-		lua_pushstring ( state, "" );
-		state.Push ( 0 );
-		return 2;
+		mrb_value ret [ 2 ];
+		ret [ 0 ] = state.ToRValue < cc8* >( "" );
+		ret [ 1 ] = state.ToRValue ( 0 );
+		return mrb_ary_new_from_values ( state, 2, ret );
 	}
 	
 	char* buffer = 0;
@@ -138,20 +136,23 @@ int MOAIStream::_read ( lua_State* L ) {
 	}
 	
 	len = self->ReadBytes ( buffer, len );
+
+	mrb_value ret [ 2 ];
 	
 	if ( len ) {
-		lua_pushlstring ( state, buffer, len );
+		//lua_pushlstring ( state, buffer, len );
+		ret [ 0 ] = state.ToRValue < cc8* >( buffer );
 	}
 	else {
-		state.Push ();
+		ret [ 0 ] = state.ToRValue < cc8* >( "" );
 	}
 	
 	if ( len > MAX_STACK_BUFFER ) {
 		free ( buffer );
 	}
 	
-	state.Push (( u32 )len ); // TODO: overflow?
-	return 2;
+	ret [ 0 ] = state.ToRValue ( ( u32 )len );
+	return mrb_ary_new_from_values ( state, 2, ret );
 }
 
 //----------------------------------------------------------------//
@@ -162,9 +163,9 @@ int MOAIStream::_read ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_read8 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < s8 >( state, 2 );
+mrb_value MOAIStream::_read8 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < s8 > ( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -175,9 +176,9 @@ int MOAIStream::_read8 ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_read16 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < s16 >( state, 2 );
+mrb_value MOAIStream::_read16 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < s16 >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -188,9 +189,9 @@ int MOAIStream::_read16 ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_read32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < s32 >( state, 2 );
+mrb_value MOAIStream::_read32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < s32 >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -201,9 +202,9 @@ int MOAIStream::_read32 ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readBoolean ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < bool >( state, 2 );
+mrb_value MOAIStream::_readBoolean ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < bool >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -214,9 +215,9 @@ int MOAIStream::_readBoolean ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readDouble ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < double >( state, 2 );
+mrb_value MOAIStream::_readDouble ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < double >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -227,9 +228,9 @@ int MOAIStream::_readDouble ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readFloat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < float >( state, 2 );
+mrb_value MOAIStream::_readFloat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < float >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -243,15 +244,16 @@ int MOAIStream::_readFloat ( lua_State* L ) {
 	@out	...	values			Values read from the stream or 'nil'.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "US" );
-	return self->ReadFormat ( state, 2 );
+mrb_value MOAIStream::_readFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "US" );
+	//return self->ReadFormat ( state, 1 );
+	return context;
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIStream::_readString ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_readString ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 
 	size_t len = self->Read < u32 >( 0 );
 	assert ( len < 1024 ); // TODO: should be defined somewhere
@@ -262,11 +264,9 @@ int MOAIStream::_readString ( lua_State* L ) {
 		self->ReadBytes ( buffer, len );
 		buffer [ len ] = 0;
 
-		lua_pushlstring ( L, buffer, len );
-		
-		return 1;
+		return mrb_str_new ( M, buffer, len );
 	}
-	return 0;
+	return mrb_nil_value ();
 }
 
 //----------------------------------------------------------------//
@@ -277,9 +277,9 @@ int MOAIStream::_readString ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readU8 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < u8 >( state, 2 );
+mrb_value MOAIStream::_readU8 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < u8 >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -290,9 +290,9 @@ int MOAIStream::_readU8 ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readU16 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < u16 >( state, 2 );
+mrb_value MOAIStream::_readU16 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < u16 >( state, 1 );
 }
 
 //----------------------------------------------------------------//
@@ -303,22 +303,20 @@ int MOAIStream::_readU16 ( lua_State* L ) {
 	@out	number value		Value from the stream.
 	@out	number size			Number of bytes successfully read.
 */
-int MOAIStream::_readU32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->ReadValues < u32 >( state, 2 );
+mrb_value MOAIStream::_readU32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return self->ReadValues < u32 >( state, 1 );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIStream::_sample ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_sample ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 
-	u32 sampleSize		= state.GetValue < u32 >( 2, 1 );
-	u32 streamType		= state.GetValue < u32 >( 3, ZLSample::SAMPLE_FLOAT );
+	u32 sampleSize		= state.GetParamValue < u32 >( 1, 1 );
+	u32 streamType		= state.GetParamValue < u32 >( 2, ZLSample::SAMPLE_FLOAT );
 	
-	state.Push ( self->Sample ( streamType, sampleSize ));
-
-	return 1;
+	return state.ToRValue ( self->Sample ( streamType, sampleSize ) );
 }
 
 //----------------------------------------------------------------//
@@ -331,14 +329,14 @@ int MOAIStream::_sample ( lua_State* L ) {
 								Default value is MOAIStream.SEEK_SET.
 	@out	nil
 */
-int MOAIStream::_seek ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_seek ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 	
-	s32 offset	= state.GetValue < s32 >( 2, 0 );
-	u32 mode	= state.GetValue < u32 >( 3, SEEK_SET );
+	s32 offset	= state.GetParamValue < s32 >( 1, 0 );
+	u32 mode	= state.GetParamValue < u32 >( 2, SEEK_SET );
 	
 	self->Seek ( offset, mode );
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -350,22 +348,21 @@ int MOAIStream::_seek ( lua_State* L ) {
 	@opt	number size			Number of bytes to write. Default value is the size of the string.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_write ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "US" );
+mrb_value MOAIStream::_write ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "US" );
 
-	size_t len;
-	cc8* str = lua_tolstring ( state, 2, &len );
+	size_t len = RSTRING_LEN ( state.GetParamValue ( 1 ) );
+	cc8* str = state.GetParamValue < cc8* >( 1, "" );
 	
 	// TODO: 64bit
-	size_t writeLen = state.GetValue < u32 >( 3, ( u32 )len );
+	size_t writeLen = state.GetParamValue < u32 >( 2, ( u32 )len );
 	if ( len < writeLen ) {
 		writeLen = len;
 	}
 	
 	writeLen = self->WriteBytes ( str, writeLen );
 	
-	state.Push (( u32 )writeLen ); // TODO: overflow?
-	return 1;
+	return state.ToRValue ( ( u32 )writeLen );
 }
 
 //----------------------------------------------------------------//
@@ -376,9 +373,9 @@ int MOAIStream::_write ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_write8 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < s8 >( state, 2 );
+mrb_value MOAIStream::_write8 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < s8 >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -389,9 +386,9 @@ int MOAIStream::_write8 ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_write16 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < s16 >( state, 2 );
+mrb_value MOAIStream::_write16 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < s16 >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -402,9 +399,9 @@ int MOAIStream::_write16 ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_write32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < s32 >( state, 2 );
+mrb_value MOAIStream::_write32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < s32 >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -415,9 +412,9 @@ int MOAIStream::_write32 ( lua_State* L ) {
 	@in		boolean value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeBoolean ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < bool >( state, 2 );
+mrb_value MOAIStream::_writeBoolean ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < bool >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -431,18 +428,18 @@ int MOAIStream::_writeBoolean ( lua_State* L ) {
 	@opt	number a				Default value is 1.
 	@out	nil
 */
-int MOAIStream::_writeColor32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" )
+mrb_value MOAIStream::_writeColor32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" )
 	
-	float r = state.GetValue < float >( 2, 1.0f );
-	float g = state.GetValue < float >( 3, 1.0f );
-	float b = state.GetValue < float >( 4, 1.0f );
-	float a = state.GetValue < float >( 5, 1.0f );
+	float r = state.GetParamValue < float >( 1, 1.0f );
+	float g = state.GetParamValue < float >( 2, 1.0f );
+	float b = state.GetParamValue < float >( 3, 1.0f );
+	float a = state.GetParamValue < float >( 4, 1.0f );
 	
 	u32 color = ZLColor::PackRGBA ( r, g, b, a );
 	self->Write < u32 >( color );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -453,9 +450,9 @@ int MOAIStream::_writeColor32 ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeDouble ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < double >( state, 2 );
+mrb_value MOAIStream::_writeDouble ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < double >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -466,9 +463,9 @@ int MOAIStream::_writeDouble ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeFloat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < float >( state, 2 );
+mrb_value MOAIStream::_writeFloat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < float >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -481,9 +478,9 @@ int MOAIStream::_writeFloat ( lua_State* L ) {
 	@in		... values			Values to be written to the stream.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeFormat ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "US" );
-	return self->WriteFormat ( state, 2 );
+mrb_value MOAIStream::_writeFormat ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "US" );
+	return state.ToRValue ( self->WriteFormat ( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -495,10 +492,10 @@ int MOAIStream::_writeFormat ( lua_State* L ) {
 	@opt	number size			Number of bytes to read/write. Default value is the length of the input stream.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeStream ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "UU" );
+mrb_value MOAIStream::_writeStream ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "UU" );
 	
-	MOAIStream* stream = state.GetLuaObject < MOAIStream >( 2, true );
+	MOAIStream* stream = state.GetRubyObject < MOAIStream >( 1, true );
 	size_t result = 0;
 	
 	if ( stream ) {
@@ -508,8 +505,8 @@ int MOAIStream::_writeStream ( lua_State* L ) {
 		
 		if ( inStream && outStream ) {
 		
-			if ( state.IsType ( 3, LUA_TNUMBER )) {
-				u32 size = state.GetValue < u32 >( 3, 0 );
+			if ( state.ParamIsType ( 2, MRB_TT_FIXNUM )) {
+				u32 size = state.GetParamValue < u32 >( 2, 0 );
 				if ( size ) {
 					result = outStream->WriteStream ( *inStream, size );
 				}
@@ -520,25 +517,23 @@ int MOAIStream::_writeStream ( lua_State* L ) {
 		}
 	}
 	
-	state.Push (( u32 )result ); // TODO: overflow?
-	return 1;
+	return state.ToRValue ( ( u32 )result );
 }
 
 //----------------------------------------------------------------//
 // TODO: doxygen
-int MOAIStream::_writeString ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
+mrb_value MOAIStream::_writeString ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
 
-	size_t len;
-	cc8* str = lua_tolstring ( state, 2, &len );
+	size_t len = RSTRING_LEN ( state.GetParamValue ( 1 ) );
+	cc8* str = state.GetParamValue < cc8* >( 1, "" );
 	
 	size_t result = 0;
 	
-	self->Write < u32 >(( u32 )len ); // TODO: assert on overflow; report error
+	self->Write < u32 >( ( u32 )len ); // TODO: assert on overflow; report error
 	result = self->WriteBytes ( str, len );
 
-	state.Push (( u32 )result ); // TODO: overflow?
-	return 1;
+	return state.ToRValue ( ( u32 )result );
 }
 
 //----------------------------------------------------------------//
@@ -549,9 +544,9 @@ int MOAIStream::_writeString ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeU8 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < u8 >( state, 2 );
+mrb_value MOAIStream::_writeU8 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < u8 >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -562,9 +557,9 @@ int MOAIStream::_writeU8 ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeU16 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < u16 >( state, 2 );
+mrb_value MOAIStream::_writeU16 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < u16 >( state, 1 ) );
 }
 
 //----------------------------------------------------------------//
@@ -575,9 +570,9 @@ int MOAIStream::_writeU16 ( lua_State* L ) {
 	@in		number value		Value to write.
 	@out	number size			Number of bytes successfully written.
 */
-int MOAIStream::_writeU32 ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIStream, "U" );
-	return self->WriteValues < u32 >( state, 2 );
+mrb_value MOAIStream::_writeU32 ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIStream, "U" );
+	return state.ToRValue ( self->WriteValues < u32 >( state, 1 ) );
 }
 
 //================================================================//
@@ -588,7 +583,7 @@ int MOAIStream::_writeU32 ( lua_State* L ) {
 MOAIStream::MOAIStream () {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -691,10 +686,10 @@ cc8* MOAIStream::ParseTypeToken ( cc8* format, u32& type ) {
 }
 
 //----------------------------------------------------------------//
-int MOAIStream::ReadFormat ( MOAILuaState& state, int idx ) {
+int MOAIStream::ReadFormat ( MOAIRubyState& state, int idx ) {
 
 	idx = state.AbsIndex ( idx );
-	cc8* format = state.GetValue < cc8* >( idx, "" );
+	cc8* format = state.GetParamValue < cc8* >( idx, "" );
 	
 	size_t bytes = 0;
 	u32 type = UNKNOWN;
@@ -733,74 +728,69 @@ int MOAIStream::ReadFormat ( MOAILuaState& state, int idx ) {
 		}
 	}
 	
-	state.Push (( u64 )bytes );
-	return ( state.GetTop () - idx );
+	//state.Push (( u64 )bytes );
+	return -1;
 }
 
 //----------------------------------------------------------------//
-void MOAIStream::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIStream::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "SEEK_CUR", ( u32 )SEEK_CUR );
-	state.SetField ( -1, "SEEK_END", ( u32 )SEEK_END );
-	state.SetField ( -1, "SEEK_SET", ( u32 )SEEK_SET );
+	state.DefineClassConst ( klass, "SEEK_CUR", state.ToRValue ( ( u32 )SEEK_CUR ) );
+	state.DefineClassConst ( klass, "SEEK_END", state.ToRValue ( ( u32 )SEEK_END ) );
+	state.DefineClassConst ( klass, "SEEK_SET", state.ToRValue ( ( u32 )SEEK_SET ) );
 	
-	state.SetField ( -1, "SAMPLE_S8",			( u32 )ZLSample::SAMPLE_S8 );
-	state.SetField ( -1, "SAMPLE_U8",			( u32 )ZLSample::SAMPLE_U8 );
-	state.SetField ( -1, "SAMPLE_S16",			( u32 )ZLSample::SAMPLE_S16 );
-	state.SetField ( -1, "SAMPLE_U16",			( u32 )ZLSample::SAMPLE_U16 );
-	state.SetField ( -1, "SAMPLE_S32",			( u32 )ZLSample::SAMPLE_S32 );
-	state.SetField ( -1, "SAMPLE_U32",			( u32 )ZLSample::SAMPLE_U32 );
-	state.SetField ( -1, "SAMPLE_FLOAT",		( u32 )ZLSample::SAMPLE_FLOAT );
+	state.DefineClassConst ( klass, "SAMPLE_S8",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_S8 ) );
+	state.DefineClassConst ( klass, "SAMPLE_U8",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_U8 ) );
+	state.DefineClassConst ( klass, "SAMPLE_S16",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_S16 ) );
+	state.DefineClassConst ( klass, "SAMPLE_U16",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_U16 ) );
+	state.DefineClassConst ( klass, "SAMPLE_S32",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_S32 ) );
+	state.DefineClassConst ( klass, "SAMPLE_U32",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_U32 ) );
+	state.DefineClassConst ( klass, "SAMPLE_FLOAT",		state.ToRValue ( ( u32 )ZLSample::SAMPLE_FLOAT ) );
 }
 
 //----------------------------------------------------------------//
-void MOAIStream::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIStream::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "collapse",			_collapse },
-		{ "compact",			_compact },
-		{ "flush",				_flush },
-		{ "getCursor",			_getCursor },
-		{ "getLength",			_getLength },
-		{ "read",				_read },
-		{ "read8",				_read8 },
-		{ "read16",				_read16 },
-		{ "read32",				_read32 },
-		{ "readBoolean",		_readBoolean },
-		{ "readDouble",			_readDouble },
-		{ "readFloat",			_readFloat },
-		{ "readFormat",			_readFormat },
-		{ "readString",			_readString },
-		{ "readU8",				_readU8 },
-		{ "readU16",			_readU16 },
-		{ "readU32",			_readU32 },
-		{ "sample",				_sample },
-		{ "seek",				_seek },
-		{ "write",				_write },
-		{ "write8",				_write8 },
-		{ "write16",			_write16 },
-		{ "write32",			_write32 },
-		{ "writeBoolean",		_writeBoolean },
-		{ "writeColor32",		_writeColor32 },
-		{ "writeDouble",		_writeDouble },
-		{ "writeFloat",			_writeFloat },
-		{ "writeFormat",		_writeFormat },
-		{ "writeStream",		_writeStream },
-		{ "writeString",		_writeString },
-		{ "writeU8",			_writeU8 },
-		{ "writeU16",			_writeU16 },
-		{ "writeU32",			_writeU32 },
-		{ NULL, NULL }
-	};
+	state.DefineInstanceMethod ( klass, "collapse", _collapse, MRB_ARGS_ARG ( 3, 2 ) );
+	state.DefineInstanceMethod ( klass, "compact", _compact, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "flush", _flush, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getCursor", _getCursor, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "getLength", _getLength, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "read", _read, MRB_ARGS_ARG ( 0, 1 ) );
+	state.DefineInstanceMethod ( klass, "read8", _read8, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "read16", _read16, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "read32", _read32, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readBoolean", _readBoolean, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readDouble", _readDouble, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readFloat", _readFloat, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readFormat", _readFormat, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readString", _readString, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readU8", _readU8, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readU16", _readU16, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "readU32", _readU32, MRB_ARGS_NONE () );
+	state.DefineInstanceMethod ( klass, "sample", _sample, MRB_ARGS_REQ ( 2 ) );
+	state.DefineInstanceMethod ( klass, "seek", _seek, MRB_ARGS_ARG ( 0, 2 ) );
+	state.DefineInstanceMethod ( klass, "write", _write, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "write8", _write8, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "write16", _write16, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "write32", _write32, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeBoolean", _writeBoolean, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeColor32", _writeColor32, MRB_ARGS_REQ ( 4 ) );
+	state.DefineInstanceMethod ( klass, "writeDouble", _writeDouble, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeFloat", _writeFloat, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeFormat", _writeFormat, MRB_ARGS_ANY () );
+	state.DefineInstanceMethod ( klass, "writeStream", _writeStream, MRB_ARGS_ARG ( 1, 1 ) );
+	state.DefineInstanceMethod ( klass, "writeString", _writeString, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeU8", _writeU8, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeU16", _writeU16, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "writeU32", _writeU32, MRB_ARGS_REQ ( 1 ) );
 
-	luaL_register ( state, 0, regTable );
 }
 
 //----------------------------------------------------------------//
-int MOAIStream::WriteFormat ( MOAILuaState& state, int idx ) {
+int MOAIStream::WriteFormat ( MOAIRubyState& state, int idx ) {
 
-	idx = state.AbsIndex ( idx );
-	cc8* format = state.GetValue < cc8* >( idx++, "" );
+	cc8* format = state.GetParamValue < cc8* >( idx++, "" );
 	
 	size_t size;
 	size_t result = 0;
@@ -816,35 +806,35 @@ int MOAIStream::WriteFormat ( MOAILuaState& state, int idx ) {
 		switch ( type ) {
 			case INT_8:
 				size = sizeof ( s8 );
-				this->Write < s8 >( state.GetValue < s8 >( idx++, 0 ));
+				this->Write < s8 >( state.GetParamValue < s8 >( idx++, 0 ));
 				break;
 			case INT_16:
 				size = sizeof ( s16 );
-				this->Write < s16 >( state.GetValue < s16 >( idx++, 0 ));
+				this->Write < s16 >( state.GetParamValue < s16 >( idx++, 0 ));
 				break;
 			case INT_32:
 				size = sizeof ( s32 );
-				this->Write < s32 >( state.GetValue < s32 >( idx++, 0 ));
+				this->Write < s32 >( state.GetParamValue < s32 >( idx++, 0 ));
 				break;
 			case DOUBLE:
 				size = sizeof ( double );
-				this->Write < double >( state.GetValue < double >( idx++, 0 ));
+				this->Write < double >( state.GetParamValue < double >( idx++, 0 ));
 				break;
 			case FLOAT:
 				size = sizeof ( float );
-				this->Write < float >( state.GetValue < float >( idx++, 0 ));
+				this->Write < float >( state.GetParamValue < float >( idx++, 0 ));
 				break;
 			case UINT_8:
 				size = sizeof ( u8 );
-				this->Write < u8 >( state.GetValue < u8 >( idx++, 0 ));
+				this->Write < u8 >( state.GetParamValue < u8 >( idx++, 0 ));
 				break;
 			case UINT_16:
 				size = sizeof ( u16 );
-				this->Write < u16 >( state.GetValue < u16 >( idx++, 0 ));
+				this->Write < u16 >( state.GetParamValue < u16 >( idx++, 0 ));
 				break;
 			case UINT_32:
 				size = sizeof ( u32 );
-				this->Write < u32 >( state.GetValue < u32 >( idx++, 0 ));
+				this->Write < u32 >( state.GetParamValue < u32 >( idx++, 0 ));
 				break;
 			default:
 				format = 0;
@@ -857,6 +847,5 @@ int MOAIStream::WriteFormat ( MOAILuaState& state, int idx ) {
 		}
 	}
 	
-	state.Push (( u32 )bytes ); // TODO: overflow?
-	return 1;
+	return ( u32 )bytes;
 }

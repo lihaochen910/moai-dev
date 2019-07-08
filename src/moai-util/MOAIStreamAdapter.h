@@ -27,23 +27,23 @@ protected:
 	
 	ZLStreamAdapter* mAdapter; // this is the adapter that does the work
 	
-	MOAILuaSharedPtr < MOAIStream > mAdaptedStream; // this is the inner stream
+	MOAIRubySharedPtr < MOAIStream > mAdaptedStream; // this is the inner stream
 	
 	//----------------------------------------------------------------//
-	static int		_close					( lua_State* L );
-	static int		_openBase64Reader		( lua_State* L );
-	static int		_openBase64Writer		( lua_State* L );
-	static int		_openDeflateReader		( lua_State* L );
-	static int		_openDeflateWriter		( lua_State* L );
-	static int		_openHex				( lua_State* L );
-	static int		_openRing				( lua_State* L );
+	static mrb_value		_close					( mrb_state* M, mrb_value context );
+	static mrb_value		_openBase64Reader		( mrb_state* M, mrb_value context );
+	static mrb_value		_openBase64Writer		( mrb_state* M, mrb_value context );
+	static mrb_value		_openDeflateReader		( mrb_state* M, mrb_value context );
+	static mrb_value		_openDeflateWriter		( mrb_state* M, mrb_value context );
+	static mrb_value		_openHex				( mrb_state* M, mrb_value context );
+	static mrb_value		_openRing				( mrb_state* M, mrb_value context );
 
 	//----------------------------------------------------------------//
-	int				Open					( MOAILuaState& state, int idx, ZLStreamAdapter* adapter );
+	mrb_value				Open					( MOAIRubyState& state, int idx, ZLStreamAdapter* adapter );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIStreamAdapter )
+	DECL_RUBY_FACTORY ( MOAIStreamAdapter, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
 	void			Clear					(); // closes *and* clears the adapter
@@ -51,8 +51,8 @@ public:
 					MOAIStreamAdapter		();
 					~MOAIStreamAdapter		();
 	ZLResultCode	Open					( ZLStreamAdapter* adapter, MOAIStream* stream );
-	void			RegisterLuaClass		( MOAILuaState& state );
-	void			RegisterLuaFuncs		( MOAILuaState& state );
+	void			RegisterRubyClass		( MOAIRubyState& state, RClass* klass );
+	void			RegisterRubyFuncs		( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

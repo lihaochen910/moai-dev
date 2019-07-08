@@ -22,35 +22,35 @@ void AKUUtilContextInitialize () {
 
 	MOAIMainThreadTaskSubscriber::Affirm ();
 	
-	MOAIMath::Affirm ();
+	//MOAIMath::Affirm ();
 	
 	// MOAI
-	REGISTER_LUA_CLASS ( MOAIByteStream )
-	REGISTER_LUA_CLASS ( MOAIDataBuffer )
-	REGISTER_LUA_CLASS ( MOAIDataBufferStream )
-	REGISTER_LUA_CLASS ( MOAIFileStream )
-	REGISTER_LUA_CLASS ( MOAIFileSystem )
-	REGISTER_LUA_CLASS ( MOAIFourier )
+	REGISTER_RUBY_CLASS ( MOAIByteStream )
+	REGISTER_RUBY_CLASS ( MOAIDataBuffer )
+	REGISTER_RUBY_CLASS ( MOAIDataBufferStream )
+	REGISTER_RUBY_CLASS ( MOAIFileStream )
+	REGISTER_RUBY_CLASS ( MOAIFileSystem )
+	//REGISTER_LUA_CLASS ( MOAIFourier )
 	
 	#ifndef MOAI_WITH_LUAJIT
-		REGISTER_LUA_CLASS ( MOAILuaUtil )
+		//REGISTER_LUA_CLASS ( MOAILuaUtil )
 	#endif
 
-	REGISTER_LUA_CLASS ( MOAIHashWriter )
-	REGISTER_LUA_CLASS ( MOAIMath )
-	REGISTER_LUA_CLASS ( MOAIMemStream )
-	REGISTER_LUA_CLASS ( MOAIStreamAdapter )
-	REGISTER_LUA_CLASS ( MOAITaskQueue )
+	//REGISTER_RUBY_CLASS ( MOAIHashWriter )
+	//REGISTER_LUA_CLASS ( MOAIMath )
+	REGISTER_RUBY_CLASS ( MOAIMemStream )
+	REGISTER_RUBY_CLASS ( MOAIStreamAdapter )
+	REGISTER_RUBY_CLASS ( MOAITaskQueue )
 	
 	#if MOAI_WITH_JANSSON
-		REGISTER_LUA_CLASS ( MOAIJsonParser )
+		//REGISTER_LUA_CLASS ( MOAIJsonParser )
 	#endif
 	
 	#if MOAI_WITH_GPB
-		REGISTER_LUA_CLASS ( MOAIParser )
+		//REGISTER_LUA_CLASS ( MOAIParser )
 	#endif
 	
 	#if MOAI_WITH_TINYXML && MOAI_WITH_EXPAT
-  		REGISTER_LUA_CLASS ( MOAIXmlParser )
+  		//REGISTER_LUA_CLASS ( MOAIXmlParser )
 	#endif
 }
