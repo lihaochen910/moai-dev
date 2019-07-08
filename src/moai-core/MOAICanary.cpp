@@ -5,7 +5,7 @@
 #include <moai-core/MOAICanary.h>
 
 //================================================================//
-// lua
+// ruby
 //================================================================//
 
 //----------------------------------------------------------------//
@@ -15,12 +15,12 @@
 	@in		MOAICanary self
 	@out	nil
 */
-int MOAICanary::_setMessage ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAICanary, "U" ) // this macro initializes the 'self' variable and type checks arguments
+mrb_value MOAICanary::_setMessage ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAICanary, "S" ) // this macro initializes the 'self' variable and type checks arguments
 	
-	self->mMessage = state.GetValue < cc8* >( 2, "" );
+	self->mMessage = state.GetParamValue < cc8* >( 1, "" );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -31,7 +31,7 @@ int MOAICanary::_setMessage ( lua_State* L ) {
 MOAICanary::MOAICanary () {
 	
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -44,18 +44,14 @@ MOAICanary::~MOAICanary () {
 }
 
 //----------------------------------------------------------------//
-void MOAICanary::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAICanary::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 	UNUSED ( state );
+	UNUSED ( klass );
 }
 
 //----------------------------------------------------------------//
-void MOAICanary::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAICanary::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	luaL_Reg regTable [] = {
-		{ "setMessage",		_setMessage },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	mrb_define_method ( state, klass, "setMessage", _setMessage, MRB_ARGS_REQ ( 1 ) );
 }
 

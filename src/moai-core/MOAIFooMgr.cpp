@@ -14,12 +14,12 @@
 
 	@out	nil
 */
-int MOAIFooMgr::_singletonHello ( lua_State* L ) {
-	UNUSED ( L );
+mrb_value MOAIFooMgr::_singletonHello ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
 
 	printf ( "MOAIFooMgr singleton foo!\n" );
 	
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -32,7 +32,7 @@ MOAIFooMgr::MOAIFooMgr () {
 	// register all classes MOAIFooMgr derives from
 	// we need this for custom RTTI implementation
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 		
 		// and any other objects from multiple inheritance...
 		// RTTI_EXTEND ( MOAIFooMgrBase )
@@ -44,19 +44,14 @@ MOAIFooMgr::~MOAIFooMgr () {
 }
 
 //----------------------------------------------------------------//
-void MOAIFooMgr::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFooMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
 	// call any initializers for base classes here:
-	// MOAIFooBase::RegisterLuaClass ( state );
+	// MOAIFooBase::RegisterRubyClass ( state );
 
 	// also register constants:
 	// state.SetField ( -1, "FOO_CONST", ( u32 )FOO_CONST );
 
 	// here are the class methods:
-	luaL_Reg regTable [] = {
-		{ "singletonHello",		_singletonHello },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "singletonHello", _singletonHello, MRB_ARGS_NONE () );
 }

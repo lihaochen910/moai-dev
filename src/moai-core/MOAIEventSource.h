@@ -4,113 +4,97 @@
 #ifndef	MOAIEVENTSOURCE_H
 #define	MOAIEVENTSOURCE_H
 
-#include <moai-core/MOAILuaObject.h>
-#include <moai-core/MOAILuaState.h>
+#include <moai-core/MOAIRubyObject.h>
+#include <moai-core/MOAIRubyState.h>
+
+#define LISTENER_TABLE "listener_table"
 
 //================================================================//
 // MOAIEventSource
 //================================================================//
-/**	@lua	MOAIEventSource
-	@text	Base class for all Lua-bound Moai objects that emit events
+/**	@ruby	MOAIEventSource
+	@text	Base class for all Ruby-bound Moai objects that emit events
 			and have an event table.
 */
 class MOAIEventSource :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 protected:
 
 	//----------------------------------------------------------------//
-	virtual void	AffirmListenerTable		( MOAILuaState& state ) = 0;
-	virtual bool	PushListenerTable		( MOAILuaState& state ) = 0;
-	void			SetListener				( lua_State* L, u32 idx );
-
+	virtual void		AffirmListenerTable			( MOAIRubyState& state ) = 0;
+	
 public:
-
+	
 	//----------------------------------------------------------------//
-	virtual void	InvokeListener			( u32 eventID ) = 0;
-					MOAIEventSource			();
-	virtual			~MOAIEventSource		();
-	bool			PushListener			( u32 eventID, MOAILuaState& state );
+	virtual void		InvokeListener				( u32 eventID, mrb_int argc = 0, const mrb_value* args = 0 ) = 0;
+						MOAIEventSource				();
+	virtual				~MOAIEventSource			();
 };
 
 //================================================================//
 // MOAIInstanceEventSource
 //================================================================//
-/**	@lua	MOAIInstanceEventSource
-	@text	Derivation of MOAIEventSource for non-global Lua objects.
+/**	@ruby	MOAIInstanceEventSource
+	@text	Derivation of MOAIEventSource for non-global Ruby objects.
 */
 class MOAIInstanceEventSource :
 	public virtual MOAIEventSource {
 private:
 
-	MOAILuaMemberRef	mListenerTable;
+	MOAIRubyStrongRef		mListenerTable;
 
 	//----------------------------------------------------------------//
-	static int		_getListener				( lua_State* L );
-	static int		_setListener				( lua_State* L );
+	static mrb_value	_getListener				( mrb_state* M, mrb_value context );
+	static mrb_value 	_setListener				( mrb_state* M, mrb_value context );
 
 protected:
 
 	//----------------------------------------------------------------//
-	void			AffirmListenerTable			( MOAILuaState& state );
-	bool			PushListenerTable			( MOAILuaState& state );
+	void				AffirmListenerTable			( MOAIRubyState& state );
+	void				SetListener					( mrb_state* M, u32 eventID, mrb_value handler );
 
 public:
 
 	//----------------------------------------------------------------//
-	void			InvokeListener				( u32 eventID );
-	void			InvokeListenerWithSelf		( u32 eventID );
-					MOAIInstanceEventSource		();
-	virtual			~MOAIInstanceEventSource	();
-	bool			PushListenerAndSelf			( u32 eventID, MOAILuaState& state );
-	void			RegisterLuaFuncs			( MOAILuaState& state );
+	mrb_value			GetListener					( mrb_state* M, u32 eventID );
+	void				InvokeListener				( u32 eventID, mrb_int argc = 0, const mrb_value* args = 0 );
+	void				InvokeListenerWithSelf		( u32 eventID );
+						MOAIInstanceEventSource		();
+	virtual				~MOAIInstanceEventSource	();
+	void				RegisterRubyFuncs			( MOAIRubyState& state, RClass* klass );
 };
 
 //================================================================//
 // MOAIGlobalEventSource
 //================================================================//
-/**	@lua	MOAIGlobalEventSource
-	@text	Derivation of MOAIEventSource for global Lua objects.
+/**	@ruby	MOAIGlobalEventSource
+	@text	Derivation of MOAIEventSource for global Ruby objects.
 */
 class MOAIGlobalEventSource :
 	public virtual MOAIEventSource {
 private:
 
-	MOAILuaStrongRef	mListenerTable;
+	MOAIRubyStrongRef	mListenerTable;
 
 protected:
 
 	//----------------------------------------------------------------//
-	/**	@lua	getListener
+	/**	@ruby	getListener
 		@text	Gets the listener callback for a given event ID.
 
 		@in		number eventID				The ID of the event.
 		@out	function					The listener callback.
 	*/
 	template < typename TYPE >
-	static int _getListener ( lua_State* L ) {
+	static mrb_value _getListener ( mrb_state* M, mrb_value context ) {
+		MOAI_RUBY_SETUP ( TYPE, "N" );
 
-		u32 idx = 1;
-
-		MOAILuaState state ( L );
-		if ( !state.IsType ( idx, LUA_TNUMBER )) {
-			idx = 2;
-		}
-
-		if ( state.IsType ( idx, LUA_TNUMBER )) {
-
-			u32 eventID = state.GetValue < u32 >( idx, 0 );
-			TYPE& global = TYPE::Get ();
-			if ( global.PushListener( eventID, state )) {
-				return 1;
-			}
-		}
-
-		state.Push ();
-		return 1;
+		TYPE& global = TYPE::Get ();
+		return global.GetListener ( M, state.GetParamValue < u32 >( 0, 0 ) );
 	}
 
 	//----------------------------------------------------------------//
-	/**	@lua	setListener
+	/**	@ruby	setListener
 		@text	Sets a listener callback for a given event ID. It is up
 				to individual classes to declare their event IDs.
 			
@@ -119,31 +103,24 @@ protected:
 		@out	nil
 	*/
 	template < typename TYPE >
-	static int _setListener ( lua_State* L ) {
+	static mrb_value _setListener ( mrb_state* M, mrb_value context ) {
+		MOAI_RUBY_SETUP ( TYPE, "N" );
 	
-		u32 idx = 1;
-		
-		MOAILuaState state ( L );
-		if ( !state.IsType ( idx, LUA_TNUMBER )) {
-			idx = 2;
-		}
-		
-		if ( state.IsType ( idx, LUA_TNUMBER )) {
-		
-			TYPE& global = TYPE::Get ();
-			global.SetListener ( L, idx );
-		}
-		return 0;
+		TYPE& global = TYPE::Get ();
+		global.SetListener ( M, state.GetParamValue < u32 > ( 0, 0 ), state.GetParamValue ( 1 ) );
+		return context;
 	}
 
 	//----------------------------------------------------------------//
-	void			AffirmListenerTable			( MOAILuaState& state );
-	bool			PushListenerTable			( MOAILuaState& state );
+	void			AffirmListenerTable			( MOAIRubyState& state );
+	//bool			PushListenerTable			( MOAIRubyState& state );
+	void			SetListener					( mrb_state* M, u32 eventID, mrb_value handler );
 
 public:
 
 	//----------------------------------------------------------------//
-	void			InvokeListener				( u32 eventID );
+	mrb_value		GetListener					( mrb_state* M, u32 eventID );
+	void			InvokeListener				( u32 eventID, mrb_int argc = 0, const mrb_value* args = 0 );
 					MOAIGlobalEventSource		();
 	virtual			~MOAIGlobalEventSource		();
 };

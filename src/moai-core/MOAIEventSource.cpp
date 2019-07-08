@@ -4,7 +4,7 @@
 #include "pch.h"
 
 #include <moai-core/MOAIEventSource.h>
-#include <moai-core/MOAILua.h>
+#include <moai-core/MOAIRuby.h>
 
 //================================================================//
 // MOAIEventSource
@@ -14,7 +14,7 @@
 MOAIEventSource::MOAIEventSource () {
 
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 	RTTI_END
 }
 
@@ -22,60 +22,26 @@ MOAIEventSource::MOAIEventSource () {
 MOAIEventSource::~MOAIEventSource () {
 }
 
-//----------------------------------------------------------------//
-bool MOAIEventSource::PushListener ( u32 eventID, MOAILuaState& state ) {
-
-	if ( this->PushListenerTable ( state )) {
-		if ( state.PushFieldWithType ( -1, eventID, LUA_TFUNCTION )) {
-			lua_replace ( state, -2 );
-			return true;
-		}
-		state.Pop ( 1 );
-	}
-	return false;
-}
-
-//----------------------------------------------------------------//
-void MOAIEventSource::SetListener ( lua_State* L, u32 idx ) {
-
-	MOAILuaState state ( L );
-	idx = state.AbsIndex ( idx );
-
-	this->AffirmListenerTable ( state );
-
-	if ( this->PushListenerTable ( state )) {
-		lua_pushvalue ( state, idx );
-		lua_pushvalue ( state, idx + 1 );
-		lua_settable ( state, -3 );
-	}
-	lua_pop ( state, 1 );
-}
-
 //================================================================//
-// MOAIInstanceEventSource lua
+// MOAIInstanceEventSource ruby
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	getListener
+/**	@ruby	getListener
 	@text	Gets the listener callback for a given event ID.
 
 	@in		MOAIInstanceEventSource self
 	@in		number eventID				The ID of the event.
 	@out	function listener			The listener callback.
 */
-int MOAIInstanceEventSource::_getListener ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIInstanceEventSource, "UN" );
+mrb_value MOAIInstanceEventSource::_getListener ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIInstanceEventSource, "N" );
 
-	u32 eventID = state.GetValue < u32 >( 2, 0 );
-	if ( !self->PushListener ( eventID, state )) {
-		state.Push ();
-	}
-
-	return 1;
+	return mrb_hash_get ( M, self->mListenerTable, state.GetParamValue ( 1 ) );
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setListener
+/**	@ruby	setListener
 	@text	Sets a listener callback for a given event ID. It is up
 			to individual classes to declare their event IDs.
 
@@ -84,12 +50,12 @@ int MOAIInstanceEventSource::_getListener ( lua_State* L ) {
 	@opt	function callback			The callback to be called when the object emits the event. Default value is nil.
 	@out	nil
 */
-int MOAIInstanceEventSource::_setListener ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIInstanceEventSource, "UN" );
+mrb_value MOAIInstanceEventSource::_setListener ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIInstanceEventSource, "NP" );
 
-	self->SetListener ( state, 2 );
+	self->SetListener ( state, state.GetParamValue < u32 > ( 1, 0 ), state.GetParamValue ( 2 ) );
 
-	return 0;
+	return context;
 }
 
 //================================================================//
@@ -97,22 +63,39 @@ int MOAIInstanceEventSource::_setListener ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-void MOAIInstanceEventSource::AffirmListenerTable ( MOAILuaState& state ) {
+void MOAIInstanceEventSource::AffirmListenerTable ( MOAIRubyState& state ) {
 
 	if ( !this->mListenerTable ) {
-		lua_newtable ( state );
-		this->mListenerTable.SetRef ( *this, state, -1 );
-		state.Pop ( 1 );
+		mrb_value hash = mrb_hash_new ( state );
+		mrb_value self = MOAIRubyObject::GetMRBObject ();
+		//ZLLog_DebugF ( ZLLog::CONSOLE, "moai-lib-core::MOAIRubyObject::GetMRBObject() ok %p\n", mrb_ptr ( self ) );
+		state.SetInstanceField ( self, LISTENER_TABLE, hash, false );
+		this->mListenerTable.SetRef ( hash );
 	}
+
+	//ZLLog_DebugF ( ZLLog::CONSOLE, "moai-lib-core::MOAIInstanceEventSource::AffirmListenerTable() ok!\n" );
 }
 
 //----------------------------------------------------------------//
-void MOAIInstanceEventSource::InvokeListener ( u32 eventID ) {
+mrb_value MOAIInstanceEventSource::GetListener ( mrb_state* M, u32 eventID ) {
 
-	if ( MOAILuaRuntime::IsValid ()) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		if ( this->PushListener ( eventID, state )) {
-			state.DebugCall ( 0, 0 );
+	MOAIRubyState state ( M );
+
+	this->AffirmListenerTable ( state );
+
+	return mrb_hash_get ( M, this->mListenerTable, state.ToRValue ( eventID ) );
+}
+
+//----------------------------------------------------------------//
+void MOAIInstanceEventSource::InvokeListener ( u32 eventID, mrb_int argc, const mrb_value* args ) {
+
+	//ZLLog_DebugF ( ZLLog::CONSOLE, "moai-lib-core::%s::InvokeListener() start\n", this->TypeName () );
+
+	if ( MOAIRubyRuntime::IsValid () ) {
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		if ( !state.IsNil ( this->GetListener ( state, eventID ) ) ) {
+			state.FuncCall ( this->GetListener ( state, eventID ), "call", argc, args );
 		}
 	}
 }
@@ -120,12 +103,12 @@ void MOAIInstanceEventSource::InvokeListener ( u32 eventID ) {
 //----------------------------------------------------------------//
 void MOAIInstanceEventSource::InvokeListenerWithSelf ( u32 eventID ) {
 
-	if ( MOAILuaRuntime::IsValid ()) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+	/*if ( MOAIRubyRuntime::IsValid () ) {
+		MOAIScopedRubyState state = MOAIRubyRuntime::Get ().State ();
 		if ( this->PushListenerAndSelf ( eventID, state )) {
 			state.DebugCall ( 1, 0 );
 		}
-	}
+	}*/
 }
 
 //----------------------------------------------------------------//
@@ -141,34 +124,21 @@ MOAIInstanceEventSource::~MOAIInstanceEventSource () {
 }
 
 //----------------------------------------------------------------//
-bool MOAIInstanceEventSource::PushListenerAndSelf ( u32 eventID, MOAILuaState& state ) {
+void MOAIInstanceEventSource::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
-	if ( this->PushListener ( eventID, state )) {
-		this->PushLuaUserdata ( state );
-		return true;
-	}
-	return false;
+	state.DefineInstanceMethod ( klass, "getListener", _getListener, MRB_ARGS_REQ ( 1 ) );
+	state.DefineInstanceMethod ( klass, "setListener", _setListener, MRB_ARGS_REQ ( 2 ) );
+
 }
 
 //----------------------------------------------------------------//
-bool MOAIInstanceEventSource::PushListenerTable ( MOAILuaState& state ) {
+void MOAIInstanceEventSource::SetListener ( mrb_state* M, u32 eventID, mrb_value handler ) {
 
-	if ( this->mListenerTable ) {
-		return this->mListenerTable.PushRef ( state );
-	}
-	return false;
-}
+	MOAIRubyState state ( M );
 
-//----------------------------------------------------------------//
-void MOAIInstanceEventSource::RegisterLuaFuncs ( MOAILuaState& state ) {
+	this->AffirmListenerTable ( state );
 
-	luaL_Reg regTable [] = {
-		{ "getListener",		_getListener },
-		{ "setListener",		_setListener },
-		{ NULL, NULL }
-	};
-	
-	luaL_register ( state, 0, regTable );
+	mrb_hash_set ( M, this->mListenerTable, state.ToRValue ( eventID ), handler );
 }
 
 //================================================================//
@@ -176,22 +146,37 @@ void MOAIInstanceEventSource::RegisterLuaFuncs ( MOAILuaState& state ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-void MOAIGlobalEventSource::AffirmListenerTable ( MOAILuaState& state ) {
+void MOAIGlobalEventSource::AffirmListenerTable ( MOAIRubyState& state ) {
 
 	if ( !this->mListenerTable ) {
-		lua_newtable ( state );
-		this->mListenerTable.SetRef ( state, -1 );
-		state.Pop ( 1 );
+		mrb_value hash = mrb_hash_new ( state );
+		state.SetInstanceField ( MOAIRubyObject::GetMRBObject (), LISTENER_TABLE, hash );
+		this->mListenerTable.SetRef ( hash );
 	}
+
+	//ZLLog_DebugF ( ZLLog::CONSOLE, "moai-lib-core::MOAIGlobalEventSource::AffirmListenerTable() ok!\n" );
+}
+
+mrb_value MOAIGlobalEventSource::GetListener ( mrb_state* M, u32 eventID ) {
+
+	MOAIRubyState state ( M );
+
+	this->AffirmListenerTable ( state );
+
+	return mrb_hash_get ( M, this->mListenerTable, state.ToRValue ( eventID ) );
 }
 
 //----------------------------------------------------------------//
-void MOAIGlobalEventSource::InvokeListener ( u32 eventID ) {
+void MOAIGlobalEventSource::InvokeListener ( u32 eventID, mrb_int argc, const mrb_value* args ) {
 
-	if ( MOAILuaRuntime::IsValid ()) {
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-		if ( this->PushListener ( eventID, state )) {
-			state.DebugCall ( 0, 0 );
+	//ZLLog_DebugF ( ZLLog::CONSOLE, "moai-lib-core::MOAIGlobalEventSource::InvokeListener() start\n" );
+
+	if ( MOAIRubyRuntime::IsValid () ) {
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		if ( !state.IsNil ( this->GetListener ( state, eventID ) ) ) {
+			//ZLLog_DebugF ( ZLLog::CONSOLE, "moai-lib-core::MOAIGlobalEventSource::FuncCall() start\n" );
+			state.FuncCall ( this->GetListener ( state, eventID ), "call", argc, args );
 		}
 	}
 }
@@ -209,10 +194,11 @@ MOAIGlobalEventSource::~MOAIGlobalEventSource () {
 }
 
 //----------------------------------------------------------------//
-bool MOAIGlobalEventSource::PushListenerTable ( MOAILuaState& state ) {
+void MOAIGlobalEventSource::SetListener ( mrb_state* M, u32 eventID, mrb_value handler ) {
 
-	if ( this->mListenerTable ) {
-		return this->mListenerTable.PushRef ( state );
-	}
-	return false;
+	MOAIRubyState state ( M );
+
+	this->AffirmListenerTable ( state );
+
+	mrb_hash_set ( M, this->mListenerTable, state.ToRValue ( eventID ), handler );
 }

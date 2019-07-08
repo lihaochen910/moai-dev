@@ -4,32 +4,32 @@
 #ifndef MOAICANARY_H
 #define MOAICANARY_H
 
-#include <moai-core/MOAILua.h>
+#include <moai-core/MOAIRuby.h>
 
-#include <moai-core/MOAILuaState-impl.h>
-#include <moai-core/MOAILuaClass-impl.h>
+#include <moai-core/MOAIRubyState-impl.h>
+#include <moai-core/MOAIRubyClass-impl.h>
 
 //================================================================//
 // MOAICanary
 //================================================================//
 class MOAICanary :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
-	STLString		mMessage;
+	STLString			mMessage;
 	
 	//----------------------------------------------------------------//
-	static int		_setMessage			( lua_State* L );
+	static mrb_value	_setMessage			( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAICanary )
+	DECL_RUBY_FACTORY ( MOAICanary, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
-					MOAICanary			();
-					~MOAICanary			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+						MOAICanary			();
+						~MOAICanary			();
+	void				RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void				RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 };
 
 #endif

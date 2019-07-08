@@ -4,7 +4,7 @@
 #ifndef	MOAIENVIRONMENT_H
 #define	MOAIENVIRONMENT_H
 
-#include <moai-core/MOAILua.h>
+#include <moai-core/MOAIRuby.h>
 #include <moai-core/MOAIEventSource.h>
 
 #define MOAI_ENV_appDirectory				"appDirectory"
@@ -60,7 +60,7 @@
 //================================================================//
 // MOAIEnvironment
 //================================================================//
-/**	@lua	MOAIEnvironment
+/**	@ruby	MOAIEnvironment
 	@text	<p>Table of key/value pairs containing information about the current
 			environment. Also contains the generateGUID (), which will move to
 			MOAIUnique in a future release.</p>
@@ -122,12 +122,9 @@ class MOAIEnvironment :
 private:
 	
 	//----------------------------------------------------------------//
-	static int			_generateGUID				( lua_State* L );
-	static int			_getMACAddress				( lua_State* L );
-	static int			_setValue					( lua_State* L );
-
-	//----------------------------------------------------------------//
-	void				SetValue					( lua_State* L );
+	static mrb_value	_generateGUID				( mrb_state* M, mrb_value self );
+	static mrb_value	_getMACAddress				( mrb_state* M, mrb_value self );
+	static mrb_value	_setValue					( mrb_state* M, mrb_value self );
 
 public:	
 
@@ -141,25 +138,35 @@ public:
 		CONNECTION_TYPE_WWAN,
 	};
 	
-	DECL_LUA_SINGLETON ( MOAIEnvironment )
+	DECL_RUBY_SINGLETON ( MOAIEnvironment )
 
 	//----------------------------------------------------------------//
 	void				DetectEnvironment			();
 						MOAIEnvironment				();
 						~MOAIEnvironment			();
-	void				RegisterLuaClass			( MOAILuaState& state );
+	void				RegisterRubyClass			( MOAIRubyState& state, RClass* klass );
 	void				SetValue					( cc8* key );
 	
 	//----------------------------------------------------------------//
 	template < typename TYPE >
 	void SetValue ( cc8* key, TYPE value ) {
 	
-		MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
 		
-		state.Push ( key );
-		state.Push ( value );
-		
-		this->SetValue ( state );
+		//state.SetClassField ( this->GetRubyClass ()->GetRClass (), value );
+
+		this->InvokeListener ( EVENT_VALUE_CHANGED );
+	}
+
+	//----------------------------------------------------------------//
+	template < >
+	void SetValue < cc8* >( cc8* key, cc8* value ) {
+
+		MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+
+		state.SetClassField ( this->GetRubyClass ()->GetRClass (), key, state.ToRValue ( value ) );
+
+		this->InvokeListener ( EVENT_VALUE_CHANGED );
 	}
 };
 

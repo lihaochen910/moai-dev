@@ -7,7 +7,8 @@
 #include <moai-core/pch.h>
 #include <moai-core/strings.h>
 
-#include <moai-core/MOAILua.h>
+//#include <moai-core/MOAILua.h>
+#include <moai-core/MOAIRuby.h>
 
 #include <moai-core/MOAICanary.h>
 #include <moai-core/MOAIFoo.h>

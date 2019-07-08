@@ -16,17 +16,18 @@
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	generateGUID
+/**	@ruby	generateGUID
 	@text	Generates a globally unique identifier. This method will be
 			moved to MOAIUnique in a future release.
 
 	@out	string GUID
 */
-int MOAIEnvironment::_generateGUID ( lua_State* L ) {
+mrb_value MOAIEnvironment::_generateGUID ( mrb_state* M, mrb_value self ) {
+
+	MOAIRubyState state ( M );
 
 	STLString guid = ZLUnique::GetGUID ();
-	lua_pushstring ( L, guid );
-	return 1;
+	return state.ToRValue ( guid.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -36,11 +37,11 @@ int MOAIEnvironment::_generateGUID ( lua_State* L ) {
 	@out	string MAC
 */
 
-int MOAIEnvironment::_getMACAddress ( lua_State* L ) {
+mrb_value MOAIEnvironment::_getMACAddress ( mrb_state* M, mrb_value self ) {
+	MOAIRubyState state ( M );
 	
 	STLString macAddress = ZLAdapterInfo::GetMACAddress ();
-	lua_pushstring ( L, macAddress );
-	return 1;
+	return state.ToRValue ( macAddress.c_str () );
 }
 
 //----------------------------------------------------------------//
@@ -52,15 +53,15 @@ int MOAIEnvironment::_getMACAddress ( lua_State* L ) {
 	@opt	variant value		Default value is nil.
 	@out	nil
 */
-int MOAIEnvironment::_setValue ( lua_State* L ) {
-	MOAILuaState state ( L );
-	
-	if ( state.IsType ( 1, LUA_TSTRING )) {
-	
+mrb_value MOAIEnvironment::_setValue ( mrb_state* M, mrb_value self ) {
+	MOAIRubyState state ( M );
+
+	if ( state.CheckParams ( 1, "S*" ) ) {
 		MOAIEnvironment& environment = MOAIEnvironment::Get ();
-		environment.SetValue ( state );
+		environment.SetValue ( state.GetParamValue < cc8* >( 1, 0 ), state.GetParamValue ( 2 ) );
 	}
-	return 0;
+	
+	return self;
 }
 
 //================================================================//
@@ -193,63 +194,33 @@ MOAIEnvironment::~MOAIEnvironment () {
 }
 
 //----------------------------------------------------------------//
-void MOAIEnvironment::RegisterLuaClass ( MOAILuaState& state ) {
-	MOAIGlobalEventSource::RegisterLuaClass ( state );
+void MOAIEnvironment::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
-	state.SetField ( -1, "EVENT_VALUE_CHANGED", ( u32 )EVENT_VALUE_CHANGED );
+	state.DefineClassConst ( klass, "EVENT_VALUE_CHANGED", ( u32 )EVENT_VALUE_CHANGED );
 
-	state.SetField ( -1, "CONNECTION_TYPE_NONE", ( u32 )CONNECTION_TYPE_NONE );
-	state.SetField ( -1, "CONNECTION_TYPE_WIFI", ( u32 )CONNECTION_TYPE_WIFI );
-	state.SetField ( -1, "CONNECTION_TYPE_WWAN", ( u32 )CONNECTION_TYPE_WWAN );
+	state.DefineClassConst ( klass, "CONNECTION_TYPE_NONE", ( u32 )CONNECTION_TYPE_NONE );
+	state.DefineClassConst ( klass, "CONNECTION_TYPE_WIFI", ( u32 )CONNECTION_TYPE_WIFI );
+	state.DefineClassConst ( klass, "CONNECTION_TYPE_WWAN", ( u32 )CONNECTION_TYPE_WWAN );
 	
-	state.SetField ( -1, "OS_BRAND_AMAZON", OS_BRAND_AMAZON );
-	state.SetField ( -1, "OS_BRAND_ANDROID", OS_BRAND_ANDROID );
-	state.SetField ( -1, "OS_BRAND_IOS", OS_BRAND_IOS );
-	state.SetField ( -1, "OS_BRAND_LINUX", OS_BRAND_LINUX );
-	state.SetField ( -1, "OS_BRAND_NOOK", OS_BRAND_NOOK );
-	state.SetField ( -1, "OS_BRAND_OSX", OS_BRAND_OSX );
-	state.SetField ( -1, "OS_BRAND_WINDOWS", OS_BRAND_WINDOWS );
-	state.SetField ( -1, "OS_BRAND_UNAVAILABLE", OS_BRAND_UNAVAILABLE );
+	state.DefineClassConst ( klass, "OS_BRAND_AMAZON", OS_BRAND_AMAZON );
+	state.DefineClassConst ( klass, "OS_BRAND_ANDROID", OS_BRAND_ANDROID );
+	state.DefineClassConst ( klass, "OS_BRAND_IOS", OS_BRAND_IOS );
+	state.DefineClassConst ( klass, "OS_BRAND_LINUX", OS_BRAND_LINUX );
+	state.DefineClassConst ( klass, "OS_BRAND_NOOK", OS_BRAND_NOOK );
+	state.DefineClassConst ( klass, "OS_BRAND_OSX", OS_BRAND_OSX );
+	state.DefineClassConst ( klass, "OS_BRAND_WINDOWS", OS_BRAND_WINDOWS );
+	state.DefineClassConst ( klass, "OS_BRAND_UNAVAILABLE", OS_BRAND_UNAVAILABLE );
 
-	luaL_Reg regTable [] = {
-		{ "generateGUID",		_generateGUID },
-		{ "getListener",		&MOAIGlobalEventSource::_getListener < MOAIEnvironment > },
-		{ "getMACAddress",		_getMACAddress },
-		{ "setListener",		&MOAIGlobalEventSource::_setListener < MOAIEnvironment > },
-		{ "setValue",			_setValue },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "generateGUID", _generateGUID, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "getListener", MOAIGlobalEventSource::_getListener < MOAIEnvironment >, MRB_ARGS_REQ ( 1 ) );
+	state.DefineStaticMethod ( klass, "getMACAddress", _getMACAddress, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setListener", MOAIGlobalEventSource::_setListener < MOAIEnvironment >, MRB_ARGS_REQ ( 2 ) );
+	state.DefineStaticMethod ( klass, "setValue", _setValue, MRB_ARGS_REQ ( 2 ) );
 }
 
 //----------------------------------------------------------------//
 void MOAIEnvironment::SetValue ( cc8* key ) {
 
-	MOAIScopedLuaState state = MOAILuaRuntime::Get ().State ();
-	this->PushLuaClassTable ( state );
-	state.ClearField ( -1, key );
-	state.Pop ( 1 );
-}
-
-//----------------------------------------------------------------//
-void MOAIEnvironment::SetValue ( lua_State* L ) {
-
-	MOAILuaState state ( L );
-
-	this->PushLuaClassTable ( state );
-		
-	state.CopyToTop ( -3 ); // key
-	state.CopyToTop ( -3 ); // value
-	
-	lua_settable ( state, -3 );
-	state.Pop ( 1 );
-	
-	if ( this->PushListener ( EVENT_VALUE_CHANGED, state )) {
-	
-		state.CopyToTop ( -3 ); // key
-		state.CopyToTop ( -3 ); // value
-		
-		state.DebugCall ( 2, 0 );
-	}
+	MOAIRubyState state = MOAIRubyRuntime::Get ().State ();
+	state.SetClassField ( this->GetRubyClass ()->GetRClass (), key, mrb_nil_value () );
 }

@@ -4,49 +4,46 @@
 #include "pch.h"
 #include <moai-core/MOAILogMgr.h>
 
-#include <moai-core/MOAILuaState-impl.h>
-#include <moai-core/MOAILuaClass-impl.h>
+#include <moai-core/MOAIRubyState-impl.h>
+#include <moai-core/MOAIRubyClass-impl.h>
 
 //================================================================//
-// lua
+// ruby
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	closeFile
+/**	@ruby	closeFile
 	@text	Resets log output to stdout.
 
 	@out	nil
 */
-int MOAILogMgr::_closeFile ( lua_State* L ) {
-	UNUSED ( L );
+mrb_value MOAILogMgr::_closeFile ( mrb_state* M, mrb_value self ) {
+	UNUSED ( M );
 
 	MOAILogMgr::Get ().CloseFile ();
 
-	return 0;
+	return self;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	isDebugBuild
+/**	@ruby	isDebugBuild
 	@text	Returns a boolean value indicating whether Moai has been
 			compiles as a debug build or not.
 
 	@out	boolean isDebugBuild
 */
-int MOAILogMgr::_isDebugBuild ( lua_State* L ) {
-
-	MOAILuaState state ( L );
+mrb_value MOAILogMgr::_isDebugBuild ( mrb_state* M, mrb_value self ) {
+	UNUSED ( M );
 
 	#ifdef _DEBUG
-		lua_pushboolean ( state, true );
+		return mrb_true_value ();
 	#else
-		lua_pushboolean ( state, false );
+		return mrb_false_value ();
 	#endif
-
-	return 1;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	log
+/**	@ruby	log
 	@text	Alias for print.
 
 	@overload
@@ -64,19 +61,19 @@ int MOAILogMgr::_isDebugBuild ( lua_State* L ) {
 		@in		string message
 		@out	nil
 */
-int MOAILogMgr::_log ( lua_State* L ) {
-	MOAILuaState state ( L );
+mrb_value MOAILogMgr::_log ( mrb_state* M, mrb_value self ) {
+	MOAIRubyState state ( M );
 
 	u32 idx = 1;
 	u32 level = ZLLog::LOG_STATUS;
 
-	if ( state.IsType ( 1, LUA_TNUMBER )) {
-		level = state.GetValue < u32 >( 1, ZLLog::LOG_STATUS );
+	if ( state.ParamIsType ( 1, MRB_TT_FIXNUM ) ) {
+		level = state.GetParamValue < u32 >( 1, ZLLog::LOG_STATUS );
 		idx++;
 	}
 	
-	cc8* str1 =  state.GetValue < cc8* >( idx++, "" );
-	cc8* str2 =  state.GetValue < cc8* >( idx, 0 );
+	cc8* str1 =  state.GetParamValue < cc8* >( idx++, "" );
+	cc8* str2 =  state.GetParamValue < cc8* >( idx, 0 );
 
 	cc8* msg = str1;
 	cc8* token = "MOAI";
@@ -89,61 +86,61 @@ int MOAILogMgr::_log ( lua_State* L ) {
 	STLString log;
 	log.write ( "[%s-%d] %s", token, level, msg );
 
-	ZLLog::Get ().LogF ( level, ZLLog::CONSOLE, "%s", log.c_str ());	// Caller's string may contain % and should NOT be used as a format to LogF
+	ZLLog::Get ().LogF ( level, ZLLog::CONSOLE, "%s", log.c_str () );	// Caller's string may contain % and should NOT be used as a format to LogF
 
-	return 0;
+	return self;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	openFile
+/**	@ruby	openFile
 	@text	Opens a new file to receive log messages.
 
 	@in		string filename
 	@out	nil
 */
-int MOAILogMgr::_openFile ( lua_State* L ) {
+mrb_value MOAILogMgr::_openFile ( mrb_state* M, mrb_value self ) {
 
-	MOAILuaState state ( L );
-	if ( !state.CheckParams ( 1, "S" )) return 0;
+	MOAIRubyState state ( M );
+	if ( !state.CheckParams ( 1, "S" ) ) return self;
 
-	cc8* filename = state.GetValue < cc8* >( 1, "" );
+	cc8* filename = state.GetParamValue < cc8* >( 1, "" );
 	MOAILogMgr::Get ().OpenFile ( filename );
 
-	return 0;
+	return self;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setLogLevel
+/**	@ruby	setLogLevel
 	@text	Set the logging level.
 
 	@in		number logLevel		One of MOAILogMgr LOG_NONE, LOG_ERROR, LOG_WARNING, LOG_STATUS
 	@out	nil
 */
-int MOAILogMgr::_setLogLevel ( lua_State* L ) {
+mrb_value MOAILogMgr::_setLogLevel ( mrb_state* M, mrb_value self ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
-	u32 level = state.GetValue < u32 >( 1, ZLLog::LOG_NONE );
+	u32 level = state.GetParamValue < u32 >( 1, ZLLog::LOG_NONE );
 	ZLLog::Get ().SetLogLevel ( level );
 
-	return 0;
+	return self;
 }
 
 //----------------------------------------------------------------//
-/**	@lua	setTypeCheckLuaParams
+/**	@ruby	setTypeCheckLuaParams
 	@text	Set or clear type checking of parameters passed to Lua bound Moai API functions.
 
 	@opt	boolean check		Default value is false.
 	@out	nil
 */
-int MOAILogMgr::_setTypeCheckLuaParams ( lua_State* L ) {
+mrb_value MOAILogMgr::_setTypeCheckLuaParams ( mrb_state* M, mrb_value self ) {
 
-	MOAILuaState state ( L );
+	MOAIRubyState state ( M );
 
-	bool check = state.GetValue < bool >( 1, false );
-	MOAILogMgr::Get ().mTypeCheckLuaParams = check;
+	bool check = state.GetParamValue < bool >( 1, false );
+	MOAILogMgr::Get ().mTypeCheckRubyParams = check;
 
-	return 0;
+	return self;
 }
 
 //================================================================//
@@ -151,51 +148,51 @@ int MOAILogMgr::_setTypeCheckLuaParams ( lua_State* L ) {
 //================================================================//
 
 //----------------------------------------------------------------//
-bool MOAILogMgr::CheckFileExists ( cc8* filename, lua_State* L ) {
+bool MOAILogMgr::CheckFileExists ( cc8* filename, mrb_state* M ) {
 	
 	if ( ZLFileSys::CheckFileExists ( filename )) {
 		return true;
 	}
 	
 	STLString expand = ZLFileSys::GetAbsoluteFilePath ( filename );
-	MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_FileNotFound_S, expand.str ());
+	MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_FileNotFound_S, expand.str () );
 	
 	return false;
 }
 
 //----------------------------------------------------------------//
-bool MOAILogMgr::CheckIndex ( size_t idx, size_t size, lua_State* L ) {
+bool MOAILogMgr::CheckIndex ( size_t idx, size_t size, mrb_state* M ) {
 
 	if ( size == 0 ) {
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_IndexNoReserved );
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_IndexNoReserved );
 		return false;
 	}
 	else if ( !( idx < size )) {
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_IndexOutOfRange_DDD, ( u32 )idx, 0, ( u32 )( size - 1 ));
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_IndexOutOfRange_DDD, ( u32 )idx, 0, ( u32 )( size - 1 ));
 		return false;
 	}
 	return true;
 }
 
 //----------------------------------------------------------------//
-bool MOAILogMgr::CheckIndexPlusOne ( size_t idx, size_t size, lua_State* L ) {
+bool MOAILogMgr::CheckIndexPlusOne ( size_t idx, size_t size, mrb_state* M ) {
 
 	if ( size == 0 ) {
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_IndexNoReserved );
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_IndexNoReserved );
 		return false;
 	}
 	else if ( !( idx < size )) {
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_IndexOutOfRange_DDD, idx + 1, 1, size );
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_IndexOutOfRange_DDD, idx + 1, 1, size );
 		return false;
 	}
 	return true;
 }
 
 //----------------------------------------------------------------//
-bool MOAILogMgr::CheckReserve ( size_t idx, size_t size, lua_State* L ) {
+bool MOAILogMgr::CheckReserve ( size_t idx, size_t size, mrb_state* M ) {
 
-	if ( !( idx < size )) {
-		MOAILogF ( L, ZLLog::LOG_ERROR, MOAISTRING_IndexNoReserved );
+	if ( !( idx < size ) ) {
+		MOAILogF ( M, ZLLog::LOG_ERROR, MOAISTRING_IndexNoReserved );
 		return false;
 	}
 	return true;
@@ -212,22 +209,22 @@ void MOAILogMgr::CloseFile () {
 }
 
 //----------------------------------------------------------------//
-void MOAILogMgr::LogF ( lua_State *L, u32 level, cc8* message, ... ) {
+void MOAILogMgr::LogF ( mrb_state* M, u32 level, cc8* message, ... ) {
 
 	va_list args;
 	va_start ( args, message );
 
-	this->LogV ( L, level, message, args );
+	this->LogV ( M, level, message, args );
 
 	va_end ( args );
 }
 
 //----------------------------------------------------------------//
-void MOAILogMgr::LogV ( lua_State *L, u32 level, cc8* message, va_list args ) {
+void MOAILogMgr::LogV ( mrb_state* M, u32 level, cc8* message, va_list args ) {
 
 	if ( ZLLog::Get ().IsEnabled ( level )) {
 
-		if ( L ) {
+		if ( M ) {
 			ZLLog::Get ().LogF ( level, ZLLog::CONSOLE, "----------------------------------------------------------------\n" );
 		}
 
@@ -238,9 +235,9 @@ void MOAILogMgr::LogV ( lua_State *L, u32 level, cc8* message, va_list args ) {
 			ZLLog::Get ().LogF ( level, ZLLog::CONSOLE, "\n" );
 		}
 		
-		if ( L ) {
+		if ( M ) {
 			ZLLog::Get ().LogF ( level, ZLLog::CONSOLE, "\n" );
-			MOAILuaState state ( L );
+			MOAIRubyState state ( M );
 			state.LogStackTrace ( level, ZLLog::CONSOLE, NULL, 0 );
 			ZLLog::Get ().LogF ( level, ZLLog::CONSOLE, "\n" );
 		}
@@ -248,20 +245,11 @@ void MOAILogMgr::LogV ( lua_State *L, u32 level, cc8* message, va_list args ) {
 }
 
 //----------------------------------------------------------------//
-bool MOAILogMgr::LuaSetupClass( MOAILuaState& state, cc8* typeStr ) {
-
-	if ( this->mTypeCheckLuaParams && typeStr ) {
-		return state.CheckParams ( 1, typeStr, true );
-	}
-	return false;
-}
-
-//----------------------------------------------------------------//
 MOAILogMgr::MOAILogMgr () :
 	mFile ( 0 ),
-	mTypeCheckLuaParams ( true ) {
+	mTypeCheckRubyParams ( true ) {
 
-	RTTI_SINGLE ( MOAILuaObject )
+	RTTI_SINGLE ( MOAIRubyObject )
 }
 
 //----------------------------------------------------------------//
@@ -282,27 +270,30 @@ void MOAILogMgr::OpenFile ( cc8* filename ) {
 	}
 }
 
+//----------------------------------------------------------------//
+void MOAILogMgr::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
+
+	state.DefineClassConst ( klass, "LOG_DEBUG", ( u32 )ZLLog::LOG_DEBUG );
+	state.DefineClassConst ( klass, "LOG_STATUS", ( u32 )ZLLog::LOG_STATUS );
+	state.DefineClassConst ( klass, "LOG_WARNING", ( u32 )ZLLog::LOG_WARNING );
+	state.DefineClassConst ( klass, "LOG_ERROR", ( u32 )ZLLog::LOG_ERROR );
+	state.DefineClassConst ( klass, "LOG_FATAL", ( u32 )ZLLog::LOG_FATAL );
+	state.DefineClassConst ( klass, "LOG_NONE", ( u32 )ZLLog::LOG_NONE );
+	state.DefineClassConst ( klass, "LOG_REPORT", ( u32 )ZLLog::LOG_REPORT );
+
+	state.DefineStaticMethod ( klass, "closeFile",				_closeFile, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "log",					_log, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "isDebugBuild",			_isDebugBuild, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "openFile",				_openFile, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setLogLevel",			_setLogLevel, MRB_ARGS_NONE () );
+	state.DefineStaticMethod ( klass, "setTypeCheckLuaParams",	_setTypeCheckLuaParams, MRB_ARGS_NONE () );
+}
 
 //----------------------------------------------------------------//
-void MOAILogMgr::RegisterLuaClass ( MOAILuaState& state ) {
+bool MOAILogMgr::RubySetupClass ( MOAIRubyState& state, cc8* typeStr ) {
 
-	state.SetField ( -1, "LOG_DEBUG",			( u32 )ZLLog::LOG_DEBUG );
-	state.SetField ( -1, "LOG_STATUS",			( u32 )ZLLog::LOG_STATUS );
-	state.SetField ( -1, "LOG_WARNING",			( u32 )ZLLog::LOG_WARNING );
-	state.SetField ( -1, "LOG_ERROR",			( u32 )ZLLog::LOG_ERROR );
-	state.SetField ( -1, "LOG_FATAL",			( u32 )ZLLog::LOG_FATAL );
-	state.SetField ( -1, "LOG_NONE",			( u32 )ZLLog::LOG_NONE );
-	state.SetField ( -1, "LOG_REPORT",			( u32 )ZLLog::LOG_REPORT );
-
-	luaL_Reg regTable[] = {
-		{ "closeFile",					_closeFile },
-		{ "log",						_log },
-		{ "isDebugBuild",				_isDebugBuild },
-		{ "openFile",					_openFile },
-		{ "setLogLevel",				_setLogLevel },
-		{ "setTypeCheckLuaParams",		_setTypeCheckLuaParams },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	if ( this->mTypeCheckRubyParams && typeStr ) {
+		return state.CheckParams ( 1, typeStr, true );
+	}
+	return false;
 }

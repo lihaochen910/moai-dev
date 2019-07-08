@@ -5,21 +5,21 @@
 #include <moai-core/MOAIFoo.h>
 
 //================================================================//
-// lua
+// ruby
 //================================================================//
 
 //----------------------------------------------------------------//
-/**	@lua	classHello
+/**	@ruby	classHello
 	@text	Class (a.k.a. static) method. Prints the string 'MOAIFoo class foo!' to the console.
 
 	@out	nil
 */
-int MOAIFoo::_classHello ( lua_State* L ) {
-	UNUSED ( L );
-	
+mrb_value MOAIFoo::_classHello ( mrb_state* M, mrb_value context ) {
+	UNUSED ( M );
+
 	printf ( "MOAIFoo class foo!\n" );
 	
-	return 0;
+	return context;
 }
 
 //----------------------------------------------------------------//
@@ -29,12 +29,17 @@ int MOAIFoo::_classHello ( lua_State* L ) {
 	@in		MOAIFoo self
 	@out	nil
 */
-int MOAIFoo::_instanceHello ( lua_State* L ) {
-	MOAI_LUA_SETUP ( MOAIFoo, "U" ) // this macro initializes the 'self' variable and type checks arguments
+mrb_value MOAIFoo::_instanceHello ( mrb_state* M, mrb_value context ) {
+	MOAI_RUBY_SETUP ( MOAIFoo, "*" ) // this macro initializes the 'self' variable and type checks arguments
 	
-	printf ( "MOAIFoo instance foo!\n" );
+	u32 param1 = state.GetParamValue < u32 >( 1, 0 );
+	float param2 = state.GetParamValue < float >( 2, 0 );
+	cc8* param3 = state.GetParamValue < cc8* >( 3, "default" );
+	double param4 = state.GetParamValue < double >( 4, 0.0 );
 	
-	return 0;
+	printf ( "MOAIFoo instance foo! %d %f %s %f\n", param1, param2, param3, param4 );
+	
+	return context;
 }
 
 //================================================================//
@@ -47,7 +52,7 @@ MOAIFoo::MOAIFoo () {
 	// register all classes MOAIFoo derives from
 	// we need this for custom RTTI implementation
 	RTTI_BEGIN
-		RTTI_EXTEND ( MOAILuaObject )
+		RTTI_EXTEND ( MOAIRubyObject )
 		
 		// and any other objects from multiple inheritance...
 		// RTTI_EXTEND ( MOAIFooBase )
@@ -59,35 +64,24 @@ MOAIFoo::~MOAIFoo () {
 }
 
 //----------------------------------------------------------------//
-void MOAIFoo::RegisterLuaClass ( MOAILuaState& state ) {
+void MOAIFoo::RegisterRubyClass ( MOAIRubyState& state, RClass* klass ) {
 
 	// call any initializers for base classes here:
-	// MOAIFooBase::RegisterLuaClass ( state );
+	// MOAIFooBase::RegisterLuaClass ( state, klass );
 
 	// also register constants:
-	// state.SetField ( -1, "FOO_CONST", ( u32 )FOO_CONST );
+	// state.DefineClassConst ( klass, "FOO_CONST", ( u32 )FOO_CONST );
 
 	// here are the class methods:
-	luaL_Reg regTable [] = {
-		{ "classHello",		_classHello },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineStaticMethod ( klass, "classHello", _classHello, MRB_ARGS_NONE () );
 }
 
 //----------------------------------------------------------------//
-void MOAIFoo::RegisterLuaFuncs ( MOAILuaState& state ) {
+void MOAIFoo::RegisterRubyFuncs ( MOAIRubyState& state, RClass* klass ) {
 
 	// call any initializers for base classes here:
-	// MOAIFooBase::RegisterLuaFuncs ( state );
+	// MOAIFooBase::RegisterLuaFuncs ( state, klass );
 
 	// here are the instance methods:
-	luaL_Reg regTable [] = {
-		{ "instanceHello",	_instanceHello },
-		{ NULL, NULL }
-	};
-
-	luaL_register ( state, 0, regTable );
+	state.DefineInstanceMethod ( klass, "instanceHello", _instanceHello, MRB_ARGS_ANY () );
 }
-

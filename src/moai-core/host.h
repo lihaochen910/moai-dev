@@ -33,8 +33,8 @@
 	#define AKU_CONTEXT_ID_TYPE void*
 #endif
 
-struct lua_State;
-typedef struct lua_State lua_State;
+struct mrb_state;
+typedef struct mrb_state mrb_state;
 typedef AKU_CONTEXT_ID_TYPE AKUContextID;
 
 enum {
@@ -62,7 +62,7 @@ enum {
 };
 
 // callbacks
-typedef void ( *AKUErrorTracebackFunc )         ( const char* message, struct lua_State* L, int level );
+typedef void ( *AKUErrorTracebackFunc )         ( const char* message, struct mrb_state* M, int level );
 
 // context api
 AKU_API void			AKUAppFinalize					();
@@ -84,7 +84,7 @@ AKU_API void			AKUSetUserdata					( void* user );
 AKU_API int				AKUCallFunc						();
 AKU_API int				AKUCallFuncWithArgArray			( char* exeName, char* scriptName, int argc, char** argv, int asParams );
 AKU_API int				AKUCallFuncWithArgString		( char* exeName, char* scriptName, char* args, int asParams );
-AKU_API lua_State*		AKUGetLuaState					();
+AKU_API mrb_state*		AKUGetRubyState					();
 AKU_API char*			AKUGetMoaiVersion				( char* buffer, size_t length );
 AKU_API char*			AKUGetWorkingDirectory			( char* buffer, size_t length );
 AKU_API int				AKULoadFuncFromBuffer			( void* data, size_t size, const char* chunkname, int compressed );

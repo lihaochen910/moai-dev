@@ -4,37 +4,37 @@
 #ifndef MOAIFOO_H
 #define MOAIFOO_H
 
-#include <moai-core/MOAILua.h>
+#include <moai-core/MOAIRuby.h>
 
-#include <moai-core/MOAILuaState-impl.h>
-#include <moai-core/MOAILuaClass-impl.h>
+#include <moai-core/MOAIRubyState-impl.h>
+#include <moai-core/MOAIRubyClass-impl.h>
 
 //================================================================//
 // MOAIFoo
 //================================================================//
 /**	@lua	MOAIFoo
-	@text	Example class for extending Moai using MOAILuaObject.
+	@text	Example class for extending Moai using MOAIRubyObject.
 			Copy this object, rename it and add your own stuff.
 			Just don't forget to register it with the runtime
 			using the REGISTER_LUA_CLASS macro (see moaicore.cpp).
 */
 class MOAIFoo :
-	public virtual MOAILuaObject {
+	public virtual MOAIRubyObject {
 private:
 	
 	//----------------------------------------------------------------//
-	static int		_classHello			( lua_State* L );
-	static int		_instanceHello		( lua_State* L );
+	static mrb_value		_classHello			( mrb_state* M, mrb_value context );
+	static mrb_value		_instanceHello		( mrb_state* M, mrb_value context );
 
 public:
 	
-	DECL_LUA_FACTORY ( MOAIFoo )
+	DECL_RUBY_FACTORY ( MOAIFoo, MOAIRubyObject )
 
 	//----------------------------------------------------------------//
-					MOAIFoo				();
-					~MOAIFoo			();
-	void			RegisterLuaClass	( MOAILuaState& state );
-	void			RegisterLuaFuncs	( MOAILuaState& state );
+							MOAIFoo				();
+							~MOAIFoo			();
+	void					RegisterRubyClass	( MOAIRubyState& state, RClass* klass );
+	void					RegisterRubyFuncs	( MOAIRubyState& state, RClass* klass );
 };
 
 #endif
