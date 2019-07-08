@@ -1,3 +1,14 @@
+### Modified MOAI SDK
+using mruby as a scripting language
+
+### Modified Module
+* moai-lib-core (the core library for C++ to communicate with mruby)
+* moai-lib-util (helper library)
+* moai-lib-sim
+* moai-lib-untz
+* moai-lib-box2d
+
+
 Moai SDK is an embeddable cross-platform game development SDK written in C++ and scriptable in Lua. You can use Moai to write games or apps, or you can embed Moai in other programs. You can also use Moai as an overlay in your apps.
 
 Multiple build systems are supported in this project. Sourcecode is kept in a common folder. There is a separate folder for each build system in the project root.
