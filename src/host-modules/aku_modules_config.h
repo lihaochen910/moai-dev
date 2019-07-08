@@ -5,20 +5,12 @@
 		#define AKU_WITH_APPLE 0
 	#endif
 
-    #ifndef AKU_WITH_AR
-		#define AKU_WITH_AR 0
-	#endif
-
-	#ifndef AKU_WITH_ASSIMP
-		#define AKU_WITH_ASSIMP 0
-	#endif
-
 	#ifndef AKU_WITH_BOX2D
 		#define AKU_WITH_BOX2D 1
 	#endif
 
 	#ifndef AKU_WITH_CRYPTO
-		#define AKU_WITH_CRYPTO 1
+		#define AKU_WITH_CRYPTO 0
 	#endif
 
 	#ifndef AKU_WITH_FMOD_DESIGNER
@@ -38,20 +30,19 @@
 	#endif
 
 	#ifndef AKU_WITH_HTTP_CLIENT
-		#define AKU_WITH_HTTP_CLIENT 1
+		#define AKU_WITH_HTTP_CLIENT 0
 	#endif
 
 	#ifndef AKU_WITH_HTTP_SERVER
 		#define AKU_WITH_HTTP_SERVER 0
 	#endif
 
-	// TODO: fix on iOS; should be AKU_WITH_IOS_IFA
 	#ifndef AKU_WITH_IFA // technically not a module; just configuration
-		#define AKU_WITH_IFA 0
+		#define AKU_WITH_IFA 1
 	#endif
 
 	#ifndef AKU_WITH_IMAGE_JPG
-		#define AKU_WITH_IMAGE_JPG 1
+		#define AKU_WITH_IMAGE_JPG 0
 	#endif
 
 	#ifndef AKU_WITH_IMAGE_PNG
@@ -59,19 +50,15 @@
 	#endif
 
 	#ifndef AKU_WITH_IMAGE_PVR
-		#define AKU_WITH_IMAGE_PVR 1
-	#endif
-
-	#ifndef AKU_WITH_IMAGE_TGA
-		#define AKU_WITH_IMAGE_TGA 0
+		#define AKU_WITH_IMAGE_PVR 0
 	#endif
 
 	#ifndef AKU_WITH_IMAGE_WEBP
-		#define AKU_WITH_IMAGE_WEBP 1
+		#define AKU_WITH_IMAGE_WEBP 0
 	#endif
 
 	#ifndef AKU_WITH_LUAEXT
-		#define AKU_WITH_LUAEXT 1
+		#define AKU_WITH_LUAEXT 0
 	#endif
 
 	#ifndef AKU_WITH_PLUGINS
@@ -92,10 +79,6 @@
 
 	#ifndef AKU_WITH_UTIL
 		#define AKU_WITH_UTIL 1
-	#endif
-
-	#ifndef AKU_WITH_VR
-		#define AKU_WITH_VR 0
 	#endif
 
 #endif

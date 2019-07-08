@@ -1,10 +1,10 @@
-// Copyright (c) 2010-2017 Zipline Games, Inc. All Rights Reserved.
+// Copyright (c) 2010-2011 Zipline Games, Inc. All Rights Reserved.
 // http://getmoai.com
 
 #include <string.h>
 #include <host-modules/aku_modules.h>
-#include <lua-headers/moai_lua.h>
-#include <lua-headers/moai_test_mgr_lua.h>
+//#include <lua-headers/moai_lua.h>
+//#include <lua-headers/moai_test_mgr_lua.h>
 
 #include <zl-vfs/zl_replace.h>
 #include <zl-common/zl_types.h>
@@ -53,10 +53,6 @@ void AKUModulesAppFinalize () {
 		AKUAppleAppFinalize ();
 	#endif
 
-    #if AKU_WITH_AR
-		AKUArAppFinalize ();
-	#endif
-
     #if AKU_WITH_AUDIO_SAMPLER
 		AKUAudioSamplerAppFinalize ();
 	#endif
@@ -90,7 +86,7 @@ void AKUModulesAppFinalize () {
 	#endif
 
 	#if AKU_WITH_SDL
-		AKUSdlAppFinalize ();
+		//AKUSdlAppFinalize ();
 	#endif
 
 	#if AKU_WITH_SIM
@@ -103,10 +99,6 @@ void AKUModulesAppFinalize () {
 
 	#if AKU_WITH_UTIL
 		AKUUtilAppFinalize ();
-	#endif
-	
-	#if AKU_WITH_VR
-		AKUVrAppFinalize ();
 	#endif
 	
 	#if AKU_WITH_IOS
@@ -127,10 +119,6 @@ int AKUModulesAppInitialize () {
 
     #if AKU_WITH_APPLE
 		AKUAppleAppInitialize ();
-	#endif
-
-    #if AKU_WITH_AR
-		AKUArAppInitialize ();
 	#endif
 
     #if AKU_WITH_AUDIO_SAMPLER
@@ -166,7 +154,7 @@ int AKUModulesAppInitialize () {
 	#endif
 
 	#if AKU_WITH_SDL
-		AKUSdlAppInitialize ();
+		//AKUSdlAppInitialize ();
 	#endif
 
 	#if AKU_WITH_SIM
@@ -179,10 +167,6 @@ int AKUModulesAppInitialize () {
 
 	#if AKU_WITH_UTIL
 		AKUUtilAppInitialize ();
-	#endif
-
-	#if AKU_WITH_VR
-		AKUVrAppInitialize ();
 	#endif
 
 	#if AKU_WITH_IOS
@@ -207,14 +191,6 @@ int AKUModulesContextInitialize () {
 
     #if AKU_WITH_APPLE
 		AKUAppleContextInitialize ();
-	#endif
-
-    #if AKU_WITH_AR
-		AKUArContextInitialize ();
-	#endif
-
-	#if AKU_WITH_ASSIMP
-		AKUAssimpContextInitialize ();
 	#endif
 
     #if AKU_WITH_AUDIO_SAMPLER
@@ -258,7 +234,7 @@ int AKUModulesContextInitialize () {
 	#endif
 
 	#if AKU_WITH_SDL
-		AKUSdlContextInitialize ();
+		//AKUSdlContextInitialize ();
 	#endif
 
 	#if AKU_WITH_SIM
@@ -271,10 +247,6 @@ int AKUModulesContextInitialize () {
 
 	#if AKU_WITH_UTIL
 		AKUUtilContextInitialize ();
-	#endif
-	
-	#if AKU_WITH_VR
-		AKUVrContextInitialize ();
 	#endif
 	
 	#if AKU_WITH_IOS
@@ -299,15 +271,11 @@ int AKUModulesContextInitialize () {
 		AKUImagePvrContextInitialize ();
 	#endif
 
-	#if AKU_WITH_IMAGE_TGA
-		AKUImageTgaContextInitialize ();
-	#endif
-
 	#if AKU_WITH_IMAGE_WEBP
 		AKUImageWebPContextInitialize ();
 	#endif
 	
-	result.Reset ();
+	/*result.Reset ();
 	result = AKULoadFuncFromBuffer ( moai_lua, moai_lua_SIZE, "moai.lua", AKU_DATA_ZIPPED );
 	result = AKUCallFunc ();
 	
@@ -321,7 +289,7 @@ int AKUModulesContextInitialize () {
 	
 	if ( result != AKU_OK ) {
 		ZLLog_ErrorF ( ZLLog::CONSOLE, "ERROR: Failed to load Moai's embedded test manager. Some functions may be unavailable.\n" );
-	}
+	}*/
 	
 	return result;
 }
@@ -333,20 +301,12 @@ void AKUModulesPause ( bool pause ) {
 		AKUModulesAndroidPause ( pause );
 	#endif
 
-    #if AKU_WITH_AR
-		AKUArPause ( pause );
-	#endif
-
 	#if AKU_WITH_SIM
 		AKUPause ( pause );
 	#endif
 	
 	#if AKU_WITH_UNTZ
 		AKUUntzPause ( pause );
-	#endif
-	
-	#if AKU_WITH_VR
-		AKUVrPause ( pause );
 	#endif
 	
 	#if AKU_WITH_IOS
@@ -376,6 +336,10 @@ void AKUModulesUpdate () {
 	#if AKU_WITH_FMOD_EX
 		AKUFmodExUpdate ();
 	#endif
+
+	#if AKU_WITH_SIM
+		AKUUpdate ();
+	#endif
 	
 	#if AKU_WITH_IOS
 		AKUModulesIosUpdate ();
@@ -383,14 +347,5 @@ void AKUModulesUpdate () {
 	
 	#if AKU_WITH_PLUGINS
 		AKUPluginsUpdate ();
-	#endif
-	
-	#if AKU_WITH_VR
-		AKUVrUpdate ();
-	#endif
-	
-	// do this last
-	#if AKU_WITH_SIM
-		AKUUpdate ();
 	#endif
 }

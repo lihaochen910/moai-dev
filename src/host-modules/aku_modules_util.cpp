@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2017 Zipline Games, Inc. All Rights Reserved.
+// Copyright (c) 2010-2011 Zipline Games, Inc. All Rights Reserved.
 // http://getmoai.com
 
 #include <string.h>
@@ -51,7 +51,7 @@ int _parseArgStringAndCall ( char* exeName, char* scriptName, int argc, char** a
 void AKUModulesParseArgs ( int argc, char** argv ) {
 
 	if ( argc < 2 ) {
-		if ( AKULoadFuncFromFile ( "main.lua" ) != AKU_OK ) return;
+		if ( AKULoadFuncFromFile ( "main.rb" ) != AKU_OK ) return;
 		AKUCallFunc ();
 	}
 	else {
