@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\array.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\backtrace.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\class.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\codedump.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\compar.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\crc.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\debug.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\dump.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\enum.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\error.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\etc.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\fmt_fp.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\gc.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\hash.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\init.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\kernel.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\load.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\numeric.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\object.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\pool.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\print.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\proc.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\range.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\state.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\string.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\symbol.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\variable.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\version.c" />
+    <ClCompile Include="..\..\..\..\..\Github\mruby\src\vm.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mrbconf.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\array.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\boxing_nan.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\boxing_no.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\boxing_word.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\class.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\common.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\compile.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\data.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\debug.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\dump.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\error.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\gc.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\hash.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\irep.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\istruct.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\khash.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\numeric.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\object.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\opcode.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\ops.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\proc.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\range.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\re.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\string.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\throw.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\value.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\variable.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\include\mruby\version.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\src\error.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\src\opcode.h" />
+    <ClInclude Include="..\..\..\..\..\Github\mruby\src\value_array.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\Github\mruby\src\mruby_core.rake" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{EFF643A5-6660-4061-BBDD-830C7891580A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>mruby</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>D:\Github\mruby\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedUsingFiles>%(ForcedUsingFiles)</ForcedUsingFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /yr "$(OutDir)$(TargetFileName)" "..\..\bin\$(Platform)\$(Configuration)\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>D:\Github\mruby\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /yr "$(OutDir)$(TargetFileName)" "..\..\bin\$(Platform)\$(Configuration)\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>D:\Github\mruby\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedUsingFiles>zipfs/zipfs_replace.h;%(ForcedUsingFiles)</ForcedUsingFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /yr "$(OutDir)$(TargetFileName)" "..\..\bin\$(Platform)\$(Configuration)\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>D:\Github\mruby\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <ProgramDataBaseFileName>$(OutDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAs>CompileAsC</CompileAs>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+    </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /yr "$(OutDir)$(TargetFileName)" "..\..\bin\$(Platform)\$(Configuration)\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
